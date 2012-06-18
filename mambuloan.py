@@ -1,5 +1,5 @@
 from mambustruct import MambuStruct
-from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES
+from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
 from datetime import datetime
 
 # {
@@ -62,6 +62,10 @@ urlfunc = getloansurl
 
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
+    if MAMBU2:
+        def getDebt(self):
+            return float(self.attrs['principalDue']) + float(self.attrs['interestDue']) + float(self.attrs['feesDue']) + float(self.attrs['penaltyDue'])
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:

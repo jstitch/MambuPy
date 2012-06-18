@@ -34,13 +34,13 @@ class MambuRepayment(MambuStruct):
             for rp in self.attrs:
                 rp['interestDue'] = float(rp['interestDue'])
                 rp['principalDue'] = float(rp['principalDue'])
-                if not podemos.MAMBU2:
+                if not MAMBU2:
                     rp['feesDue'] = float(rp['feesDue'])
                     rp['penaltyDue'] = float(rp['penaltyDue'])
 
                 rp['interestPaid'] = float(rp['interestPaid'])
                 rp['principalPaid'] = float(rp['principalPaid'])
-                if not podemos.MAMBU2:
+                if not MAMBU2:
                     rp['feesPaid'] = float(rp['feesPaid'])
                     rp['penaltyPaid'] = float(rp['penaltyPaid'])
 
