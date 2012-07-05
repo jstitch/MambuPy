@@ -1,6 +1,6 @@
 from podemos import PodemosError, MambuCommError, API_RETURN_CODES, DEBUG, ERROR_CODES
 from urllib import urlopen
-import json
+import json, copy
 
 class MambuStruct(object):
     # Initializa a partir de un diccionario con los elementos de la cuenta
@@ -9,13 +9,14 @@ class MambuStruct(object):
         self.convertDict2Attrs()
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
-    def __init__(self, urlfunc, loanid):
+    def __init__(self, urlfunc, entid, *args, **kwargs):
         self.urlfunc = urlfunc
         jsresp = {}
 
         try:
-            resp = urlopen(self.urlfunc(loanid))
+            resp = urlopen(self.urlfunc(entid, *args, **kwargs))
         except Exception as ex:
+            print repr(ex)
             raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
         else:
             try:
@@ -34,7 +35,12 @@ class MambuStruct(object):
                 pass
 
         self.attrs = jsresp
+        self.preprocess()
+        self.serial = copy.deepcopy(self.attrs)
         self.convertDict2Attrs()
+
+    def preprocess(self):
+        pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
