@@ -60,6 +60,14 @@ from datetime import datetime
 
 urlfunc = getloansurl
 
+# Objeto con una lista de Cuentas Mambu
+class MambuLoans(MambuStruct):
+    def convertDict2Attrs(self):
+        for l in self.attrs:
+            loan = MambuLoan(urlfunc=None, entid=None)
+            loan.init(l)
+            l = loan
+
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
     if MAMBU2:

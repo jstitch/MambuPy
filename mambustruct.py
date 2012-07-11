@@ -4,12 +4,14 @@ import json, copy
 
 class MambuStruct(object):
     # Initializa a partir de un diccionario con los elementos de la cuenta
-    def __init__(self, attrs={}):
+    def init(self, attrs={}):
         self.attrs = attrs
         self.convertDict2Attrs()
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
     def __init__(self, urlfunc, entid, *args, **kwargs):
+        if urlfunc == None:
+            return
         self.urlfunc = urlfunc
         jsresp = {}
 
