@@ -101,9 +101,14 @@ class MambuClient(MambuStruct):
         except Exception as e:
             pass
 
+        self.attrs['firstName'] = self.attrs['firstName'].strip()
+        self.attrs['middleName'] = self.attrs['middleName'].strip()
+        self.attrs['lastName'] = self.attrs['lastName'].strip()
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
+
             try:
                 self.attrs['birthDate'] = datetime.strptime(self.attrs['birthDate'], "%Y-%m-%dT%H:%M:%S+0000")
             except KeyError as kerr:
