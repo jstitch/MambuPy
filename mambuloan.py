@@ -1,4 +1,4 @@
-from mambustruct import MambuStruct
+from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
 from datetime import datetime
 
@@ -62,6 +62,9 @@ urlfunc = getloansurl
 
 # Objeto con una lista de Cuentas Mambu
 class MambuLoans(MambuStruct):
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
     def convertDict2Attrs(self):
         for l in self.attrs:
             loan = MambuLoan(urlfunc=None, entid=None)

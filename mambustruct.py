@@ -2,6 +2,18 @@ from podemos import PodemosError, MambuCommError, API_RETURN_CODES, DEBUG, ERROR
 from urllib import urlopen
 import json, copy
 
+class MambuStructIterator:
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+        self.offset = 0
+    def next(self):
+        if self.offset >= len(self.wrapped):
+            raise StopIteration
+        else:
+            item = self.wrapped[self.offset]
+            self.offset += 1
+            return item
+
 class MambuStruct(object):
     # Initializa a partir de un diccionario con los elementos de la cuenta
     def init(self, attrs={}):
