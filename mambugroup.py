@@ -124,6 +124,8 @@ class MambuGroup(MambuStruct):
         except Exception as e:
             pass
 
+        self.attrs['notes'] = self.attrs['notes'].replace("<div>", "").replace("</div>", "")
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
