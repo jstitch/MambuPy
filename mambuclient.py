@@ -102,7 +102,10 @@ class MambuClient(MambuStruct):
             pass
 
         self.attrs['firstName'] = self.attrs['firstName'].strip()
-        self.attrs['middleName'] = self.attrs['middleName'].strip()
+        try:
+            self.attrs['middleName'] = self.attrs['middleName'].strip()
+        except Exception as ex:
+            self.attrs['middleName'] = ""
         self.attrs['lastName'] = self.attrs['lastName'].strip()
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
