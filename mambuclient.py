@@ -101,6 +101,10 @@ class MambuClient(MambuStruct):
         except Exception as e:
             pass
 
+        if self.attrs.has_key('customInformation'):
+            for custom in self.attrs['customInformation']:
+                custom['name'] = custom['customField']['name']
+
         self.attrs['firstName'] = self.attrs['firstName'].strip()
         try:
             self.attrs['middleName'] = self.attrs['middleName'].strip()
