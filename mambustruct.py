@@ -18,6 +18,8 @@ class MambuStruct(object):
     # Initializa a partir de un diccionario con los elementos de la cuenta
     def init(self, attrs={}):
         self.attrs = attrs
+        self.preprocess()
+        self.serial = copy.deepcopy(self.attrs)
         self.convertDict2Attrs()
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
