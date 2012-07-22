@@ -1,6 +1,7 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
 from datetime import datetime
+from products import products
 
 # {
 # Datos de la cuenta
@@ -74,8 +75,21 @@ class MambuLoans(MambuStruct):
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
     if MAMBU2:
+        # Deuda
         def getDebt(self):
             return float(self.attrs['principalDue']) + float(self.attrs['interestDue']) + float(self.attrs['feesDue']) + float(self.attrs['penaltyDue'])
+
+    # Preprocesamiento
+    def preprocess(self):
+        if self.attrs.has_key('customFieldValues'):
+            for custom in self.attrs['customFieldValues']:
+                custom['name'] = custom['customField']['name']
+
+        prods = dict((v,k) for k,v in products.iteritems())
+        try:
+            self.attrs['productTypeName'] = prods[self.attrs['productTypeKey']]
+        except Exception as ex:
+            self.attrs['productTypeName'] = ""
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
