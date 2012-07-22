@@ -124,6 +124,10 @@ class MambuGroup(MambuStruct):
         except Exception as e:
             pass
 
+        if self.attrs.has_key('customInformation'):
+            for custom in self.attrs['customInformation']:
+                custom['name'] = custom['customField']['name']
+
         self.attrs['notes'] = self.attrs['notes'].replace("<div>", "").replace("</div>", "")
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
