@@ -28,6 +28,9 @@ urlfunc = getrepaymentsurl
 
 # Objeto con los repayments de una cuenta en Mambu
 class MambuRepayment(MambuStruct):
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
