@@ -1,5 +1,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
+from util import strip_consecutive_repeated_char as strip_cons
 from datetime import datetime
 from products import products
 
@@ -90,6 +91,17 @@ class MambuLoan(MambuStruct):
             self.attrs['productTypeName'] = prods[self.attrs['productTypeKey']]
         except Exception as ex:
             self.attrs['productTypeName'] = ""
+
+        try:
+            s = ""
+            notes = strip_cons(self.attrs['notes'], "\n")
+            for e in notes.replace("\n","<br>").replace("<div>","").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
+                s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
+            # for e in self.attrs['notes'].split("<br>"):
+            #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
+            self.attrs['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
+        except Exception as ex:
+            pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):

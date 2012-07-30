@@ -1,5 +1,5 @@
 from mambustruct import MambuStruct
-from podemos import PodemosError, getrepaymentsurl, MAMBU2
+from podemos import PodemosError, getrepaymentsurl, MAMBU2, DEBUG, ERROR_CODES
 from datetime import datetime
 
 # {
