@@ -67,6 +67,9 @@ class MambuLoans(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+    def __getitem__(self, key):
+        return self.attrs[key]
+
     def convertDict2Attrs(self):
         for l in self.attrs:
             loan = MambuLoan(urlfunc=None, entid=None)
