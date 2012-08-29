@@ -31,6 +31,9 @@ class MambuRepayment(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+    def __getitem__(self, key):
+        return self.attrs[key]
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
