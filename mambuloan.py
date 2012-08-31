@@ -3,6 +3,7 @@ from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
 from util import strip_consecutive_repeated_char as strip_cons
 from datetime import datetime
 from products import products
+import re
 
 # {
 # Datos de la cuenta
@@ -103,6 +104,25 @@ class MambuLoan(MambuStruct):
             # for e in self.attrs['notes'].split("<br>"):
             #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
             self.attrs['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
+
+            # Hay notas en mambu que a veces no tienen un <br> dividiendo
+            # cada renglon, y hay que insertarlo
+            notas = ""
+            pcalif = re.compile(r"^[0-9]+")
+            pnombre = re.compile(r"[a-zA-Z\s.]+$")
+            for part in self.attrs["notes"].split("|"):
+                mcalif = pcalif.search(part)
+                mnombre = pnombre.search(part)
+                try:
+                    calif = mcalif.group(0)
+                    nombre = mnombre.group(0)
+                    notas = notas + calif + "<br>" + nombre + "|"
+                except AttributeError:
+                    notas = notas + part + "|"
+            notas = notas.strip("|")
+            
+            self.attrs['notes'] = notas
+
         except Exception as ex:
             pass
 
