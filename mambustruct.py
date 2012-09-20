@@ -15,6 +15,12 @@ class MambuStructIterator:
             return item
 
 class MambuStruct(object):
+    def __getitem__(self, key):
+        return self.attrs[key]
+
+    def __str__(self):
+        return self.__class__.__name__ + " - " + str(self.attrs)
+
     # Initializa a partir de un diccionario con los elementos de la cuenta
     def init(self, attrs={}):
         self.attrs = attrs
