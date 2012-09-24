@@ -38,7 +38,7 @@ class MambuStruct(object):
         try:
             resp = urlopen(self.urlfunc(entid, *args, **kwargs))
         except Exception as ex:
-            print repr(ex)
+#            print repr(ex)
             raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
         else:
             try:

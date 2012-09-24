@@ -128,7 +128,10 @@ class MambuGroup(MambuStruct):
             for custom in self.attrs['customInformation']:
                 custom['name'] = custom['customField']['name']
 
-        self.attrs['notes'] = self.attrs['notes'].replace("<div>", "").replace("</div>", "")
+        try:
+            self.attrs['notes'] = self.attrs['notes'].replace("<div>", "").replace("</div>", "")
+        except Exception as e:
+            self.attrs['notes'] = ""
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):

@@ -105,7 +105,10 @@ class MambuClient(MambuStruct):
             for custom in self.attrs['customInformation']:
                 custom['name'] = custom['customField']['name']
 
-        self.attrs['firstName'] = self.attrs['firstName'].strip()
+        try:
+            self.attrs['firstName'] = self.attrs['firstName'].strip()
+        except Exception as e:
+            self.attrs['firstName'] = ""
         try:
             self.attrs['middleName'] = self.attrs['middleName'].strip()
         except Exception as ex:
