@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
 from util import strip_consecutive_repeated_char as strip_cons
@@ -109,7 +111,7 @@ class MambuLoan(MambuStruct):
             # cada renglon, y hay que insertarlo
             notas = ""
             pcalif = re.compile(r"^[0-9]+")
-            pnombre = re.compile(r"[a-zA-Z\s.]+$")
+            pnombre = re.compile(u"[a-zA-ZñÑ\s.]+$")
             for part in self.attrs["notes"].split("|"):
                 mcalif = pcalif.search(part)
                 mnombre = pnombre.search(part)
