@@ -1,6 +1,7 @@
 from mambustruct import MambuStruct
 from podemos import PodemosError, getclienturl, DEBUG, ERROR_CODES
 from datetime import datetime
+from util import strip_consecutive_repeated_char
 
 # {
 #  "idDocuments": [
@@ -113,7 +114,7 @@ class MambuClient(MambuStruct):
             self.attrs['middleName'] = self.attrs['middleName'].strip()
         except Exception as ex:
             self.attrs['middleName'] = ""
-        self.attrs['lastName'] = self.attrs['lastName'].strip()
+        self.attrs['lastName'] = strip_consecutive_repeated_char(self.attrs['lastName'].strip(), " ")
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
