@@ -48,7 +48,10 @@ class MambuRepayment(MambuStruct):
                 rp['feesPaid'] = float(rp['feesPaid'])
                 rp['penaltyPaid'] = float(rp['penaltyPaid'])
 
-                rp['dueDate'] = datetime.strptime(rp['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                try:
+                    rp['dueDate'] = datetime.strptime(rp['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                except KeyError as kerr:
+                    pass
                 try:
                     rp['lastPaidDate'] = datetime.strptime(rp['lastPaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
                 except KeyError as kerr:
