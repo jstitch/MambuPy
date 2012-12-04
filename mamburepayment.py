@@ -1,5 +1,5 @@
 from mambustruct import MambuStruct
-from podemos import PodemosError, getrepaymentsurl, MAMBU2, DEBUG, ERROR_CODES
+from podemos import PodemosError, getrepaymentsurl, DEBUG, ERROR_CODES
 from datetime import datetime
 
 # {
@@ -40,15 +40,13 @@ class MambuRepayment(MambuStruct):
             for rp in self.attrs:
                 rp['interestDue'] = float(rp['interestDue'])
                 rp['principalDue'] = float(rp['principalDue'])
-                if not MAMBU2:
-                    rp['feesDue'] = float(rp['feesDue'])
-                    rp['penaltyDue'] = float(rp['penaltyDue'])
+                rp['feesDue'] = float(rp['feesDue'])
+                rp['penaltyDue'] = float(rp['penaltyDue'])
 
                 rp['interestPaid'] = float(rp['interestPaid'])
                 rp['principalPaid'] = float(rp['principalPaid'])
-                if not MAMBU2:
-                    rp['feesPaid'] = float(rp['feesPaid'])
-                    rp['penaltyPaid'] = float(rp['penaltyPaid'])
+                rp['feesPaid'] = float(rp['feesPaid'])
+                rp['penaltyPaid'] = float(rp['penaltyPaid'])
 
                 rp['dueDate'] = datetime.strptime(rp['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
                 try:

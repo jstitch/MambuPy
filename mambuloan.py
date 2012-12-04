@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES, MAMBU2
+from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES
 from util import strip_consecutive_repeated_char as strip_cons
 from datetime import datetime
 from products import products
@@ -81,10 +81,12 @@ class MambuLoans(MambuStruct):
 
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
-    if MAMBU2:
-        # Deuda
-        def getDebt(self):
-            return float(self.attrs['principalDue']) + float(self.attrs['interestDue']) + float(self.attrs['feesDue']) + float(self.attrs['penaltyDue'])
+    # Deuda
+    def getDebt(self):
+        debt = float(self.attrs['principalBalance']) + float(self.attrs['interestBalance'])
+        debt += float(self.attrs['feesBalance']) + float(self.attrs['penaltyBalance'])
+
+        return debt
 
     # Preprocesamiento
     def preprocess(self):
