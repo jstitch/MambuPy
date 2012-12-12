@@ -1,4 +1,4 @@
-from mambustruct import MambuStruct
+from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getrepaymentsurl, DEBUG, ERROR_CODES
 from datetime import datetime
 
