@@ -109,7 +109,7 @@ class MambuLoan(MambuStruct):
                 notes = strip_cons(self.attrs['notes'], "\n")
             except KeyError:
                 notes = ""
-            for e in notes.replace("\n","<br>").replace("<div>","").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
+            for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
                 s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
             # for e in self.attrs['notes'].split("<br>"):
             #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
