@@ -129,7 +129,7 @@ class MambuLoan(MambuStruct):
                     notas = notas + calif + "<br>" + nombre + "|"
                 except AttributeError:
                     notas = notas + part + "|"
-            notas = notas.strip("|")..strip().strip("<br>").strip()
+            notas = notas.strip("|").strip().strip("<br>").strip()
             
             self.attrs['notes'] = notas
 
