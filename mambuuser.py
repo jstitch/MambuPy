@@ -66,6 +66,8 @@ class MambuUser(MambuStruct):
         except Exception as ex:
             self.attrs['lastName'] = ""
 
+        self.attrs['name'] = self.attrs['firstName'] + " " + self.attrs['lastName']
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
