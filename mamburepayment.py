@@ -26,6 +26,23 @@ from datetime import datetime
 
 urlfunc = getrepaymentsurl
 
+# FUTURE Feature. Will deprecate current MambuRepayment attrs as a list.
+class MambuRepayments(MambuStruct):
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
+    def __getitem__(self, key):
+        return self.attrs[key]
+
+    def __len__(self):
+        return len(self.attrs)
+
+    def convertDict2Attrs(self):
+        for r in self.attrs:
+            repayment = MambuRepayment(urlfunc=None, entid=None)
+            repayment.init(r)
+            r = repayment
+
 # Objeto con los repayments de una cuenta en Mambu
 class MambuRepayment(MambuStruct):
     def __iter__(self):
