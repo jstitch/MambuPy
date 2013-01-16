@@ -97,7 +97,7 @@ class MambuLoan(MambuStruct):
             for custom in self.attrs['customFieldValues']:
                 custom['name'] = custom['customField']['name']
 
-        prods = dict((v,k) for k,v in products.iteritems())
+        prods = dict((v['key'],k) for k,v in products.iteritems())
         try:
             self.attrs['productTypeName'] = prods[self.attrs['productTypeKey']]
         except Exception as ex:
