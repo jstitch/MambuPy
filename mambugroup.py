@@ -133,6 +133,8 @@ class MambuGroup(MambuStruct):
         except Exception as e:
             self.attrs['notes'] = ""
 
+        self.attrs['name'] = self.attrs['groupName']
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:

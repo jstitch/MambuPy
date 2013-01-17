@@ -116,6 +116,10 @@ class MambuClient(MambuStruct):
             self.attrs['middleName'] = ""
         self.attrs['lastName'] = strip_consecutive_repeated_char(self.attrs['lastName'].strip(), " ")
 
+        self.attrs['name'] = "%s%s %s" % (self.attrs['firstName'],
+                                          " " + self.attrs['middleName'] if self.attrs["middleName"] != "" else "",
+                                          self.attrs['lastName'])
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
