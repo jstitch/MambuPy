@@ -26,7 +26,7 @@ from datetime import datetime
 
 urlfunc = getrepaymentsurl
 
-# FUTURE Feature. Will deprecate current MambuRepayment attrs as a list.
+# Objeto con una lista de repayments de Mambu
 class MambuRepayments(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
@@ -43,47 +43,37 @@ class MambuRepayments(MambuStruct):
             repayment.init(r)
             r = repayment
 
-# Objeto con los repayments de una cuenta en Mambu
+# Objeto con un repayment de una cuenta en Mambu
 class MambuRepayment(MambuStruct):
-    def __iter__(self):
-        return MambuStructIterator(self.attrs)
-
-    def __getitem__(self, key):
-        return self.attrs[key]
-
-    def __len__(self):
-        return len(self.attrs)
-
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
-            for rp in self.attrs:
-                rp['interestDue'] = float(rp['interestDue'])
-                rp['principalDue'] = float(rp['principalDue'])
-                rp['feesDue'] = float(rp['feesDue'])
-                rp['penaltyDue'] = float(rp['penaltyDue'])
+            self.attrs['interestDue'] = float(self.attrs['interestDue'])
+            self.attrs['principalDue'] = float(self.attrs['principalDue'])
+            self.attrs['feesDue'] = float(self.attrs['feesDue'])
+            self.attrs['penaltyDue'] = float(self.attrs['penaltyDue'])
 
-                rp['interestPaid'] = float(rp['interestPaid'])
-                rp['principalPaid'] = float(rp['principalPaid'])
-                rp['feesPaid'] = float(rp['feesPaid'])
-                rp['penaltyPaid'] = float(rp['penaltyPaid'])
+            self.attrs['interestPaid'] = float(self.attrs['interestPaid'])
+            self.attrs['principalPaid'] = float(self.attrs['principalPaid'])
+            self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
+            self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
 
-                try:
-                    rp['dueDate'] = datetime.strptime(rp['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
-                except KeyError as kerr:
-                    pass
-                try:
-                    rp['lastPaidDate'] = datetime.strptime(rp['lastPaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
-                except KeyError as kerr:
-                    pass
-                try:
-                    rp['lastPenaltyAppliedDate'] = datetime.strptime(rp['lastPenaltyAppliedDate'], "%Y-%m-%dT%H:%M:%S+0000")
-                except KeyError as kerr:
-                    pass
-                try:
-                    rp['repaidDate'] = datetime.strptime(rp['repaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
-                except KeyError as kerr:
-                    pass
+            try:
+                self.attrs['dueDate'] = datetime.strptime(self.attrs['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['lastPaidDate'] = datetime.strptime(self.attrs['lastPaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['lastPenaltyAppliedDate'] = datetime.strptime(self.attrs['lastPenaltyAppliedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['repaidDate'] = datetime.strptime(self.attrs['repaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            except KeyError as kerr:
+                pass
 
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
