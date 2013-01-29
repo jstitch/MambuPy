@@ -77,10 +77,10 @@ class MambuLoans(MambuStruct):
         return len(self.attrs)
 
     def convertDict2Attrs(self):
-        for l in self.attrs:
+        for n,l in enumerate(self.attrs):
             loan = MambuLoan(urlfunc=None, entid=None)
             loan.init(l)
-            l = loan
+            self.attrs[n] = loan
 
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
