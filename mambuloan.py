@@ -2,7 +2,7 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getloansurl, DEBUG, ERROR_CODES
-from util import strip_consecutive_repeated_char as strip_cons
+from util import strip_consecutive_repeated_char as strip_cons, strip_tags
 from datetime import datetime
 from products import products
 import re
@@ -109,11 +109,15 @@ class MambuLoan(MambuStruct):
                 notes = strip_cons(self.attrs['notes'], "\n")
             except KeyError:
                 notes = ""
-            for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
-                s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
+            self.attrs['notes_'] = notes
+
+            # for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
+            #     s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
             # for e in self.attrs['notes'].split("<br>"):
             #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
-            self.attrs['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
+            # self.attrs['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
+
+            self.attrs['notes'] = strip_tags(self.attrs['notes'])
 
             # Hay notas en mambu que a veces no tienen un <br> dividiendo
             # cada renglon, y hay que insertarlo
