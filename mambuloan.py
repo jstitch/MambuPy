@@ -123,7 +123,7 @@ class MambuLoan(MambuStruct):
             # cada renglon, y hay que insertarlo
             notas = ""
             pcalif = re.compile(r"^[0-9]+")
-            pnombre = re.compile(u"[a-zA-ZñÑ\s.]+$")
+            pnombre = re.compile(u"[a-zA-ZñÑ\xc3\x91\s.]+$") # \xc3\x91 = Ñ
             for part in self.attrs["notes"].split("|"):
                 mcalif = pcalif.search(part)
                 mnombre = pnombre.search(part)
