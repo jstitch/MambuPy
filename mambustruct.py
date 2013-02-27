@@ -42,7 +42,8 @@ class MambuStruct(object):
             raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
         else:
             try:
-                jsresp = json.load(resp,"latin-1")
+#                jsresp = json.load(resp,"latin-1")
+                jsresp = json.load(resp)
                 # if DEBUG:
                 #     import pprint
                 #     pprint.pprint(jsresp)
