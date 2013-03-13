@@ -117,6 +117,7 @@ urlfunc = getgroupurl
 class MambuGroup(MambuStruct):
     # Preprocesamiento
     def preprocess(self):
+        self.attrs = self.attrs[0]
         try:
             for k,v in self.attrs['theGroup'].items():
                 self.attrs[k] = v
