@@ -18,7 +18,7 @@ from datetime import datetime
 #  "penaltyPaid": "0",
 
 # Fechas
-#  "transactionDate": "2012-06-14T00:33:45+0000",
+#  "creationDate": "2012-06-14T00:33:45+0000",
 #  "entryDate": "2012-06-12T00:00:00+0000",
 
 # Detalles
@@ -89,7 +89,7 @@ class MambuTransaction(MambuStruct):
                 pass
 
             try:
-                self.attrs['transactionDate'] = datetime.strptime(self.attrs['transactionDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
             except KeyError as kerr:
                 pass
             try:
