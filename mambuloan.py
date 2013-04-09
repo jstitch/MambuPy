@@ -96,6 +96,7 @@ class MambuLoan(MambuStruct):
         if self.attrs.has_key('customFieldValues'):
             for custom in self.attrs['customFieldValues']:
                 custom['name'] = custom['customField']['name']
+                self.attrs[custom['name']] = custom['value']
 
         prods = dict((v['key'],k) for k,v in products.iteritems())
         try:
