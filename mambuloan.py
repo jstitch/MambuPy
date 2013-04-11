@@ -78,7 +78,11 @@ class MambuLoans(MambuStruct):
 
     def convertDict2Attrs(self):
         for n,l in enumerate(self.attrs):
-            loan = MambuLoan(urlfunc=None, entid=None)
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            loan = MambuLoan(urlfunc=None, entid=None, **params)
             loan.init(l)
             self.attrs[n] = loan
 
