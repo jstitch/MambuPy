@@ -105,8 +105,10 @@ class MambuLoan(MambuStruct):
         prods = dict((v['key'],k) for k,v in products.iteritems())
         try:
             self.attrs['productTypeName'] = prods[self.attrs['productTypeKey']]
+            self.attrs['productMora'] = products[self.attrs['productTypeName']]['mora']
         except Exception as ex:
             self.attrs['productTypeName'] = ""
+            self.attrs['productMora'] = "0"
 
         try:
             s = ""
