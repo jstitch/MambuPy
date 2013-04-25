@@ -193,3 +193,82 @@ class MambuLoan(MambuStruct):
 
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+
+    # Anexa calendario de pagos de la cuenta
+    def setRepayments(self):
+        from mamburepayment import MambuRepayments
+        from podemos import getrepaymentsurl
+        from util import duedate
+
+        reps = MambuRepayments(entid=self['id'], urlfunc=getrepaymentsurl)
+        self.attrs['repayments'] = sorted(reps, key=duedate)
+
+    # Anexa transacciones de la cuenta
+    def setTransactions(self):
+        from mambutransaction import MambuTransactions
+        from podemos import gettransactionsurl
+        from util import transactionid
+        
+        trans = MambuTransactions(entid=self['id'], urlfunc=gettransactionsurl)
+        self.attrs['transactions'] = sorted(trans, key=transactionid)
+
+    # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
+    def setHolder(self, getClients=False, getRoles=False):
+        from mambuclient import MambuClient
+        from podemos import getclienturl
+
+        params = {'fullDetails': True}
+
+        if self['accountHolderType'] == "GROUP":
+            from mambugroup import MambuGroup
+            from podemos import getgroupurl
+
+            holder = MambuGroup(entid=self['accountHolderKey'], urlfunc=getgroupurl, **params)
+
+            if getRoles:
+                roles = []
+                # If holder is group, attach role client data to the group
+                for c in holder['groupRoles']:
+                    roles.append({'role'   : c['roleName'],
+                                  'client' : MambuClient(entid=c['clientKey'],
+                                                         urlfunc=getclienturl)})
+                holder.attrs['roles'] = roles
+
+            if getClients:
+                clients = []
+                loanclients = {}
+
+                loannombres = []
+                for nota in self['notes'].split("<br>"):
+                    fields = nota.split("|")
+                    loannombres.append(fields[0])
+
+                for m in holder['groupMembers']:
+                    client = MambuClient(entid=m['clientKey'],
+                                         urlfunc=getclienturl,
+                                         **params)
+
+                    nombre = ""
+                    if client.attrs["firstName"].strip() != "":
+                        nombre += client.attrs["firstName"].strip()
+                    if client.attrs["middleName"].strip() != "":
+                        nombre += " " + client.attrs["middleName"].strip()
+                    if client.attrs["lastName"].strip() != "":
+                        nombre += " " + client.attrs["lastName"].strip()
+                    nombre = nombre.strip()
+
+                    clients.append(client)
+
+                    if nombre in loannombres:
+                        loanclients[nombre] = client
+
+                holder.attrs['clients'] = clients
+                self.attrs['clients'] = loanclients
+                    
+
+        else: # "CLIENT"
+            holder = MambuClient(entid=self['accountHolderKey'],
+                                 urlfunc=getclienturl,
+                                 **params)
+
+        self.attrs['holder'] = holder
