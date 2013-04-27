@@ -212,6 +212,15 @@ class MambuLoan(MambuStruct):
         trans = MambuTransactions(entid=self['id'], urlfunc=gettransactionsurl)
         self.attrs['transactions'] = sorted(trans, key=transactionid)
 
+    def setBranch(self):
+        from mambubranch import MambuBranches
+        from podemos import getbranchesurl
+
+        branches = MambuBranches(urlfunc=getbranchesurl)
+        for branch in branches:
+            if branch['encodedKey'] == self['assignedBranchKey']:
+                self.attrs['assignedBranchName'] = branch['name']
+
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     def setHolder(self, getClients=False, getRoles=False):
         from mambuclient import MambuClient
