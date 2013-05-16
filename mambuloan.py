@@ -144,6 +144,13 @@ class MambuLoan(MambuStruct):
             
             self.attrs['notes'] = notas
 
+            totnotas = 0
+            for note in self['notes'].split("<br>"):
+                if note in ["", "<br>", "<div>", "</div>", "\n", " "]:
+                    continue
+                totnotas += 1
+            self.attrs['totnotes'] = totnotas
+
         except Exception as ex:
             pass
 
