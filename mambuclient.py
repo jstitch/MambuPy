@@ -120,6 +120,9 @@ class MambuClient(MambuStruct):
                                           " " + self.attrs['middleName'] if self.attrs["middleName"] != "" else "",
                                           self.attrs['lastName'])
 
+        for name,item in self.attrs['addresses'][0].items():
+            self.attrs['addresses'][0][name] = item.strip().strip()
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
