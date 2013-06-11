@@ -280,11 +280,13 @@ class MambuLoan(MambuStruct):
 
                 holder.attrs['clients'] = clients
                 self.attrs['clients'] = loanclients
-                    
+                self.attrs['holderType'] = "Grupo"
+
 
         else: # "CLIENT"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  urlfunc=getclienturl,
                                  **params)
+            self.attrs['holderType'] = "Cliente"
 
         self.attrs['holder'] = holder
