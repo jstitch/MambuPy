@@ -228,6 +228,14 @@ class MambuLoan(MambuStruct):
             if branch['encodedKey'] == self['assignedBranchKey']:
                 self.attrs['assignedBranchName'] = branch['name']
 
+    def setUser(self):
+        from mambuuser import MambuUser
+        from podemos import getuserurl
+
+        user = MambuUser(entid=self['assignedUserKey'], urlfunc=getuserurl)
+
+        self.attrs['user'] = user
+
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     def setHolder(self, getClients=False, getRoles=False):
         from mambuclient import MambuClient
@@ -239,6 +247,7 @@ class MambuLoan(MambuStruct):
             from mambugroup import MambuGroup
             from podemos import getgroupurl
 
+            self.attrs['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], urlfunc=getgroupurl, **params)
 
             if getRoles:
@@ -280,13 +289,12 @@ class MambuLoan(MambuStruct):
 
                 holder.attrs['clients'] = clients
                 self.attrs['clients'] = loanclients
-                self.attrs['holderType'] = "Grupo"
 
 
         else: # "CLIENT"
+            self.attrs['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  urlfunc=getclienturl,
                                  **params)
-            self.attrs['holderType'] = "Cliente"
 
         self.attrs['holder'] = holder
