@@ -106,6 +106,7 @@ class MambuLoan(MambuStruct):
         try:
             self.attrs['productTypeName'] = prods[self.attrs['productTypeKey']]
             self.attrs['productMora'] = products[self.attrs['productTypeName']]['mora']
+            self.attrs['productFreqMora'] = products[self.attrs['productTypeName']]['freq_mora']
         except Exception as ex:
             self.attrs['productTypeName'] = ""
             self.attrs['productMora'] = "0"
