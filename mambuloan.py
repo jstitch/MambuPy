@@ -160,7 +160,7 @@ class MambuLoan(MambuStruct):
             self.attrs['repaymentInstallments'] = int(self.attrs['repaymentInstallments'])
             self.attrs['interestRate'] = float(self.attrs['interestRate'])
 
-            self.attrs['loanAmount'] = float(self.attrs['loanAmount'])
+            self.attrs['loanAmount'] = round(float(self.attrs['loanAmount']),0)
 
             self.attrs['principalDue'] = float(self.attrs['principalDue'])
             self.attrs['interestDue'] = float(self.attrs['interestDue'])
