@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from mambustruct import MambuStruct
 from podemos import PodemosError, getclienturl, DEBUG, ERROR_CODES
 from datetime import datetime

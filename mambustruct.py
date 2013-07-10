@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from podemos import PodemosError, MambuCommError, API_RETURN_CODES, DEBUG, ERROR_CODES
 from urllib import urlopen
 import json, copy
