@@ -47,6 +47,9 @@ class MambuRepayments(MambuStruct):
 
 # Objeto con un repayment de una cuenta en Mambu
 class MambuRepayment(MambuStruct):
+    def __repr__(self):
+        return self.__class__.__name__ + " - duedate: %s" % self.attrs['dueDate'].strftime("%Y-%m-%d")
+
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:

@@ -55,7 +55,10 @@ class MambuTransactions(MambuStruct):
 
 # Objeto con una Transaccion de Mambu
 class MambuTransaction(MambuStruct):
-    # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
+    def __repr__(self):
+        return self.__class__.__name__ + " - transactionid: %s" % self.attrs['transactionid']
+
+        # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self):
         try:
             self.attrs['transactionId'] = self.attrs['transactionId']

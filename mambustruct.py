@@ -20,6 +20,9 @@ class MambuStruct(object):
     def __getitem__(self, key):
         return self.attrs[key]
 
+    def __repr__(self):
+        return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+
     def __str__(self):
         return self.__class__.__name__ + " - " + str(self.attrs)
 
