@@ -264,13 +264,16 @@ class MambuLoan(MambuStruct):
                 holder.attrs['roles'] = roles
 
             if getClients:
+                from decimal import Decimal
+                
                 clients = []
                 loanclients = {}
 
                 loannombres = []
                 for nota in self['notes'].split("<br>"):
                     fields = nota.split("|")
-                    loannombres.append(fields[0])
+                    m = re.match(r"^(\$)?([1-9]([0-9]?){2}(,[0-9]{3})*|([1-9]([0-9]?){2})|[0])(.[0-9][0-9]?)?$", fields[1])
+                    loannombres.append({'name': fields[0], "amount": float(Decimal(re.sub(r'[^\d.]', '', m.group(0))))})
 
                 for m in holder['groupMembers']:
                     client = MambuClient(entid=m['clientKey'],
@@ -288,8 +291,9 @@ class MambuLoan(MambuStruct):
 
                     clients.append(client)
 
-                    if nombre in loannombres:
-                        loanclients[nombre] = client
+                    if nombre in [ l['name'] for l in loannombres ]:
+                        for cte in [ l for l in loannombres if l['name'] == nombre ]:
+                            loanclients[cte['name']] = {'client': client, 'amount': cte['amount']}
 
                 holder.attrs['clients'] = clients
                 self.attrs['clients'] = loanclients
@@ -300,5 +304,7 @@ class MambuLoan(MambuStruct):
             holder = MambuClient(entid=self['accountHolderKey'],
                                  urlfunc=getclienturl,
                                  **params)
+            if getClients:
+                self.attrs['clients'] = [holder]
 
         self.attrs['holder'] = holder
