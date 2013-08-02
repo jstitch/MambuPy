@@ -233,7 +233,10 @@ class MambuLoan(MambuStruct):
         from mambuuser import MambuUser
         from podemos import getuserurl
 
-        user = MambuUser(entid=self['assignedUserKey'], urlfunc=getuserurl)
+        try:
+            user = MambuUser(entid=self['assignedUserKey'], urlfunc=getuserurl)
+        except KeyError as kerr:
+            raise PodemosError("La cuenta %s no tiene asignado un usuario" % self['id'])
 
         self.attrs['user'] = user
 
