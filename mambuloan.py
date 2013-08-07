@@ -203,6 +203,7 @@ class MambuLoan(MambuStruct):
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa calendario de pagos de la cuenta
+    # Retorna numero de requests hechos
     def setRepayments(self):
         from mamburepayment import MambuRepayments
         from podemos import getrepaymentsurl
@@ -211,7 +212,10 @@ class MambuLoan(MambuStruct):
         reps = MambuRepayments(entid=self['id'], urlfunc=getrepaymentsurl)
         self.attrs['repayments'] = sorted(reps, key=duedate)
 
+        return 1
+
     # Anexa transacciones de la cuenta
+    # Retorna numero de requests hechos
     def setTransactions(self):
         from mambutransaction import MambuTransactions
         from podemos import gettransactionsurl
@@ -220,6 +224,10 @@ class MambuLoan(MambuStruct):
         trans = MambuTransactions(entid=self['id'], urlfunc=gettransactionsurl)
         self.attrs['transactions'] = sorted(trans, key=transactionid)
 
+        return 1
+
+    # Anexa sucursal de la cuenta
+    # Retorna numero de requests hechos
     def setBranch(self):
         from mambubranch import MambuBranches
         from podemos import getbranchesurl
@@ -228,7 +236,11 @@ class MambuLoan(MambuStruct):
         for branch in branches:
             if branch['encodedKey'] == self['assignedBranchKey']:
                 self.attrs['assignedBranchName'] = branch['name']
+        
+        return 1
 
+    # Anexa usuario de la cuenta
+    # Retorna numero de requests hechos
     def setUser(self):
         from mambuuser import MambuUser
         from podemos import getuserurl
@@ -240,12 +252,16 @@ class MambuLoan(MambuStruct):
 
         self.attrs['user'] = user
 
+        return 1
+
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
+    # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False):
         from mambuclient import MambuClient
         from podemos import getclienturl
 
         params = {'fullDetails': True}
+        requests = 0
 
         if self['accountHolderType'] == "GROUP":
             from mambugroup import MambuGroup
@@ -253,6 +269,7 @@ class MambuLoan(MambuStruct):
 
             self.attrs['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], urlfunc=getgroupurl, **params)
+            requests += 1
 
             if getRoles:
                 roles = []
@@ -261,6 +278,7 @@ class MambuLoan(MambuStruct):
                     roles.append({'role'   : c['roleName'],
                                   'client' : MambuClient(entid=c['clientKey'],
                                                          urlfunc=getclienturl)})
+                    requests += 1
                 holder.attrs['roles'] = roles
 
             if getClients:
@@ -279,6 +297,7 @@ class MambuLoan(MambuStruct):
                     client = MambuClient(entid=m['clientKey'],
                                          urlfunc=getclienturl,
                                          **params)
+                    requests += 1
 
                     nombre = ""
                     if client.attrs["firstName"].strip() != "":
@@ -304,7 +323,10 @@ class MambuLoan(MambuStruct):
             holder = MambuClient(entid=self['accountHolderKey'],
                                  urlfunc=getclienturl,
                                  **params)
+            requests += 1
             if getClients:
                 self.attrs['clients'] = [holder]
 
         self.attrs['holder'] = holder
+
+        return requests
