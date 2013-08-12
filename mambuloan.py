@@ -317,8 +317,8 @@ class MambuLoan(MambuStruct):
                         for cte in [ l for l in loannombres if l['name'] == nombre ]:
                             loanclients[cte['name']] = {'client'     : client,
                                                         'amount'     : cte['amount'],
-                                                        'montoPago'  : cte['amount'] / float(self.attrs['installments']),
-                                                        'porcentaje' : cte['amount'] / float(self.attrs['loanamount']),
+                                                        'montoPago'  : cte['amount'] / float(self.attrs['repaymentInstallments']),
+                                                        'porcentaje' : cte['amount'] / float(self.attrs['loanAmount']),
                                                        }
 
                 holder.attrs['clients'] = clients
@@ -332,10 +332,10 @@ class MambuLoan(MambuStruct):
                                  **params)
             requests += 1
             if getClients:
-                monto = float(self.attrs['loanamount'])
+                monto = float(self.attrs['loanAmount'])
                 self.attrs['clients'] = {holder['name']: {'client'     : holder,
                                                           'amount'     : monto,
-                                                          'montoPago'  : monto / float(self.attrs['installments']),
+                                                          'montoPago'  : monto / float(self.attrs['repaymentInstallments']),
                                                           'porcentaje' : 1.0,
                                                          }
                                         }
