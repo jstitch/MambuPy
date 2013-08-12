@@ -144,9 +144,9 @@ class MambuGroup(MambuStruct):
         except KeyError:
             formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
-            self.attrs['theGroup']['loanCycle'] = int(self.attrs['theGroup']['loanCycle'])
-            self.attrs['theGroup']['creationDate'] = self.util_dateFormat(self.attrs['theGroup']['creationDate'], formatoFecha)
-            self.attrs['theGroup']['lastModifiedDate'] = self.util_dateFormat(self.attrs['theGroup']['lastModifiedDate'], formatoFecha)
+            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
 
             for member in self.attrs['groupMembers']:
                 member['indexInList'] = int(member['indexInList'])
