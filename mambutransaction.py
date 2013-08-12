@@ -47,10 +47,15 @@ class MambuTransactions(MambuStruct):
     def __len__(self):
         return len(self.attrs)
 
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         for t in self.attrs:
-            trans = MambuTransaction(urlfunc=None, entid=None)
-            trans.init(t)
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            trans = MambuTransaction(urlfunc=None, entid=None, *args, **kwargs)
+            trans.init(t, *args, **kwargs)
             t = trans
 
 # Objeto con una Transaccion de Mambu
@@ -59,7 +64,11 @@ class MambuTransaction(MambuStruct):
         return self.__class__.__name__ + " - transactionid: %s" % self.attrs['transactionid']
 
         # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
+        try:
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
             self.attrs['transactionId'] = self.attrs['transactionId']
             self.attrs['type'] = self.attrs['type']
@@ -94,11 +103,11 @@ class MambuTransaction(MambuStruct):
                 pass
 
             try:
-                self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['entryDate'] = datetime.strptime(self.attrs['entryDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['entryDate'] = self.util_dateFormat(self.attrs['entryDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 

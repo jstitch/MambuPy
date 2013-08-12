@@ -76,14 +76,15 @@ class MambuLoans(MambuStruct):
     def __len__(self):
         return len(self.attrs)
 
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         for n,l in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:
                 params = {}
-            loan = MambuLoan(urlfunc=None, entid=None, **params)
-            loan.init(l)
+            kwargs.update(params)
+            loan = MambuLoan(urlfunc=None, entid=None, *args, **kwargs)
+            loan.init(l, *args, **kwargs)
             self.attrs[n] = loan
 
 # Objeto con una Cuenta desde Mambu
@@ -156,7 +157,11 @@ class MambuLoan(MambuStruct):
             pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
+        try:
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
             self.attrs['repaymentInstallments'] = int(self.attrs['repaymentInstallments'])
             self.attrs['interestRate'] = float(self.attrs['interestRate'])
@@ -173,29 +178,27 @@ class MambuLoan(MambuStruct):
             self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
             self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
 
-            self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
-            self.attrs['lastModifiedDate'] = datetime.strptime(self.attrs['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
 
             try:
-                self.attrs['approvedDate'] = datetime.strptime(self.attrs['approvedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['expectedDisbursementDate'] = datetime.strptime(self.attrs['expectedDisbursementDate'],
-                                                                           "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['expectedDisbursementDate'] = self.util_dateFormat(self.attrs['expectedDisbursementDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['disbursementDate'] = datetime.strptime(self.attrs['disbursementDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['disbursementDate'] = self.util_dateFormat(self.attrs['disbursementDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastSetToArrearsDate'] = datetime.strptime(self.attrs['lastSetToArrearsDate'],
-                                                                       "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['lastSetToArrearsDate'] = self.util_dateFormat(self.attrs['lastSetToArrearsDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['closedDate'] = datetime.strptime(self.attrs['closedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['closedDate'] = self.util_dateFormat(self.attrs['closedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 

@@ -132,11 +132,15 @@ class MambuClient(MambuStruct):
             pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         try:
 
             try:
-                self.attrs['birthDate'] = datetime.strptime(self.attrs['birthDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                formatoFecha=kwargs['dateFormat']
+            except KeyError:
+                formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+            try:
+                self.attrs['birthDate'] = self.util_dateFormat(self.attrs['birthDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 
@@ -144,19 +148,19 @@ class MambuClient(MambuStruct):
             self.attrs['groupLoanCycle'] = int(self.attrs['groupLoanCycle'])
 
             try:
-                self.attrs['approvedDate'] = datetime.strptime(self.attrs['approvedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastModifiedDate'] = datetime.strptime(self.attrs['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['activationDate'] = datetime.strptime(self.attrs['activationDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['activationDate'] = self.util_dateFormat(self.attrs['activationDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 

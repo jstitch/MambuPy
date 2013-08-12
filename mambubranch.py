@@ -32,10 +32,15 @@ class MambuBranches(MambuStruct):
     def __len__(self):
         return len(self.attrs)
 
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         for b in self.attrs:
-            branch = MambuBranch(urlfunc=None, entid=None)
-            branch.init(b)
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            branch = MambuBranch(urlfunc=None, entid=None, *args, **kwargs)
+            branch.init(b, *args, **kwargs)
             b = branch
 
 # Objeto con una Branch desde Mambu
@@ -45,9 +50,13 @@ class MambuBranch(MambuStruct):
         pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
-            self.attrs['lastModifiedDate'] = datetime.strptime(self.attrs['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+        try:
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

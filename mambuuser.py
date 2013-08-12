@@ -50,10 +50,15 @@ class MambuUsers(MambuStruct):
     def __len__(self):
         return len(self.attrs)
 
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         for u in self.attrs:
-            user = MambuUser(urlfunc=None, entid=None)
-            user.init(u)
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            user = MambuUser(urlfunc=None, entid=None, *args, **kwargs)
+            user.init(u, *args, **kwargs)
             u = user
 
 class MambuUser(MambuStruct):
@@ -71,19 +76,23 @@ class MambuUser(MambuStruct):
         self.attrs['name'] = self.attrs['firstName'] + " " + self.attrs['lastName']
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         try:
 
             try:
-                self.attrs['lastLoggedInDate'] = datetime.strptime(self.attrs['lastLoggedInDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                formatoFecha=kwargs['dateFormat']
+            except KeyError:
+                formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+            try:
+                self.attrs['lastLoggedInDate'] = self.util_dateFormat(self.attrs['lastLoggedInDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastModifiedDate'] = datetime.strptime(self.attrs['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 

@@ -39,10 +39,15 @@ class MambuRepayments(MambuStruct):
     def __len__(self):
         return len(self.attrs)
 
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         for r in self.attrs:
-            repayment = MambuRepayment(urlfunc=None, entid=None)
-            repayment.init(r)
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            repayment = MambuRepayment(urlfunc=None, entid=None, *args, **kwargs)
+            repayment.init(r, *args, **kwargs)
             r = repayment
 
 # Objeto con un repayment de una cuenta en Mambu
@@ -51,7 +56,11 @@ class MambuRepayment(MambuStruct):
         return self.__class__.__name__ + " - duedate: %s" % self.attrs['dueDate'].strftime("%Y-%m-%d")
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
+        try:
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
             self.attrs['interestDue'] = float(self.attrs['interestDue'])
             self.attrs['principalDue'] = float(self.attrs['principalDue'])
@@ -64,19 +73,19 @@ class MambuRepayment(MambuStruct):
             self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
 
             try:
-                self.attrs['dueDate'] = datetime.strptime(self.attrs['dueDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['dueDate'] = self.util_dateFormat(self.attrs['dueDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastPaidDate'] = datetime.strptime(self.attrs['lastPaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['lastPaidDate'] = self.util_dateFormat(self.attrs['lastPaidDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastPenaltyAppliedDate'] = datetime.strptime(self.attrs['lastPenaltyAppliedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['lastPenaltyAppliedDate'] = self.util_dateFormat(self.attrs['lastPenaltyAppliedDate'], formatoFecha)
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['repaidDate'] = datetime.strptime(self.attrs['repaidDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['repaidDate'] = self.util_dateFormat(self.attrs['repaidDate'], formatoFecha)
             except KeyError as kerr:
                 pass
 

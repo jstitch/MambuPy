@@ -3,6 +3,7 @@
 from podemos import PodemosError, MambuCommError, API_RETURN_CODES, DEBUG, ERROR_CODES
 from urllib import urlopen
 import json, copy
+from datetime import datetime
 
 class MambuStructIterator:
     def __init__(self, wrapped):
@@ -30,15 +31,14 @@ class MambuStruct(object):
         return self.__class__.__name__ + " - " + str(self.attrs)
 
     # Initializa a partir de un diccionario con los elementos de la cuenta
-    def init(self, attrs={}):
+    def init(self, attrs={}, *args, **kwargs):
         self.attrs = attrs
         self.preprocess()
         self.serial = copy.deepcopy(self.attrs)
-        self.convertDict2Attrs()
+        self.convertDict2Attrs(*args, **kwargs)
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
     def __init__(self, urlfunc, entid='', *args, **kwargs):
-        self.params = kwargs
         if urlfunc == None:
             return
         self.urlfunc = urlfunc
@@ -69,11 +69,15 @@ class MambuStruct(object):
         self.attrs = jsresp
         self.preprocess()
         self.serial = copy.deepcopy(self.attrs)
-        self.convertDict2Attrs()
+        self.convertDict2Attrs(*args, **kwargs)
 
     def preprocess(self):
         pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
         pass
+
+    # Convierte campo de fecha a formato especificado a partir de formato default de Mambu
+    def util_dateFormat(self, field, formato):
+        return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)

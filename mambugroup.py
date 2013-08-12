@@ -138,15 +138,19 @@ class MambuGroup(MambuStruct):
         self.attrs['name'] = self.attrs['groupName']
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self):
+    def convertDict2Attrs(self, *args, **kwargs):
+        try:
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
             self.attrs['theGroup']['loanCycle'] = int(self.attrs['theGroup']['loanCycle'])
-            self.attrs['theGroup']['creationDate'] = datetime.strptime(self.attrs['theGroup']['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
-            self.attrs['theGroup']['lastModifiedDate'] = datetime.strptime(self.attrs['theGroup']['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+            self.attrs['theGroup']['creationDate'] = self.util_dateFormat(self.attrs['theGroup']['creationDate'], formatoFecha)
+            self.attrs['theGroup']['lastModifiedDate'] = self.util_dateFormat(self.attrs['theGroup']['lastModifiedDate'], formatoFecha)
 
             for member in self.attrs['groupMembers']:
                 member['indexInList'] = int(member['indexInList'])
-                member['creationDate'] = datetime.strptime(member['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                member['creationDate'] = self.util_dateFormat(member['creationDate'], formatoFecha)
 
             for address in self.attrs['addresses']:
                 address['indexInList'] = int(address['indexInList'])
@@ -162,7 +166,7 @@ class MambuGroup(MambuStruct):
 
             try:
                 self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
-                self.attrs['creationDate'] = datetime.strptime(self.attrs['creationDate'], "%Y-%m-%dT%H:%M:%S+0000")
-                self.attrs['lastModifiedDate'] = datetime.strptime(self.attrs['lastModifiedDate'], "%Y-%m-%dT%H:%M:%S+0000")
+                self.attrs['creationDate'] = self.util_dateFormat('creationDate', formatoFecha)
+                self.attrs['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate', formatoFecha)
             except (TypeError, ValueError, KeyError) as err:
                 raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
