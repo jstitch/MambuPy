@@ -21,7 +21,10 @@ class MambuStruct(object):
         return self.attrs[key]
 
     def __repr__(self):
-        return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+        try:
+            return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+        except TypeError:
+            return self.__class__.__name__ + " - len: %s" % len(self.attrs)
 
     def __str__(self):
         return self.__class__.__name__ + " - " + str(self.attrs)
