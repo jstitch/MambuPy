@@ -302,19 +302,10 @@ class MambuLoan(MambuStruct):
                                          **params)
                     requests += 1
 
-                    nombre = ""
-                    if client.attrs["firstName"].strip() != "":
-                        nombre += client.attrs["firstName"].strip()
-                    if client.attrs["middleName"].strip() != "":
-                        nombre += " " + client.attrs["middleName"].strip()
-                    if client.attrs["lastName"].strip() != "":
-                        nombre += " " + client.attrs["lastName"].strip()
-                    nombre = nombre.strip()
-
                     clients.append(client)
 
-                    if nombre in [ l['name'] for l in loannombres ]:
-                        for cte in [ l for l in loannombres if l['name'] == nombre ]:
+                    if client['name'] in [ l['name'] for l in loannombres ]:
+                        for cte in [ l for l in loannombres if l['name'] == client['name'] ]:
                             loanclients[cte['name']] = {'client'     : client,
                                                         'amount'     : cte['amount'],
                                                         'montoPago'  : cte['amount'] / float(self.attrs['repaymentInstallments']),
