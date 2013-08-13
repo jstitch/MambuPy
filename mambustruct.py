@@ -63,6 +63,9 @@ class MambuStruct(object):
                     (jsresp[u'returnStatus'] == u'INVALID_LOAN_ACCOUNT_ID')):
 
                     raise PodemosError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
+                
+                elif (jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_ACCOUNT_STATE"]):
+                      raise PodemosError("Invalid Account State!!")
             except (KeyError, TypeError) as err:
                 pass
 
