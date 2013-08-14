@@ -18,6 +18,8 @@ class MambuStructIterator:
             return item
 
 class MambuStruct(object):
+    RETRIES = 5
+    
     def __getitem__(self, key):
         return self.attrs[key]
 
@@ -44,30 +46,37 @@ class MambuStruct(object):
         self.urlfunc = urlfunc
         jsresp = {}
 
-        try:
-            resp = urlopen(self.urlfunc(entid, *args, **kwargs))
-        except Exception as ex:
-#            print repr(ex)
-            raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
-        else:
+        retries = 0
+        while retries < MambuStruct.RETRIES:
             try:
-#                jsresp = json.load(resp,"latin-1")
-                jsresp = json.load(resp)
-                # if DEBUG:
-                #     import pprint
-                #     pprint.pprint(jsresp)
+                resp = urlopen(self.urlfunc(entid, *args, **kwargs))
+                break
             except Exception as ex:
-                raise PodemosError("JSON Error: %s" % repr(ex))
-            try:
-                if ((jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_LOAN_ACCOUNT_ID"]) and
-                    (jsresp[u'returnStatus'] == u'INVALID_LOAN_ACCOUNT_ID')):
+                retries += 1
+                if DEBUG: print "commerror!%s" % (" retrying" if retries < MambuStruct.RETRIES else "",)
+                # print repr(ex)
+        else:
+            raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
 
-                    raise PodemosError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
+        try:
+            # jsresp = json.load(resp,"latin-1")
+            jsresp = json.load(resp)
+            # if DEBUG:
+            #     import pprint
+            #     pprint.pprint(jsresp)
+        except Exception as ex:
+            raise PodemosError("JSON Error: %s" % repr(ex))
+        try:
+            if ((jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_LOAN_ACCOUNT_ID"]) and
+                (jsresp[u'returnStatus'] == u'INVALID_LOAN_ACCOUNT_ID')):
+
+                raise PodemosError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
                 
-                elif (jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_ACCOUNT_STATE"]):
-                      raise PodemosError("Invalid Account State!!")
-            except (KeyError, TypeError) as err:
-                pass
+            elif (jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_ACCOUNT_STATE"]):
+                  raise PodemosError("Invalid Account State!!")
+
+        except (KeyError, TypeError) as err:
+            pass
 
         self.attrs = jsresp
         self.preprocess()
