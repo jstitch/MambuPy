@@ -37,10 +37,13 @@ from util import strip_consecutive_repeated_char
 
 # }
 
-urlfunc = getuserurl
+mod_urlfunc = getuserurl
 
 # Objeto con una lista de Usuarios Mambu
 class MambuUsers(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -62,6 +65,9 @@ class MambuUsers(MambuStruct):
             u = user
 
 class MambuUser(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     # Preprocesamiento
     def preprocess(self):
         try:

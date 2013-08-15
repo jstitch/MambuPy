@@ -63,10 +63,13 @@ import re
 #  "encodedKey": "8af25b7337e52f8b0137e704ef71057b",
 # }
 
-urlfunc = getloansurl
+mod_urlfunc = getloansurl
 
 # Objeto con una lista de Cuentas Mambu
 class MambuLoans(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+    
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -89,6 +92,9 @@ class MambuLoans(MambuStruct):
 
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+    
     # Deuda
     def getDebt(self):
         debt = float(self.attrs['principalBalance']) + float(self.attrs['interestBalance'])

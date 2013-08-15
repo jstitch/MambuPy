@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from podemos import PodemosError, DEBUG, ERROR_CODES
+from podemos import PodemosError, gettransactionsurl, DEBUG, ERROR_CODES
 from datetime import datetime
 
 # {
@@ -36,8 +36,13 @@ from datetime import datetime
 # }
 
 
+mod_urlfunc = gettransactionsurl
+
 # Objeto con una lista de Transacciones Mambu
 class MambuTransactions(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -60,6 +65,9 @@ class MambuTransactions(MambuStruct):
 
 # Objeto con una Transaccion de Mambu
 class MambuTransaction(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __repr__(self):
         return self.__class__.__name__ + " - transactionid: %s" % self.attrs['transactionid']
 

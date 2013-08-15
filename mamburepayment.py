@@ -26,10 +26,13 @@ from datetime import datetime
 #  "encodedKey": "8af63f2837e19ef50137e1d75563001c",
 # }
 
-urlfunc = getrepaymentsurl
+mod_urlfunc = getrepaymentsurl
 
 # Objeto con una lista de repayments de Mambu
 class MambuRepayments(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -52,6 +55,9 @@ class MambuRepayments(MambuStruct):
 
 # Objeto con un repayment de una cuenta en Mambu
 class MambuRepayment(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __repr__(self):
         return self.__class__.__name__ + " - duedate: %s" % self.attrs['dueDate'].strftime("%Y-%m-%d")
 

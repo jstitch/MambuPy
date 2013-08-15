@@ -92,9 +92,12 @@ from util import strip_consecutive_repeated_char
 # }
 
 
-urlfunc = getclienturl
+mod_urlfunc = getclienturl
 
 class MambuClient(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     # Preprocesamiento
     def preprocess(self):
         try:

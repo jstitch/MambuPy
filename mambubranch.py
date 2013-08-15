@@ -19,10 +19,13 @@ import re
 #   }
 # ]
 
-urlfunc = getbranchesurl
+mod_urlfunc = getbranchesurl
 
 # Objeto con una lista de Branches Mambu
 class MambuBranches(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -45,6 +48,9 @@ class MambuBranches(MambuStruct):
 
 # Objeto con una Branch desde Mambu
 class MambuBranch(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
     # Preprocesamiento
     def preprocess(self):
         pass
