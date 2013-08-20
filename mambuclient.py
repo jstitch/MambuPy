@@ -144,8 +144,11 @@ class MambuClient(MambuStruct):
         except KeyError:
             pass
 
-        for idDoc in self.attrs['idDocuments']:
-            self.attrs[idDoc['documentType']] = idDoc['documentId']
+        try:
+            for idDoc in self.attrs['idDocuments']:
+                self.attrs[idDoc['documentType']] = idDoc['documentId']
+        except KeyError:
+            pass
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
