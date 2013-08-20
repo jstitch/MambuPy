@@ -3,7 +3,7 @@
 from mambustruct import MambuStruct
 from podemos import PodemosError, getclienturl, DEBUG, ERROR_CODES
 from datetime import datetime
-from util import strip_consecutive_repeated_char
+from util import strip_consecutive_repeated_char as scrc
 
 # {
 #  "idDocuments": [
@@ -111,28 +111,41 @@ class MambuClient(MambuStruct):
             for custom in self.attrs['customInformation']:
                 custom['name'] = custom['customField']['name']
 
+        for k,v in self.attrs.items():
+            try:
+                self.attrs[k] = v.strip()
+            except Exception:
+                pass
+
         try:
-            self.attrs['firstName'] = self.attrs['firstName'].strip()
+            self.attrs['firstName'] = scrc(self.attrs['firstName'], " ")
         except Exception as e:
             self.attrs['firstName'] = ""
         try:
-            self.attrs['middleName'] = self.attrs['middleName'].strip()
+            self.attrs['middleName'] = srcrc(self.attrs['middleName'], " ")
         except Exception as ex:
             self.attrs['middleName'] = ""
-        self.attrs['lastName'] = strip_consecutive_repeated_char(self.attrs['lastName'].strip(), " ")
+        self.attrs['lastName'] = scrc(self.attrs['lastName'], " ")
+        self.attrs['firstLastName'] = " ".join(self.attrs['lastName'].split(" ")[:-1])
+        self.attrs['secondLastName'] = " ".join(self.attrs['lastName'].split(" ")[-1:])
 
         self.attrs['name'] = "%s%s %s" % (self.attrs['firstName'],
                                           " " + self.attrs['middleName'] if self.attrs["middleName"] != "" else "",
                                           self.attrs['lastName'])
 
+        self.attrs['address'] = {}
         try:
             for name,item in self.attrs['addresses'][0].items():
                 try:
-                    self.attrs['addresses'][0][name] = item.strip()
+                    self.attrs['addresses'][0][name] = item
+                    self.attrs['address'][name] = item
                 except AttributeError:
                     pass
         except KeyError:
             pass
+
+        for idDoc in self.attrs['idDocuments']:
+            self.attrs[idDoc['documentType']] = idDoc['documentId']
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
