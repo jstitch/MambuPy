@@ -15,6 +15,7 @@ import re
 # Propiedades de la cuenta
 #  "accountState": "ACTIVE",
 #  "repaymentPeriodUnit": "DAYS",
+#  "repaymentPeriodCount": 1,
 #  "repaymentInstallments": 5,
 #  "interestRate": "4.2",
 #  "interestChargeFrequency": "EVERY_FOUR_WEEKS",
@@ -22,7 +23,6 @@ import re
 #  "interestRateSource": "FIXED_INTEREST_RATE",
 #  "interestAdjustment": "0",
 #  "accruedInterest": "0",
-#  "principalRepaymentInterval": 1,
 #  "loanAmount": "1000",
 
 # Saldos
@@ -40,8 +40,8 @@ import re
 # Mas propiedades
 #  "gracePeriod": 0,
 #  "gracePeriodType": "NONE",
-#  "repaymentPeriodCount": 1,
 #  "notes": "testing notes<br>",
+#  "principalRepaymentInterval": 1,
 
 # Fechas
 #  "approvedDate": "2012-06-13T18:05:04+0000",
@@ -313,6 +313,7 @@ class MambuLoan(MambuStruct):
                     if client['name'] in [ l['name'] for l in loannombres ]:
                         for cte in [ l for l in loannombres if l['name'] == client['name'] ]:
                             loanclients[cte['name']] = {'client'     : client,
+                                                        'loan'       : self,
                                                         'amount'     : cte['amount'],
                                                         'montoPago'  : cte['amount'] / float(self.attrs['repaymentInstallments']),
                                                         'porcentaje' : cte['amount'] / float(self.attrs['loanAmount']),
@@ -331,6 +332,7 @@ class MambuLoan(MambuStruct):
             if getClients:
                 monto = float(self.attrs['loanAmount'])
                 self.attrs['clients'] = {holder['name']: {'client'     : holder,
+                                                          'loan'       : self,
                                                           'amount'     : monto,
                                                           'montoPago'  : monto / float(self.attrs['repaymentInstallments']),
                                                           'porcentaje' : 1.0,
