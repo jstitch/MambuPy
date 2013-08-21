@@ -122,7 +122,7 @@ class MambuClient(MambuStruct):
         except Exception as e:
             self.attrs['firstName'] = ""
         try:
-            self.attrs['middleName'] = srcrc(self.attrs['middleName'], " ")
+            self.attrs['middleName'] = scrc(self.attrs['middleName'], " ")
         except Exception as ex:
             self.attrs['middleName'] = ""
         self.attrs['lastName'] = scrc(self.attrs['lastName'], " ")
