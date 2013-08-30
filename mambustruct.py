@@ -5,11 +5,11 @@ from urllib import urlopen
 import json, copy
 from datetime import datetime
 
-class RequestsMeter(object):
+class RequestsCounter(object):
     _instance = None
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(RequestsMeter, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
             cls.requests = 0
         return cls._instance
 
@@ -49,7 +49,7 @@ class MambuStruct(object):
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
     def __init__(self, urlfunc, entid='', *args, **kwargs):
-        self.rm = RequestsMeter()
+        self.rc = RequestsCounter()
         if urlfunc == None:
             return
         self.urlfunc = urlfunc
@@ -59,7 +59,7 @@ class MambuStruct(object):
         while retries < MambuStruct.RETRIES:
             try:
                 resp = urlopen(self.urlfunc(entid, *args, **kwargs))
-                self.rm.requests += 1
+                self.rc.requests += 1
                 break
             except Exception as ex:
                 retries += 1
