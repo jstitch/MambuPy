@@ -88,10 +88,7 @@ class MambuStruct(object):
         except (KeyError, TypeError) as err:
             pass
 
-        self.attrs = jsresp
-        self.preprocess()
-        self.serial = copy.deepcopy(self.attrs)
-        self.convertDict2Attrs(*args, **kwargs)
+        self.init(attrs=jsresp)
 
     def preprocess(self):
         pass
