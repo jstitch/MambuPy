@@ -70,6 +70,15 @@ class MambuUser(MambuStruct):
 
     # Preprocesamiento
     def preprocess(self):
+        if self.attrs.has_key('customFields'):
+            for custom in self.attrs['customFields']:
+                custom['name'] = custom['customField']['name']
+        for k,v in self.attrs.items():
+            try:
+                self.attrs[k] = v.strip()
+            except Exception:
+                pass
+
         try:
             self.attrs['firstName'] = self.attrs['firstName'].strip()
         except Exception as e:
