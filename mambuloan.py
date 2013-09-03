@@ -218,7 +218,7 @@ class MambuLoan(MambuStruct):
         from podemos import getrepaymentsurl
         from util import duedate
 
-        reps = MambuRepayments(entid=self['id'], urlfunc=getrepaymentsurl)
+        reps = MambuRepayments(entid=self['id'])
         self.attrs['repayments'] = sorted(reps, key=duedate)
 
         return 1
@@ -230,7 +230,7 @@ class MambuLoan(MambuStruct):
         from podemos import gettransactionsurl
         from util import transactionid
         
-        trans = MambuTransactions(entid=self['id'], urlfunc=gettransactionsurl)
+        trans = MambuTransactions(entid=self['id'])
         self.attrs['transactions'] = sorted(trans, key=transactionid)
 
         return 1
@@ -241,10 +241,11 @@ class MambuLoan(MambuStruct):
         from mambubranch import MambuBranches
         from podemos import getbranchesurl
 
-        branches = MambuBranches(urlfunc=getbranchesurl)
+        branches = MambuBranches()
         for branch in branches:
             if branch['encodedKey'] == self['assignedBranchKey']:
                 self.attrs['assignedBranchName'] = branch['name']
+                self.attrs['assignedBranch'] = branch
         
         return 1
 
@@ -255,7 +256,7 @@ class MambuLoan(MambuStruct):
         from podemos import getuserurl
 
         try:
-            user = MambuUser(entid=self['assignedUserKey'], urlfunc=getuserurl)
+            user = MambuUser(entid=self['assignedUserKey'])
         except KeyError as kerr:
             raise PodemosError("La cuenta %s no tiene asignado un usuario" % self['id'])
 
@@ -277,7 +278,7 @@ class MambuLoan(MambuStruct):
             from podemos import getgroupurl
 
             self.attrs['holderType'] = "Grupo"
-            holder = MambuGroup(entid=self['accountHolderKey'], urlfunc=getgroupurl, **params)
+            holder = MambuGroup(entid=self['accountHolderKey'], **params)
             requests += 1
 
             if getRoles:
@@ -285,8 +286,8 @@ class MambuLoan(MambuStruct):
                 # If holder is group, attach role client data to the group
                 for c in holder['groupRoles']:
                     roles.append({'role'   : c['roleName'],
-                                  'client' : MambuClient(entid=c['clientKey'],
-                                                         urlfunc=getclienturl)})
+                                  'client' : MambuClient(entid=c['clientKey'])
+                                 })
                     requests += 1
                 holder.attrs['roles'] = roles
 
@@ -304,7 +305,6 @@ class MambuLoan(MambuStruct):
 
                 for m in holder['groupMembers']:
                     client = MambuClient(entid=m['clientKey'],
-                                         urlfunc=getclienturl,
                                          **params)
                     requests += 1
 
@@ -326,7 +326,6 @@ class MambuLoan(MambuStruct):
         else: # "CLIENT"
             self.attrs['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
-                                 urlfunc=getclienturl,
                                  **params)
             requests += 1
             if getClients:
