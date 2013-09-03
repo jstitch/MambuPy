@@ -54,7 +54,7 @@ class MambuUsers(MambuStruct):
         return len(self.attrs)
 
     def convertDict2Attrs(self, *args, **kwargs):
-        for u in self.attrs:
+        for n,u in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:
@@ -62,7 +62,7 @@ class MambuUsers(MambuStruct):
             kwargs.update(params)
             user = MambuUser(urlfunc=None, entid=None, *args, **kwargs)
             user.init(u, *args, **kwargs)
-            u = user
+            self.attrs[n] = user
 
 class MambuUser(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
