@@ -8,15 +8,28 @@ from products import products
 import re
 
 # [
-#   {
-#     "encodedKey": "8a70db342e6d595a012e6e7158670f9d",
-#     "id": "1",
-#     "creationDate": "2011-02-28T22:44:05+0000",
-#     "lastModifiedDate": "2011-02-28T22:44:05+0000",
-#     "name": "Nicolas Romero"
-#     "phoneNumber": "12345678",
-#     "emailAddress": "a@b.com"
-#   }
+#  {
+#   "id": "1",
+#   "name": "Nicolas Romero",
+#   "phoneNumber": "16605508",
+#   "emailAddress": "d.jimenez@podemos.mx",
+#   "branchHolidays": [],
+#   "encodedKey": "8a70db342e6d595a012e6e7158670f9d",
+#   "address": {
+#     "line1": "Niños Heroes #15",
+#     "line2": "Miguel Hidalgo",
+#     "city": "Nicolas Romero",
+#     "region": "Mexico",
+#     "postcode": "54400",
+#     "country": "Mexico",
+#     "indexInList": -1
+#     "encodedKey": "8a6a80593fc305e1013fc47ad052686b",
+#     "parentKey": "8a70db342e6d595a012e6e7158670f9d",
+#   },
+#   "customFieldValues": []
+#   "creationDate": "2011-02-28T22:44:05+0000",
+#   "lastModifiedDate": "2013-07-09T17:36:27+0000",
+#  },
 # ]
 
 mod_urlfunc = getbranchesurl
@@ -36,7 +49,7 @@ class MambuBranches(MambuStruct):
         return len(self.attrs)
 
     def convertDict2Attrs(self, *args, **kwargs):
-        for b in self.attrs:
+        for n,b in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:
@@ -44,7 +57,7 @@ class MambuBranches(MambuStruct):
             kwargs.update(params)
             branch = MambuBranch(urlfunc=None, entid=None, *args, **kwargs)
             branch.init(b, *args, **kwargs)
-            b = branch
+            self.attrs[n] = branch
 
 # Objeto con una Branch desde Mambu
 class MambuBranch(MambuStruct):
