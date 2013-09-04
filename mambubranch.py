@@ -79,3 +79,15 @@ class MambuBranch(MambuStruct):
             self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+
+    # Anexa los usuarios activos de esa sucursal
+    # Retorna numero de requests hechos
+    def setUsers(self):
+        from mambuuser import MambuUsers
+        usrs = [ us for us in MambuUsers(branchId=self['id']) if us['userState'] == "ACTIVE" ]
+        self.attrs['users'] = usrs
+        self.serial['users'] = []
+        for us in usrs:
+            self.serial['users'].append(us.serial)
+
+        return 1
