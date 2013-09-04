@@ -82,9 +82,9 @@ class MambuBranch(MambuStruct):
 
     # Anexa los usuarios activos de esa sucursal
     # Retorna numero de requests hechos
-    def setUsers(self):
+    def setUsers(self, *args, **kwargs):
         from mambuuser import MambuUsers
-        usrs = [ us for us in MambuUsers(branchId=self['id']) if us['userState'] == "ACTIVE" ]
+        usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
         self.attrs['users'] = usrs
         self.serial['users'] = []
         for us in usrs:
