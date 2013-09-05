@@ -75,7 +75,7 @@ class MambuStruct(object):
     def init(self, attrs={}, *args, **kwargs):
         self.attrs = attrs
         self.preprocess()
-        self.serial = copy.deepcopy(self.attrs)
+        self.serial = copy.deepcopy(self.attrs) # depreciado
         self.convertDict2Attrs(*args, **kwargs)
     
     # "Serializa" la informacion de cada campo en el diccionario
@@ -84,7 +84,7 @@ class MambuStruct(object):
         serial = MambuStruct.serializeFields(self.attrs)
         return serial
 
-    # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
+    # Inicializa a partir de un ID de la entidad
     def __init__(self, urlfunc, entid='', *args, **kwargs):
         if urlfunc == None:
             return
@@ -133,16 +133,18 @@ class MambuStruct(object):
 
         self.init(attrs=jsresp, *args, **kwargs)
 
-    # Cada implmentacion de MambuStruct puede masajear la informacion
+    # Cada implementacion de MambuStruct puede masajear la informacion
     # salida de Mambu a un formato/estilo mas adecuado
     def preprocess(self):
         pass
 
-    # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
+    # De un diccionario de valores como cadenas, convierte los
+    # pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         pass
 
-    # Convierte campo de fecha a formato especificado a partir de formato default de Mambu
+    # Convierte campo de fecha a formato especificado a partir de
+    # formato default de Mambu
     def util_dateFormat(self, field, formato=None):
         if not formato:
             try:
