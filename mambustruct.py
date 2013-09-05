@@ -33,6 +33,29 @@ class MambuStructIterator:
 class MambuStruct(object):
     RETRIES = 5
     
+    # Serializa data, y si es iterable serializa sus miembros
+    # (y si es MambuStruct, serializa su diccionario attrs)
+    def serializeFields(data):
+        if isinstance(data, MambuStruct):
+            return data.serializeStruct()
+        try:
+            it = iter(data)
+        except TypeError as terr:
+            return unicode(data)
+        if type(it) == type(iter([])):
+            l = []
+            for e in it:
+                l.append(MambuStruct.serializeFields(e))
+            return l
+        elif type(it) == type(iter({})):
+            d = {}
+            for k in it:
+                d[k] = MambuStruct.serializeFields(data[k])
+            return d
+        # elif ... tuples? sets?
+        return unicode(data)
+    serializeFields = staticmethod(serializeFields)
+
     def __getitem__(self, key):
         return self.attrs[key]
 
@@ -54,6 +77,12 @@ class MambuStruct(object):
         self.preprocess()
         self.serial = copy.deepcopy(self.attrs)
         self.convertDict2Attrs(*args, **kwargs)
+    
+    # "Serializa" la informacion de cada campo en el diccionario
+    # NO SERIALIZA LA CLASE, solo sus campos
+    def serializeStruct(self):
+        serial = MambuStruct.serializeFields(self.attrs)
+        return serial
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
     def __init__(self, urlfunc, entid='', *args, **kwargs):
