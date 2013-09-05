@@ -104,6 +104,8 @@ class MambuStruct(object):
 
         self.init(attrs=jsresp, *args, **kwargs)
 
+    # Cada implmentacion de MambuStruct puede masajear la informacion
+    # salida de Mambu a un formato/estilo mas adecuado
     def preprocess(self):
         pass
 

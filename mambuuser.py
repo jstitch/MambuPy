@@ -3,7 +3,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from podemos import PodemosError, getuserurl, DEBUG, ERROR_CODES
 from datetime import datetime
-from util import strip_consecutive_repeated_char
 
 # {
 #   "id": 51,
