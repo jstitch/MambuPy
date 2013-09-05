@@ -5,18 +5,21 @@ from urllib import urlopen
 import json, copy
 from datetime import datetime
 
+# Singleton para contar requests
 class RequestsCounter(object):
-    _instance = None
+    __instance = None
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
+            cls.__instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
             cls.requests = 0
-        return cls._instance
+        return cls.__instance
 
+# Habilita iteracion sobre estructuras Mambu
 class MambuStructIterator:
     def __init__(self, wrapped):
         self.wrapped = wrapped
         self.offset = 0
+
     def next(self):
         if self.offset >= len(self.wrapped):
             raise StopIteration
@@ -25,6 +28,8 @@ class MambuStructIterator:
             self.offset += 1
             return item
 
+# Clase padre de todas las estructuras Mambu. Dictionary-like
+# Contienen un atributo, dict attrs
 class MambuStruct(object):
     RETRIES = 5
     
