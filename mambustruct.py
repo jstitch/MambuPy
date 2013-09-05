@@ -31,6 +31,9 @@ class MambuStruct(object):
     def __getitem__(self, key):
         return self.attrs[key]
 
+    def __setitem__(self, key, value):
+        self.attrs[key] = value
+
     def __repr__(self):
         try:
             return self.__class__.__name__ + " - id: %s" % self.attrs['id']
