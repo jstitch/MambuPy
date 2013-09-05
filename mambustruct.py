@@ -51,9 +51,9 @@ class MambuStruct(object):
     def __init__(self, urlfunc, entid='', *args, **kwargs):
         if urlfunc == None:
             return
-        self.urlfunc = urlfunc
 
         self.rc = RequestsCounter()
+        self.__urlfunc = urlfunc
         try:
             self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
@@ -64,7 +64,7 @@ class MambuStruct(object):
         retries = 0
         while retries < MambuStruct.RETRIES:
             try:
-                resp = urlopen(self.urlfunc(entid, *args, **kwargs))
+                resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
                 self.rc.requests += 1
                 break
             except Exception as ex:
