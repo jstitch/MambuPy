@@ -49,10 +49,16 @@ class MambuStruct(object):
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
     def __init__(self, urlfunc, entid='', *args, **kwargs):
-        self.rc = RequestsCounter()
         if urlfunc == None:
             return
         self.urlfunc = urlfunc
+
+        self.rc = RequestsCounter()
+        try:
+            self.__formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+
         jsresp = {}
 
         retries = 0
@@ -88,7 +94,7 @@ class MambuStruct(object):
         except (KeyError, TypeError) as err:
             pass
 
-        self.init(attrs=jsresp)
+        self.init(attrs=jsresp, *args, **kwargs)
 
     def preprocess(self):
         pass
@@ -98,5 +104,10 @@ class MambuStruct(object):
         pass
 
     # Convierte campo de fecha a formato especificado a partir de formato default de Mambu
-    def util_dateFormat(self, field, formato):
+    def util_dateFormat(self, field, formato=None):
+        if not formato:
+            try:
+                formato = self.__formatoFecha
+            except AttributeError:
+                formato = "%Y-%m-%dT%H:%M:%S+0000"
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
