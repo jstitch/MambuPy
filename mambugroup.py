@@ -144,24 +144,31 @@ class MambuGroup(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-        except Exception as ex:
-            raise ex
+            formatoFecha=kwargs['dateFormat']
+        except KeyError:
+            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+        try:
+            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
 
-    # Anexa los clientes miembros del grupo
-    # Retorna el numero de requests hechos
-    def setClients(self):
-        from mambuclient import MambuClient
-        
-        params = {'fullDetails': True}
-        requests = 0
+            if self.attrs.has_key('groupMembers'):
+                for member in self.attrs['groupMembers']:
+                    member['indexInList'] = int(member['indexInList'])
+                    member['creationDate'] = self.util_dateFormat(member['creationDate'], formatoFecha)
 
-        clients = []
-        for m in self['groupMembers']:
-            client = MambuClient(entid=m['clientKey'],
-                                 **params)
-            requests += 1
-            clients.append(client)
+            if self.attrs.has_key('addresses'):
+                for address in self.attrs['addresses']:
+                    address['indexInList'] = int(address['indexInList'])
+
+            if self.attrs.has_key('groupRoles'):
+                for role in self.attrs['groupRoles']:
+                    role['indexInList'] = int(role['indexInList'])
+
+            if self.attrs.has_key('customInformation'):
+                for custom in self.attrs['customInformation']:
+                    custom['indexIntList'] = int(custom['indexInList'])
+                    custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
 
         self['clients'] = clients
 
