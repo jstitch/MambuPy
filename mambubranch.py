@@ -86,8 +86,8 @@ class MambuBranch(MambuStruct):
         from mambuuser import MambuUsers
         usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
         self.attrs['users'] = usrs
-        self.serial['users'] = []
-        for us in usrs:
-            self.serial['users'].append(us.serial)
+        # self.serial['users'] = []
+        # for us in usrs:
+        #     self.serial['users'].append(us.serial)
 
         return 1
