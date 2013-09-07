@@ -69,6 +69,46 @@ class MambuTransaction(MambuStruct):
         # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-        except Exception as ex:
-            raise ex
+            self.attrs['transactionId'] = self.attrs['transactionId']
+            self.attrs['type'] = self.attrs['type']
+            try:
+                self.attrs['amount'] = float(self.attrs['amount'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['comment'] = self.attrs['comment']
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['balance'] = float(self.attrs['balance'])
+            except KeyError as kerr:
+                pass
+
+            try:
+                self.attrs['principalPaid'] = float(self.attrs['principalPaid'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['interestPaid'] = float(self.attrs['interestPaid'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
+            except KeyError as kerr:
+                pass
+
+            try:
+                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['entryDate'] = self.util_dateFormat(self.attrs['entryDate'])
+            except KeyError as kerr:
+                pass
+
+        except (TypeError, ValueError, KeyError) as err:
+            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

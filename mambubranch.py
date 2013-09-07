@@ -65,15 +65,16 @@ class MambuBranch(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-        except Exception as ex:
-            raise ex
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+        except (TypeError, ValueError, KeyError) as err:
+            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa los usuarios activos de esa sucursal
     # Retorna numero de requests hechos
     def setUsers(self, *args, **kwargs):
         from mambuuser import MambuUsers
         usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
-        self['users'] = usrs
+        self.attrs['users'] = usrs
 
         return 1

@@ -154,6 +154,30 @@ class MambuClient(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-        except Exception as ex:
-            raise ex
+            try:
+                self.attrs['birthDate'] = self.util_dateFormat(self.attrs['birthDate'])
+            except KeyError as kerr:
+                pass
+
+            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
+            self.attrs['groupLoanCycle'] = int(self.attrs['groupLoanCycle'])
+
+            try:
+                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['activationDate'] = self.util_dateFormat(self.attrs['activationDate'])
+            except KeyError as kerr:
+                pass
+
+        except (TypeError, ValueError, KeyError) as err:
+            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

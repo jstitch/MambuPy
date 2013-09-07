@@ -154,10 +154,47 @@ class MambuLoan(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-            self['loanAmount'] = round(self['loanAmount'],0)
-        except Exception as ex:
-            raise ex
+            self.attrs['repaymentInstallments'] = int(self.attrs['repaymentInstallments'])
+            self.attrs['interestRate'] = float(self.attrs['interestRate'])
+
+            self.attrs['loanAmount'] = round(float(self.attrs['loanAmount']),0)
+
+            self.attrs['principalDue'] = float(self.attrs['principalDue'])
+            self.attrs['interestDue'] = float(self.attrs['interestDue'])
+            self.attrs['feesDue'] = float(self.attrs['feesDue'])
+            self.attrs['penaltyDue'] = float(self.attrs['penaltyDue'])
+
+            self.attrs['principalPaid'] = float(self.attrs['principalPaid'])
+            self.attrs['interestPaid'] = float(self.attrs['interestPaid'])
+            self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
+            self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
+
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+
+            try:
+                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['expectedDisbursementDate'] = self.util_dateFormat(self.attrs['expectedDisbursementDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['disbursementDate'] = self.util_dateFormat(self.attrs['disbursementDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['lastSetToArrearsDate'] = self.util_dateFormat(self.attrs['lastSetToArrearsDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self.attrs['closedDate'] = self.util_dateFormat(self.attrs['closedDate'])
+            except KeyError as kerr:
+                pass
+
+        except (TypeError, ValueError, KeyError) as err:
+            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa calendario de pagos de la cuenta
     # Retorna numero de requests hechos
