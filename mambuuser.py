@@ -47,6 +47,9 @@ class MambuUsers(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+    def __len__(self):
+        return len(self.attrs)
+
     def convertDict2Attrs(self, *args, **kwargs):
         for n,u in enumerate(self.attrs):
             try:
@@ -87,6 +90,18 @@ class MambuUser(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
-        except Exception as ex:
-            raise ex
+            try:
+                self['lastLoggedInDate'] = self.util_dateFormat(self['lastLoggedInDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self['creationDate'] = self.util_dateFormat(self['creationDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
+            except KeyError as kerr:
+                pass
+
+        except (TypeError, ValueError, KeyError) as err:
+            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

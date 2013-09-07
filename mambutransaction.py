@@ -47,6 +47,9 @@ class MambuTransactions(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+    def __len__(self):
+        return len(self.attrs)
+
     def convertDict2Attrs(self, *args, **kwargs):
         for n,t in enumerate(self.attrs):
             try:
@@ -69,44 +72,44 @@ class MambuTransaction(MambuStruct):
         # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self.attrs['transactionId'] = self.attrs['transactionId']
-            self.attrs['type'] = self.attrs['type']
+            self['transactionId'] = self['transactionId']
+            self['type'] = self['type']
             try:
-                self.attrs['amount'] = float(self.attrs['amount'])
+                self['amount'] = float(self['amount'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['comment'] = self.attrs['comment']
+                self['comment'] = self['comment']
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['balance'] = float(self.attrs['balance'])
-            except KeyError as kerr:
-                pass
-
-            try:
-                self.attrs['principalPaid'] = float(self.attrs['principalPaid'])
-            except KeyError as kerr:
-                pass
-            try:
-                self.attrs['interestPaid'] = float(self.attrs['interestPaid'])
-            except KeyError as kerr:
-                pass
-            try:
-                self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
-            except KeyError as kerr:
-                pass
-            try:
-                self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
+                self['balance'] = float(self['balance'])
             except KeyError as kerr:
                 pass
 
             try:
-                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+                self['principalPaid'] = float(self['principalPaid'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['entryDate'] = self.util_dateFormat(self.attrs['entryDate'])
+                self['interestPaid'] = float(self['interestPaid'])
+            except KeyError as kerr:
+                pass
+            try:
+                self['feesPaid'] = float(self['feesPaid'])
+            except KeyError as kerr:
+                pass
+            try:
+                self['penaltyPaid'] = float(self['penaltyPaid'])
+            except KeyError as kerr:
+                pass
+
+            try:
+                self['creationDate'] = self.util_dateFormat(self['creationDate'])
+            except KeyError as kerr:
+                pass
+            try:
+                self['entryDate'] = self.util_dateFormat(self['entryDate'])
             except KeyError as kerr:
                 pass
 

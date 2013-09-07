@@ -155,27 +155,27 @@ class MambuClient(MambuStruct):
     def convertDict2Attrs(self, *args, **kwargs):
         try:
             try:
-                self.attrs['birthDate'] = self.util_dateFormat(self.attrs['birthDate'])
+                self['birthDate'] = self.util_dateFormat(self['birthDate'])
             except KeyError as kerr:
                 pass
 
-            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
-            self.attrs['groupLoanCycle'] = int(self.attrs['groupLoanCycle'])
+            self['loanCycle'] = int(self['loanCycle'])
+            self['groupLoanCycle'] = int(self['groupLoanCycle'])
 
             try:
-                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
+                self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+                self['creationDate'] = self.util_dateFormat(self['creationDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+                self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['activationDate'] = self.util_dateFormat(self.attrs['activationDate'])
+                self['activationDate'] = self.util_dateFormat(self['activationDate'])
             except KeyError as kerr:
                 pass
 

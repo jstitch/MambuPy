@@ -72,8 +72,13 @@ class MambuStruct(object):
     def __str__(self):
         return self.__class__.__name__ + " - " + str(self.attrs)
 
+    # TODO: throw exception when not a dict
     def has_key(self, key):
         return self.attrs.has_key(key)
+
+    # TODO: throw exception when not a dict
+    def items(self):
+        return self.attrs.items()
 
     # Initializa a partir de un diccionario con los elementos de la cuenta
     def init(self, attrs={}, *args, **kwargs):

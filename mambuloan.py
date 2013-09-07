@@ -75,6 +75,9 @@ class MambuLoans(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+    def __len__(self):
+        return len(self.attrs)
+
     def convertDict2Attrs(self, *args, **kwargs):
         for n,l in enumerate(self.attrs):
             try:
@@ -121,6 +124,13 @@ class MambuLoan(MambuStruct):
             except KeyError:
                 notes = ""
             self['notes_'] = notes
+
+            # for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
+            #     s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
+            # for e in self['notes'].split("<br>"):
+            #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
+            # self['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
+
             self['notes'] = strip_tags(self['notes'])
 
             # Hay notas en mambu que a veces no tienen un <br> dividiendo
@@ -154,42 +164,42 @@ class MambuLoan(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self.attrs['repaymentInstallments'] = int(self.attrs['repaymentInstallments'])
-            self.attrs['interestRate'] = float(self.attrs['interestRate'])
+            self['repaymentInstallments'] = int(self['repaymentInstallments'])
+            self['interestRate'] = float(self['interestRate'])
 
-            self.attrs['loanAmount'] = round(float(self.attrs['loanAmount']),0)
+            self['loanAmount'] = round(float(self['loanAmount']),0)
 
-            self.attrs['principalDue'] = float(self.attrs['principalDue'])
-            self.attrs['interestDue'] = float(self.attrs['interestDue'])
-            self.attrs['feesDue'] = float(self.attrs['feesDue'])
-            self.attrs['penaltyDue'] = float(self.attrs['penaltyDue'])
+            self['principalDue'] = float(self['principalDue'])
+            self['interestDue'] = float(self['interestDue'])
+            self['feesDue'] = float(self['feesDue'])
+            self['penaltyDue'] = float(self['penaltyDue'])
 
-            self.attrs['principalPaid'] = float(self.attrs['principalPaid'])
-            self.attrs['interestPaid'] = float(self.attrs['interestPaid'])
-            self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
-            self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
+            self['principalPaid'] = float(self['principalPaid'])
+            self['interestPaid'] = float(self['interestPaid'])
+            self['feesPaid'] = float(self['feesPaid'])
+            self['penaltyPaid'] = float(self['penaltyPaid'])
 
-            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
-            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+            self['creationDate'] = self.util_dateFormat(self['creationDate'])
+            self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
 
             try:
-                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
+                self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['expectedDisbursementDate'] = self.util_dateFormat(self.attrs['expectedDisbursementDate'])
+                self['expectedDisbursementDate'] = self.util_dateFormat(self['expectedDisbursementDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['disbursementDate'] = self.util_dateFormat(self.attrs['disbursementDate'])
+                self['disbursementDate'] = self.util_dateFormat(self['disbursementDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastSetToArrearsDate'] = self.util_dateFormat(self.attrs['lastSetToArrearsDate'])
+                self['lastSetToArrearsDate'] = self.util_dateFormat(self['lastSetToArrearsDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['closedDate'] = self.util_dateFormat(self.attrs['closedDate'])
+                self['closedDate'] = self.util_dateFormat(self['closedDate'])
             except KeyError as kerr:
                 pass
 
@@ -203,8 +213,7 @@ class MambuLoan(MambuStruct):
         from util import duedate
 
         reps = MambuRepayments(entid=self['id'])
-        reps.attrs = sorted(reps.attrs, key=duedate)
-        self['repayments'] = reps
+        self['repayments'] = sorted(reps, key=duedate)
 
         return 1
 
@@ -215,19 +224,21 @@ class MambuLoan(MambuStruct):
         from util import transactionid
         
         trans = MambuTransactions(entid=self['id'])
-        trans.attrs = sorted(trans.attrs, key=transactionid)
-        self['transactions'] = trans
+        self['transactions'] = sorted(trans, key=transactionid)
 
         return 1
 
     # Anexa sucursal de la cuenta
     # Retorna numero de requests hechos
     def setBranch(self):
-        from mambubranch import MambuBranch
+        from mambubranch import MambuBranches
+        from podemos import getbranchesurl
 
-        branch = MambuBranch(entid=self['assignedBranchKey'])
-        self['assignedBranchName'] = branch['name']
-        self['assignedBranch'] = branch
+        branches = MambuBranches()
+        for branch in branches:
+            if branch['encodedKey'] == self['assignedBranchKey']:
+                self['assignedBranchName'] = branch['name']
+                self['assignedBranch'] = branch
         
         return 1
 
@@ -293,12 +304,11 @@ class MambuLoan(MambuStruct):
                                                         'porcentaje' : cte['amount'] / float(self['loanAmount']),
                                                        }
 
+                holder['clients'] = clients
                 self['clients'] = loanclients
 
 
         else: # "CLIENT"
-            from mambuclient import MambuClient
-            
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  **params)
