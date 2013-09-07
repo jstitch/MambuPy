@@ -174,3 +174,22 @@ class MambuGroup(MambuStruct):
                 self['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
             except (TypeError, ValueError, KeyError) as err:
                 raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+
+    # Anexa los clientes miembros del grupo
+    # Retorna el numero de requests hechos
+    def setClients(self):
+        from mambuclient import MambuClient
+        
+        params = {'fullDetails': True}
+        requests = 0
+
+        clients = []
+        for m in self['groupMembers']:
+            client = MambuClient(entid=m['clientKey'],
+                                 **params)
+            requests += 1
+            clients.append(client)
+
+        self['clients'] = clients
+
+        return requests

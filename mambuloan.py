@@ -255,7 +255,6 @@ class MambuLoan(MambuStruct):
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False):
-        from mambuclient import MambuClient
 
         params = {'fullDetails': True}
         requests = 0
@@ -302,11 +301,12 @@ class MambuLoan(MambuStruct):
                                                         'porcentaje' : cte['amount'] / float(self['loanAmount']),
                                                        }
 
-                holder['clients'] = clients
                 self['clients'] = loanclients
 
 
         else: # "CLIENT"
+            from mambuclient import MambuClient
+            
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  **params)
