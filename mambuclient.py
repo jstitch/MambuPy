@@ -1,7 +1,8 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct
-from podemos import PodemosError, getclienturl, DEBUG, ERROR_CODES
+from mambuutil import getclienturl
+from podemos import PodemosError, DEBUG, ERROR_CODES
 from datetime import datetime
 from util import strip_consecutive_repeated_char as scrc
 

@@ -1,7 +1,8 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from podemos import PodemosError, getbranchesurl, DEBUG, ERROR_CODES
+from mambuutil import getbranchesurl
+from podemos import PodemosError, DEBUG, ERROR_CODES
 from util import strip_consecutive_repeated_char as strip_cons
 from datetime import datetime
 from products import products
