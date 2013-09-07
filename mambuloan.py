@@ -210,7 +210,8 @@ class MambuLoan(MambuStruct):
         from util import duedate
 
         reps = MambuRepayments(entid=self['id'])
-        self['repayments'] = sorted(reps, key=duedate)
+        reps.attrs = sorted(reps.attrs, key=duedate)
+        self['repayments'] = reps
 
         return 1
 
@@ -221,21 +222,19 @@ class MambuLoan(MambuStruct):
         from util import transactionid
         
         trans = MambuTransactions(entid=self['id'])
-        self['transactions'] = sorted(trans, key=transactionid)
+        trans.attrs = sorted(trans.attrs, key=transactionid)
+        self['transactions'] = trans
 
         return 1
 
     # Anexa sucursal de la cuenta
     # Retorna numero de requests hechos
     def setBranch(self):
-        from mambubranch import MambuBranches
-        from podemos import getbranchesurl
+        from mambubranch import MambuBranch
 
-        branches = MambuBranches()
-        for branch in branches:
-            if branch['encodedKey'] == self['assignedBranchKey']:
-                self['assignedBranchName'] = branch['name']
-                self['assignedBranch'] = branch
+        branch = MambuBranch(entid=self['assignedBranchKey'])
+        self['assignedBranchName'] = branch['name']
+        self['assignedBranch'] = branch
         
         return 1
 
@@ -256,6 +255,8 @@ class MambuLoan(MambuStruct):
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False):
+        from mambuclient import MambuClient
+
         params = {'fullDetails': True}
         requests = 0
 
