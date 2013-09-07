@@ -75,9 +75,6 @@ class MambuLoans(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def __len__(self):
-        return len(self.attrs)
-
     def convertDict2Attrs(self, *args, **kwargs):
         for n,l in enumerate(self.attrs):
             try:

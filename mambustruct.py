@@ -72,6 +72,9 @@ class MambuStruct(object):
     def __str__(self):
         return self.__class__.__name__ + " - " + str(self.attrs)
 
+    def __len__(self):
+        return len(self.attrs)
+
     # TODO: throw exception when not a dict
     def has_key(self, key):
         return self.attrs.has_key(key)
