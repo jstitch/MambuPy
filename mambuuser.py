@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mabuutil import getuserurl
+from mambuutil import getuserurl
 from podemos import PodemosError, DEBUG, ERROR_CODES
 from datetime import datetime
 
