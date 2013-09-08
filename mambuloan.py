@@ -216,7 +216,7 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setRepayments(self):
         from mamburepayment import MambuRepayments
-        from podemos import getrepaymentsurl
+        from mambuutil import getrepaymentsurl
         from util import duedate
 
         reps = MambuRepayments(entid=self['id'])
@@ -228,7 +228,7 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setTransactions(self):
         from mambutransaction import MambuTransactions
-        from podemos import gettransactionsurl
+        from mambuutil import gettransactionsurl
         from util import transactionid
         
         trans = MambuTransactions(entid=self['id'])
@@ -240,7 +240,7 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setBranch(self):
         from mambubranch import MambuBranches
-        from podemos import getbranchesurl
+        from mambuutil import getbranchesurl
 
         branches = MambuBranches()
         for branch in branches:
@@ -254,7 +254,7 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setUser(self):
         from mambuuser import MambuUser
-        from podemos import getuserurl
+        from mambuutil import getuserurl
 
         try:
             user = MambuUser(entid=self['assignedUserKey'])
@@ -269,14 +269,14 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False):
         from mambuclient import MambuClient
-        from podemos import getclienturl
+        from mambuutil import getclienturl
 
         params = {'fullDetails': True}
         requests = 0
 
         if self['accountHolderType'] == "GROUP":
             from mambugroup import MambuGroup
-            from podemos import getgroupurl
+            from mambuutil import getgroupurl
 
             self.attrs['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], **params)
