@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct
-from mambuutil import gettroupurl
+from mambuutil import getgroupurl
 from podemos import PodemosError, DEBUG, ERROR_CODES
 from datetime import datetime
 
