@@ -2,7 +2,7 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getuserurl
-from podemos import PodemosError, DEBUG, ERROR_CODES
+from podemos import PodemosError, ERROR_CODES
 from datetime import datetime
 
 # {

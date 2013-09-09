@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from podemos import PodemosError, MambuCommError, API_RETURN_CODES, DEBUG, ERROR_CODES
+from podemos import PodemosError, MambuCommError, API_RETURN_CODES, ERROR_CODES
 from urllib import urlopen
 import json, copy
 from datetime import datetime
@@ -106,17 +106,11 @@ class MambuStruct(object):
                 break
             except Exception as ex:
                 retries += 1
-                if DEBUG: print "commerror!%s" % (" retrying" if retries < MambuStruct.RETRIES else "",)
-                # print repr(ex)
         else:
             raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
 
         try:
-            # jsresp = json.load(resp,"latin-1")
             jsresp = json.load(resp)
-            # if DEBUG:
-            #     import pprint
-            #     pprint.pprint(jsresp)
         except Exception as ex:
             raise PodemosError("JSON Error: %s" % repr(ex))
         try:

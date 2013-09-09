@@ -2,7 +2,7 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getloansurl
-from podemos import PodemosError, DEBUG, ERROR_CODES
+from podemos import PodemosError, ERROR_CODES
 from util import strip_consecutive_repeated_char as strip_cons, strip_tags
 from datetime import datetime
 from products import products
