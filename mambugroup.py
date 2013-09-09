@@ -144,36 +144,40 @@ class MambuGroup(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self['loanCycle'] = int(self['loanCycle'])
-            self['creationDate'] = self.util_dateFormat(self['creationDate'])
-            self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
+            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
+        except Exception as ex:
+            raise ex
+        # try:
+        #     self['loanCycle'] = int(self['loanCycle'])
+        #     self['creationDate'] = self.util_dateFormat(self['creationDate'])
+        #     self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
 
-            if self.has_key('groupMembers'):
-                for member in self['groupMembers']:
-                    member['indexInList'] = int(member['indexInList'])
-                    member['creationDate'] = self.util_dateFormat(member['creationDate'])
+        #     if self.has_key('groupMembers'):
+        #         for member in self['groupMembers']:
+        #             member['indexInList'] = int(member['indexInList'])
+        #             member['creationDate'] = self.util_dateFormat(member['creationDate'])
 
-            if self.has_key('addresses'):
-                for address in self['addresses']:
-                    address['indexInList'] = int(address['indexInList'])
+        #     if self.has_key('addresses'):
+        #         for address in self['addresses']:
+        #             address['indexInList'] = int(address['indexInList'])
 
-            if self.has_key('groupRoles'):
-                for role in self['groupRoles']:
-                    role['indexInList'] = int(role['indexInList'])
+        #     if self.has_key('groupRoles'):
+        #         for role in self['groupRoles']:
+        #             role['indexInList'] = int(role['indexInList'])
 
-            if self.has_key('customInformation'):
-                for custom in self['customInformation']:
-                    custom['indexIntList'] = int(custom['indexInList'])
-                    custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
+        #     if self.has_key('customInformation'):
+        #         for custom in self['customInformation']:
+        #             custom['indexIntList'] = int(custom['indexInList'])
+        #             custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
 
-        except (TypeError, ValueError, KeyError) as err:
+        # except (TypeError, ValueError, KeyError) as err:
 
-            try:
-                self['loanCycle'] = int(self['loanCycle'])
-                self['creationDate'] = self.util_dateFormat('creationDate')
-                self['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
-            except (TypeError, ValueError, KeyError) as err:
-                raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+        #     try:
+        #         self['loanCycle'] = int(self['loanCycle'])
+        #         self['creationDate'] = self.util_dateFormat('creationDate')
+        #         self['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
+        #     except (TypeError, ValueError, KeyError) as err:
+        #         raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa los clientes miembros del grupo
     # Retorna el numero de requests hechos

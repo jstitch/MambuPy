@@ -160,47 +160,52 @@ class MambuLoan(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self['repaymentInstallments'] = int(self['repaymentInstallments'])
-            self['interestRate'] = float(self['interestRate'])
+            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
+            self['loanAmount'] = round(self['loanAmount'],0)
+        except Exception as ex:
+            raise ex
+        # try:
+        #     self['repaymentInstallments'] = int(self['repaymentInstallments'])
+        #     self['interestRate'] = float(self['interestRate'])
 
-            self['loanAmount'] = round(float(self['loanAmount']),0)
+        #     self['loanAmount'] = round(float(self['loanAmount']),0)
 
-            self['principalDue'] = float(self['principalDue'])
-            self['interestDue'] = float(self['interestDue'])
-            self['feesDue'] = float(self['feesDue'])
-            self['penaltyDue'] = float(self['penaltyDue'])
+        #     self['principalDue'] = float(self['principalDue'])
+        #     self['interestDue'] = float(self['interestDue'])
+        #     self['feesDue'] = float(self['feesDue'])
+        #     self['penaltyDue'] = float(self['penaltyDue'])
 
-            self['principalPaid'] = float(self['principalPaid'])
-            self['interestPaid'] = float(self['interestPaid'])
-            self['feesPaid'] = float(self['feesPaid'])
-            self['penaltyPaid'] = float(self['penaltyPaid'])
+        #     self['principalPaid'] = float(self['principalPaid'])
+        #     self['interestPaid'] = float(self['interestPaid'])
+        #     self['feesPaid'] = float(self['feesPaid'])
+        #     self['penaltyPaid'] = float(self['penaltyPaid'])
 
-            self['creationDate'] = self.util_dateFormat(self['creationDate'])
-            self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
+        #     self['creationDate'] = self.util_dateFormat(self['creationDate'])
+        #     self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
 
-            try:
-                self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['expectedDisbursementDate'] = self.util_dateFormat(self['expectedDisbursementDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['disbursementDate'] = self.util_dateFormat(self['disbursementDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['lastSetToArrearsDate'] = self.util_dateFormat(self['lastSetToArrearsDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['closedDate'] = self.util_dateFormat(self['closedDate'])
-            except KeyError as kerr:
-                pass
+        #     try:
+        #         self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['expectedDisbursementDate'] = self.util_dateFormat(self['expectedDisbursementDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['disbursementDate'] = self.util_dateFormat(self['disbursementDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['lastSetToArrearsDate'] = self.util_dateFormat(self['lastSetToArrearsDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['closedDate'] = self.util_dateFormat(self['closedDate'])
+        #     except KeyError as kerr:
+        #         pass
 
-        except (TypeError, ValueError, KeyError) as err:
-            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+        # except (TypeError, ValueError, KeyError) as err:
+        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa calendario de pagos de la cuenta
     # Retorna numero de requests hechos

@@ -147,7 +147,41 @@ class MambuStruct(object):
     # De un diccionario de valores como cadenas, convierte los
     # pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
-        pass
+        def convierte(data):
+            try:
+                it = iter(data)
+                if type(it) == type(iter({})):
+                    d = {}
+                    for k in it:
+                        d[k] = convierte(data[k])
+                    data = d
+                if type(it) == type(iter([])):
+                    l = []
+                    for e in it:
+                        l.append(convierte(e))
+                    data = l
+            except TypeError as terr:
+                pass
+            except Exception as ex:
+                raise ex
+            
+            try:
+                d = int(data)
+                if str(d) != data: # por si la cadena tiene 0's al inicio, para no perderlos
+                    return data
+                return d
+            except (TypeError, ValueError) as tverr:
+                try:
+                    return float(data)
+                except (TypeError, ValueError) as tverr:
+                    try:
+                        return self.util_dateFormat(data)
+                    except (TypeError, ValueError) as tverr:
+                        return data
+            
+            return data
+
+        self.attrs = convierte(self.attrs)
 
     # Convierte campo de fecha a formato especificado a partir de
     # formato default de Mambu

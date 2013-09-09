@@ -59,32 +59,36 @@ class MambuRepayment(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self['interestDue'] = float(self['interestDue'])
-            self['principalDue'] = float(self['principalDue'])
-            self['feesDue'] = float(self['feesDue'])
-            self['penaltyDue'] = float(self['penaltyDue'])
+            MambuStruct.convertDict2Attrs(self, *args, **kwargs)
+        except Exception as ex:
+            raise ex
+        # try:
+        #     self['interestDue'] = float(self['interestDue'])
+        #     self['principalDue'] = float(self['principalDue'])
+        #     self['feesDue'] = float(self['feesDue'])
+        #     self['penaltyDue'] = float(self['penaltyDue'])
 
-            self['interestPaid'] = float(self['interestPaid'])
-            self['principalPaid'] = float(self['principalPaid'])
-            self['feesPaid'] = float(self['feesPaid'])
-            self['penaltyPaid'] = float(self['penaltyPaid'])
+        #     self['interestPaid'] = float(self['interestPaid'])
+        #     self['principalPaid'] = float(self['principalPaid'])
+        #     self['feesPaid'] = float(self['feesPaid'])
+        #     self['penaltyPaid'] = float(self['penaltyPaid'])
 
-            try:
-                self['dueDate'] = self.util_dateFormat(self['dueDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['lastPaidDate'] = self.util_dateFormat(self['lastPaidDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['lastPenaltyAppliedDate'] = self.util_dateFormat(self['lastPenaltyAppliedDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['repaidDate'] = self.util_dateFormat(self['repaidDate'])
-            except KeyError as kerr:
-                pass
+        #     try:
+        #         self['dueDate'] = self.util_dateFormat(self['dueDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['lastPaidDate'] = self.util_dateFormat(self['lastPaidDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['lastPenaltyAppliedDate'] = self.util_dateFormat(self['lastPenaltyAppliedDate'])
+        #     except KeyError as kerr:
+        #         pass
+        #     try:
+        #         self['repaidDate'] = self.util_dateFormat(self['repaidDate'])
+        #     except KeyError as kerr:
+        #         pass
 
-        except (TypeError, ValueError, KeyError) as err:
-            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+        # except (TypeError, ValueError, KeyError) as err:
+        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
