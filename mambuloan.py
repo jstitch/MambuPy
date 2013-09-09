@@ -166,10 +166,6 @@ class MambuLoan(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            formatoFecha=kwargs['dateFormat']
-        except KeyError:
-            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
-        try:
             self.attrs['repaymentInstallments'] = int(self.attrs['repaymentInstallments'])
             self.attrs['interestRate'] = float(self.attrs['interestRate'])
 
@@ -185,27 +181,27 @@ class MambuLoan(MambuStruct):
             self.attrs['feesPaid'] = float(self.attrs['feesPaid'])
             self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
 
-            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
-            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
 
             try:
-                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'], formatoFecha)
+                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['expectedDisbursementDate'] = self.util_dateFormat(self.attrs['expectedDisbursementDate'], formatoFecha)
+                self.attrs['expectedDisbursementDate'] = self.util_dateFormat(self.attrs['expectedDisbursementDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['disbursementDate'] = self.util_dateFormat(self.attrs['disbursementDate'], formatoFecha)
+                self.attrs['disbursementDate'] = self.util_dateFormat(self.attrs['disbursementDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastSetToArrearsDate'] = self.util_dateFormat(self.attrs['lastSetToArrearsDate'], formatoFecha)
+                self.attrs['lastSetToArrearsDate'] = self.util_dateFormat(self.attrs['lastSetToArrearsDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['closedDate'] = self.util_dateFormat(self.attrs['closedDate'], formatoFecha)
+                self.attrs['closedDate'] = self.util_dateFormat(self.attrs['closedDate'])
             except KeyError as kerr:
                 pass
 

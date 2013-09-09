@@ -72,12 +72,8 @@ class MambuBranch(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            formatoFecha=kwargs['dateFormat']
-        except KeyError:
-            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
-        try:
-            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'], formatoFecha)
-            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'], formatoFecha)
+            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 

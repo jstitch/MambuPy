@@ -65,10 +65,6 @@ class MambuRepayment(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            formatoFecha=kwargs['dateFormat']
-        except KeyError:
-            formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
-        try:
             self.attrs['interestDue'] = float(self.attrs['interestDue'])
             self.attrs['principalDue'] = float(self.attrs['principalDue'])
             self.attrs['feesDue'] = float(self.attrs['feesDue'])
@@ -80,19 +76,19 @@ class MambuRepayment(MambuStruct):
             self.attrs['penaltyPaid'] = float(self.attrs['penaltyPaid'])
 
             try:
-                self.attrs['dueDate'] = self.util_dateFormat(self.attrs['dueDate'], formatoFecha)
+                self.attrs['dueDate'] = self.util_dateFormat(self.attrs['dueDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastPaidDate'] = self.util_dateFormat(self.attrs['lastPaidDate'], formatoFecha)
+                self.attrs['lastPaidDate'] = self.util_dateFormat(self.attrs['lastPaidDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastPenaltyAppliedDate'] = self.util_dateFormat(self.attrs['lastPenaltyAppliedDate'], formatoFecha)
+                self.attrs['lastPenaltyAppliedDate'] = self.util_dateFormat(self.attrs['lastPenaltyAppliedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['repaidDate'] = self.util_dateFormat(self.attrs['repaidDate'], formatoFecha)
+                self.attrs['repaidDate'] = self.util_dateFormat(self.attrs['repaidDate'])
             except KeyError as kerr:
                 pass
 
