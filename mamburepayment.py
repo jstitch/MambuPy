@@ -38,7 +38,7 @@ class MambuRepayments(MambuStruct):
         return MambuStructIterator(self.attrs)
 
     def convertDict2Attrs(self, *args, **kwargs):
-        for r in self.attrs:
+        for n,r in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:
@@ -46,7 +46,7 @@ class MambuRepayments(MambuStruct):
             kwargs.update(params)
             repayment = MambuRepayment(urlfunc=None, entid=None, *args, **kwargs)
             repayment.init(r, *args, **kwargs)
-            r = repayment
+            self.attrs[n] = repayment
 
 # Objeto con un repayment de una cuenta en Mambu
 class MambuRepayment(MambuStruct):

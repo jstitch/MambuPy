@@ -48,7 +48,7 @@ class MambuTransactions(MambuStruct):
         return MambuStructIterator(self.attrs)
 
     def convertDict2Attrs(self, *args, **kwargs):
-        for t in self.attrs:
+        for n,t in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:
@@ -56,7 +56,7 @@ class MambuTransactions(MambuStruct):
             kwargs.update(params)
             trans = MambuTransaction(urlfunc=None, entid=None, *args, **kwargs)
             trans.init(t, *args, **kwargs)
-            t = trans
+            self.attrs[n] = trans
 
 # Objeto con una Transaccion de Mambu
 class MambuTransaction(MambuStruct):
