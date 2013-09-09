@@ -71,6 +71,9 @@ class MambuStruct(object):
     def __str__(self):
         return self.__class__.__name__ + " - " + str(self.attrs)
 
+    def __len__(self):
+        return len(self.attrs)
+
     # TODO: throw exception when not a dict
     def has_key(self, key):
         return self.attrs.has_key(key)
@@ -83,11 +86,12 @@ class MambuStruct(object):
     def init(self, attrs={}, *args, **kwargs):
         self.attrs = attrs
         self.preprocess()
-        self.serial = copy.deepcopy(self.attrs) # depreciado
         self.convertDict2Attrs(*args, **kwargs)
     
     # "Serializa" la informacion de cada campo en el diccionario
     # NO SERIALIZA LA CLASE, solo sus campos
+    # WARNING: puede caer en stackoverflow, verificar niveles de
+    # recursion...
     def serializeStruct(self):
         serial = MambuStruct.serializeFields(self.attrs)
         return serial

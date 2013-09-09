@@ -126,7 +126,7 @@ class MambuGroup(MambuStruct):
         try:
             for k,v in self['theGroup'].items():
                 self[k] = v
-            del(self['theGroup'])
+            del(self.attrs['theGroup'])
         except Exception as e:
             pass
 
@@ -148,19 +148,23 @@ class MambuGroup(MambuStruct):
             self['creationDate'] = self.util_dateFormat(self['creationDate'])
             self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
 
-            for member in self['groupMembers']:
-                member['indexInList'] = int(member['indexInList'])
-                member['creationDate'] = self.util_dateFormat(member['creationDate'])
+            if self.has_key('groupMembers'):
+                for member in self['groupMembers']:
+                    member['indexInList'] = int(member['indexInList'])
+                    member['creationDate'] = self.util_dateFormat(member['creationDate'])
 
-            for address in self['addresses']:
-                address['indexInList'] = int(address['indexInList'])
+            if self.has_key('addresses'):
+                for address in self['addresses']:
+                    address['indexInList'] = int(address['indexInList'])
 
-            for role in self['groupRoles']:
-                role['indexInList'] = int(role['indexInList'])
+            if self.has_key('groupRoles'):
+                for role in self['groupRoles']:
+                    role['indexInList'] = int(role['indexInList'])
 
-            for custom in self['customInformation']:
-                custom['indexIntList'] = int(custom['indexInList'])
-                custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
+            if self.has_key('customInformation'):
+                for custom in self['customInformation']:
+                    custom['indexIntList'] = int(custom['indexInList'])
+                    custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
 
         except (TypeError, ValueError, KeyError) as err:
 
@@ -170,3 +174,22 @@ class MambuGroup(MambuStruct):
                 self['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
             except (TypeError, ValueError, KeyError) as err:
                 raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
+
+    # Anexa los clientes miembros del grupo
+    # Retorna el numero de requests hechos
+    def setClients(self):
+        from mambuclient import MambuClient
+        
+        params = {'fullDetails': True}
+        requests = 0
+
+        clients = []
+        for m in self['groupMembers']:
+            client = MambuClient(entid=m['clientKey'],
+                                 **params)
+            requests += 1
+            clients.append(client)
+
+        self['clients'] = clients
+
+        return requests

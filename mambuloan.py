@@ -173,7 +173,7 @@ class MambuLoan(MambuStruct):
             self['principalPaid'] = float(self['principalPaid'])
             self['interestPaid'] = float(self['interestPaid'])
             self['feesPaid'] = float(self['feesPaid'])
-            self['penaltyPaid'] = float(self.['penaltyPaid'])
+            self['penaltyPaid'] = float(self['penaltyPaid'])
 
             self['creationDate'] = self.util_dateFormat(self['creationDate'])
             self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
@@ -206,11 +206,11 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setRepayments(self):
         from mamburepayment import MambuRepayments
-        from mambuutil import getrepaymentsurl
         from util import duedate
 
         reps = MambuRepayments(entid=self['id'])
-        self['repayments'] = sorted(reps, key=duedate)
+        reps.attrs = sorted(reps.attrs, key=duedate)
+        self['repayments'] = reps
 
         return 1
 
@@ -218,25 +218,22 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setTransactions(self):
         from mambutransaction import MambuTransactions
-        from mambuutil import gettransactionsurl
         from util import transactionid
         
         trans = MambuTransactions(entid=self['id'])
-        self['transactions'] = sorted(trans, key=transactionid)
+        trans.attrs = sorted(trans.attrs, key=transactionid)
+        self['transactions'] = trans
 
         return 1
 
     # Anexa sucursal de la cuenta
     # Retorna numero de requests hechos
     def setBranch(self):
-        from mambubranch import MambuBranches
-        from mambuutil import getbranchesurl
+        from mambubranch import MambuBranch
 
-        branches = MambuBranches()
-        for branch in branches:
-            if branch['encodedKey'] == self['assignedBranchKey']:
-                self['assignedBranchName'] = branch['name']
-                self['assignedBranch'] = branch
+        branch = MambuBranch(entid=self['assignedBranchKey'])
+        self['assignedBranchName'] = branch['name']
+        self['assignedBranch'] = branch
         
         return 1
 
@@ -244,7 +241,6 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setUser(self):
         from mambuuser import MambuUser
-        from mambuutil import getuserurl
 
         try:
             user = MambuUser(entid=self['assignedUserKey'])
@@ -258,21 +254,19 @@ class MambuLoan(MambuStruct):
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False):
-        from mambuclient import MambuClient
-        from mambuutil import getclienturl
-
         params = {'fullDetails': True}
         requests = 0
 
         if self['accountHolderType'] == "GROUP":
             from mambugroup import MambuGroup
-            from mambuutil import getgroupurl
 
             self['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], **params)
             requests += 1
 
             if getRoles:
+                from mambuclient import MambuClient
+                
                 roles = []
                 # If holder is group, attach role client data to the group
                 for c in holder['groupRoles']:
@@ -283,9 +277,10 @@ class MambuLoan(MambuStruct):
                 holder['roles'] = roles
 
             if getClients:
+                requests += holder.setClients()
+                
                 from decimal import Decimal
                 
-                clients = []
                 loanclients = {}
 
                 loannombres = []
@@ -294,13 +289,7 @@ class MambuLoan(MambuStruct):
                     m = re.match(r"^(\$)?([1-9]([0-9]?){2}(,[0-9]{3})*|([1-9]([0-9]?){2})|[0])(.[0-9][0-9]?)?$", fields[1])
                     loannombres.append({'name': fields[0], "amount": float(Decimal(re.sub(r'[^\d.]', '', m.group(0))))})
 
-                for m in holder['groupMembers']:
-                    client = MambuClient(entid=m['clientKey'],
-                                         **params)
-                    requests += 1
-
-                    clients.append(client)
-
+                for client in holder['clients']:
                     if client['name'] in [ l['name'] for l in loannombres ]:
                         for cte in [ l for l in loannombres if l['name'] == client['name'] ]:
                             loanclients[cte['name']] = {'client'     : client,
@@ -310,11 +299,12 @@ class MambuLoan(MambuStruct):
                                                         'porcentaje' : cte['amount'] / float(self['loanAmount']),
                                                        }
 
-                holder['clients'] = clients
                 self['clients'] = loanclients
 
 
         else: # "CLIENT"
+            from mambuclient import MambuClient
+            
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  **params)

@@ -104,7 +104,7 @@ class MambuClient(MambuStruct):
         try:
             for k,v in self['client'].items():
                 self[k] = v
-            del(self['client'])
+            del(self.attrs['client'])
         except Exception as e:
             pass
 
