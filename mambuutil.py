@@ -2,6 +2,9 @@ from config import apiurl
 from priv_data import apiuser
 from priv_data import apipwd
 
+class MambuError(Exception):
+    pass
+
 # Retorna URL para api de Mambu con datos de acceso
 def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):
     mambuurl = "https://" + user + ":" + pwd + "@" + url + "/api/"

@@ -1,9 +1,8 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getloansurl
+from mambuutil import getloansurl, MambuError
 
-from podemos import PodemosError
 from products import products
 
 from util import strip_consecutive_repeated_char as strip_cons, strip_tags
@@ -203,7 +202,7 @@ class MambuLoan(MambuStruct):
         try:
             user = MambuUser(entid=self['assignedUserKey'])
         except KeyError as kerr:
-            raise PodemosError("La cuenta %s no tiene asignado un usuario" % self['id'])
+            raise MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
 
         self['user'] = user
 
