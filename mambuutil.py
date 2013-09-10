@@ -17,6 +17,9 @@ API_RETURN_CODES = {
 class MambuError(Exception):
     pass
 
+class MambuCommError(MambuError):
+    pass
+
 # Retorna URL para api de Mambu con datos de acceso
 def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):
     mambuurl = "https://" + user + ":" + pwd + "@" + url + "/api/"
