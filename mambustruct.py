@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mabuutil import API_RETURN_CODES
+from mambuutil import API_RETURN_CODES
 from podemos import PodemosError, MambuCommError, ERROR_CODES
 
 from urllib import urlopen
