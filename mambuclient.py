@@ -2,7 +2,7 @@
 
 from mambustruct import MambuStruct
 from mambuutil import getclienturl
-from podemos import PodemosError, ERROR_CODES
+
 from datetime import datetime
 from util import strip_consecutive_repeated_char as scrc
 
@@ -157,31 +157,3 @@ class MambuClient(MambuStruct):
             MambuStruct.convertDict2Attrs(self, *args, **kwargs)
         except Exception as ex:
             raise ex
-        # try:
-        #     try:
-        #         self['birthDate'] = self.util_dateFormat(self['birthDate'])
-        #     except KeyError as kerr:
-        #         pass
-
-        #     self['loanCycle'] = int(self['loanCycle'])
-        #     self['groupLoanCycle'] = int(self['groupLoanCycle'])
-
-        #     try:
-        #         self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['creationDate'] = self.util_dateFormat(self['creationDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['activationDate'] = self.util_dateFormat(self['activationDate'])
-        #     except KeyError as kerr:
-        #         pass
-
-        # except (TypeError, ValueError, KeyError) as err:
-        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

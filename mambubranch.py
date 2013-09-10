@@ -2,10 +2,9 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getbranchesurl
-from podemos import PodemosError, ERROR_CODES
+
 from util import strip_consecutive_repeated_char as strip_cons
 from datetime import datetime
-from products import products
 import re
 
 # [
@@ -69,11 +68,6 @@ class MambuBranch(MambuStruct):
             MambuStruct.convertDict2Attrs(self, *args, **kwargs)
         except Exception as ex:
             raise ex
-        # try:
-        #     self['creationDate'] = self.util_dateFormat(self['creationDate'])
-        #     self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
-        # except (TypeError, ValueError, KeyError) as err:
-        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa los usuarios activos de esa sucursal
     # Retorna numero de requests hechos

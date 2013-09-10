@@ -2,10 +2,12 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getloansurl
-from podemos import PodemosError, ERROR_CODES
+
+from podemos import PodemosError
+from products import products
+
 from util import strip_consecutive_repeated_char as strip_cons, strip_tags
 from datetime import datetime
-from products import products
 import re
 
 # {
@@ -120,13 +122,6 @@ class MambuLoan(MambuStruct):
             except KeyError:
                 notes = ""
             self['notes_'] = notes
-
-            # for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
-            #     s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
-            # for e in self['notes'].split("<br>"):
-            #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
-            # self['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
-
             self['notes'] = strip_tags(self['notes'])
 
             # Hay notas en mambu que a veces no tienen un <br> dividiendo
@@ -164,48 +159,6 @@ class MambuLoan(MambuStruct):
             self['loanAmount'] = round(self['loanAmount'],0)
         except Exception as ex:
             raise ex
-        # try:
-        #     self['repaymentInstallments'] = int(self['repaymentInstallments'])
-        #     self['interestRate'] = float(self['interestRate'])
-
-        #     self['loanAmount'] = round(float(self['loanAmount']),0)
-
-        #     self['principalDue'] = float(self['principalDue'])
-        #     self['interestDue'] = float(self['interestDue'])
-        #     self['feesDue'] = float(self['feesDue'])
-        #     self['penaltyDue'] = float(self['penaltyDue'])
-
-        #     self['principalPaid'] = float(self['principalPaid'])
-        #     self['interestPaid'] = float(self['interestPaid'])
-        #     self['feesPaid'] = float(self['feesPaid'])
-        #     self['penaltyPaid'] = float(self['penaltyPaid'])
-
-        #     self['creationDate'] = self.util_dateFormat(self['creationDate'])
-        #     self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
-
-        #     try:
-        #         self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['expectedDisbursementDate'] = self.util_dateFormat(self['expectedDisbursementDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['disbursementDate'] = self.util_dateFormat(self['disbursementDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['lastSetToArrearsDate'] = self.util_dateFormat(self['lastSetToArrearsDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['closedDate'] = self.util_dateFormat(self['closedDate'])
-        #     except KeyError as kerr:
-        #         pass
-
-        # except (TypeError, ValueError, KeyError) as err:
-        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
     # Anexa calendario de pagos de la cuenta
     # Retorna numero de requests hechos

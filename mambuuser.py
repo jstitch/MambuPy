@@ -2,7 +2,7 @@
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getuserurl
-from podemos import PodemosError, ERROR_CODES
+
 from datetime import datetime
 
 # {
@@ -90,19 +90,3 @@ class MambuUser(MambuStruct):
             MambuStruct.convertDict2Attrs(self, *args, **kwargs)
         except Exception as ex:
             raise ex
-        # try:
-        #     try:
-        #         self['lastLoggedInDate'] = self.util_dateFormat(self['lastLoggedInDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['creationDate'] = self.util_dateFormat(self['creationDate'])
-        #     except KeyError as kerr:
-        #         pass
-        #     try:
-        #         self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
-        #     except KeyError as kerr:
-        #         pass
-
-        # except (TypeError, ValueError, KeyError) as err:
-        #     raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
