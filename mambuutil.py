@@ -2,6 +2,18 @@ from config import apiurl
 from priv_data import apiuser
 from priv_data import apipwd
 
+API_RETURN_CODES = {
+    "SUCCESS": 0,
+    "INVALID_PARAMETERS": 4,
+    "INVALID_LOAN_ACCOUNT_ID": 100,
+    "INVALID_ACCOUNT_STATE": 105,
+    "EXCESS_REPAYMENT_ERROR": 110,
+    "INVALID_REPAYMENT_DATE_ERROR": 111,
+    "INVALID_STATE_TRANSITION": 116,
+    "INVALID_ACCOUNT_STATE_FOR_REPAYMENTS": 128,
+    "INCONSISTENT_SCHEDULE_PRINCIPAL_DUE_WITH_LOAN_AMOUNT": 132,
+    }
+
 class MambuError(Exception):
     pass
 

@@ -1,6 +1,8 @@
 # coding: utf-8
 
-from podemos import PodemosError, MambuCommError, API_RETURN_CODES, ERROR_CODES
+from mabuutil import API_RETURN_CODES
+from podemos import PodemosError, MambuCommError, ERROR_CODES
+
 from urllib import urlopen
 import json, copy
 from datetime import datetime
