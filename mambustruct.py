@@ -147,13 +147,17 @@ class MambuStruct(object):
     # De un diccionario de valores como cadenas, convierte los
     # pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
+        constantFields = ['id', 'mobilePhone', 'postcode']
         def convierte(data):
             try:
                 it = iter(data)
                 if type(it) == type(iter({})):
                     d = {}
                     for k in it:
-                        d[k] = convierte(data[k])
+                        if k in constantFields:
+                            d[k] = data[k]
+                        else:
+                            d[k] = convierte(data[k])
                     data = d
                 if type(it) == type(iter([])):
                     l = []
