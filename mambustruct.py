@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from mambuutil import API_RETURN_CODES, MambuCommError
-from podemos import PodemosError, ERROR_CODES
+from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
+from podemos import ERROR_CODES
 
 from urllib import urlopen
 import json, copy
@@ -126,15 +126,15 @@ class MambuStruct(object):
         try:
             jsresp = json.load(resp)
         except Exception as ex:
-            raise PodemosError("JSON Error: %s" % repr(ex))
+            raise MambuError("JSON Error: %s" % repr(ex))
         try:
             if ((jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_LOAN_ACCOUNT_ID"]) and
                 (jsresp[u'returnStatus'] == u'INVALID_LOAN_ACCOUNT_ID')):
 
-                raise PodemosError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
+                raise MambuError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
                 
             elif (jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_ACCOUNT_STATE"]):
-                  raise PodemosError("Invalid Account State!!")
+                  raise MambuError("Invalid Account State!!")
 
         except (KeyError, TypeError) as err:
             pass
