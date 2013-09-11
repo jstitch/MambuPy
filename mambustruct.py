@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
-from podemos import ERROR_CODES
 
 from urllib import urlopen
 import json, copy
@@ -121,23 +120,14 @@ class MambuStruct(object):
             except Exception as ex:
                 retries += 1
         else:
-            raise MambuCommError(ERROR_CODES["MAMBU_COMM_ERROR"])
+            raise MambuCommError("ERROR I can't communicate with Mambu")
 
         try:
             jsresp = json.load(resp)
+            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
+                raise MambuError(jsresp[u'returnStatus'])
         except Exception as ex:
             raise MambuError("JSON Error: %s" % repr(ex))
-        try:
-            if ((jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_LOAN_ACCOUNT_ID"]) and
-                (jsresp[u'returnStatus'] == u'INVALID_LOAN_ACCOUNT_ID')):
-
-                raise MambuError(ERROR_CODES["ACCOUNT_NOT_FOUND"])
-                
-            elif (jsresp[u'returnCode'] == API_RETURN_CODES["INVALID_ACCOUNT_STATE"]):
-                  raise MambuError("Invalid Account State!!")
-
-        except (KeyError, TypeError) as err:
-            pass
 
         self.init(attrs=jsresp, *args, **kwargs)
 
