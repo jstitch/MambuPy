@@ -100,7 +100,7 @@ class MambuStruct(object):
 
     # Inicializa a partir de un ID de la entidad
     def __init__(self, urlfunc, entid='', *args, **kwargs):
-        if urlfunc == None:
+        if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
             return
 
         self.rc = RequestsCounter()
