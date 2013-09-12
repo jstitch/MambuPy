@@ -126,8 +126,11 @@ class MambuStruct(object):
             jsresp = json.load(resp)
         except Exception as ex:
             raise MambuError("JSON Error: %s" % repr(ex))
-        if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
-            raise MambuError(jsresp[u'returnStatus'])
+        try:
+            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
+                raise MambuError(jsresp[u'returnStatus'])
+        except AttributeError:
+            pass
 
         self.init(attrs=jsresp, *args, **kwargs)
 
