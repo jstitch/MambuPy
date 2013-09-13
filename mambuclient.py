@@ -137,8 +137,8 @@ class MambuClient(MambuStruct):
         try:
             for name,item in self['addresses'][0].items():
                 try:
-                    self['addresses'][0][name] = item
-                    self['address'][name] = item
+                    self['addresses'][0][name] = item.strip()
+                    self['address'][name] = item.strip()
                 except AttributeError:
                     pass
         except KeyError:
