@@ -150,34 +150,3 @@ class MambuClient(MambuStruct):
                 self[idDoc['documentType']] = idDoc['documentId']
         except KeyError:
             pass
-
-    # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
-    def convertDict2Attrs(self, *args, **kwargs):
-        try:
-            try:
-                self['birthDate'] = self.util_dateFormat(self['birthDate'])
-            except KeyError as kerr:
-                pass
-
-            self['loanCycle'] = int(self['loanCycle'])
-            self['groupLoanCycle'] = int(self['groupLoanCycle'])
-
-            try:
-                self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['creationDate'] = self.util_dateFormat(self['creationDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
-            except KeyError as kerr:
-                pass
-            try:
-                self['activationDate'] = self.util_dateFormat(self['activationDate'])
-            except KeyError as kerr:
-                pass
-
-        except (TypeError, ValueError, KeyError) as err:
-            raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
