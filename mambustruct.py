@@ -14,7 +14,13 @@ class RequestsCounter(object):
         if not cls.__instance:
             cls.__instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
             cls.requests = []
+            cls.cnt = 0
         return cls.__instance
+    def add(cls, temp):
+        cls.requests.append(temp)
+        cls.cnt += 1
+    def reset(cls):
+        cls.requests = [cls.requests.pop()]
 
 # Habilita iteracion sobre estructuras Mambu
 class MambuStructIterator:
