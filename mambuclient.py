@@ -141,7 +141,7 @@ class MambuClient(MambuStruct):
                     self['address'][name] = item.strip()
                 except AttributeError:
                     pass
-        except KeyError:
+        except (KeyError, IndexError):
             pass
 
         try:
