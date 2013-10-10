@@ -141,7 +141,9 @@ class MambuLoan(MambuStruct):
         try:
             user = MambuUser(entid=self['assignedUserKey'], *args, **kwargs)
         except KeyError as kerr:
-            raise MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
+            err = MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
+            err.noUser = True
+            raise err
 
         self['user'] = user
 
