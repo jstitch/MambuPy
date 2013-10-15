@@ -178,7 +178,7 @@ class MambuLoan(MambuStruct):
                 
                 loanclients = {}
 
-                loannombres = self.getClientDetails(holder=holder) # Esto seguro se puede sustituir por with y context managers...
+                loannombres = self.getClientDetails(holder=holder, *args, **kwargs) # Esto seguro se puede sustituir por with y context managers...
 
                 for client in holder['clients']:
                     if client['name'] in [ l['name'] for l in loannombres ]:
