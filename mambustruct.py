@@ -7,6 +7,24 @@ import json, copy
 from datetime import datetime
 from time import sleep
 
+import logging
+
+def setup_logging(default_path='mambulogging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
+    import os, logging.config, yaml
+    from codecs import open as copen
+    path = default_path
+    value = os.getenv(env_key,None)
+    if value:
+        path = value
+    if os.path.exists(path):
+        with copen(path, 'rt', 'utf-8') as f:
+            config = yaml.load(f.read())
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+    
+logger = logging.getLogger(__name__)
+
 # Singleton para contar requests
 class RequestsCounter(object):
     __instance = None
@@ -39,6 +57,7 @@ class MambuStructIterator:
 # Clase padre de todas las estructuras Mambu. Dictionary-like
 # Contienen un atributo, dict attrs
 class MambuStruct(object):
+    setup_logging()
     RETRIES = 5
     
     # Serializa data, y si es iterable serializa sus miembros
@@ -136,7 +155,7 @@ class MambuStruct(object):
                     if len(self.rc.requests) > 1:
                         if ((self.rc.requests[-1] - self.rc.requests[-2]).seconds / 60 / 60) <= 1.0:
                             if len(self.rc.requests) > MAX_REQUESTS_PERHOUR:
-                                if self.__debug: print "waiting %s hours... %s" % (((WAIT_TIME)/60)/60, datetime.now().strftime("%H:%M:%S"))
+                                logger.debug("waiting %s hours... %s" % (((WAIT_TIME)/60)/60, datetime.now().strftime("%H:%M:%S")))
                                 sleep(WAIT_TIME)
                                 self.rc.reset()
                         else:
