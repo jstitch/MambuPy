@@ -116,7 +116,7 @@ class MambuLoan(MambuStruct):
         from mambutransaction import MambuTransactions
         from util import transactionid
         
-        trans = MambuTransactions(entid=self['id'], *args, **kwargs)
+        trans = MambuTransactions(entid=self['id'], limit=500, *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
         self['transactions'] = trans
 
