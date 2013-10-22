@@ -2,9 +2,6 @@ from config import apiurl
 from priv_data import apiuser
 from priv_data import apipwd
 
-MAX_REQUESTS_PERHOUR = 750
-WAIT_TIME = 3600
-
 API_RETURN_CODES = {
     "SUCCESS": 0,
     "INVALID_PARAMETERS": 4,

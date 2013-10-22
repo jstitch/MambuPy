@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, MAX_REQUESTS_PERHOUR, WAIT_TIME
+from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
 
 from urllib import urlopen
 import json, copy
@@ -39,6 +39,7 @@ class RequestsCounter(object):
         cls.cnt += 1
     def reset(cls):
         cls.requests = [cls.requests.pop()]
+        cls.cnt = 1
 
 # Habilita iteracion sobre estructuras Mambu
 class MambuStructIterator:
@@ -138,10 +139,6 @@ class MambuStruct(object):
             self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
-        try:
-            self.__requestsBrake=kwargs['requestsBrake']
-        except KeyError:
-            self.__requestsBrake=False
 
         jsresp = {}
 
@@ -149,17 +146,7 @@ class MambuStruct(object):
         while retries < MambuStruct.RETRIES:
             try:
                 resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
-                # Freno para no exceder max. de requests por hora a Mambu via API
                 self.rc.add(datetime.now())
-                if self.__requestsBrake:
-                    if len(self.rc.requests) > 1:
-                        if ((self.rc.requests[-1] - self.rc.requests[-2]).seconds / 60 / 60) <= 1.0:
-                            if len(self.rc.requests) > MAX_REQUESTS_PERHOUR:
-                                logger.debug("waiting %s hours... %s" % (((WAIT_TIME)/60)/60, datetime.now().strftime("%H:%M:%S")))
-                                sleep(WAIT_TIME)
-                                self.rc.reset()
-                        else:
-                            self.rc.reset()
                 break
             except Exception as ex:
                 retries += 1
