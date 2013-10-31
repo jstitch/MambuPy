@@ -37,6 +37,13 @@ class MambuBranch(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
+    # Preprocesamiento
+    def preprocess(self):
+        if self.has_key('customFieldValues'):
+            for custom in self['customFieldValues']:
+                custom['name'] = custom['customField']['name']
+                self[custom['name']] = custom['value']
+
     # Anexa los usuarios activos de esa sucursal
     # Retorna numero de requests hechos
     def setUsers(self, *args, **kwargs):
