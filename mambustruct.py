@@ -115,6 +115,7 @@ class MambuStruct(object):
         self.attrs = attrs
         self.preprocess()
         self.convertDict2Attrs(*args, **kwargs)
+        self.postprocess()
     
     # "Serializa" la informacion de cada campo en el diccionario
     # NO SERIALIZA LA CLASE, solo sus campos
@@ -168,6 +169,11 @@ class MambuStruct(object):
     # Cada implementacion de MambuStruct puede masajear la informacion
     # salida de Mambu a un formato/estilo mas adecuado
     def preprocess(self):
+        pass
+
+    # Cada implementacion de MambuStruct puede masajear la informacion
+    # convertida aqui, a un formato/estilo mas adecuado
+    def postprocess(self):
         pass
 
     # De un diccionario de valores como cadenas, convierte los
