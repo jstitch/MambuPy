@@ -153,14 +153,11 @@ class MambuClient(MambuStruct):
     # Postprocesamiento
     def postprocess(self):
         try:
-            print "postprocessing"
             for name, item in self['addresses'][0].items():
                 try:
                     if name == "indexInList": continue
-                    print "%s,%s" % (name,item)
                     self['addresses'][0][name] = str(self['addresses'][0][name])
                     self['address'][name] = str(self['address'][name])
-                    print "ok"
                 except AttributeError:
                     pass
         except (KeyError, IndexError):
