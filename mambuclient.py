@@ -156,8 +156,8 @@ class MambuClient(MambuStruct):
             for name, item in self['addresses'][0].items():
                 try:
                     if name == "indexInList": continue
-                    self['addresses'][0][name] = str(self['addresses'][0][name])
-                    self['address'][name] = str(self['address'][name])
+                    self['addresses'][0][name] = unicode(self['addresses'][0][name])
+                    self['address'][name] = unicode(self['address'][name])
                 except AttributeError:
                     pass
         except (KeyError, IndexError):
