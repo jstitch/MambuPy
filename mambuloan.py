@@ -149,6 +149,16 @@ class MambuLoan(MambuStruct):
 
         return 1
 
+    # Anexa producto de la cuenta
+    # Retorna numero de requests hechos
+    def setProduct(self, *args, **kwargs):
+        from mambuproduct import MambuProduct
+
+        product = MambuProduct(entid=self['productTypeKey'], *args, **kwargs)
+        self['product'] = product
+
+        return 1
+
     # Anexa holder de la cuenta (integrante para individual, grupo e integrantes para grupal)
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False, *args, **kwargs):

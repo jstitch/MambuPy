@@ -180,6 +180,12 @@ def getuserurl(iduser, *args, **kwargs):
     url = getmambuurl(*args,**kwargs) + "users" + useridparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
+# Retorna URL para api de Mambu, productos
+def getproductsurl(idproduct, *args, **kwargs):
+    productidparam = "" if idproduct == "" else "/"+idproduct
+    url = getmambuurl(*args,**kwargs) + "loanproducts" + productidparam
+    return url
+
 # Retorna URL para api de Mambu, tasks
 def gettasksurl(*args, **kwargs):
     url = getmambuurl() + "tasks"
