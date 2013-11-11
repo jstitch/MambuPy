@@ -102,6 +102,15 @@ class MambuStruct(object):
     def __len__(self):
         return len(self.attrs)
 
+    def __eq__(self, other):
+        if isinstance(other, MambuStruct):
+            try:
+                if not other.attrs.has_key('encodedKey') or not self.attrs.has_key('encodedKey'):
+                    return NotImplemented
+            except AttributeError:
+                return NotImplemented
+            return other['encodedKey'] == self['encodedKey']
+
     # TODO: throw exception when not a dict
     def has_key(self, key):
         return self.attrs.has_key(key)

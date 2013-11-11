@@ -151,7 +151,19 @@ class MambuLoan(MambuStruct):
 
     # Anexa producto de la cuenta
     # Retorna numero de requests hechos
-    def setProduct(self, *args, **kwargs):
+    def setProduct(self, cache=False, *args, **kwargs):
+        if cache:
+            from mambuproduct import AllMambuProducts
+            prods = AllMambuProducts()
+            for prod in prods:
+                if prod['encodedKey'] == self['productTypeKey']:
+                    self['product'] = prod
+            try:
+                prods.noinit
+            except AttributeError:
+                return 1
+            return 0
+        
         from mambuproduct import MambuProduct
 
         product = MambuProduct(entid=self['productTypeKey'], *args, **kwargs)

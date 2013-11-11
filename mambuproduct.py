@@ -140,3 +140,34 @@ class MambuProducts(MambuStruct):
             product = MambuProduct(urlfunc=None, entid=None, *args, **kwargs)
             product.init(r, *args, **kwargs)
             self.attrs[n] = product
+
+# Singleton que conserva TODOS los productos de Mambu
+class AllMambuProducts(MambuStruct):
+    __instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls.__instance:
+            cls.__instance = super(AllMambuProducts, cls).__new__(cls, *args, **kwargs)
+        else:
+            cls.__instance.noinit = True
+        return cls.__instance
+
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        try:
+            getattr(self,"noinit")
+        except AttributeError:
+            MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
+    def convertDict2Attrs(self, *args, **kwargs):
+        for n,r in enumerate(self.attrs):
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            product = MambuProduct(urlfunc=None, entid=None, *args, **kwargs)
+            product.init(r, *args, **kwargs)
+            self.attrs[n] = product
