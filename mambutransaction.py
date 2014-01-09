@@ -43,7 +43,10 @@ class MambuTransaction(MambuStruct):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
     def __repr__(self):
-        return self.__class__.__name__ + " - transactionid: %s" % self['transactionid']
+        try:
+            return self.__class__.__name__ + " - transactionid: %s" % self['transactionid']
+        except KeyError:
+            return self.__class__.__name__ + " - transactionid: %s" % self['transactionId']
 
 # Objeto con una lista de Transacciones Mambu
 class MambuTransactions(MambuStruct):

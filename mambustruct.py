@@ -2,7 +2,7 @@
 
 from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
 
-from urllib import urlopen
+from urllib import urlopen, urlencode
 import json, copy
 from datetime import datetime
 from time import sleep
@@ -149,13 +149,20 @@ class MambuStruct(object):
             self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+        try:
+            self.__data=kwargs['data']
+        except KeyError:
+            self.__data=None
 
         jsresp = {}
 
         retries = 0
         while retries < MambuStruct.RETRIES:
             try:
-                resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
+                if self.__data:
+                    resp = urlopen(self.__urlfunc(entid, *args, **kwargs), urlencode(self.__data))
+                else:
+                    resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
                 self.rc.add(datetime.now())
                 break
             except Exception as ex:
