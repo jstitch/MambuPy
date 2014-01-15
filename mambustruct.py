@@ -139,6 +139,7 @@ class MambuStruct(object):
         if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
             return
 
+        self.entid = entid
         self.rc = RequestsCounter()
         self.__urlfunc = urlfunc
         try:
@@ -153,16 +154,28 @@ class MambuStruct(object):
             self.__data=kwargs['data']
         except KeyError:
             self.__data=None
+        try:
+            if kwargs['connect']:
+                connect = True
+            else:
+                connect = False
+        except KeyError:
+            connect = True
 
+        if connect:
+            self.connect(*args, **kwargs)
+
+    # Conectarse con Mambu
+    def connect(self, *args, **kwargs):
         jsresp = {}
 
         retries = 0
         while retries < MambuStruct.RETRIES:
             try:
                 if self.__data:
-                    resp = urlopen(self.__urlfunc(entid, *args, **kwargs), urlencode(self.__data))
+                    resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs), urlencode(self.__data))
                 else:
-                    resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
+                    resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs))
                 self.rc.add(datetime.now())
                 break
             except Exception as ex:
