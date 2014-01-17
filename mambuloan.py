@@ -154,7 +154,7 @@ class MambuLoan(MambuStruct):
     def setProduct(self, cache=False, *args, **kwargs):
         if cache:
             from mambuproduct import AllMambuProducts
-            prods = AllMambuProducts()
+            prods = AllMambuProducts(*args, **kwargs)
             for prod in prods:
                 if prod['encodedKey'] == self['productTypeKey']:
                     self['product'] = prod
