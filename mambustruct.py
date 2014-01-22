@@ -162,6 +162,8 @@ class MambuStruct(object):
         except KeyError:
             connect = True
 
+        self.customFieldName = None
+
         if connect:
             self.connect(*args, **kwargs)
 

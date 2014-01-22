@@ -118,6 +118,7 @@ mod_urlfunc = getgroupurl
 class MambuGroup(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.customFieldName = 'customInformation'
 
     # Preprocesamiento
     def preprocess(self):
@@ -128,9 +129,10 @@ class MambuGroup(MambuStruct):
         except Exception as e:
             pass
 
-        if self.has_key('customInformation'):
-            for custom in self['customInformation']:
+        if self.has_key(self.customFieldName):
+            for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
+                self[custom['name']] = custom['value']
 
         try:
             self['notes'] = self['notes'].replace("<div>", "").replace("</div>", "")

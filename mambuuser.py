@@ -40,12 +40,14 @@ mod_urlfunc = getuserurl
 class MambuUser(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.customFieldName = 'customFields'
 
     # Preprocesamiento
     def preprocess(self):
-        if self.has_key('customFields'):
-            for custom in self['customFields']:
+        if self.has_key(self.customFieldName):
+            for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
+                self[custom['name']] = custom['value']
         for k,v in self.items():
             try:
                 self[k] = v.strip()
