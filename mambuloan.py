@@ -66,8 +66,8 @@ mod_urlfunc = getloansurl
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
         self.customFieldName = 'customFieldValues'
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
     
     # Deuda
     def getDebt(self):

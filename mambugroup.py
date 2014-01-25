@@ -117,8 +117,8 @@ mod_urlfunc = getgroupurl
 # Objeto con un grupo en Mambu
 class MambuGroup(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
         self.customFieldName = 'customInformation'
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
     # Preprocesamiento
     def preprocess(self):

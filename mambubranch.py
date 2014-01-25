@@ -35,8 +35,8 @@ mod_urlfunc = getbranchesurl
 # Objeto con una Branch desde Mambu
 class MambuBranch(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
         self.customFieldName = 'customFieldValues'
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
     # Preprocesamiento
     def preprocess(self):

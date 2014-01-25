@@ -39,8 +39,8 @@ mod_urlfunc = getuserurl
 
 class MambuUser(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
         self.customFieldName = 'customFields'
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
     # Preprocesamiento
     def preprocess(self):
