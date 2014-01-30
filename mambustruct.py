@@ -177,16 +177,20 @@ class MambuStruct(object):
                 else:
                     resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs))
                 self.rc.add(datetime.now())
+                try:
+                    jsresp = json.load(resp)
+                except ValueError as ex:
+                    raise ex
+                except Exception as ex:
+                    raise MambuError("JSON Error: %s" % repr(ex))
                 break
+            except MambuError as merr:
+                raise merr
             except Exception as ex:
                 retries += 1
         else:
             raise MambuCommError("ERROR I can't communicate with Mambu")
 
-        try:
-            jsresp = json.load(resp)
-        except Exception as ex:
-            raise MambuError("JSON Error: %s" % repr(ex))
         try:
             if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
                 raise MambuError(jsresp[u'returnStatus'])
