@@ -130,6 +130,7 @@ class MambuGroup(MambuStruct):
             pass
 
         if self.has_key(self.customFieldName):
+            self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
             for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
                 self[custom['name']] = custom['value']
