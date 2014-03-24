@@ -105,6 +105,10 @@ class MambuStruct(object):
         self.rc = RequestsCounter()
         self.__urlfunc = urlfunc
         try:
+            self.__debug=kwargs['debug']
+        except KeyError:
+            self.__debug=False
+        try:
             self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
