@@ -141,16 +141,15 @@ class MambuGroup(MambuStruct):
 
     # Anexa los clientes miembros del grupo
     # Retorna el numero de requests hechos
-    def setClients(self):
+    def setClients(self, *args, **kwargs):
         from mambuclient import MambuClient
         
-        params = {'fullDetails': True}
         requests = 0
 
         clients = []
         for m in self['groupMembers']:
             client = MambuClient(entid=m['clientKey'],
-                                 **params)
+                                 fullDetails=True, *args, **kwargs)
             requests += 1
             clients.append(client)
 
