@@ -3,7 +3,6 @@
 from mambustruct import MambuStruct
 from mambuutil import getclienturl
 
-from datetime import datetime
 from util import strip_consecutive_repeated_char as scrc
 
 # {

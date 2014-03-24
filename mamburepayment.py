@@ -3,8 +3,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getrepaymentsurl
 
-from datetime import datetime
-
 # {
 # Propiedades
 #  "state": "PAID",
@@ -29,6 +27,14 @@ from datetime import datetime
 
 mod_urlfunc = getrepaymentsurl
 
+# Objeto con un repayment de una cuenta en Mambu
+class MambuRepayment(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __repr__(self):
+        return self.__class__.__name__ + " - duedate: %s" % self['dueDate'].strftime("%Y-%m-%d")
+
 # Objeto con una lista de repayments de Mambu
 class MambuRepayments(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
@@ -47,11 +53,3 @@ class MambuRepayments(MambuStruct):
             repayment = MambuRepayment(urlfunc=None, entid=None, *args, **kwargs)
             repayment.init(r, *args, **kwargs)
             self.attrs[n] = repayment
-
-# Objeto con un repayment de una cuenta en Mambu
-class MambuRepayment(MambuStruct):
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-
-    def __repr__(self):
-        return self.__class__.__name__ + " - duedate: %s" % self['dueDate'].strftime("%Y-%m-%d")

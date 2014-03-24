@@ -4,8 +4,6 @@ from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getbranchesurl
 
 from util import strip_consecutive_repeated_char as strip_cons
-from datetime import datetime
-import re
 
 # [
 #  {
@@ -34,6 +32,20 @@ import re
 
 mod_urlfunc = getbranchesurl
 
+# Objeto con una Branch desde Mambu
+class MambuBranch(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    # Anexa los usuarios activos de esa sucursal
+    # Retorna numero de requests hechos
+    def setUsers(self, *args, **kwargs):
+        from mambuuser import MambuUsers
+        usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
+        self['users'] = usrs
+
+        return 1
+
 # Objeto con una lista de Branches Mambu
 class MambuBranches(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
@@ -52,21 +64,3 @@ class MambuBranches(MambuStruct):
             branch = MambuBranch(urlfunc=None, entid=None, *args, **kwargs)
             branch.init(b, *args, **kwargs)
             self.attrs[n] = branch
-
-# Objeto con una Branch desde Mambu
-class MambuBranch(MambuStruct):
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-
-    # Preprocesamiento
-    def preprocess(self):
-        pass
-
-    # Anexa los usuarios activos de esa sucursal
-    # Retorna numero de requests hechos
-    def setUsers(self, *args, **kwargs):
-        from mambuuser import MambuUsers
-        usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
-        self['users'] = usrs
-
-        return 1

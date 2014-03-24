@@ -3,8 +3,6 @@
 from mambustruct import MambuStruct
 from mambuutil import getgroupurl
 
-from datetime import datetime
-
 # {
 #  "groupMembers": [
 #   {

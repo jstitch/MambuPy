@@ -3,8 +3,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import gettransactionsurl
 
-from datetime import datetime
-
 # {
 # Propiedades
 #  "transactionId": 33080,
@@ -39,6 +37,14 @@ from datetime import datetime
 
 mod_urlfunc = gettransactionsurl
 
+# Objeto con una Transaccion de Mambu
+class MambuTransaction(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __repr__(self):
+        return self.__class__.__name__ + " - transactionid: %s" % self['transactionid']
+
 # Objeto con una lista de Transacciones Mambu
 class MambuTransactions(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
@@ -57,11 +63,3 @@ class MambuTransactions(MambuStruct):
             trans = MambuTransaction(urlfunc=None, entid=None, *args, **kwargs)
             trans.init(t, *args, **kwargs)
             self.attrs[n] = trans
-
-# Objeto con una Transaccion de Mambu
-class MambuTransaction(MambuStruct):
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-
-    def __repr__(self):
-        return self.__class__.__name__ + " - transactionid: %s" % self['transactionid']

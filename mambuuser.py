@@ -3,8 +3,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getuserurl
 
-from datetime import datetime
-
 # {
 #   "id": 51,
 #   "username": "i.martinez",
@@ -39,25 +37,6 @@ from datetime import datetime
 
 mod_urlfunc = getuserurl
 
-# Objeto con una lista de Usuarios Mambu
-class MambuUsers(MambuStruct):
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-
-    def __iter__(self):
-        return MambuStructIterator(self.attrs)
-
-    def convertDict2Attrs(self, *args, **kwargs):
-        for n,u in enumerate(self.attrs):
-            try:
-                params = self.params
-            except AttributeError as aerr:
-                params = {}
-            kwargs.update(params)
-            user = MambuUser(urlfunc=None, entid=None, *args, **kwargs)
-            user.init(u, *args, **kwargs)
-            self.attrs[n] = user
-
 class MambuUser(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
@@ -83,3 +62,22 @@ class MambuUser(MambuStruct):
             self['lastName'] = ""
 
         self['name'] = self['firstName'] + " " + self['lastName']
+
+# Objeto con una lista de Usuarios Mambu
+class MambuUsers(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
+    def convertDict2Attrs(self, *args, **kwargs):
+        for n,u in enumerate(self.attrs):
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            user = MambuUser(urlfunc=None, entid=None, *args, **kwargs)
+            user.init(u, *args, **kwargs)
+            self.attrs[n] = user
