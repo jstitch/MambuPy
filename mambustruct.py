@@ -29,7 +29,7 @@ class MambuStruct(object):
         self.convertDict2Attrs()
 
     # Inicializa a partir de un ID de cuenta, que se obtiene contactando a Mambu
-    def __init__(self, urlfunc, entid, *args, **kwargs):
+    def __init__(self, urlfunc, entid='', *args, **kwargs):
         if urlfunc == None:
             return
         self.urlfunc = urlfunc
