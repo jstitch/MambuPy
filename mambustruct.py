@@ -119,7 +119,17 @@ class MambuStruct(object):
         while retries < MambuStruct.RETRIES:
             try:
                 resp = urlopen(self.__urlfunc(entid, *args, **kwargs))
-                self.rc.requests += 1
+                # Freno para no exceder max. de requests por hora a Mambu via API
+                self.rc.add(datetime.now())
+                if self.__requestsBrake:
+                    if len(self.rc.requests) > 1:
+                        if ((self.rc.requests[-1] - self.rc.requests[-2]).seconds / 60 / 60) <= 1.0:
+                            if len(self.rc.requests) > MAX_REQUESTS_PERHOUR:
+                                if self.__debug: print "waiting %s hours... %s" % (((WAIT_TIME)/60)/60, datetime.now().strftime("%H:%M:%S"))
+                                sleep(WAIT_TIME)
+                                self.rc.reset()
+                        else:
+                            self.rc.reset()
                 break
             except Exception as ex:
                 retries += 1
