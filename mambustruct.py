@@ -1,10 +1,11 @@
 # coding: utf-8
 
-from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
+from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, MAX_REQUESTS_PERHOUR, WAIT_TIME
 
 from urllib import urlopen
 import json, copy
 from datetime import datetime
+from time import sleep
 
 # Singleton para contar requests
 class RequestsCounter(object):
@@ -12,7 +13,7 @@ class RequestsCounter(object):
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
             cls.__instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
-            cls.requests = 0
+            cls.requests = []
         return cls.__instance
 
 # Habilita iteracion sobre estructuras Mambu
@@ -112,6 +113,10 @@ class MambuStruct(object):
             self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+        try:
+            self.__requestsBrake=kwargs['requestsBrake']
+        except KeyError:
+            self.__requestsBrake=False
 
         jsresp = {}
 
