@@ -102,52 +102,52 @@ class MambuClient(MambuStruct):
     # Preprocesamiento
     def preprocess(self):
         try:
-            for k,v in self.attrs['client'].items():
-                self.attrs[k] = v
-            del(self.attrs['client'])
+            for k,v in self['client'].items():
+                self[k] = v
+            del(self['client'])
         except Exception as e:
             pass
 
-        if self.attrs.has_key('customInformation'):
-            for custom in self.attrs['customInformation']:
+        if self.has_key('customInformation'):
+            for custom in self['customInformation']:
                 custom['name'] = custom['customField']['name']
 
-        for k,v in self.attrs.items():
+        for k,v in self.items():
             try:
-                self.attrs[k] = v.strip()
+                self[k] = v.strip()
             except Exception:
                 pass
 
         try:
-            self.attrs['firstName'] = scrc(self.attrs['firstName'], " ")
+            self['firstName'] = scrc(self['firstName'], " ")
         except Exception as e:
-            self.attrs['firstName'] = ""
+            self['firstName'] = ""
         try:
-            self.attrs['middleName'] = scrc(self.attrs['middleName'], " ")
+            self['middleName'] = scrc(self['middleName'], " ")
         except Exception as ex:
-            self.attrs['middleName'] = ""
-        self.attrs['lastName'] = scrc(self.attrs['lastName'], " ")
-        self.attrs['firstLastName'] = " ".join(self.attrs['lastName'].split(" ")[:-1])
-        self.attrs['secondLastName'] = " ".join(self.attrs['lastName'].split(" ")[-1:])
+            self['middleName'] = ""
+        self['lastName'] = scrc(self['lastName'], " ")
+        self['firstLastName'] = " ".join(self['lastName'].split(" ")[:-1])
+        self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:])
 
-        self.attrs['name'] = "%s%s %s" % (self.attrs['firstName'],
-                                          " " + self.attrs['middleName'] if self.attrs["middleName"] != "" else "",
-                                          self.attrs['lastName'])
+        self['name'] = "%s%s %s" % (self['firstName'],
+                                          " " + self['middleName'] if self["middleName"] != "" else "",
+                                          self['lastName'])
 
-        self.attrs['address'] = {}
+        self['address'] = {}
         try:
-            for name,item in self.attrs['addresses'][0].items():
+            for name,item in self['addresses'][0].items():
                 try:
-                    self.attrs['addresses'][0][name] = item
-                    self.attrs['address'][name] = item
+                    self['addresses'][0][name] = item
+                    self['address'][name] = item
                 except AttributeError:
                     pass
         except KeyError:
             pass
 
         try:
-            for idDoc in self.attrs['idDocuments']:
-                self.attrs[idDoc['documentType']] = idDoc['documentId']
+            for idDoc in self['idDocuments']:
+                self[idDoc['documentType']] = idDoc['documentId']
         except KeyError:
             pass
 
@@ -155,27 +155,27 @@ class MambuClient(MambuStruct):
     def convertDict2Attrs(self, *args, **kwargs):
         try:
             try:
-                self.attrs['birthDate'] = self.util_dateFormat(self.attrs['birthDate'])
+                self['birthDate'] = self.util_dateFormat(self['birthDate'])
             except KeyError as kerr:
                 pass
 
-            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
-            self.attrs['groupLoanCycle'] = int(self.attrs['groupLoanCycle'])
+            self['loanCycle'] = int(self['loanCycle'])
+            self['groupLoanCycle'] = int(self['groupLoanCycle'])
 
             try:
-                self.attrs['approvedDate'] = self.util_dateFormat(self.attrs['approvedDate'])
+                self['approvedDate'] = self.util_dateFormat(self['approvedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+                self['creationDate'] = self.util_dateFormat(self['creationDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+                self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['activationDate'] = self.util_dateFormat(self.attrs['activationDate'])
+                self['activationDate'] = self.util_dateFormat(self['activationDate'])
             except KeyError as kerr:
                 pass
 

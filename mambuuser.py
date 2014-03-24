@@ -47,12 +47,6 @@ class MambuUsers(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def __getitem__(self, key):
-        return self.attrs[key]
-
-    def __len__(self):
-        return len(self.attrs)
-
     def convertDict2Attrs(self, *args, **kwargs):
         for n,u in enumerate(self.attrs):
             try:
@@ -70,39 +64,39 @@ class MambuUser(MambuStruct):
 
     # Preprocesamiento
     def preprocess(self):
-        if self.attrs.has_key('customFields'):
-            for custom in self.attrs['customFields']:
+        if self.has_key('customFields'):
+            for custom in self['customFields']:
                 custom['name'] = custom['customField']['name']
-        for k,v in self.attrs.items():
+        for k,v in self.items():
             try:
-                self.attrs[k] = v.strip()
+                self[k] = v.strip()
             except Exception:
                 pass
 
         try:
-            self.attrs['firstName'] = self.attrs['firstName'].strip()
+            self['firstName'] = self['firstName'].strip()
         except Exception as e:
-            self.attrs['firstName'] = ""
+            self['firstName'] = ""
         try:
-            self.attrs['lastName'] = self.attrs['lastName'].strip()
+            self['lastName'] = self['lastName'].strip()
         except Exception as ex:
-            self.attrs['lastName'] = ""
+            self['lastName'] = ""
 
-        self.attrs['name'] = self.attrs['firstName'] + " " + self.attrs['lastName']
+        self['name'] = self['firstName'] + " " + self['lastName']
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
             try:
-                self.attrs['lastLoggedInDate'] = self.util_dateFormat(self.attrs['lastLoggedInDate'])
+                self['lastLoggedInDate'] = self.util_dateFormat(self['lastLoggedInDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
+                self['creationDate'] = self.util_dateFormat(self['creationDate'])
             except KeyError as kerr:
                 pass
             try:
-                self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+                self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
             except KeyError as kerr:
                 pass
 

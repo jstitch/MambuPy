@@ -124,49 +124,49 @@ class MambuGroup(MambuStruct):
     # Preprocesamiento
     def preprocess(self):
         try:
-            for k,v in self.attrs['theGroup'].items():
-                self.attrs[k] = v
-            del(self.attrs['theGroup'])
+            for k,v in self['theGroup'].items():
+                self[k] = v
+            del(self['theGroup'])
         except Exception as e:
             pass
 
-        if self.attrs.has_key('customInformation'):
-            for custom in self.attrs['customInformation']:
+        if self.has_key('customInformation'):
+            for custom in self['customInformation']:
                 custom['name'] = custom['customField']['name']
 
         try:
-            self.attrs['notes'] = self.attrs['notes'].replace("<div>", "").replace("</div>", "")
+            self['notes'] = self['notes'].replace("<div>", "").replace("</div>", "")
         except Exception as e:
-            self.attrs['notes'] = ""
+            self['notes'] = ""
 
-        self.attrs['name'] = self.attrs['groupName']
+        self['name'] = self['groupName']
 
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
-            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
-            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+            self['loanCycle'] = int(self['loanCycle'])
+            self['creationDate'] = self.util_dateFormat(self['creationDate'])
+            self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
 
-            for member in self.attrs['groupMembers']:
+            for member in self['groupMembers']:
                 member['indexInList'] = int(member['indexInList'])
                 member['creationDate'] = self.util_dateFormat(member['creationDate'])
 
-            for address in self.attrs['addresses']:
+            for address in self['addresses']:
                 address['indexInList'] = int(address['indexInList'])
 
-            for role in self.attrs['groupRoles']:
+            for role in self['groupRoles']:
                 role['indexInList'] = int(role['indexInList'])
 
-            for custom in self.attrs['customInformation']:
+            for custom in self['customInformation']:
                 custom['indexIntList'] = int(custom['indexInList'])
                 custom['customField']['indexInList'] = int(custom['customField']['indexInList'])
 
         except (TypeError, ValueError, KeyError) as err:
 
             try:
-                self.attrs['loanCycle'] = int(self.attrs['loanCycle'])
-                self.attrs['creationDate'] = self.util_dateFormat('creationDate')
-                self.attrs['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
+                self['loanCycle'] = int(self['loanCycle'])
+                self['creationDate'] = self.util_dateFormat('creationDate')
+                self['lastModifiedDate'] = self.util_dateFormat('lastModifiedDate')
             except (TypeError, ValueError, KeyError) as err:
                 raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))

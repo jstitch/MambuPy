@@ -43,12 +43,6 @@ class MambuBranches(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def __getitem__(self, key):
-        return self.attrs[key]
-
-    def __len__(self):
-        return len(self.attrs)
-
     def convertDict2Attrs(self, *args, **kwargs):
         for n,b in enumerate(self.attrs):
             try:
@@ -72,8 +66,8 @@ class MambuBranch(MambuStruct):
     # De un diccionario de valores como cadenas, convierte los pertinentes a numeros/fechas
     def convertDict2Attrs(self, *args, **kwargs):
         try:
-            self.attrs['creationDate'] = self.util_dateFormat(self.attrs['creationDate'])
-            self.attrs['lastModifiedDate'] = self.util_dateFormat(self.attrs['lastModifiedDate'])
+            self['creationDate'] = self.util_dateFormat(self['creationDate'])
+            self['lastModifiedDate'] = self.util_dateFormat(self['lastModifiedDate'])
         except (TypeError, ValueError, KeyError) as err:
             raise PodemosError("%s (%s)" % (ERROR_CODES["INVALID_DATA"], repr(err)))
 
@@ -82,7 +76,7 @@ class MambuBranch(MambuStruct):
     def setUsers(self, *args, **kwargs):
         from mambuuser import MambuUsers
         usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
-        self.attrs['users'] = usrs
+        self['users'] = usrs
         # self.serial['users'] = []
         # for us in usrs:
         #     self.serial['users'].append(us.serial)
