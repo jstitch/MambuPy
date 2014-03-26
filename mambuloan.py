@@ -82,7 +82,10 @@ class MambuLoan(MambuStruct):
                 custom['name'] = custom['customField']['name']
                 self[custom['name']] = custom['value']
 
-        self['notes'] = strip_tags(self['notes'])
+        try:
+            self['notes'] = strip_tags(self['notes'])
+        except KeyError:
+            pass
 
     # Anexa calendario de pagos de la cuenta
     # Retorna numero de requests hechos
