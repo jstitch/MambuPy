@@ -1,9 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct
-from mambuutil import getclienturl
-
-from util import strip_consecutive_repeated_char as scrc
+from mambuutil import getclienturl, strip_consecutive_repeated_char as scrc
 
 # {
 #  "idDocuments": [

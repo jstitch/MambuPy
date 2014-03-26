@@ -1,9 +1,7 @@
 # coding: utf-8
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getloansurl, MambuError
-
-from util import strip_consecutive_repeated_char as strip_cons, strip_tags
+from mambuutil import getloansurl, MambuError, strip_tags
 
 # {
 # Datos de la cuenta
@@ -83,28 +81,19 @@ class MambuLoan(MambuStruct):
             for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
                 self[custom['name']] = custom['value']
-        try:
-            try:
-                notes = strip_cons(self['notes'], "\n")
-            except KeyError:
-                notes = ""
-            self['notes_'] = notes
 
-            # for e in notes.replace("\n","<br>").replace("<div>","").replace('<div style="text-align: left;">',"").replace('<p class="MsoNormal">',"").replace("</p>","").replace("<o:p>","").replace("</o:p>","").split("</div>"):
-            #     s += "<br>".join([st for st in e.split("<br>") if st != ""]) + "<br>"
-            # for e in self['notes'].split("<br>"):
-            #     s += "<br>".join([st for st in e.replace("<div>").split("</div>") if st != ""]) + "<br>"
-            # self['notes'] = strip_cons(s.strip("<br>").replace("&nbsp;"," "), " ")
-
-            self['notes'] = strip_tags(self['notes'])
-        except Exception as ex:
-            pass
+        self['notes'] = strip_tags(self['notes'])
 
     # Anexa calendario de pagos de la cuenta
     # Retorna numero de requests hechos
     def setRepayments(self, *args, **kwargs):
+        # Util function used for sorting repayments according to due Date
+        def duedate(repayment):
+            try:
+                return repayment['dueDate']
+            except KeyError as kerr:
+                return datetime.now()
         from mamburepayment import MambuRepayments
-        from util import duedate
 
         reps = MambuRepayments(entid=self['id'], *args, **kwargs)
         reps.attrs = sorted(reps.attrs, key=duedate)
@@ -115,8 +104,13 @@ class MambuLoan(MambuStruct):
     # Anexa transacciones de la cuenta
     # Retorna numero de requests hechos
     def setTransactions(self, *args, **kwargs):
+        # Util function used for sorting transactions according to id
+        def transactionid(transaction):
+            try:
+                return transaction['transactionId']
+            except KeyError as kerr:
+                return None
         from mambutransaction import MambuTransactions
-        from util import transactionid
         
         trans = MambuTransactions(entid=self['id'], limit=500, *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)

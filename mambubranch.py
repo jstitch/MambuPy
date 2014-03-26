@@ -3,8 +3,6 @@
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getbranchesurl
 
-from util import strip_consecutive_repeated_char as strip_cons
-
 # [
 #  {
 #   "id": "1",

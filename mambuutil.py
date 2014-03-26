@@ -1,6 +1,6 @@
 from config import apiurl
-from priv_data import apiuser
-from priv_data import apipwd
+from config import apiuser
+from config import apipwd
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
@@ -190,3 +190,29 @@ def getproductsurl(idproduct, *args, **kwargs):
 def gettasksurl(*args, **kwargs):
     url = getmambuurl() + "tasks"
     return url
+
+from HTMLParser import HTMLParser
+# Aux class for stripping HTML tags
+class MLStripper(HTMLParser):
+   def __init__(self):
+      self.reset()
+      self.fed = []
+   def handle_data(self, d):
+      self.fed.append(d)
+   def get_data(self):
+      return ''.join(self.fed)
+
+# Stripts HTML tags from text
+def strip_tags(html):
+   s = MLStripper()
+   s.feed(html)
+   return s.get_data()
+
+# Strip characters in a string which are consecutively repeated
+def strip_consecutive_repeated_char(s, ch, circ=True):
+   sdest = ""
+   for i,c in enumerate(s):
+      if s[i] == ch and s[i] == s[i-1]:
+         continue
+      sdest += s[i]
+   return sdest
