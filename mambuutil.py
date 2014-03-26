@@ -1,6 +1,6 @@
-from config import apiurl
-from config import apiuser
-from config import apipwd
+from mambuconfig import apiurl
+from mambuconfig import apiuser
+from mambuconfig import apipwd
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
