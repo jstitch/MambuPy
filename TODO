@@ -1,0 +1,6 @@
+-Translation, of certain code and almost all comments to english
+-Documentation, using docstrings
+-Better configuration
+-Remove old json comments on each mambu struct (perhaps change them to a more general thing, as an aid to developers?)
+-More info on README file
+-A LOT of functionality from Mambu APIs
