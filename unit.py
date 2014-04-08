@@ -9,7 +9,7 @@ class MambuStructTests(unittest.TestCase):
         s.rc.reset()
         self.func = lambda x:'http://example.com'+x
 
-    def test_init(self):
+    def test_init_(self):
         # Normal init
         s = mambustruct.MambuStruct(entid='1234', urlfunc=self.func, connect=False)
         self.assertEqual(s.entid, '1234')
