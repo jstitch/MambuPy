@@ -38,8 +38,11 @@ class RequestsCounter(object):
         cls.requests.append(temp)
         cls.cnt += 1
     def reset(cls):
-        cls.requests = [cls.requests.pop()]
-        cls.cnt = 1
+        cls.cnt = 0
+        try:
+            cls.requests = [cls.requests.pop()]
+        except IndexError:
+             pass
 
 # Habilita iteracion sobre estructuras Mambu
 class MambuStructIterator:
