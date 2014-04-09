@@ -144,19 +144,19 @@ class MambuStruct(object):
         self.rc = RequestsCounter()
         self.__urlfunc = urlfunc
         try:
-            self.__debug=kwargs['debug']
+            self.__debug=kwargs.pop('debug')
         except KeyError:
             self.__debug=False
         try:
-            self.__formatoFecha=kwargs['dateFormat']
+            self.__formatoFecha=kwargs.pop('dateFormat')
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
-            self.__data=kwargs['data']
+            self.__data=kwargs.pop('data')
         except KeyError:
             self.__data=None
         try:
-            if kwargs['connect']:
+            if kwargs.pop('connect'):
                 connect = True
             else:
                 connect = False
