@@ -192,11 +192,8 @@ class MambuStruct(object):
         else:
             raise MambuCommError("ERROR I can't communicate with Mambu")
 
-        try:
-            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
-                raise MambuError(jsresp[u'returnStatus'])
-        except AttributeError:
-            pass
+        if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
+            raise MambuError(jsresp[u'returnStatus'])
 
         self.init(attrs=jsresp, *args, **kwargs)
 
