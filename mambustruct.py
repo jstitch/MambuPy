@@ -64,6 +64,7 @@ class MambuStruct(object):
     
     # Serializa data, y si es iterable serializa sus miembros
     # (y si es MambuStruct, serializa su diccionario attrs)
+    @staticmethod
     def serializeFields(data):
         if isinstance(data, MambuStruct):
             return data.serializeStruct()
@@ -83,7 +84,6 @@ class MambuStruct(object):
             return d
         # elif ... tuples? sets?
         return unicode(data)
-    serializeFields = staticmethod(serializeFields)
 
     def __getitem__(self, key):
         return self.attrs[key]
