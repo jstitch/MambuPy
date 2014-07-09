@@ -137,24 +137,24 @@ class MambuStruct(object):
 
     # Inicializa a partir de un ID de la entidad
     def __init__(self, urlfunc, entid='', *args, **kwargs):
-        if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
-            return
-
         self.entid = entid
         self.rc = RequestsCounter()
-        self.__urlfunc = urlfunc
         try:
-            self.__debug=kwargs.pop('debug')
+            self.__debug=kwargs['debug']
         except KeyError:
             self.__debug=False
         try:
-            self.__formatoFecha=kwargs.pop('dateFormat')
+            self.__formatoFecha=kwargs['dateFormat']
         except KeyError:
             self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
         try:
-            self.__data=kwargs.pop('data')
+            self.__data=kwargs['data']
         except KeyError:
             self.__data=None
+            
+        if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
+            return          # and each element is init without further configs
+
         try:
             if kwargs.pop('connect'):
                 connect = True
@@ -162,6 +162,8 @@ class MambuStruct(object):
                 connect = False
         except KeyError:
             connect = True
+
+        self.__urlfunc = urlfunc
 
         if connect:
             self.connect(*args, **kwargs)
@@ -192,8 +194,11 @@ class MambuStruct(object):
         else:
             raise MambuCommError("ERROR I can't communicate with Mambu")
 
-        if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
-            raise MambuError(jsresp[u'returnStatus'])
+        try:
+            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
+                raise MambuError(jsresp[u'returnStatus'])
+        except AttributeError:
+            pass
 
         self.init(attrs=jsresp, *args, **kwargs)
 
