@@ -3,9 +3,8 @@
 from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
 
 from urllib import urlopen, urlencode
-import json, copy
+import json
 from datetime import datetime
-from time import sleep
 
 import logging
 
@@ -22,7 +21,7 @@ def setup_logging(default_path='mambulogging.yaml', default_level=logging.INFO, 
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)
-    
+
 logger = logging.getLogger(__name__)
 
 # Singleton para contar requests
@@ -61,7 +60,7 @@ class MambuStructIterator:
 class MambuStruct(object):
     setup_logging()
     RETRIES = 5
-    
+
     # Serializa data, y si es iterable serializa sus miembros
     # (y si es MambuStruct, serializa su diccionario attrs)
     @staticmethod
@@ -126,7 +125,7 @@ class MambuStruct(object):
         self.preprocess()
         self.convertDict2Attrs(*args, **kwargs)
         self.postprocess()
-    
+
     # "Serializa" la informacion de cada campo en el diccionario
     # NO SERIALIZA LA CLASE, solo sus campos
     # WARNING: puede caer en stackoverflow, verificar niveles de
@@ -151,7 +150,7 @@ class MambuStruct(object):
             self.__data=kwargs['data']
         except KeyError:
             self.__data=None
-            
+
         if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
             return          # and each element is init without further configs
 
@@ -236,7 +235,7 @@ class MambuStruct(object):
                 pass
             except Exception as ex:
                 raise ex
-            
+
             try:
                 d = int(data)
                 if str(d) != data: # por si la cadena tiene 0's al inicio, para no perderlos
@@ -250,7 +249,7 @@ class MambuStruct(object):
                         return self.util_dateFormat(data)
                     except (TypeError, ValueError) as tverr:
                         return data
-            
+
             return data
 
         self.attrs = convierte(self.attrs)
