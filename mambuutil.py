@@ -204,9 +204,9 @@ class MLStripper(HTMLParser):
 
 # Stripts HTML tags from text
 def strip_tags(html):
-   s = MLStripper()
-   s.feed(html)
-   return s.get_data()
+    s = MLStripper()
+    s.feed(html.replace("&nbsp;"," "))
+    return s.get_data()
 
 # Strip characters in a string which are consecutively repeated
 def strip_consecutive_repeated_char(s, ch, circ=True):
