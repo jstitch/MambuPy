@@ -210,6 +210,9 @@ class MambuLoan(MambuStruct):
                                                         'montoPago'  : cte['amount'] / float(self['repaymentInstallments']),
                                                         'porcentaje' : cte['amount'] / float(self['loanAmount']),
                                                        }
+                            # Any extra key,val pair on loannombres is plainly assigned to the loanclients[cte] dict
+                            for k,v in [ (key,val) for (key,val) in cte.items() if key not in['amount', 'name'] ]:
+                                loanclients[cte['name']][k] = v
 
                 self['clients'] = loanclients
 
