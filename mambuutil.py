@@ -149,6 +149,14 @@ def getclienturl(idclient, *args, **kwargs):
             getparams.append("birthdate=%s" % kwargs["birthdate"])
         except Exception as ex:
             pass
+        try:
+            getparams.append("state=%s" % kwargs["state"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
     clientidparam = "" if idclient == "" else "/"+idclient
     url = getmambuurl(*args,**kwargs) + "clients" + clientidparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url

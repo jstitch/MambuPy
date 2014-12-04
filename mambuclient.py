@@ -163,3 +163,22 @@ class MambuClient(MambuStruct):
                     pass
         except (KeyError, IndexError):
             pass
+
+# Objeto con una lista de Clientes Mambu
+class MambuClients(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
+    def convertDict2Attrs(self, *args, **kwargs):
+        for n,c in enumerate(self.attrs):
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            client = MambuClient(urlfunc=None, entid=None, *args, **kwargs)
+            client.init(c, *args, **kwargs)
+            self.attrs[n] = client
