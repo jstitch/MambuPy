@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mambustruct import MambuStruct
+from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getclienturl, strip_consecutive_repeated_char as scrc
 
 # {
