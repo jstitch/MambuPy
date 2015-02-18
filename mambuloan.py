@@ -174,12 +174,17 @@ class MambuLoan(MambuStruct):
     # Retorna numero de requests hechos
     def setHolder(self, getClients=False, getRoles=False, *args, **kwargs):
         requests = 0
+        if kwargs.has_key('fullDetails'):
+            fullDetails = kwargs['fullDetails']
+            kwargs.pop('fullDetails')
+        else:
+            fullDetails = True
 
         if self['accountHolderType'] == "GROUP":
             from mambugroup import MambuGroup
 
             self['holderType'] = "Grupo"
-            holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
+            holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=fullDetails, *args, **kwargs)
             requests += 1
 
             if getRoles:
@@ -222,7 +227,7 @@ class MambuLoan(MambuStruct):
             
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
-                                 fullDetails=True, *args, **kwargs)
+                                 fullDetails=fullDetails, *args, **kwargs)
             requests += 1
             if getClients:
                 monto = float(self['loanAmount'])

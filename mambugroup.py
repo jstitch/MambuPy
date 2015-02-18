@@ -148,11 +148,16 @@ class MambuGroup(MambuStruct):
         from mambuclient import MambuClient
         
         requests = 0
+        if kwargs.has_key('fullDetails'):
+            fullDetails = kwargs['fullDetails']
+            kwargs.pop('fullDetails')
+        else:
+            fullDetails = True
 
         clients = []
         for m in self['groupMembers']:
             client = MambuClient(entid=m['clientKey'],
-                                 fullDetails=True, *args, **kwargs)
+                                 fullDetails=fullDetails, *args, **kwargs)
             requests += 1
             clients.append(client)
 
