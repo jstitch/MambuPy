@@ -125,6 +125,22 @@ class MambuStruct(object):
         self.preprocess()
         self.convertDict2Attrs(*args, **kwargs)
         self.postprocess()
+        try:
+            for meth in kwargs['methods']:
+                try:
+                    getattr(self,meth)()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        try:
+            for propname,propval in kwargs['properties'].iteritems():
+                try:
+                    setattr(self,propname,propval)
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     # "Serializa" la informacion de cada campo en el diccionario
     # NO SERIALIZA LA CLASE, solo sus campos

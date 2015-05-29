@@ -66,7 +66,7 @@ class MambuLoan(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         self.customFieldName = 'customFieldValues'
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-    
+
     # Deuda
     def getDebt(self):
         debt = float(self['principalBalance']) + float(self['interestBalance'])
@@ -115,7 +115,13 @@ class MambuLoan(MambuStruct):
                 return None
         from mambutransaction import MambuTransactions
         
-        trans = MambuTransactions(entid=self['id'], limit=500, *args, **kwargs)
+        if kwargs.has_key('limit'):
+            limit = kwargs['limit']
+            kwargs.pop('limit')
+        else:
+            limit = 500 # hard limit by Mambu
+
+        trans = MambuTransactions(entid=self['id'], limit=limit, *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
         self['transactions'] = trans
 
@@ -184,7 +190,7 @@ class MambuLoan(MambuStruct):
             from mambugroup import MambuGroup
 
             self['holderType'] = "Grupo"
-            holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=fullDetails, *args, **kwargs)
+            holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
             requests += 1
 
             if getRoles:
@@ -200,7 +206,7 @@ class MambuLoan(MambuStruct):
                 holder['roles'] = roles
 
             if getClients:
-                requests += holder.setClients(*args, **kwargs)
+                requests += holder.setClients(fullDetails=fullDetails, *args, **kwargs)
                 
                 loanclients = {}
 
