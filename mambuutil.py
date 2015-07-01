@@ -92,7 +92,21 @@ def getloansurl(idcred, *args, **kwargs):
 
 # Retorna URL para api de Mambu, grupos
 def getgroupurl(idgroup, *args, **kwargs):
-    url = getmambuurl(*args,**kwargs) + "groups/" + idgroup + ("" if not kwargs or kwargs['fullDetails']==False else "?fullDetails=true")
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+    groupidparam = "" if idgroup == "" else "/"+idgroup
+    url = getmambuurl(*args,**kwargs) + "groups" + groupidparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
 # Retorna URL para api de Mambu, cuentas de un grupo

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mambustruct import MambuStruct
+from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getgroupurl
 
 # {
@@ -164,3 +164,22 @@ class MambuGroup(MambuStruct):
         self['clients'] = clients
 
         return requests
+
+# Objeto con una lista de Grupos Mambu
+class MambuGroups(MambuStruct):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
+    def __iter__(self):
+        return MambuStructIterator(self.attrs)
+
+    def convertDict2Attrs(self, *args, **kwargs):
+        for n,c in enumerate(self.attrs):
+            try:
+                params = self.params
+            except AttributeError as aerr:
+                params = {}
+            kwargs.update(params)
+            group = MambuGroup(urlfunc=None, entid=None, *args, **kwargs)
+            group.init(c, *args, **kwargs)
+            self.attrs[n] = group
