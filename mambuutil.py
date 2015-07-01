@@ -2,6 +2,13 @@ from mambuconfig import apiurl
 from mambuconfig import apiuser
 from mambuconfig import apipwd
 
+from mambuconfig import dbname
+from mambuconfig import dbuser
+from mambuconfig import dbpwd
+from mambuconfig import dbhost
+from mambuconfig import dbport
+from mambuconfig import dbeng
+
 API_RETURN_CODES = {
     "SUCCESS": 0,
     "INVALID_PARAMETERS": 4,
@@ -19,6 +26,17 @@ class MambuError(Exception):
 
 class MambuCommError(MambuError):
     pass
+
+# Connects to DB
+def connectDb(engine   = dbeng,
+              user     = dbuser,
+              password = dbpwd,
+              host     = dbhost,
+              port     = dbport,
+              database = dbname,
+              echoopt  = False):
+    from sqlalchemy import create_engine
+    return create_engine('%s://%s:%s@%s:%s/%s' % (engine, user, password, host, port, database), echo=echoopt)
 
 # Retorna URL para api de Mambu con datos de acceso
 def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):

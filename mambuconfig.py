@@ -1,3 +1,10 @@
 apiurl = "domain.mambu.com"
 apiuser = "mambu_api_user"
 apipwd = "mambu_api_password"
+
+dbname = "mambu_db"
+dbuser = "mambu_db_user"
+dbpwd = "mambu_db_pwd"
+dbhost = "localhost"
+dbport = "3306"
+dbeng = "mysql"
