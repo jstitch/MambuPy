@@ -72,8 +72,8 @@ class LoanAccount(Base):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
 
 
-# Repayments
-class Repayments(Base):
+# Repayment
+class Repayment(Base):
     __tablename__    = "repayment"
     __table_args__   = {'schema'        : dbname,
                         'keep_existing' : True
