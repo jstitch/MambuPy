@@ -21,6 +21,8 @@ API_RETURN_CODES = {
     "INCONSISTENT_SCHEDULE_PRINCIPAL_DUE_WITH_LOAN_AMOUNT": 132,
     }
 
+OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 500
+
 class MambuError(Exception):
     pass
 
@@ -123,6 +125,10 @@ def getgroupurl(idgroup, *args, **kwargs):
             getparams.append("limit=%s" % kwargs["limit"])
         except Exception as ex:
             pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
     groupidparam = "" if idgroup == "" else "/"+idgroup
     url = getmambuurl(*args,**kwargs) + "groups" + groupidparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
@@ -183,6 +189,10 @@ def getclienturl(idclient, *args, **kwargs):
             pass
         try:
             getparams.append("state=%s" % kwargs["state"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
         except Exception as ex:
             pass
         try:

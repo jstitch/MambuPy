@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mambuutil import API_RETURN_CODES, MambuCommError, MambuError
+from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
 
 from urllib import urlopen, urlencode
 import json
@@ -166,6 +166,16 @@ class MambuStruct(object):
             self.__data=kwargs['data']
         except KeyError:
             self.__data=None
+        try:
+            self.__limit=kwargs['limit']
+            kwargs.pop('limit')
+        except KeyError:
+            self.__limit=0
+        try:
+            self.__offset=kwargs['offset']
+            kwargs.pop('offset')
+        except KeyError:
+            self.__offset=0
 
         if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
             return          # and each element is init without further configs
@@ -187,27 +197,60 @@ class MambuStruct(object):
     def connect(self, *args, **kwargs):
         jsresp = {}
 
-        retries = 0
-        while retries < MambuStruct.RETRIES:
-            try:
-                if self.__data:
-                    resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs), urlencode(self.__data))
-                else:
-                    resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs))
-                self.rc.add(datetime.now())
+        # Pagination window, Mambu restricts at most 500 elements in response
+        offset = self.__offset
+        window = True
+        jsresp = {}
+        while window:
+            if not self.__limit or self.__limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
+                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+            else:
+                limit = self.__limit
+
+            # Retry mechanism, for awful connections
+            retries = 0
+            while retries < MambuStruct.RETRIES:
                 try:
-                    jsresp = json.load(resp)
-                except ValueError as ex:
-                    raise ex
+                    # POST
+                    if self.__data:
+                        resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs), urlencode(self.__data))
+                    # GET
+                    else:
+                        resp = urlopen(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                    # Always count a new request when done!
+                    self.rc.add(datetime.now())
+                    try:
+                        jsonresp = json.load(resp)
+                        # Returns list: extend list for offset
+                        if type(jsonresp) == list:
+                            try:
+                                jsresp.extend(jsonresp)
+                            except AttributeError:
+                                # First window, forget that jsresp was a dict, turn it in to a list
+                                jsresp=jsonresp
+                            if len(jsonresp) < limit:
+                                window = False
+                        # Returns dict: in theory Mambu REST API doesn't takes limit/offset in to account
+                        else:
+                            jsresp = jsonresp
+                            window = False
+                    except ValueError as ex:
+                        raise ex
+                    except Exception as ex:
+                        raise MambuError("JSON Error: %s" % repr(ex))
+                    break
+                except MambuError as merr:
+                    raise merr
                 except Exception as ex:
-                    raise MambuError("JSON Error: %s" % repr(ex))
-                break
-            except MambuError as merr:
-                raise merr
-            except Exception as ex:
-                retries += 1
-        else:
-            raise MambuCommError("ERROR I can't communicate with Mambu")
+                    retries += 1
+            else:
+                raise MambuCommError("ERROR I can't communicate with Mambu")
+
+            offset = offset + limit
+            if self.__limit:
+                self.__limit -= limit
+                if self.__limit <= 0:
+                    window = False
 
         try:
             if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):

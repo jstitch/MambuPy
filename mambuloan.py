@@ -115,13 +115,7 @@ class MambuLoan(MambuStruct):
                 return None
         from mambutransaction import MambuTransactions
         
-        if kwargs.has_key('limit'):
-            limit = kwargs['limit']
-            kwargs.pop('limit')
-        else:
-            limit = 500 # hard limit by Mambu
-
-        trans = MambuTransactions(entid=self['id'], limit=limit, *args, **kwargs)
+        trans = MambuTransactions(entid=self['id'], *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
         self['transactions'] = trans
 
