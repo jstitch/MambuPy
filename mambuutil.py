@@ -266,3 +266,17 @@ def strip_consecutive_repeated_char(s, ch, circ=True):
          continue
       sdest += s[i]
    return sdest
+
+# Encode Non ASCII chars to URL-friendly chars
+def urlEncodeNonAscii(b):
+    import re
+    return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
+
+# Change an IRI (internationalized R) to an URI
+def iriToUri(iri):
+    import urlparse
+    parts= urlparse.urlparse(iri)
+    return urlparse.urlunparse(
+        part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
+        for parti, part in enumerate(parts)
+    )

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri
 
 from urllib import urlopen, urlencode
 import json
@@ -213,10 +213,10 @@ class MambuStruct(object):
                 try:
                     # POST
                     if self.__data:
-                        resp = urlopen(self.__urlfunc(self.entid, *args, **kwargs), urlencode(self.__data))
+                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, *args, **kwargs)), urlencode(self.__data))
                     # GET
                     else:
-                        resp = urlopen(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs)))
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
