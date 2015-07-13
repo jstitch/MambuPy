@@ -169,12 +169,17 @@ class MambuStruct(object):
         """
         try:
             return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+        except AttributeError:
+            return self.__class__.__name__ + " - id: '%s' (not synced with Mambu)" % self.entid
         except TypeError:
             return self.__class__.__name__ + " - len: %s" % len(self.attrs)
 
     def __str__(self):
-        return self.__class__.__name__ + " - " + str(self.attrs)
         """Mambu object str gives a string representation of the attrs attribute."""
+        try:
+            return self.__class__.__name__ + " - " + str(self.attrs)
+        except AttributeError:
+            return self.__class__.__name__ + " - " + str(self)
 
     def __len__(self):
         """Length of the attrs attribute.
@@ -570,7 +575,7 @@ class MambuStruct(object):
             # This are the recursion base cases!
             try:
                 d = int(data)
-                if str(d) != data: # por si la cadena tiene 0's al inicio, para no perderlos
+                if str(d) != data: # if string has trailing 0's, leave it as string, to not lose them
                     return data
                 return d
             except (TypeError, ValueError) as tverr:
