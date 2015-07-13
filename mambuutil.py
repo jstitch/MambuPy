@@ -297,7 +297,7 @@ def gettransactionsurl(idcred, *args, **kwargs):
         try:
             getparams.append("limit=%s" % kwargs["limit"])
         except Exception as ex:
-            getparams.append("limit=499")
+            pass
     url = getmambuurl(*args,**kwargs) + "loans/" + idcred + "/transactions" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
