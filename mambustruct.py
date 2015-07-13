@@ -388,13 +388,14 @@ class MambuStruct(object):
         except KeyError:
             self.__offset=0
 
-        if urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
-            return          # and each element is init without further configs
+        self.__urlfunc = urlfunc
         """The given urlfunc argument is saved here.
 
         It's used at the connect() method, when called.
         """
 
+        if self.__urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
+            return          # and each element is init without further configs. EDIT 2015-07-11: Really?
 
         try:
             if kwargs.pop('connect'):
@@ -403,8 +404,6 @@ class MambuStruct(object):
                 connect = False
         except KeyError:
             connect = True
-
-        self.__urlfunc = urlfunc
 
         if connect:
             self.connect(*args, **kwargs)
@@ -456,6 +455,9 @@ class MambuStruct(object):
         message, just retrying).
         """
         jsresp = {}
+
+        if not self.__urlfunc:
+            return
 
         # Pagination window, Mambu restricts at most 500 elements in response
         offset = self.__offset
