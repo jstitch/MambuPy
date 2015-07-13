@@ -1,7 +1,6 @@
 # coding: utf-8
 """Base class for all Mambu objects.
 
-from mambuutil import API_RETURN_CODES, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri
 Includes functionality to download such objects using GET requests to
 Mambu, and to POST requests to Mambu.
 
@@ -28,6 +27,7 @@ REST API. It's a more abstract thing in fact. Also may refer to entities
 on a relational database but the term table is preferred in this case.
 """
 
+from mambuutil import MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri
 
 from urllib import urlopen, urlencode
 import json
