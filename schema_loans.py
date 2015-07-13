@@ -1,3 +1,8 @@
+"""Schema tables for Mambu Loan Accounts.
+
+TODO: this are just very basic schemas for loan tables. A lot of fields
+are missing.
+"""
 
 from mambuutil import connectDb, dbname
 
@@ -6,20 +11,26 @@ from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
-# engine
 engine = connectDb()
-# session maker object
+"""Database engine, connecting with default parameters by default.
+"""
+
 Session = sessionmaker(bind=engine)
-# default session created
+"""Sessionmaker object.
+"""
+
 session = Session()
+"""Default session created here.
+"""
 
-
-# declarative base for models
 Base = declarative_base()
+"""Declarative base for models.
+"""
 
 
-# LoanProduct
 class LoanProduct(Base):
+    """LoanProduct table.
+    """
     __tablename__  = "loanproduct"
     __table_args__ = {'schema'        : dbname,
                       'keep_existing' : True
@@ -34,8 +45,9 @@ class LoanProduct(Base):
         return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
 
 
-# LoanAccount
 class LoanAccount(Base):
+    """LoanAccount table.
+    """
     __tablename__    = "loanaccount"
     __table_args__   = {'schema'        : dbname,
                         'keep_existing' : True
@@ -72,8 +84,9 @@ class LoanAccount(Base):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
 
 
-# Repayment
 class Repayment(Base):
+    """Repayment table.
+    """
     __tablename__    = "repayment"
     __table_args__   = {'schema'        : dbname,
                         'keep_existing' : True
@@ -100,8 +113,9 @@ class Repayment(Base):
         return "<Repayment(duedate=%s, state=%s,\naccount=%s)>" % (self.duedate.strftime('%Y%m%d'), self.state, self.account)
 
 
-# LoanTransaction
 class LoanTransaction(Base):
+    """LoanTransaction table.
+    """
     __tablename__          = "loantransaction"
     __table_args__         = {'schema'        : dbname,
                               'keep_existing' : True
@@ -128,8 +142,12 @@ class LoanTransaction(Base):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, "Yes" if self.reversaltransactionkey else "No", self.account)
 
 
-# LoanActivity
 class LoanActivity(Base):
+    """LoanActivity table.
+
+    From activity table, but only activity related to loan accounts
+    matter here.
+    """
     __tablename__  = "activity"
     __table_args__ = {'schema'        : dbname,
                       'keep_existing' : True

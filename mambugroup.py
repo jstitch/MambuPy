@@ -1,127 +1,169 @@
 # coding: utf-8
+"""Mambu Groups objects.
+
+MambuGroup holds a group.
+
+MambuGroups holds a list of groups.
+
+Uses mambuutil.getgroupurl as default urlfunc
+
+Example response from Mambu for groups:
+{
+ "groupMembers": [
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2af0229",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "indexInList": 0,
+   "creationDate": "2012-07-04T22:35:03+0000",
+   "clientKey": "8a101aa637fd34cc013816274ec902d9"
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b1022a",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "indexInList": 1,
+   "creationDate": "2012-07-04T22:35:03+0000",
+   "clientKey": "8a43a79f3664edaa013733547d156af5"
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b1022b",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "indexInList": 2,
+   "creationDate": "2012-07-04T22:35:03+0000",
+   "clientKey": "8a101aa637fd34cc0137ffdc3692006b"
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b1022c",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "indexInList": 3,
+   "creationDate": "2012-07-04T22:35:03+0000",
+   "clientKey": "8a5c291d33563d0501335ad699960783"
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b1022d",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "indexInList": 4,
+   "creationDate": "2012-07-04T22:35:03+0000",
+   "clientKey": "8ad807b0316f84eb013191735a041b2b"
+  }
+ ],
+ "theGroup": {
+  "notes": "Las notas del grupo<br><br>son<br><br>estas<br>....<br>",
+  "id": "VQ611",
+  "groupLinesOfCredit": [],
+  "encodedKey": "8af4b2763852bc0201385421e2a70226",
+  "loanCycle": 0,
+  "creationDate": "2012-07-04T22:35:03+0000",
+  "lastModifiedDate": "2012-07-04T22:35:03+0000",
+  "groupName": "TestGroup",
+  "assignedUserKey": "8a5c1e9f34bdd2b90134c49b6b950948",
+  "assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d"
+ },
+ "addresses": [
+  {
+   "line2": "Entre SnLuisPotosi y LopezMateos",
+   "indexInList": 0,
+   "parentKey": "8af4b2763852bc0201385421e2a70226",
+   "encodedKey": "8af4b2763852bc0201385421e2a90227",
+   "city": "Atizapan",
+   "country": "Mexico",
+   "region": "Mexico",
+   "line1": "Pedro Velasquez",
+   "postcode": "12345"
+  }
+ ],
+ "groupRoles": [
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b2022e",
+   "roleName": "President",
+   "groupRoleNameKey": "8a70db342e6d595a012e6d8391eb04be",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "clientKey": "8a101aa637fd34cc013816274ec902d9",
+   "indexInList": 0
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b5022f",
+   "roleName": "Secretary",
+   "groupRoleNameKey": "8a70db342e6d595a012e6d83925d04bf",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "clientKey": "8a43a79f3664edaa013733547d156af5",
+   "indexInList": 1
+  },
+  {
+   "encodedKey": "8af4b2763852bc0201385421e2b50230",
+   "roleName": "Treasurer",
+   "groupRoleNameKey": "8a70db342e6d595a012e6d83926504c0",
+   "groupKey": "8af4b2763852bc0201385421e2a70226",
+   "clientKey": "8a101aa637fd34cc0137ffdc3692006b",
+   "indexInList": 2
+  }
+ ],
+ "customInformation": [
+  {
+   "value": "ValorCustom",
+   "indexInList": 0,
+   "parentKey": "8af4b2763852bc0201385421e2a70226",
+   "encodedKey": "8af4b2763852bc0201385421e2aa0228",
+   "customField": {
+    "type": "GROUP_INFO",
+    "encodedKey": "8afae1dc2ecf2844012ee4a468f62773",
+    "isDefault": false,
+    "isRequired": false,
+    "name": "Referencia",
+    "dataType": "STRING",
+    "indexInList": -1
+   },
+   "customFieldKey": "8afae1dc2ecf2844012ee4a468f62773"
+  }
+ ]
+}
+
+TODO: update this with later responses from Mambu, and perhaps certain
+behaviours are obsolete here
+"""
+
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getgroupurl
 
-# {
-#  "groupMembers": [
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2af0229",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "indexInList": 0,
-#    "creationDate": "2012-07-04T22:35:03+0000",
-#    "clientKey": "8a101aa637fd34cc013816274ec902d9"
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b1022a",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "indexInList": 1,
-#    "creationDate": "2012-07-04T22:35:03+0000",
-#    "clientKey": "8a43a79f3664edaa013733547d156af5"
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b1022b",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "indexInList": 2,
-#    "creationDate": "2012-07-04T22:35:03+0000",
-#    "clientKey": "8a101aa637fd34cc0137ffdc3692006b"
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b1022c",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "indexInList": 3,
-#    "creationDate": "2012-07-04T22:35:03+0000",
-#    "clientKey": "8a5c291d33563d0501335ad699960783"
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b1022d",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "indexInList": 4,
-#    "creationDate": "2012-07-04T22:35:03+0000",
-#    "clientKey": "8ad807b0316f84eb013191735a041b2b"
-#   }
-#  ],
-#  "theGroup": {
-#   "notes": "Las notas del grupo<br><br>son<br><br>estas<br>....<br>",
-#   "id": "VQ611",
-#   "groupLinesOfCredit": [],
-#   "encodedKey": "8af4b2763852bc0201385421e2a70226",
-#   "loanCycle": 0,
-#   "creationDate": "2012-07-04T22:35:03+0000",
-#   "lastModifiedDate": "2012-07-04T22:35:03+0000",
-#   "groupName": "TestGroup",
-#   "assignedUserKey": "8a5c1e9f34bdd2b90134c49b6b950948",
-#   "assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d"
-#  },
-#  "addresses": [
-#   {
-#    "line2": "Entre SnLuisPotosi y LopezMateos",
-#    "indexInList": 0,
-#    "parentKey": "8af4b2763852bc0201385421e2a70226",
-#    "encodedKey": "8af4b2763852bc0201385421e2a90227",
-#    "city": "Atizapan",
-#    "country": "Mexico",
-#    "region": "Mexico",
-#    "line1": "Pedro Velasquez",
-#    "postcode": "12345"
-#   }
-#  ],
-#  "groupRoles": [
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b2022e",
-#    "roleName": "President",
-#    "groupRoleNameKey": "8a70db342e6d595a012e6d8391eb04be",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "clientKey": "8a101aa637fd34cc013816274ec902d9",
-#    "indexInList": 0
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b5022f",
-#    "roleName": "Secretary",
-#    "groupRoleNameKey": "8a70db342e6d595a012e6d83925d04bf",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "clientKey": "8a43a79f3664edaa013733547d156af5",
-#    "indexInList": 1
-#   },
-#   {
-#    "encodedKey": "8af4b2763852bc0201385421e2b50230",
-#    "roleName": "Treasurer",
-#    "groupRoleNameKey": "8a70db342e6d595a012e6d83926504c0",
-#    "groupKey": "8af4b2763852bc0201385421e2a70226",
-#    "clientKey": "8a101aa637fd34cc0137ffdc3692006b",
-#    "indexInList": 2
-#   }
-#  ],
-#  "customInformation": [
-#   {
-#    "value": "ValorCustom",
-#    "indexInList": 0,
-#    "parentKey": "8af4b2763852bc0201385421e2a70226",
-#    "encodedKey": "8af4b2763852bc0201385421e2aa0228",
-#    "customField": {
-#     "type": "GROUP_INFO",
-#     "encodedKey": "8afae1dc2ecf2844012ee4a468f62773",
-#     "isDefault": false,
-#     "isRequired": false,
-#     "name": "Referencia",
-#     "dataType": "STRING",
-#     "indexInList": -1
-#    },
-#    "customFieldKey": "8afae1dc2ecf2844012ee4a468f62773"
-#   }
-#  ]
-# }
 
 mod_urlfunc = getgroupurl
 
-# Objeto con un grupo en Mambu
 class MambuGroup(MambuStruct):
+    """A Group from Mambu.
+
+    With the default urlfunc, entid argument must be the ID of the
+    group you wish to retrieve.
+    """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        """Tasks done here:
+
+        Set the customFieldName attribute for preprocessing.
+        """
         self.customFieldName = 'customInformation'
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-    # Preprocesamiento
+
     def preprocess(self):
+        """Preprocessing.
+
+        Flattens the object. Important data comes on the 'theGroup'
+        dictionary inside of the response. Instead, every element of the
+        'theGroup' dictionary is taken out to the main attrs dictionary.
+
+        Each active custom field is given a 'name' key that holds the field
+        name, and for each keyed name, the value of the custom field is
+        assigned.
+
+        Notes on the group get some html tags removed.
+        TODO: use mambuutil.strip_tags() method
+
+        A 'name' field is added, equivalent to the 'groupName' field.
+        This is useful on loan accounts. They get a 'holder' field added
+        somewhere, which may be an individual client, or a group. So to
+        get the holder name, you just access the 'holder'['name']. No
+        matter if you have a client loan or a group loan, you get the
+        name of the holder.
+        """
         try:
             for k,v in self['theGroup'].items():
                 self[k] = v
@@ -142,9 +184,19 @@ class MambuGroup(MambuStruct):
 
         self['name'] = self['groupName']
 
-    # Anexa los clientes miembros del grupo
-    # Retorna el numero de requests hechos
+
     def setClients(self, *args, **kwargs):
+        """Adds the clients for this group to a 'clients' field.
+
+        The 'groupMembers' field of the group holds the encodedKeys of
+        the member clients of the group. Since Mambu REST API accepts
+        both ids or encodedKeys to retrieve entities, we use that here.
+
+        You may wish to get the full details of each client by passing a
+        fullDetails=True argument here.
+
+        Returns the number of requests done to Mambu.
+        """
         from mambuclient import MambuClient
         
         requests = 0
@@ -165,16 +217,42 @@ class MambuGroup(MambuStruct):
 
         return requests
 
-# Objeto con una lista de Grupos Mambu
+
 class MambuGroups(MambuStruct):
+    """A list of Groups from Mambu.
+
+    With the default urlfunc, entid argument must be empty at
+    instantiation time to retrieve all the groups according to any
+    other filter you send to the urlfunc.
+    """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        """By default, entid argument is empty. That makes perfect
+        sense: you want several groups, not just one
+        """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+
     def convertDict2Attrs(self, *args, **kwargs):
+        """The trick for iterable Mambu Objects comes here:
+
+        You iterate over each element of the responded List from Mambu,
+        and create a Mambu Group object for each one, initializing them
+        one at a time, and changing the attrs attribute (which just
+        holds a list of plain dictionaries) with a MambuGroup just
+        created.
+
+        TODO: pass a valid (perhaps default) urlfunc, and its
+        corresponding id to entid to each MambuGroup, telling
+        MambuStruct not to connect() by default. It's desirable to
+        connect at any other further moment to refresh some element in
+        the list.
+        """
         for n,c in enumerate(self.attrs):
+            # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
             except AttributeError as aerr:

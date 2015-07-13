@@ -1,53 +1,91 @@
 # coding: utf-8
+"""Mambu Users objects.
+
+MambuUser holds a user.
+
+MambuUsers holds a list of users.
+
+Uses mambuutil.getuserurl as default urlfunc
+
+Example response from Mambu for users:
+{
+  "id": 51,
+  "username": "i.martinez",
+  "email": "i.martinez@podemos.mx",
+  "userState": "ACTIVE",
+
+  "firstName": "Ilya ",
+  "lastName": "Martinez",
+  "title": "Coordinador de Emprendedoras",
+  "homePhone": "58288424",
+  "mobilePhone1": "(044)5559951342",
+  "notes": ""
+
+  "language": "SPANISH",
+  "twoFactorAuthentication": false,
+  "isAdministrator": false,
+  "isCreditOfficer": true,
+  "accessRights": [
+    "MAMBU",
+    "MOBILE"
+  ],
+
+  "lastLoggedInDate": "2012-12-19T20:31:07+0000",
+
+  "creationDate": "2011-08-25T19:23:54+0000",
+  "lastModifiedDate": "2012-12-19T20:31:07+0000",
+
+  "assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d",
+  "encodedKey": "8ad807b031f6305b01320266094b4948",
+
+}
+
+TODO: update this with later responses from Mambu, and perhaps certain
+behaviours are obsolete here
+"""
+
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getuserurl
 
-# {
-#   "id": 51,
-#   "username": "i.martinez",
-#   "email": "i.martinez@podemos.mx",
-#   "userState": "ACTIVE",
-
-#   "firstName": "Ilya ",
-#   "lastName": "Martinez",
-#   "title": "Coordinador de Emprendedoras",
-#   "homePhone": "58288424",
-#   "mobilePhone1": "(044)5559951342",
-#   "notes": ""
-
-#   "language": "SPANISH",
-#   "twoFactorAuthentication": false,
-#   "isAdministrator": false,
-#   "isCreditOfficer": true,
-#   "accessRights": [
-#     "MAMBU",
-#     "MOBILE"
-#   ],
-
-#   "lastLoggedInDate": "2012-12-19T20:31:07+0000",
-
-#   "creationDate": "2011-08-25T19:23:54+0000",
-#   "lastModifiedDate": "2012-12-19T20:31:07+0000",
-
-#   "assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d",
-#   "encodedKey": "8ad807b031f6305b01320266094b4948",
-
-# }
 
 mod_urlfunc = getuserurl
 
 class MambuUser(MambuStruct):
+    """A User from Mambu.
+
+    With the default urlfunc, entid argument must be the ID of the
+    user you wish to retrieve.
+    """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        """Tasks done here:
+
+        Set the customFieldName attribute for preprocessing.
+        """
         self.customFieldName = 'customFields'
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-    # Preprocesamiento
+
     def preprocess(self):
+        """Preprocessing.
+
+        Each custom field is given a 'name' key that holds the field
+        name, and for each keyed name, the value of the custom field is
+        assigned.
+        TODO: do not consider deactivated custom fields
+
+        Every item on the attrs dictionary gets stripped from trailing
+        spaces (useful when users make typos).
+
+        Removes repeated chars from firstName and lastName fields.
+
+        Adds a 'name' field joining all names in to one string.
+        """
         if self.has_key(self.customFieldName):
             for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
                 self[custom['name']] = custom['value']
+
         for k,v in self.items():
             try:
                 self[k] = v.strip()
@@ -65,15 +103,39 @@ class MambuUser(MambuStruct):
 
         self['name'] = self['firstName'] + " " + self['lastName']
 
-# Objeto con una lista de Usuarios Mambu
+
 class MambuUsers(MambuStruct):
+    """A list of Users from Mambu.
+
+    With the default urlfunc, entid argument must be empty at
+    instantiation time to retrieve all the users according to any other
+    filter you send to the urlfunc.
+    """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        """By default, entid argument is empty. That makes perfect
+        sense: you want several branches, not just one
+        """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
+
     def convertDict2Attrs(self, *args, **kwargs):
+        """The trick for iterable Mambu Objects comes here:
+
+        You iterate over each element of the responded List from Mambu,
+        and create a Mambu User object for each one, initializing them
+        one at a time, and changing the attrs attribute (which just
+        holds a list of plain dictionaries) with a MambuUser just
+        created.
+
+        TODO: pass a valid (perhaps default) urlfunc, and its
+        corresponding id to entid to each MambuUser, telling MambuStruct
+        not to connect() by default. It's desirable to connect at any
+        other further moment to refresh some element in the list.
+        """
         for n,u in enumerate(self.attrs):
             try:
                 params = self.params
