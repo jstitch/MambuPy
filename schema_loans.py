@@ -107,7 +107,7 @@ class Repayment(Base):
 
     # Relationships
     parentaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account          = relationship('LoanAccount', backref='repayments')
+    account          = relationship('LoanAccount', backref=backref('repayments',order_by='Repayment.duedate'))
 
     def __repr__(self):
         return "<Repayment(duedate=%s, state=%s,\naccount=%s)>" % (self.duedate.strftime('%Y%m%d'), self.state, self.account)
@@ -136,7 +136,7 @@ class LoanTransaction(Base):
 
     # Relationships
     parentaccountkey       = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account                = relationship('LoanAccount', backref='transactions')
+    account                = relationship('LoanAccount', backref=backref('transactions', order_by='LoanTransaction.creationdate'))
 
     def __repr__(self):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, "Yes" if self.reversaltransactionkey else "No", self.account)
@@ -160,7 +160,7 @@ class LoanActivity(Base):
 
     # Relationships
     loanaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    loan_account   = relationship('LoanAccount', backref=backref('activity', order_by='LoanActivity.timestamp'))
+    loan_account   = relationship('LoanAccount', backref=backref('activities', order_by='LoanActivity.timestamp'))
 
     def __repr__(self):
         return "<LoanActivity(type=%s, timestamp=%s, loan=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'), self.loan_account.id)
