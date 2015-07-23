@@ -133,13 +133,14 @@ class LoanTransaction(Base):
     feesamount             = Column(Numeric(50,10))
     penaltyamount          = Column(Numeric(50,10))
     reversaltransactionkey = Column(String)
+    comment                = Column(String)
 
     # Relationships
     parentaccountkey       = Column(String, ForeignKey(LoanAccount.encodedkey))
     account                = relationship('LoanAccount', backref=backref('transactions', order_by='LoanTransaction.creationdate'))
 
     def __repr__(self):
-        return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, "Yes" if self.reversaltransactionkey else "No", self.account)
+        return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
 
 
 class LoanActivity(Base):
