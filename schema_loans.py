@@ -137,7 +137,7 @@ class LoanTransaction(Base):
 
     # Relationships
     parentaccountkey       = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account                = relationship('LoanAccount', backref=backref('transactions', order_by='LoanTransaction.creationdate'))
+    account                = relationship('LoanAccount', backref=backref('transactions', order_by='LoanTransaction.transactionid'))
 
     def __repr__(self):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
