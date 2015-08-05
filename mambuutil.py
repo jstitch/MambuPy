@@ -508,3 +508,19 @@ def iriToUri(iri):
         part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
         for parti, part in enumerate(parts)
     )
+
+
+def encoded_dict(in_dict):
+    """Encode every value of a dict to UTF-8.
+
+    Useful for POSTing requests on the 'data' parameter of urlencode.
+    """
+    out_dict = {}
+    for k, v in in_dict.iteritems():
+        if isinstance(v, unicode):
+            v = v.encode('utf8')
+        elif isinstance(v, str):
+            # Must be encoded in UTF-8
+            v.decode('utf8')
+        out_dict[k] = v
+    return out_dict

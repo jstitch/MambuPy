@@ -27,7 +27,7 @@ REST API. It's a more abstract thing in fact. Also may refer to entities
 on a relational database but the term table is preferred in this case.
 """
 
-from mambuutil import MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri
+from mambuutil import MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
 
 from urllib import urlopen, urlencode
 import json
@@ -432,6 +432,10 @@ class MambuStruct(object):
         request URL. See mambuutil.iriToUri() method pydoc for further
         info.
 
+        Provides to prevent errors due to using special chars on the
+        parameters of a POST request. See mambuutil.encoded_dict()
+        method pydoc for further info.
+
         For every request done, the request counter Singleton is
         increased.
 
@@ -475,7 +479,7 @@ class MambuStruct(object):
                 try:
                     # POST
                     if self.__data:
-                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, *args, **kwargs)), urlencode(self.__data))
+                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, *args, **kwargs)), urlencode(encoded_dict(self.__data)))
                     # GET
                     else:
                         resp = urlopen(iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs)))
