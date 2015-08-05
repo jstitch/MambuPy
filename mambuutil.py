@@ -430,7 +430,7 @@ def gettasksurl(*args, **kwargs):
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
     """
-    url = getmambuurl() + "tasks"
+    url = getmambuurl(*args, **kwargs) + "tasks"
     return url
 
 ### No more urlfuncs from here ###
