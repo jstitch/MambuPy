@@ -198,6 +198,24 @@ class MambuLoan(MambuStruct):
         return 1
 
 
+    def setCentre(self, *args, **kwargs):
+        """Adds the centre for this loan to a 'assignedCentre' field.
+
+        Also adds an 'assignedCentreName' field with the name of the centre.
+
+        Centre is a MambuCentre object.
+
+        Returns the number of requests done to Mambu.
+        """
+        from mambucentre import MambuCentre
+
+        centre = MambuCentre(entid=self['assignedCentreKey'], *args, **kwargs)
+        self['assignedCentreName'] = centre['name']
+        self['assignedCentre'] = centre
+
+        return 1
+
+
     def setUser(self, *args, **kwargs):
         """Adds the user for this loan to a 'user' field.
 
