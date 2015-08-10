@@ -192,6 +192,7 @@ def getloansurl(idcred, *args, **kwargs):
     * fullDetails
     * accountState
     * branchId
+    * centreId
     * creditOfficerUsername
     * limit
     * offset
@@ -214,6 +215,10 @@ def getloansurl(idcred, *args, **kwargs):
             pass
         try:
             getparams.append("branchId=%s" % kwargs["branchId"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("centreId=%s" % kwargs["centreId"])
         except Exception as ex:
             pass
         try:
