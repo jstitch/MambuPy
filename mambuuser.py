@@ -110,11 +110,27 @@ class MambuUsers(MambuStruct):
     With the default urlfunc, entid argument must be empty at
     instantiation time to retrieve all the users according to any other
     filter you send to the urlfunc.
+
+    itemclass argument allows you to pass some other class as the
+    elements for the list. Why is this useful? You may wish to override
+    several behaviours by creating your own MambuUser son class. Pass
+    that to the itemclass argument here and voila, you get a list of
+    YourMambuUser class using MambuUsers instead of plain old MambuUser
+    elements.
+
+    If you wish to specialize other Mambu objects on MambuPy you may
+    do that. Mind that if you desire that the iterable version of it
+    to have elements of your specialized class, you need to change
+    the logic of the constructor and the convertDict2Attrs method in
+    the iterable class to use some sort of itemclass there too.
+    Don't forget to submit the change on a pull request when done
+    ;-)
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+    def __init__(self, urlfunc=mod_urlfunc, entid='', itemclass=MambuUser, *args, **kwargs):
         """By default, entid argument is empty. That makes perfect
         sense: you want several branches, not just one
         """
+        self.itemclass = itemclass
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
 
@@ -126,13 +142,13 @@ class MambuUsers(MambuStruct):
         """The trick for iterable Mambu Objects comes here:
 
         You iterate over each element of the responded List from Mambu,
-        and create a Mambu User object for each one, initializing them
-        one at a time, and changing the attrs attribute (which just
-        holds a list of plain dictionaries) with a MambuUser just
-        created.
+        and create a Mambu User (or your own itemclass) object for each
+        one, initializing them one at a time, and changing the attrs
+        attribute (which just holds a list of plain dictionaries) with a
+        MambuUser (or your own itemclass) just created.
 
         TODO: pass a valid (perhaps default) urlfunc, and its
-        corresponding id to entid to each MambuUser, telling MambuStruct
+        corresponding id to entid to each itemclass, telling MambuStruct
         not to connect() by default. It's desirable to connect at any
         other further moment to refresh some element in the list.
         """
@@ -142,6 +158,6 @@ class MambuUsers(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            user = MambuUser(urlfunc=None, entid=None, *args, **kwargs)
+            user = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
             user.init(u, *args, **kwargs)
             self.attrs[n] = user
