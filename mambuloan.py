@@ -116,7 +116,11 @@ class MambuLoan(MambuStruct):
             self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
             for custom in self[self.customFieldName]:
                 custom['name'] = custom['customField']['name']
-                self[custom['name']] = custom['value']
+                try:
+                    self[custom['name']] = custom['value']
+                except KeyError:
+                    self[custom['name']] = custom['linkedEntityKeyValue']
+                    custom['value'] = custom['linkedEntityKeyValue']
 
         try:
             self['notes'] = strip_tags(self['notes'])
