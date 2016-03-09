@@ -45,40 +45,60 @@ class LoanProduct(Base):
         return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
 
 
+class DisbursementDetails(Base):
+    """DisbursementDetails table.
+    """
+    __tablename__            = "disbursementdetails"
+    __table_args__           = {'schema'        : dbname,
+                                'keep_existing' : True
+                               }
+
+    # Columns
+    encodedkey               = Column(String, primary_key=True)
+    expecteddisbursementdate = Column(DateTime)
+    disbursementdate         = Column(DateTime)
+    firstrepaymentdate       = Column(DateTime)
+
+    def __repr__(self):
+        return "<DisbursementDetails(disbursementdate=%s)>" % (self.disbursementdate)
+
+
 class LoanAccount(Base):
     """LoanAccount table.
     """
-    __tablename__    = "loanaccount"
-    __table_args__   = {'schema'        : dbname,
-                        'keep_existing' : True
-                       }
+    __tablename__          = "loanaccount"
+    __table_args__         = {'schema'        : dbname,
+                              'keep_existing' : True
+                             }
 
     # Columns
-    encodedkey       = Column(String, primary_key=True)
-    id               = Column(String, index=True, unique=True)
-    accountstate     = Column(String)
-    loanamount       = Column(Numeric(50,10))
-    notes            = Column(String)
-    principalbalance = Column(Numeric(50,10))
-    principalpaid    = Column(Numeric(50,10))
-    principaldue     = Column(Numeric(50,10))
-    interestbalance  = Column(Numeric(50,10))
-    interestpaid     = Column(Numeric(50,10))
-    interestdue      = Column(Numeric(50,10))
-    feesbalance      = Column(Numeric(50,10))
-    feespaid         = Column(Numeric(50,10))
-    feesdue          = Column(Numeric(50,10))
-    penaltybalance   = Column(Numeric(50,10))
-    penaltypaid      = Column(Numeric(50,10))
-    penaltydue       = Column(Numeric(50,10))
-    creationdate     = Column(DateTime)
-    approveddate     = Column(DateTime)
-    disbursementdate = Column(DateTime)
-    closeddate       = Column(DateTime)
+    encodedkey             = Column(String, primary_key=True)
+    id                     = Column(String, index=True, unique=True)
+    accountstate           = Column(String)
+    loanamount             = Column(Numeric(50,10))
+    notes                  = Column(String)
+    principalbalance       = Column(Numeric(50,10))
+    principalpaid          = Column(Numeric(50,10))
+    principaldue           = Column(Numeric(50,10))
+    interestbalance        = Column(Numeric(50,10))
+    interestpaid           = Column(Numeric(50,10))
+    interestdue            = Column(Numeric(50,10))
+    feesbalance            = Column(Numeric(50,10))
+    feespaid               = Column(Numeric(50,10))
+    feesdue                = Column(Numeric(50,10))
+    penaltybalance         = Column(Numeric(50,10))
+    penaltypaid            = Column(Numeric(50,10))
+    penaltydue             = Column(Numeric(50,10))
+    creationdate           = Column(DateTime)
+    approveddate           = Column(DateTime)
+#    disbursementdate      = Column(DateTime)
+    closeddate             = Column(DateTime)
 
     # Relationships
-    producttypekey   = Column(String, ForeignKey(LoanProduct.encodedkey))
-    product          = relationship('LoanProduct')
+    producttypekey         = Column(String, ForeignKey(LoanProduct.encodedkey))
+    product                = relationship('LoanProduct')
+    disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
+    disbursementdetails    = relationship('DisbursementDetails')
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
