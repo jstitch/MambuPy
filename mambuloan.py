@@ -12,59 +12,59 @@ Loan ID as the entid argument in the constructor in that case).
 
 Example response from Mambu for groups (please omit comment lines beginning with #):
 {
-# Datos de la cuenta
-"id": "38802",
-"loanName": "Validation Credito Solidario",
+    # Datos de la cuenta
+    "id": "38802",
+    "loanName": "Validation Credito Solidario",
 
-# Propiedades de la cuenta
-"accountState": "ACTIVE",
-"repaymentPeriodUnit": "DAYS",
-"repaymentPeriodCount": 1,
-"repaymentInstallments": 5,
-"interestRate": "4.2",
-"interestChargeFrequency": "EVERY_FOUR_WEEKS",
-"interestCalculationMethod": "FLAT_FIXED",
-"interestRateSource": "FIXED_INTEREST_RATE",
-"interestAdjustment": "0",
-"accruedInterest": "0",
-"loanAmount": "1000",
+    # Propiedades de la cuenta
+    "accountState": "ACTIVE",
+    "repaymentPeriodUnit": "DAYS",
+    "repaymentPeriodCount": 1,
+    "repaymentInstallments": 5,
+    "interestRate": "4.2",
+    "interestChargeFrequency": "EVERY_FOUR_WEEKS",
+    "interestCalculationMethod": "FLAT_FIXED",
+    "interestRateSource": "FIXED_INTEREST_RATE",
+    "interestAdjustment": "0",
+    "accruedInterest": "0",
+    "loanAmount": "1000",
 
-# Saldos
-"principalDue": "200",
-"interestDue": "1.5",
-"feesDue": "0",
-"penaltyDue": "0",
-"principalPaid": "0",
-"interestPaid": "0",
-"feesPaid": "0",
-"penaltyPaid": "0",
-"principalBalance": "1000",
-"interestBalance": "7.5",
+    # Saldos
+    "principalDue": "200",
+    "interestDue": "1.5",
+    "feesDue": "0",
+    "penaltyDue": "0",
+    "principalPaid": "0",
+    "interestPaid": "0",
+    "feesPaid": "0",
+    "penaltyPaid": "0",
+    "principalBalance": "1000",
+    "interestBalance": "7.5",
 
-# Mas propiedades
-"gracePeriod": 0,
-"gracePeriodType": "NONE",
-"notes": "testing notes<br>",
-"principalRepaymentInterval": 1,
+    # Mas propiedades
+    "gracePeriod": 0,
+    "gracePeriodType": "NONE",
+    "notes": "testing notes<br>",
+    "principalRepaymentInterval": 1,
 
-# Fechas
-"approvedDate": "2012-06-13T18:05:04+0000",
-"expectedDisbursementDate": "2012-06-12T00:00:00+0000",
-"disbursementDate": "2012-06-12T00:00:00+0000",
-"lastInterestAppliedDate": "2012-06-12T00:00:00+0000"
-"lastAccountAppraisalDate": "2012-06-13T18:05:35+0000",
-"creationDate": "2012-06-13T18:04:49+0000",
-"lastModifiedDate": "2012-06-13T18:05:35+0000",
-"lastSetToArrearsDate": "2012-01-01T00:00:00+0000",
-"closedDate": "2012-01-01T00:00:00+0000",
+    # Fechas
+    "approvedDate": "2012-06-13T18:05:04+0000",
+    "expectedDisbursementDate": "2012-06-12T00:00:00+0000",
+    "disbursementDate": "2012-06-12T00:00:00+0000",
+    "lastInterestAppliedDate": "2012-06-12T00:00:00+0000"
+    "lastAccountAppraisalDate": "2012-06-13T18:05:35+0000",
+    "creationDate": "2012-06-13T18:04:49+0000",
+    "lastModifiedDate": "2012-06-13T18:05:35+0000",
+    "lastSetToArrearsDate": "2012-01-01T00:00:00+0000",
+    "closedDate": "2012-01-01T00:00:00+0000",
 
-# Relaciones
-"productTypeKey": "8afae1dc2f3f6afa012f45bae91500d7",
-"accountHolderType": "GROUP",
-"accountHolderKey": "8af20ea03755684801375d6b5f7f145b",
-"assignedUserKey": "8a5c1e9f34bdd2b90134c49b6b950948",
-"assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d",
-"encodedKey": "8af25b7337e52f8b0137e704ef71057b",
+    # Relaciones
+    "productTypeKey": "8afae1dc2f3f6afa012f45bae91500d7",
+    "accountHolderType": "GROUP",
+    "accountHolderKey": "8af20ea03755684801375d6b5f7f145b",
+    "assignedUserKey": "8a5c1e9f34bdd2b90134c49b6b950948",
+    "assignedBranchKey": "8a70db342e6d595a012e6e7158670f9d",
+    "encodedKey": "8af25b7337e52f8b0137e704ef71057b",
 }
 
 TODO: update this with later responses from Mambu, and perhaps certain
@@ -443,6 +443,30 @@ class MambuLoan(MambuStruct):
             loannombres.append({'name': client['name'], 'amount': self['loanAmount']})
 
         return loannombres
+
+
+    def setActivities(self, *args, **kwargs):
+        """Adds the activities for this loan to a 'activities' field.
+
+        Activities are MambuActivity objects.
+
+        Activities get sorted by activity timestamp.
+
+        Returns the number of requests done to Mambu.
+        """
+        def activityDate(activity):
+            """Util function used for sorting activities according to timestamp"""
+            try:
+                return activity['activity']['timestamp']
+            except KeyError as kerr:
+                return None
+        from mambuactivity import MambuActivities
+        
+        activities = MambuActivities(loanAccountId=self['encodedKey'], *args, **kwargs)
+        activities.attrs = sorted(activities.attrs, key=activityDate)
+        self['activities'] = activities
+
+        return 1
 
 
 class MambuLoans(MambuStruct):
