@@ -9,7 +9,7 @@ MambuActivities holds a list of activities.
 Uses mambuutil.getactivitiesurl as default urlfunc
 
 Example response from Mambu for activities (please omit comment lines beginning with #):
-[    
+[
    {
       "activity":{
          "encodedKey":"8a54e5b444441eba014445e18c640021",

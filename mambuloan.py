@@ -461,7 +461,7 @@ class MambuLoan(MambuStruct):
             except KeyError as kerr:
                 return None
         from mambuactivity import MambuActivities
-        
+
         activities = MambuActivities(loanAccountId=self['encodedKey'], *args, **kwargs)
         activities.attrs = sorted(activities.attrs, key=activityDate)
         self['activities'] = activities

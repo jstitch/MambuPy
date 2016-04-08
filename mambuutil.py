@@ -478,6 +478,11 @@ def gettasksurl(*args, **kwargs):
 def getactivitiesurl(dummyId='', *args, **kwargs):
     """Request Activities URL.
 
+    dummyId is used because MambuStruct always requires an Id from an
+    entity, but the Mambu API doesn't requires it for Activities,
+    because of that dummyId defaults to '', but in practice it is never
+    used (if someone sends dummyId='someId' nothing happens). The fact
+    of forcing to send an entid is a technical debt that should be payed.
     """
     from datetime import datetime
 
@@ -495,7 +500,7 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
             getparams.append("to=%s" % hoy)
 
         try:
-            getparams.append("branchId=%s" % kwargs["branchId"])
+            getparams.append("branchID=%s" % kwargs["branchId"])
         except Exception as ex:
             pass
 
@@ -503,7 +508,6 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
             getparams.append("clientID=%s" % kwargs["clientId"])
         except Exception as ex:
             pass
-
 
         try:
             getparams.append("centreID=%s" % kwargs["centreId"])
