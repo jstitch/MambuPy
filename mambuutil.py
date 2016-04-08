@@ -475,6 +475,63 @@ def gettasksurl(*args, **kwargs):
     url = getmambuurl(*args, **kwargs) + "tasks"
     return url
 
+def getactivitiesurl(dummyId='', *args, **kwargs):
+    """Request Activities URL.
+
+    dummyId is used because MambuStruct always requires an Id from an
+    entity, but the Mambu API doesn't requires it for Activities,
+    because of that dummyId defaults to '', but in practice it is never
+    used (if someone sends dummyId='someId' nothing happens). The fact
+    of forcing to send an entid is a technical debt that should be payed.
+    """
+    from datetime import datetime
+
+    getparams = []
+    if kwargs:
+        try:
+            getparams.append("from=%s" % kwargs["fromDate"])
+        except Exception as ex:
+            getparams.append("from=%s" % '1900-01-01')
+
+        try:
+            getparams.append("to=%s" % kwargs["toDate"])
+        except Exception as ex:
+            hoy = datetime.now().strftime('%Y-%m-%d')
+            getparams.append("to=%s" % hoy)
+
+        try:
+            getparams.append("branchID=%s" % kwargs["branchId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("clientID=%s" % kwargs["clientId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("centreID=%s" % kwargs["centreId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("userID=%s" % kwargs["userId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("loanAccountID=%s" % kwargs["loanAccountId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("groupID=%s" % kwargs["groupId"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "activities" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
