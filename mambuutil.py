@@ -354,7 +354,7 @@ def getclienturl(idclient, *args, **kwargs):
     * fullDetails
     * firstName
     * lastName
-    * documentId
+    * idDocument
     * birthdate
     * state
     * limit
@@ -381,7 +381,7 @@ def getclienturl(idclient, *args, **kwargs):
         except Exception as ex:
             pass
         try:
-            getparams.append("documentId=%s" % kwargs["documentId"])
+            getparams.append("idDocument=%s" % kwargs["idDocument"])
         except Exception as ex:
             pass
         try:
