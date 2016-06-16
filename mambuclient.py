@@ -183,13 +183,12 @@ class MambuClient(MambuStruct):
             self['middleName'] = scrc(self['middleName'], " ")
         except Exception as ex:
             self['middleName'] = ""
-        self['lastName'] = scrc(self['lastName'], " ")
-        self['firstLastName'] = " ".join(self['lastName'].split(" ")[:-1])
+        self['givenName']      = self["firstName"] + (" " + self["middleName"]) if self["middleName"] != "" else ""
+        self['lastName']       = scrc(self['lastName'], " ")
+        self['firstLastName']  = " ".join(self['lastName'].split(" ")[:-1])
         self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:])
 
-        self['name'] = "%s%s %s" % (self['firstName'],
-                                          " " + self['middleName'] if self["middleName"] != "" else "",
-                                          self['lastName'])
+        self['name'] = "%s %s" % (self['givenName'], self['lastName'])
 
         self['address'] = {}
         try:
