@@ -218,6 +218,31 @@ class MambuGroup(MambuStruct):
         return requests
 
 
+    def setActivities(self, *args, **kwargs):
+        """Adds the activities for this group to a 'activities' field.
+
+        Activities are MambuActivity objects.
+
+        Activities get sorted by activity timestamp.
+
+        Returns the number of requests done to Mambu.
+        """
+        def activityDate(activity):
+            """Util function used for sorting activities according to timestamp"""
+            try:
+                return activity['activity']['timestamp']
+            except KeyError as kerr:
+                return None
+        from mambuactivity import MambuActivities
+
+        activities = MambuActivities(groupId=self['encodedKey'], *args, **kwargs)
+        activities.attrs = sorted(activities.attrs, key=activityDate)
+        self['activities'] = activities
+
+        return 1
+
+
+
 class MambuGroups(MambuStruct):
     """A list of Groups from Mambu.
 
