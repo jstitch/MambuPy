@@ -176,7 +176,7 @@ class MambuLoan(MambuStruct):
             except KeyError as kerr:
                 return None
         from mambutransaction import MambuTransactions
-        
+
         trans = MambuTransactions(entid=self['id'], *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
         self['transactions'] = trans

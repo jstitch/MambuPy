@@ -457,6 +457,11 @@ class MambuStruct(object):
         retries-MambuCommError situations (the except Exception that
         increases the retries counter is not saving the exception
         message, just retrying).
+
+        TODO: what about using decorators for the retry and for the
+        window logic?
+        (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
+        # Reusing impossible-to-reuse code)
         """
         jsresp = {}
 
