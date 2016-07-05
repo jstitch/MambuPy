@@ -482,7 +482,22 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
     entity, but the Mambu API doesn't requires it for Activities,
     because of that dummyId defaults to '', but in practice it is never
     used (if someone sends dummyId='someId' nothing happens). The fact
-    of forcing to send an entid is a technical debt that should be payed.
+    of forcing to send an entid is a technical debt that should be
+    payed.
+
+    Currently implemented filter parameters:
+    * from
+    * to
+    * branchID
+    * clientID
+    * centreID
+    * userID
+    * loanAccountID
+    * groupID
+    * limit
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
     """
     from datetime import datetime
 
@@ -526,6 +541,11 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
 
         try:
             getparams.append("groupID=%s" % kwargs["groupId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
         except Exception as ex:
             pass
 

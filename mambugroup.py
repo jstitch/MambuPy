@@ -198,7 +198,7 @@ class MambuGroup(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         from mambuclient import MambuClient
-        
+
         requests = 0
         if kwargs.has_key('fullDetails'):
             fullDetails = kwargs['fullDetails']
