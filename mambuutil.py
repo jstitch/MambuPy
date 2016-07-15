@@ -643,3 +643,53 @@ def encoded_dict(in_dict):
             v.decode('utf8')
         out_dict[k] = v
     return out_dict
+
+def backup_db(callback, bool_func, output_fname, *args, **kwargs):
+    """Backup Mambu Database via REST API.
+
+    Makes two calls to Mambu API:
+
+    - a POST to request a backup to be made
+    - a GET, once the backup is ready, to download the latest backup
+
+    * callback is a string to a callback URL Mambu will internally call
+    when the backup is ready to download. You should have a webservice
+    there to warn you when the backup is ready.
+
+    * bool_func is a function you use against your own code to test if the
+    said backup is ready. This function backup_db manages both the logic
+    of the request of a backup and the downloading of it too, so
+    bool_func allows you to have some way on your side to know when this
+    function will download the backup.
+
+    The thing is you have to build a webservice (for the callback)
+    making some kind of flag turn that your bool_func will read and know
+    when to say True, telling backup_db to begin the download of the
+    backup.
+
+    * output_fname the name of the file that will hold the downloaded
+    backup. PLEASE MIND that Mambu sends a ZIP file here.
+
+    *args and **kwargs allow you to change the Mambu permissions for the
+    getmambuurl internally called here.
+    """
+    from time import sleep
+    from urllib import urlopen, urlencode
+
+    data = {'callback' : callback}
+    resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup"),
+                   urlencode(encoded_dict(data)))
+
+    if resp.code != 200:
+        raise MambuCommError("Error posting request for backup")
+
+    while not bool_func():
+        sleep(10)
+
+    resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST"))
+
+    if resp.code != 200:
+        raise MambuCommError("Error getting database backup")
+
+    with open(output_fname, "w") as fw:
+        fw.write(resp.read())
