@@ -677,11 +677,14 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     from urllib import urlopen, urlencode
 
     data = {'callback' : callback}
-    resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup"),
-                   urlencode(encoded_dict(data)))
+    try:
+        resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup"),
+                       urlencode(encoded_dict(data)))
+    except Exception ex:
+        raise MambuError("Error requesting backup: %s" % repr(ex))
 
     if resp.code != 200:
-        raise MambuCommError("Error posting request for backup")
+        raise MambuCommError("Error posting request for backup: %s" % resp.read())
 
     while not bool_func():
         sleep(10)
@@ -689,7 +692,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST"))
 
     if resp.code != 200:
-        raise MambuCommError("Error getting database backup")
+        raise MambuCommError("Error getting database backup: %s" % resp.read())
 
     with open(output_fname, "w") as fw:
         fw.write(resp.read())
