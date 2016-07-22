@@ -680,7 +680,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     try:
         resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup"),
                        urlencode(encoded_dict(data)))
-    except Exception ex:
+    except Exception as ex:
         raise MambuError("Error requesting backup: %s" % repr(ex))
 
     if resp.code != 200:
