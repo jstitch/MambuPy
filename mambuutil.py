@@ -670,16 +670,25 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     * output_fname the name of the file that will hold the downloaded
     backup. PLEASE MIND that Mambu sends a ZIP file here.
 
-    *args and **kwargs allow you to change the Mambu permissions for the
-    getmambuurl internally called here.
+    * user, pwd and url allow you to change the Mambu permissions for
+    the getmambuurl internally called here.
+
+    * verbose is a boolean flag for verbosity.
     """
     from time import sleep
     from urllib import urlopen, urlencode
 
+    try:
+        verbose = kwargs['verbose']
+    except KeyError:
+        verbose = False
+
     data = {'callback' : callback}
     try:
-        resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup"),
-                       urlencode(encoded_dict(data)))
+        posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
+        if verbose:
+            print "open url:",posturl
+        resp = urlopen(posturl, urlencode(encoded_dict(data)))
     except Exception as ex:
         raise MambuError("Error requesting backup: %s" % repr(ex))
 
@@ -687,12 +696,22 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         raise MambuCommError("Error posting request for backup: %s" % resp.read())
 
     while not bool_func():
+        if verbose:
+            print "waiting..."
         sleep(10)
 
-    resp = urlopen(iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST"))
+    geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
+    if verbose:
+        print "open url:",geturl
+    resp = urlopen(geturl)
 
     if resp.code != 200:
         raise MambuCommError("Error getting database backup: %s" % resp.read())
 
+    if verbose:
+        print "saving..."
     with open(output_fname, "w") as fw:
         fw.write(resp.read())
+
+    if verbose:
+        print "DONE!"
