@@ -674,7 +674,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     the getmambuurl internally called here.
 
     * verbose is a boolean flag for verbosity.
+
+    * retries number of retries for bool_func or -1 for keep waiting.
     """
+    from datetime import datetime
     from time import sleep
     from urllib import urlopen, urlencode
 
@@ -682,36 +685,69 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         verbose = kwargs['verbose']
     except KeyError:
         verbose = False
+    try:
+        retries = kwargs['retries']
+    except KeyError:
+        retries = -1
+
+    if verbose:
+        log = open('/tmp/log_mambu_backup','a')
+        log.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + " - Mambu DB Backup\n")
+        log.flush()
 
     data = {'callback' : callback}
     try:
         posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
         if verbose:
-            print "open url:",posturl
+            log.write("open url: "+posturl+"\n")
+            log.flush()
         resp = urlopen(posturl, urlencode(encoded_dict(data)))
     except Exception as ex:
-        raise MambuError("Error requesting backup: %s" % repr(ex))
+        mess = "Error requesting backup: %s" % repr(ex)
+        if verbose:
+            log.write(mess + "\n")
+            log.close()
+        raise MambuError(mess)
 
     if resp.code != 200:
-        raise MambuCommError("Error posting request for backup: %s" % resp.read())
-
-    while not bool_func():
+        mess = "Error posting request for backup: %s" % resp.read()
         if verbose:
-            print "waiting..."
+            log.write(mess + "\n")
+            log.close()
+        raise MambuCommError(mess)
+
+    while retries and not bool_func():
+        if verbose:
+            log.write("waiting...\n")
+            log.flush()
         sleep(10)
+        retries -= 1
+        if retries < 0: retries = -1
+    if not retries:
+        mess = "Tired of waiting, giving up..."
+        log.write(mess + "\n")
+        log.close()
+        raise MambuError(mess)
 
     geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
     if verbose:
-        print "open url:",geturl
+        log.write("open url: "+geturl+"\n")
+        log.flush()
     resp = urlopen(geturl)
 
     if resp.code != 200:
-        raise MambuCommError("Error getting database backup: %s" % resp.read())
+        mess = "Error getting database backup: %s" % resp.read()
+        if verbose:
+            log.write(mess + "\n")
+            log.close()
+        raise MambuCommError(mess)
 
     if verbose:
-        print "saving..."
+        log.write("saving...\n")
+        log.flush()
     with open(output_fname, "w") as fw:
         fw.write(resp.read())
 
     if verbose:
-        print "DONE!"
+        log.write("DONE!\n")
+        log.close()
