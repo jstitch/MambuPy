@@ -5,10 +5,11 @@ are missing.
 """
 
 from mambuutil import connectDb, dbname
+from mambupy.schema_groups import Group
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
-from sqlalchemy import ForeignKey
+from sqlalchemy import Table, ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
 engine = connectDb()
@@ -58,15 +59,20 @@ class Client(Base):
                      }
 
     # Columns
-    encodedkey = Column(String, primary_key=True)
-    id         = Column(String, index=True, unique=True)
-    firstname  = Column(String)
-    middlename = Column(String)
-    lastname   = Column(String)
-    gender     = Column(String)
-    birthdate  = Column(DateTime)
-    homephone  = Column(String)
-    state      = Column(String)
+    encodedkey    = Column(String, primary_key=True)
+    id            = Column(String, index=True, unique=True)
+    firstname     = Column(String)
+    middlename    = Column(String)
+    lastname      = Column(String)
+    gender        = Column(String)
+    birthdate     = Column(DateTime)
+    homephone     = Column(String)
+    mobilephone1  = Column(String)
+    emailaddress  = Column(String)
+    state         = Column(String)
+    groups        = relationship(Group,
+                                secondary=lambda: ClientsGroups)
+
 
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(ClientBranch.encodedkey))
@@ -77,6 +83,12 @@ class Client(Base):
 
     def __repr__(self):
         return "<Client(id={}, name={})>".format(self.id, self.name())
+
+
+ClientsGroups = Table('groupmember', Base.metadata,
+    Column('clientkey', Integer, ForeignKey(Client.encodedkey), nullable=False, primary_key=True, doc='Reference to client'),
+    Column('groupkey',  Integer, ForeignKey(Group.encodedkey),  nullable=False, primary_key=True, doc='Reference to group'),
+    schema=dbname)
 
 
 class ClientAddress(Base):
