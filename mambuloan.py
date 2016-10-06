@@ -469,24 +469,24 @@ class MambuLoan(MambuStruct):
         return 1
 
 
-    def setCustomField(self, customfield="", fieldtype="", *args, **kwargs):
+    def setCustomField(self, customfield="", *args, **kwargs):
         """Adds a customField for this loan to a given field.
-
-        User is a MambuUser object.
 
         Returns the number of requests done to Mambu.
         """
-        if fieldtype.lower() == "user":
-            try:
-                customFieldValue = [l['value'] for l in self['customFieldValues'] if l['customFieldID'] == customfield][0]
-                from mambuuser import MambuUser
-                self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
-            except IndexError as ierr:
-                err = MambuError("La cuenta %s no tiene el campo personalizado %s" % (self['id'], customfield))
-                raise err
-        else:
-            err = MambuError("No existe el fieldtype %s" % fieldtype)
+        try:
+            customFieldValue = [l['value'] for l in self['customFieldValues'] if l['customFieldID'] == customfield][0]
+            datatype = [l['customField']['dataType'] for l in self['customFieldValues'] if l['customFieldID'] == customfield][0]
+        except IndexError as ierr:
+            err = MambuError("The loan %s has not the custom field '%s'" % (self['id'], customfield))
             raise err
+
+        if datatype == "USER_LINK":
+            from mambuuser import MambuUser
+            self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
+        else:
+            self[customfield] = customFieldValue
+            return 0
 
         return 1
 
