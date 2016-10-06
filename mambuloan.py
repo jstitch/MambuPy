@@ -198,7 +198,7 @@ class MambuLoan(MambuStruct):
         branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
         self['assignedBranchName'] = branch['name']
         self['assignedBranch'] = branch
-        
+
         return 1
 
 
@@ -264,7 +264,7 @@ class MambuLoan(MambuStruct):
             except AttributeError:
                 return 1
             return 0
-        
+
         from mambuproduct import MambuProduct
 
         product = MambuProduct(entid=self['productTypeKey'], *args, **kwargs)
@@ -366,7 +366,7 @@ class MambuLoan(MambuStruct):
 
             if getRoles:
                 from mambuclient import MambuClient
-                
+
                 roles = []
                 # If holder is group, attach role client data to the group
                 for c in holder['groupRoles']:
@@ -378,7 +378,7 @@ class MambuLoan(MambuStruct):
 
             if getClients:
                 requests += holder.setClients(fullDetails=fullDetails, *args, **kwargs)
-                
+
                 loanclients = {}
 
                 loannombres = self.getClientDetails(holder=holder, *args, **kwargs) # Esto seguro se puede sustituir por with y context managers...
@@ -401,7 +401,7 @@ class MambuLoan(MambuStruct):
 
         else: # "CLIENT"
             from mambuclient import MambuClient
-            
+
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  fullDetails=fullDetails, *args, **kwargs)
@@ -470,7 +470,12 @@ class MambuLoan(MambuStruct):
 
 
     def setCustomField(self, customfield="", *args, **kwargs):
-        """Adds a customField for this loan to a given field.
+        """Adds a customField field for this loan with the value of a
+        given field.
+
+        If the dataType == "USER_LINK" then instead of creating a
+        customField with the value of the CF, it will be a MambuUser
+        object
 
         Returns the number of requests done to Mambu.
         """
