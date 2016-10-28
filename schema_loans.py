@@ -4,29 +4,16 @@ TODO: this are just very basic schemas for loan tables. A lot of fields
 are missing.
 """
 
-from mambuutil import connectDb, dbname
+from mambupy import schema_orm as orm
+from mambupy.schema_groups import Group
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
-engine = connectDb()
-"""Database engine, connecting with default parameters by default.
-"""
-
-Session = sessionmaker(bind=engine)
-"""Sessionmaker object.
-"""
-
-session = Session()
-"""Default session created here.
-"""
-
-Base = declarative_base()
-"""Declarative base for models.
-"""
-
+dbname = orm.dbname
+session = orm.session
+Base = orm.Base
 
 class LoanProduct(Base):
     """LoanProduct table.
@@ -91,12 +78,14 @@ class LoanAccount(Base):
     penaltydue             = Column(Numeric(50,10))
     creationdate           = Column(DateTime)
     approveddate           = Column(DateTime)
-#    disbursementdate      = Column(DateTime)
+    #    disbursementdate      = Column(DateTime)
     closeddate             = Column(DateTime)
 
     # Relationships
     producttypekey         = Column(String, ForeignKey(LoanProduct.encodedkey))
     product                = relationship('LoanProduct')
+    accountholderkey       = Column(String, ForeignKey(Group.encodedkey))
+    group                  = relationship(Group, backref=backref('loans'))
     disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
     disbursementdetails    = relationship('DisbursementDetails')
 
