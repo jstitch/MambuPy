@@ -31,7 +31,13 @@ A lot of TODO comments are inserted inside the pydocs of the code
 itself. Please read them for suggestions on work need to be done.
 
 
-The DB way is currently very basic.
+The DB way is currently very basic. All schemas must import schema_orm,
+this is because all need to be in the same session, if you want to import
+all schemas at once, just import schema_mambu, but if you want to use
+schemas by separately you need to be careful because there is some kind of
+dependency, by example, you use schema_groups to get groups, a group can
+have loans, but, to get them you need to import schema_loans first.
+
 
 Suggested actions TODO:
 
