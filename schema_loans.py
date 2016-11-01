@@ -52,6 +52,10 @@ class DisbursementDetails(Base):
 
 class LoanAccount(Base):
     """LoanAccount table.
+
+    TECHNICAL DEBT: there's a debt created when we linked the accountholderkey
+    directly to a Group. Mambu can have loan accounts linked to clients too,
+    but we fixed it to groups right now.
     """
     __tablename__          = "loanaccount"
     __table_args__         = {'schema'        : dbname,
