@@ -4,29 +4,15 @@ TODO: this are just very basic schemas for groups. A some fields
 are missing.
 """
 
-from mambuutil import connectDb, dbname
+from mambupy import schema_orm as orm
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
-engine = connectDb()
-"""Database engine, connecting with default parameters by default.
-"""
-
-Session = sessionmaker(bind=engine)
-"""Sessionmaker object.
-"""
-
-session = Session()
-"""Default session created here.
-"""
-
-Base = declarative_base()
-"""Declarative base for models.
-"""
-
+dbname = orm.dbname
+session = orm.session
+Base = orm.Base
 
 class GroupBranch(Base):
     """Branch table.
