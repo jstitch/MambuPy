@@ -624,3 +624,29 @@ class MambuStruct(object):
             except AttributeError:
                 formato = "%Y-%m-%dT%H:%M:%S+0000"
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
+
+    def setCustomField(self, customfield="", *args, **kwargs):
+        """Adds a customField field for this object with the value of a
+        given field.
+
+        If the dataType == "USER_LINK" then instead of creating a
+        customField with the value of the CF, it will be a MambuUser
+        object
+
+        Returns the number of requests done to Mambu.
+        """
+        try:
+            customFieldValue = [l['value'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
+            datatype = [l['customField']['dataType'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
+        except IndexError as ierr:
+            err = MambuError("The object %s has not the custom field '%s'" % (self['id'], customfield))
+            raise err
+
+        if datatype == "USER_LINK":
+            from mambuuser import MambuUser
+            self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
+        else:
+            self[customfield] = customFieldValue
+            return 0
+
+        return 1

@@ -469,33 +469,6 @@ class MambuLoan(MambuStruct):
         return 1
 
 
-    def setCustomField(self, customfield="", *args, **kwargs):
-        """Adds a customField field for this loan with the value of a
-        given field.
-
-        If the dataType == "USER_LINK" then instead of creating a
-        customField with the value of the CF, it will be a MambuUser
-        object
-
-        Returns the number of requests done to Mambu.
-        """
-        try:
-            customFieldValue = [l['value'] for l in self['customFieldValues'] if l['customFieldID'] == customfield][0]
-            datatype = [l['customField']['dataType'] for l in self['customFieldValues'] if l['customFieldID'] == customfield][0]
-        except IndexError as ierr:
-            err = MambuError("The loan %s has not the custom field '%s'" % (self['id'], customfield))
-            raise err
-
-        if datatype == "USER_LINK":
-            from mambuuser import MambuUser
-            self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
-        else:
-            self[customfield] = customFieldValue
-            return 0
-
-        return 1
-
-
 class MambuLoans(MambuStruct):
     """A list of Loan accounts from Mambu.
 
