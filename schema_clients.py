@@ -57,7 +57,8 @@ class Client(Base):
     emailaddress  = Column(String)
     state         = Column(String)
     groups        = relationship(Group,
-                                secondary=lambda: ClientsGroups)
+                                secondary=lambda: ClientsGroups,
+                                backref=backref('clients'))
 
 
     # Relationships
