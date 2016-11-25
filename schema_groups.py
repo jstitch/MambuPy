@@ -5,6 +5,7 @@ are missing.
 """
 
 from mambupy import schema_orm as orm
+from mambupy.schema_branches import Branch
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -13,27 +14,6 @@ from sqlalchemy import Column, String, DateTime, Numeric, Integer
 dbname = orm.dbname
 session = orm.session
 Base = orm.Base
-
-class GroupBranch(Base):
-    """Branch table.
-    Related with group
-    """
-    __tablename__  = "branch"
-    __table_args__ = {'schema'        : dbname,
-                      'keep_existing' : True
-                     }
-
-    # Columns
-    encodedkey   = Column(String, primary_key=True)
-    id           = Column(String, index=True, unique=True)
-    name         = Column(String)
-    notes        = Column(String)
-    phonenumber  = Column(String)
-    emailaddress = Column(String)
-
-    def __repr__(self):
-        return "<Branch(id={}, name={})>".format(self.id, self.name)
-
 
 class Group(Base):
     """Group table.
@@ -50,8 +30,8 @@ class Group(Base):
     loancycle  = Column(Integer)
 
     # Relationships
-    assignedbranchkey = Column(String, ForeignKey(GroupBranch.encodedkey))
-    branch            = relationship('GroupBranch', backref=backref('groups'))
+    assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
+    branch            = relationship(Branch, backref=backref('groups'))
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)

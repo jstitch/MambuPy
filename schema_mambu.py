@@ -4,3 +4,4 @@
 from mambupy import schema_groups as groups
 from mambupy import schema_clients as clients
 from mambupy import schema_loans as loans
+from mambupy import schema_branches as branches
