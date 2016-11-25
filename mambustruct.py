@@ -636,15 +636,13 @@ class MambuStruct(object):
         Returns the number of requests done to Mambu.
         """
         try:
-            try:
-                customFieldValue = [l['value'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
-            except IndexError as ierr:
-                err = MambuError("The object does not have a custom field to set")
-                raise err
-
+            customFieldValue = [l['value'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
             datatype = [l['customField']['dataType'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
         except IndexError as ierr:
             err = MambuError("The object %s has not the custom field '%s'" % (self['id'], customfield))
+            raise err
+        except AttributeError:
+            err = MambuError("The object does not have a custom field to set")
             raise err
 
         if datatype == "USER_LINK":
