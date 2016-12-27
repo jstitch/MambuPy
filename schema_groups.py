@@ -6,6 +6,7 @@ are missing.
 
 from mambupy import schema_orm as orm
 from mambupy.schema_branches import Branch
+from mambupy.schema_users import User
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -32,6 +33,8 @@ class Group(Base):
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
     branch            = relationship(Branch, backref=backref('groups'))
+    assigneduserkey   = Column(String, ForeignKey(User.encodedkey))
+    user             = relationship(User, backref=backref('groups'))
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)
