@@ -36,6 +36,7 @@ class Client(Base):
     mobilephone1  = Column(String)
     emailaddress  = Column(String)
     state         = Column(String)
+    loancycle     = Column(Integer)
     groups        = relationship(Group,
                                 secondary=lambda: ClientsGroups,
                                 backref=backref('clients'))
@@ -109,5 +110,3 @@ class IdentificationDocument(Base):
 
     def __repr__(self):
         return "<IdentificationDocument(documentid={})>".format(self.documentid)
-
-
