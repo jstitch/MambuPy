@@ -6,6 +6,7 @@ are missing.
 
 from mambupy import schema_orm as orm
 from mambupy.schema_groups import Group
+from mambupy.schema_branches import Branch
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -92,6 +93,8 @@ class LoanAccount(Base):
     group                  = relationship(Group, backref=backref('loans'))
     disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
     disbursementdetails    = relationship('DisbursementDetails')
+    assignedbranchkey      = Column(String, ForeignKey(Branch.encodedkey))
+    branch                 = relationship(Branch, backref=backref('loans'))
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
