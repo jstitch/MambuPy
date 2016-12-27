@@ -85,3 +85,29 @@ class ClientAddress(Base):
 
     def __repr__(self):
         return "<Address(address={})>".format(self.address())
+
+class IdentificationDocument(Base):
+    """IdentificationDocument table.
+    Related with client
+    """
+    __tablename__  = "identificationdocument"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    encodedkey          = Column(String, primary_key=True)
+    documentid          = Column(String)
+    documenttype        = Column(String)
+    indexinlist         = Column(Integer)
+    issuingauthority    = Column(String)
+    validuntil          = Column(DateTime)
+    identificationdocumenttemplatekey   = Column(String)
+
+    # Relationships
+    clientkey = Column(String, ForeignKey(Client.encodedkey))
+    client    = relationship(Client, backref=backref('identificationdocuments'))
+
+    def __repr__(self):
+        return "<IdentificationDocument(documentid={})>".format(self.documentid)
+
+
