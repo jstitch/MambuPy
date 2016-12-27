@@ -75,6 +75,11 @@ class LoanAccount(Base):
     interestbalance        = Column(Numeric(50,10))
     interestpaid           = Column(Numeric(50,10))
     interestdue            = Column(Numeric(50,10))
+    interestrate           = Column(Numeric(50,10))
+    interestbalancecalculationmethod = Column(String)
+    repaymentinstallments  = Column(Integer)
+    repaymentperiodunit    = Column(String)
+    accountholdertype      = Column(String)
     feesbalance            = Column(Numeric(50,10))
     feespaid               = Column(Numeric(50,10))
     feesdue                = Column(Numeric(50,10))
@@ -83,7 +88,6 @@ class LoanAccount(Base):
     penaltydue             = Column(Numeric(50,10))
     creationdate           = Column(DateTime)
     approveddate           = Column(DateTime)
-    #    disbursementdate      = Column(DateTime)
     closeddate             = Column(DateTime)
 
     # Relationships
