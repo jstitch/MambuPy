@@ -164,27 +164,3 @@ class LoanTransaction(Base):
 
     def __repr__(self):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
-
-
-class LoanActivity(Base):
-    """LoanActivity table.
-
-    From activity table, but only activity related to loan accounts
-    matter here.
-    """
-    __tablename__  = "activity"
-    __table_args__ = {'schema'        : dbname,
-                      'keep_existing' : True
-                     }
-
-    # Columns
-    encodedkey     = Column(String, primary_key=True)
-    type           = Column(String)
-    timestamp      = Column(DateTime)
-
-    # Relationships
-    loanaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    loan_account   = relationship('LoanAccount', backref=backref('activities', order_by='LoanActivity.timestamp'))
-
-    def __repr__(self):
-        return "<LoanActivity(type=%s, timestamp=%s, loan=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'), self.loan_account.id)
