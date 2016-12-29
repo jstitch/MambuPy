@@ -7,6 +7,7 @@ are missing.
 from mambupy import schema_orm as orm
 from mambupy.schema_groups import Group
 from mambupy.schema_branches import Branch
+from mambupy.schema_addresses import Address
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
@@ -45,6 +46,10 @@ class Client(Base):
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
     branch            = relationship(Branch, backref=backref('clients'))
+    addresses    = relationship(Address,
+                                backref=backref('client'),
+                                foreign_keys=[Address.parentkey],
+                                primaryjoin='Address.parentkey == Client.encodedkey')
 
     def name(self):
         return "{}{} {}".format(self.firstname,(' '+self.middlename) if self.middlename else '',self.lastname)
@@ -58,34 +63,6 @@ ClientsGroups = Table('groupmember', Base.metadata,
     Column('groupkey',  Integer, ForeignKey(Group.encodedkey),  nullable=False, primary_key=True, doc='Reference to group'),
     schema=dbname)
 
-
-class ClientAddress(Base):
-    """Adress table.
-    Related with client
-    """
-    __tablename__  = "address"
-    __table_args__ = {'schema'        : dbname,
-                      'keep_existing' : True
-                     }
-
-    # Columns
-    encodedkey = Column(String, primary_key=True)
-    line1      = Column(String)
-    line2      = Column(String)
-    region     = Column(String)
-    city       = Column(String)
-    country    = Column(String)
-    postcode   = Column(String)
-
-    # Relationships
-    parentkey = Column(String, ForeignKey(Client.encodedkey))
-    client    = relationship('Client', backref=backref('addresses'))
-
-    def address(self):
-        return "{}, {}, {}, {}, {}, {}".format(self.line1, self.line2, self.region, self.city, self.country, self.postcode)
-
-    def __repr__(self):
-        return "<Address(address={})>".format(self.address())
 
 class IdentificationDocument(Base):
     """IdentificationDocument table.
