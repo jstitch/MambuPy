@@ -8,6 +8,7 @@ from mambupy import schema_orm as orm
 from mambupy.schema_groups import Group
 from mambupy.schema_branches import Branch
 from mambupy.schema_users import User
+from mambupy.schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -102,6 +103,10 @@ class LoanAccount(Base):
     branch                 = relationship(Branch, backref=backref('loans'))
     assigneduserkey        = Column(String, ForeignKey(User.encodedkey))
     user                   = relationship(User, backref=backref('loans'))
+    custominformation      = relationship(CustomFieldValue,
+                                          backref=backref('loan'),
+                                          foreign_keys=[CustomFieldValue.parentkey],
+                                          primaryjoin='CustomFieldValue.parentkey == LoanAccount.encodedkey')
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)

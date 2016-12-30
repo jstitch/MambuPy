@@ -8,6 +8,7 @@ from mambupy import schema_orm as orm
 from mambupy.schema_groups import Group
 from mambupy.schema_branches import Branch
 from mambupy.schema_addresses import Address
+from mambupy.schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
@@ -46,10 +47,14 @@ class Client(Base):
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
     branch            = relationship(Branch, backref=backref('clients'))
-    addresses    = relationship(Address,
-                                backref=backref('client'),
-                                foreign_keys=[Address.parentkey],
-                                primaryjoin='Address.parentkey == Client.encodedkey')
+    addresses         = relationship(Address,
+                                     backref=backref('client'),
+                                     foreign_keys=[Address.parentkey],
+                                     primaryjoin='Address.parentkey == Client.encodedkey')
+    custominformation = relationship(CustomFieldValue,
+                                     backref=backref('client'),
+                                     foreign_keys=[CustomFieldValue.parentkey],
+                                     primaryjoin='CustomFieldValue.parentkey == Client.encodedkey')
 
     def name(self):
         return "{}{} {}".format(self.firstname,(' '+self.middlename) if self.middlename else '',self.lastname)
