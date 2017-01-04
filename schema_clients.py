@@ -57,7 +57,7 @@ class Client(Base):
                                      primaryjoin='CustomFieldValue.parentkey == Client.encodedkey')
 
     def name(self):
-        return "{}{} {}".format(self.firstname,(' '+self.middlename) if self.middlename else '',self.lastname)
+        return "{}{} {}".format(self.firstname.strip(),(' '+self.middlename.strip()) if self.middlename else '',self.lastname.strip())
 
     def __repr__(self):
         return "<Client(id={}, name={})>".format(self.id, self.name())
