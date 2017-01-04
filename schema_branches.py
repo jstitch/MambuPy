@@ -5,6 +5,8 @@ are missing.
 """
 
 from mambupy import schema_orm as orm
+from mambupy.schema_addresses import Address
+from mambupy.schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
@@ -30,6 +32,16 @@ class Branch(Base):
     notes        = Column(String)
     phonenumber  = Column(String)
     emailaddress = Column(String)
+
+    # Relationships
+    addresses         = relationship(Address,
+                                     backref=backref('branch'),
+                                     foreign_keys=[Address.parentkey],
+                                     primaryjoin='Address.parentkey == Branch.encodedkey')
+    custominformation = relationship(CustomFieldValue,
+                                     backref=backref('branch'),
+                                     foreign_keys=[CustomFieldValue.parentkey],
+                                     primaryjoin='CustomFieldValue.parentkey == Branch.encodedkey')
 
     def __repr__(self):
         return "<Branch(id={}, name={})>".format(self.id, self.name)

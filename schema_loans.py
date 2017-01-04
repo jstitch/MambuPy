@@ -6,6 +6,9 @@ are missing.
 
 from mambupy import schema_orm as orm
 from mambupy.schema_groups import Group
+from mambupy.schema_branches import Branch
+from mambupy.schema_users import User
+from mambupy.schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -74,6 +77,11 @@ class LoanAccount(Base):
     interestbalance        = Column(Numeric(50,10))
     interestpaid           = Column(Numeric(50,10))
     interestdue            = Column(Numeric(50,10))
+    interestrate           = Column(Numeric(50,10))
+    interestbalancecalculationmethod = Column(String)
+    repaymentinstallments  = Column(Integer)
+    repaymentperiodunit    = Column(String)
+    accountholdertype      = Column(String)
     feesbalance            = Column(Numeric(50,10))
     feespaid               = Column(Numeric(50,10))
     feesdue                = Column(Numeric(50,10))
@@ -82,7 +90,6 @@ class LoanAccount(Base):
     penaltydue             = Column(Numeric(50,10))
     creationdate           = Column(DateTime)
     approveddate           = Column(DateTime)
-    #    disbursementdate      = Column(DateTime)
     closeddate             = Column(DateTime)
 
     # Relationships
@@ -92,6 +99,14 @@ class LoanAccount(Base):
     group                  = relationship(Group, backref=backref('loans'))
     disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
     disbursementdetails    = relationship('DisbursementDetails')
+    assignedbranchkey      = Column(String, ForeignKey(Branch.encodedkey))
+    branch                 = relationship(Branch, backref=backref('loans'))
+    assigneduserkey        = Column(String, ForeignKey(User.encodedkey))
+    user                   = relationship(User, backref=backref('loans'))
+    custominformation      = relationship(CustomFieldValue,
+                                          backref=backref('loan'),
+                                          foreign_keys=[CustomFieldValue.parentkey],
+                                          primaryjoin='CustomFieldValue.parentkey == LoanAccount.encodedkey')
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
@@ -154,27 +169,3 @@ class LoanTransaction(Base):
 
     def __repr__(self):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
-
-
-class LoanActivity(Base):
-    """LoanActivity table.
-
-    From activity table, but only activity related to loan accounts
-    matter here.
-    """
-    __tablename__  = "activity"
-    __table_args__ = {'schema'        : dbname,
-                      'keep_existing' : True
-                     }
-
-    # Columns
-    encodedkey     = Column(String, primary_key=True)
-    type           = Column(String)
-    timestamp      = Column(DateTime)
-
-    # Relationships
-    loanaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    loan_account   = relationship('LoanAccount', backref=backref('activities', order_by='LoanActivity.timestamp'))
-
-    def __repr__(self):
-        return "<LoanActivity(type=%s, timestamp=%s, loan=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'), self.loan_account.id)
