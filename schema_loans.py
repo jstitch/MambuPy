@@ -78,6 +78,7 @@ class LoanAccount(Base):
     interestpaid           = Column(Numeric(50,10))
     interestdue            = Column(Numeric(50,10))
     interestrate           = Column(Numeric(50,10))
+    interestcalculationmethod        = Column(String)
     interestbalancecalculationmethod = Column(String)
     repaymentinstallments  = Column(Integer)
     repaymentperiodunit    = Column(String)
