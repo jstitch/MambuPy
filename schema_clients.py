@@ -56,6 +56,10 @@ class Client(Base):
                                      backref=backref('client'),
                                      foreign_keys=[CustomFieldValue.parentkey],
                                      primaryjoin='CustomFieldValue.parentkey == Client.encodedkey')
+    loans             = relationship(LoanAccount,
+                                     backref=backref('holder_client'),
+                                     foreign_keys=[LoanAccount.accountholderkey],
+                                     primaryjoin='LoanAccount.accountholderkey == Client.encodedkey')
 
     def name(self):
         return "{}{} {}".format(self.firstname.strip(),(' '+self.middlename.strip()) if self.middlename else '',self.lastname.strip())
