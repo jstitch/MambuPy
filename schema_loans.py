@@ -4,11 +4,11 @@ TODO: this are just very basic schemas for loan tables. A lot of fields
 are missing.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_groups import Group
-from mambupy.schema_branches import Branch
-from mambupy.schema_users import User
-from mambupy.schema_customfields import CustomFieldValue
+import schema_orm as orm
+
+from schema_branches import Branch
+from schema_users import User
+from schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey

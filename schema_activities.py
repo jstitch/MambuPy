@@ -1,12 +1,12 @@
 """Schema tables for Mambu Activities.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_branches import Branch
-from mambupy.schema_clients import Client
-from mambupy.schema_groups import Group
-from mambupy.schema_loans import LoanAccount
-from mambupy.schema_users import User
+import schema_orm as orm
+from schema_branches import Branch
+from schema_clients import Client
+from schema_groups import Group
+from schema_loans import LoanAccount
+from schema_users import User
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey

@@ -3,9 +3,9 @@
 TODO: this are just very basic schemas for users.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_branches import Branch
-from mambupy.schema_customfields import CustomFieldValue
+import schema_orm as orm
+from schema_branches import Branch
+from schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
