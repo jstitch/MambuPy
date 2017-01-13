@@ -4,11 +4,11 @@ TODO: this are just very basic schemas for loan tables. A lot of fields
 are missing.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_groups import Group
-from mambupy.schema_branches import Branch
-from mambupy.schema_users import User
-from mambupy.schema_customfields import CustomFieldValue
+import schema_orm as orm
+
+from schema_branches import Branch
+from schema_users import User
+from schema_customfields import CustomFieldValue
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -55,10 +55,6 @@ class DisbursementDetails(Base):
 
 class LoanAccount(Base):
     """LoanAccount table.
-
-    TECHNICAL DEBT: there's a debt created when we linked the accountholderkey
-    directly to a Group. Mambu can have loan accounts linked to clients too,
-    but we fixed it to groups right now.
     """
     __tablename__          = "loanaccount"
     __table_args__         = {'schema'        : dbname,
@@ -70,6 +66,7 @@ class LoanAccount(Base):
     id                     = Column(String, index=True, unique=True)
     accountstate           = Column(String)
     loanamount             = Column(Numeric(50,10))
+    loanAmount             = Column(Numeric(50,10)) # redundant with same-as-RESTAPI-case
     notes                  = Column(String)
     principalbalance       = Column(Numeric(50,10))
     principalpaid          = Column(Numeric(50,10))
@@ -81,6 +78,7 @@ class LoanAccount(Base):
     interestcalculationmethod        = Column(String)
     interestbalancecalculationmethod = Column(String)
     repaymentinstallments  = Column(Integer)
+    repaymentInstallments  = Column(Integer) # redundant with same-as-RESTAPI-case
     repaymentperiodunit    = Column(String)
     accountholdertype      = Column(String)
     feesbalance            = Column(Numeric(50,10))
@@ -96,8 +94,7 @@ class LoanAccount(Base):
     # Relationships
     producttypekey         = Column(String, ForeignKey(LoanProduct.encodedkey))
     product                = relationship('LoanProduct')
-    accountholderkey       = Column(String, ForeignKey(Group.encodedkey))
-    group                  = relationship(Group, backref=backref('loans'))
+    accountholderkey       = Column(String)
     disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
     disbursementdetails    = relationship('DisbursementDetails')
     assignedbranchkey      = Column(String, ForeignKey(Branch.encodedkey))

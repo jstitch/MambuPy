@@ -381,18 +381,18 @@ class MambuLoan(MambuStruct):
 
                 loanclients = {}
 
-                loannombres = self.getClientDetails(holder=holder, *args, **kwargs) # Esto seguro se puede sustituir por with y context managers...
+                loannames = self.getClientDetails(holder=holder, *args, **kwargs)
 
-                for client in holder['clients']:
-                    if client['name'] in [ l['name'] for l in loannombres ]:
-                        for cte in [ l for l in loannombres if l['name'] == client['name'] ]:
+                for client in holder.clients:
+                    if client.name in [ l['name'] for l in loannames ]:
+                        for cte in [ l for l in loannames if l['name'] == client.name ]:
                             loanclients[cte['name']] = {'client'     : client,
                                                         'loan'       : self,
                                                         'amount'     : cte['amount'],
-                                                        'montoPago'  : cte['amount'] / float(self['repaymentInstallments']),
-                                                        'porcentaje' : cte['amount'] / float(self['loanAmount']),
+                                                        'montoPago'  : cte['amount'] / float(self.repaymentInstallments),
+                                                        'porcentaje' : cte['amount'] / float(self.loanAmount),
                                                        }
-                            # Any extra key,val pair on loannombres is plainly assigned to the loanclients[cte] dict
+                            # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
                             for k,v in [ (key,val) for (key,val) in cte.items() if key not in['amount', 'name'] ]:
                                 loanclients[cte['name']][k] = v
 
@@ -436,13 +436,13 @@ class MambuLoan(MambuStruct):
         several other fields with information you wish to associate to
         each client holder of the loan account.
         """
-        loannombres = []
+        loannames = []
 
         holder = kwargs['holder']
-        for client in holder['clients']:
-            loannombres.append({'name': client['name'], 'amount': self['loanAmount']})
+        for client in holder.clients:
+            loannames.append({'name': client.name, 'amount': self.loanAmount})
 
-        return loannombres
+        return loannames
 
 
     def setActivities(self, *args, **kwargs):

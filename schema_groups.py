@@ -4,11 +4,12 @@ TODO: this are just very basic schemas for groups. A some fields
 are missing.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_branches import Branch
-from mambupy.schema_users import User
-from mambupy.schema_addresses import Address
-from mambupy.schema_customfields import CustomFieldValue
+import schema_orm as orm
+from schema_branches import Branch
+from schema_users import User
+from schema_addresses import Address
+from schema_customfields import CustomFieldValue
+from schema_loans import LoanAccount
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
@@ -45,6 +46,10 @@ class Group(Base):
                                      backref=backref('group'),
                                      foreign_keys=[CustomFieldValue.parentkey],
                                      primaryjoin='CustomFieldValue.parentkey == Group.encodedkey')
+    loans             = relationship(LoanAccount,
+                                     backref=backref('holder_group'),
+                                     foreign_keys=[LoanAccount.accountholderkey],
+                                     primaryjoin='LoanAccount.accountholderkey == Group.encodedkey')
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)

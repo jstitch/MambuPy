@@ -162,6 +162,16 @@ class MambuStruct(object):
         """Dict-like set"""
         self.attrs[key] = value
 
+    def __getattribute__(self, name):
+        """Object-like get attribute"""
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            if hasattr(self, '__iter__'):
+                if name=='params': # iterable MambuStructs require params to raise AttributeError if there's no self.params
+                    raise AttributeError
+            return self[name]
+
     def __repr__(self):
         """Mambu object repr tells the class name and the usual 'id' for it.
 

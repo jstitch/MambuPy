@@ -1,7 +1,7 @@
 """Schema tables for Mambu Addresses.
 """
 
-from mambupy import schema_orm as orm
+import schema_orm as orm
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
@@ -29,8 +29,9 @@ class Address(Base):
     postcode      = Column(String)
     region        = Column(String)
 
+    @property
     def address(self):
         return "{}, {}, {}, {}, {}, {}".format(self.line1, self.line2, self.region, self.city, self.country, self.postcode)
 
     def __repr__(self):
-        return "<Address(address={})>".format(self.address())
+        return "<Address(address={})>".format(self.address)

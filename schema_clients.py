@@ -4,11 +4,12 @@ TODO: this are just very basic schemas for clients. A lot of fields
 are missing.
 """
 
-from mambupy import schema_orm as orm
-from mambupy.schema_groups import Group
-from mambupy.schema_branches import Branch
-from mambupy.schema_addresses import Address
-from mambupy.schema_customfields import CustomFieldValue
+import schema_orm as orm
+from schema_groups import Group
+from schema_branches import Branch
+from schema_addresses import Address
+from schema_customfields import CustomFieldValue
+from schema_loans import LoanAccount
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
@@ -55,12 +56,17 @@ class Client(Base):
                                      backref=backref('client'),
                                      foreign_keys=[CustomFieldValue.parentkey],
                                      primaryjoin='CustomFieldValue.parentkey == Client.encodedkey')
+    loans             = relationship(LoanAccount,
+                                     backref=backref('holder_client'),
+                                     foreign_keys=[LoanAccount.accountholderkey],
+                                     primaryjoin='LoanAccount.accountholderkey == Client.encodedkey')
 
+    @property
     def name(self):
         return "{}{} {}".format(self.firstname.strip(),(' '+self.middlename.strip()) if self.middlename else '',self.lastname.strip())
 
     def __repr__(self):
-        return "<Client(id={}, name={})>".format(self.id, self.name())
+        return "<Client(id={}, name={})>".format(self.id, self.name)
 
 
 ClientsGroups = Table('groupmember', Base.metadata,
