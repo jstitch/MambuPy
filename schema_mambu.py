@@ -1,4 +1,4 @@
-"""This file import all ORM schemas.
+"""This file imports all ORM schemas.
 """
 
 import schema_activities as activities
