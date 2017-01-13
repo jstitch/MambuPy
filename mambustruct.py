@@ -167,6 +167,9 @@ class MambuStruct(object):
         try:
             return object.__getattribute__(self, name)
         except AttributeError:
+            if hasattr(self, '__iter__'):
+                if name=='params': # iterable MambuStructs require params to raise AttributeError if there's no self.params
+                    raise AttributeError
             return self[name]
 
     def __repr__(self):
