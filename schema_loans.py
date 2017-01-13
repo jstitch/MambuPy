@@ -66,6 +66,7 @@ class LoanAccount(Base):
     id                     = Column(String, index=True, unique=True)
     accountstate           = Column(String)
     loanamount             = Column(Numeric(50,10))
+    loanAmount             = Column(Numeric(50,10)) # redundant with same-as-RESTAPI-case
     notes                  = Column(String)
     principalbalance       = Column(Numeric(50,10))
     principalpaid          = Column(Numeric(50,10))
@@ -77,6 +78,7 @@ class LoanAccount(Base):
     interestcalculationmethod        = Column(String)
     interestbalancecalculationmethod = Column(String)
     repaymentinstallments  = Column(Integer)
+    repaymentInstallments  = Column(Integer) # redundant with same-as-RESTAPI-case
     repaymentperiodunit    = Column(String)
     accountholdertype      = Column(String)
     feesbalance            = Column(Numeric(50,10))
