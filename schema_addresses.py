@@ -29,8 +29,9 @@ class Address(Base):
     postcode      = Column(String)
     region        = Column(String)
 
+    @property
     def address(self):
         return "{}, {}, {}, {}, {}, {}".format(self.line1, self.line2, self.region, self.city, self.country, self.postcode)
 
     def __repr__(self):
-        return "<Address(address={})>".format(self.address())
+        return "<Address(address={})>".format(self.address)

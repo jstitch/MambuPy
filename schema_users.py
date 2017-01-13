@@ -64,8 +64,9 @@ class User(Base):
                                        foreign_keys=[CustomFieldValue.parentkey],
                                        primaryjoin='CustomFieldValue.parentkey == User.encodedkey')
 
+    @property
     def name(self):
         return "{} {}".format(self.firstname, self.lastname)
 
     def __repr__(self):
-        return "<User(id={}, name={})>".format(self.id, self.name())
+        return "<User(id={}, name={})>".format(self.id, self.name)

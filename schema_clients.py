@@ -61,11 +61,12 @@ class Client(Base):
                                      foreign_keys=[LoanAccount.accountholderkey],
                                      primaryjoin='LoanAccount.accountholderkey == Client.encodedkey')
 
+    @property
     def name(self):
         return "{}{} {}".format(self.firstname.strip(),(' '+self.middlename.strip()) if self.middlename else '',self.lastname.strip())
 
     def __repr__(self):
-        return "<Client(id={}, name={})>".format(self.id, self.name())
+        return "<Client(id={}, name={})>".format(self.id, self.name)
 
 
 ClientsGroups = Table('groupmember', Base.metadata,
