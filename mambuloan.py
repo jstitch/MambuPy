@@ -383,14 +383,14 @@ class MambuLoan(MambuStruct):
 
                 loannames = self.getClientDetails(holder=holder, *args, **kwargs)
 
-                for client in holder.clients:
-                    if client.name in [ l['name'] for l in loannames ]:
-                        for cte in [ l for l in loannames if l['name'] == client.name ]:
+                for client in holder['clients']:
+                    if client['name'] in [ l['name'] for l in loannames ]:
+                        for cte in [ l for l in loannames if l['name'] == client['name'] ]:
                             loanclients[cte['name']] = {'client'     : client,
                                                         'loan'       : self,
                                                         'amount'     : cte['amount'],
-                                                        'montoPago'  : cte['amount'] / float(self.repaymentInstallments),
-                                                        'porcentaje' : cte['amount'] / float(self.loanAmount),
+                                                        'montoPago'  : cte['amount'] / float(self['repaymentInstallments']),
+                                                        'porcentaje' : cte['amount'] / float(self['loanAmount']),
                                                        }
                             # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
                             for k,v in [ (key,val) for (key,val) in cte.items() if key not in['amount', 'name'] ]:
@@ -439,8 +439,8 @@ class MambuLoan(MambuStruct):
         loannames = []
 
         holder = kwargs['holder']
-        for client in holder.clients:
-            loannames.append({'name': client.name, 'amount': self.loanAmount})
+        for client in holder['clients']:
+            loannames.append({'name': client['name'], 'amount': self['loanAmount']})
 
         return loannames
 

@@ -110,12 +110,6 @@ class MambuStruct(object):
     This object is flexible enough to hold a list instead of a
     dictionary for certain objects holding iterators.
 
-    A __getattribute__ method is implemented here, allowing to access
-    the keys at attr as if they were properties on an object. Be aware
-    that __setattr__ is not implemented, work needs to be done to
-    achieve this. Currently we are only getting maximum recursion depth
-    Runtime errors.
-
     Further work is needed to hold list-like behaviour however.
     """
     setup_logging()
@@ -170,15 +164,11 @@ class MambuStruct(object):
 
     def __getattribute__(self, name):
         """Object-like get attribute"""
-        try:
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            if hasattr(self, '__iter__'):
-                # iterable MambuStructs require params to raise AttributeError
-                # if there's no self.params
-                if name=='params':
-                    raise AttributeError
-            return self[name]
+        return object.__getattribute__(self, name)
+
+    def __setattr__(self, name, value):
+        """Object-like set attribute"""
+        object.__setattr__(self, name, value)
 
     def __repr__(self):
         """Mambu object repr tells the class name and the usual 'id' for it.
