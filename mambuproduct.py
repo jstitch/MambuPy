@@ -222,6 +222,19 @@ class AllMambuProducts(MambuStruct):
         return MambuStructIterator(self.attrs)
 
 
+    def __getattribute__(self, name):
+        """Object-like get attribute"""
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            # Iterable AllMambuProducts singleton also uses a special
+            # noinit property that should raise AttributeError when
+            # not set
+            if name=='params' or name=='noinit':
+                raise AttributeError
+            return self[name]
+
+
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
