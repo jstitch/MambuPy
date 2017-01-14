@@ -8,7 +8,7 @@ from datetime import datetime as dt
 from schema_mambu import *
 
 
-def empty_table(instance):
+def empty_table(instance, relations={}):
     init_data = {
         'DATETIME'        : dt.strptime('1901-01-01','%Y-%m-%d'),
         'VARCHAR'         : "",
@@ -21,69 +21,67 @@ def empty_table(instance):
     for col in table.__table__.columns:
         setattr(instance, col.name, init_data[str(col.type)])
 
+    for k,v in relations.iteritems():
+        setattr(instance, k, v[0])
+        try:
+            setattr(v[0], v[1], [ instance ])
+        except:
+            pass
+
     return instance
 
 # branches
 branch = empty_table(branches.Branch())
 
 # users
-role                   = empty_table(users.Role())
-user                   = empty_table(users.User())
-user.branch            = branch               ; branch.users          = [ user ]
-user.role              = role                 ; role.users            = [ user ]
+role = empty_table(users.Role())
+user = empty_table(users.User(), relations={'branch' : (branch,'users'), 'role' : (role,'users')})
 
 # groups
-group        = empty_table(groups.Group())
-group.branch = branch ; branch.groups = [ group ]
-group.user   = user   ; user.groups   = [ group ]
+group = empty_table(groups.Group(), relations={'branch' : (branch, 'groups'), ' user' : (user, 'groups')})
 
 # clients
-client        = empty_table(clients.Client())
-client.branch = branch ; branch.clients = [ client ]
+client        = empty_table(clients.Client(), relations={'branch' : (branch, 'clients')})
 client.loans  = []
 client.groups = [ group ]
 group.clients = [ client ]
 
-identificationdocument         = empty_table(clients.IdentificationDocument())
-identificationdocument.client  = client
-client.identificationdocuments = [ identificationdocument ]
+identificationdocument = empty_table(clients.IdentificationDocument(), relations={'client' : (client, 'identificationdocuments')})
 
 # loan accounts
-loanproduct                     = empty_table(loans.LoanProduct())
-disbursementdetails             = empty_table(loans.DisbursementDetails())
-loanaccount                     = empty_table(loans.LoanAccount())
-repayment                       = empty_table(loans.Repayment())
-loantransaction                 = empty_table(loans.LoanTransaction())
-loanaccount.product             = loanproduct
-loanaccount.disbursementdetails = disbursementdetails
-loanaccount.branch              = branch
-loanaccount.user                = user        ; user.loans               = [ loanaccount ]
-repayment.account               = loanaccount ; loanaccount.repayments   = [ repayment ]
-loantransaction.account         = loanaccount ; loanaccount.transactions = [ loantransaction ]
-loanaccount.holder_group        = group       ; group.loans              = [ loanaccount ]
-loanaccount.holder_client       = None
+loanproduct         = empty_table(loans.LoanProduct())
+disbursementdetails = empty_table(loans.DisbursementDetails())
+loanaccount         = empty_table(loans.LoanAccount(), relations={'product'             : (loanproduct, None),
+                                                                  'disbursementdetails' : (disbursementdetails, None),
+                                                                  'branch'              : (branch, None),
+                                                                  'user'                : (user, 'loans'),
+                                                                  'holder_group'        : (group, 'loans'),
+                                                                  'holder_client'       : (None, None)
+                                                                 })
+repayment           = empty_table(loans.Repayment(),       relations={'account' : (loanaccount, 'repayments')})
+loantransaction     = empty_table(loans.LoanTransaction(), relations={'account' : (loanaccount, 'transactions')})
 
 # custom fields
-custominformation            = empty_table(customfields.CustomField())
-customfieldvalue             = empty_table(customfields.CustomFieldValue())
-customfieldvalue.customfield = custominformation ; custominformation.customfieldvalues = [ customfieldvalue ]
-customfieldvalue.branch      = branch            ; branch.custominformation            = [ customfieldvalue ]
-customfieldvalue.user        = user              ; user.custominformation              = [ customfieldvalue ]
-customfieldvalue.group       = group             ; group.custominformation             = [ customfieldvalue ]
-customfieldvalue.client      = client            ; client.custominformation            = [ customfieldvalue ]
-customfieldvalue.loan        = loanaccount       ; loanaccount.custominformation       = [ customfieldvalue ]
+custominformation = empty_table(customfields.CustomField())
+customfieldvalue  = empty_table(customfields.CustomFieldValue(), relations={'customfield' : (custominformation, 'customfieldvalues'),
+                                                                            'branch'      : (branch      , 'cusotminformation'),
+                                                                            'user'        : (user        , 'custominformation'),
+                                                                            'group'       : (group       , 'custominformation'),
+                                                                            'client'      : (client      , 'custominformation'),
+                                                                            'loan'        : (loanaccount , 'custominformation')
+                                                                           })
 
 # addresses
-address        = empty_table(addresses.Address())
-address.branch = branch ; branch.addresses = [ address ]
-address.group  = group  ; group.addresses  = [ address ]
-address.client = client ; client.addresses = [ address ]
+address = empty_table(addresses.Address(), relations={'branch' : (branch , 'addresses'),
+                                                      'group'  : (group  , 'addresses'),
+                                                      'client' : (client , 'addresses')
+                                                     })
 
 # activities
-activity              = empty_table(activities.Activity())
-activity.loan         = loanaccount ; loanaccount.activities  = [ activity ]
-activity.branch       = branch      ; branch.activities       = [ activity ]
-activity.client       = client      ; client.activities       = [ activity ]
-activity.group        = group       ; group.activities        = [ activity ]
-activity.user         = user        ; user.activities         = [ activity ]
-activity.assigneduser = user        ; user.assignedactivities = [ activity ]
+activity = empty_table(activities.Activity(), relations={'loan' : (loanaccount, 'activities'),
+                                                         'branch' : (branch, 'activities'),
+                                                         'client' : (client, 'activities'),
+                                                         'group' : (group, 'activities'),
+                                                         'user' : (user, 'activities'),
+                                                         'assigneduser' : (user, 'assignedactivities')
+                                                        })
