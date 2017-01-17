@@ -3,7 +3,16 @@
 Sample dummies are created here. Please DO NOT TRY to persist them to the DB.
 """
 
-def make_dummy(instance, relations={}):
+from datetime import datetime as dt
+
+def make_dummy(instance,
+               relations        = {},
+               datetime_default = dt.strptime('1901-01-01','%Y-%m-%d'),
+               varchar_default  = "",
+               integer_default  = 0,
+               numeric_default  = 0.0,
+               *args, **kwargs
+              ):
     """Make an instance to look like an empty dummy.
 
     Every field of the table is set with zeroes/empty strings.
@@ -17,25 +26,39 @@ def make_dummy(instance, relations={}):
 
     The values of the relations dictionary must be 2 dimension tuples:
 
-      - first element will be the element to be related.
+    - first element will be the element to be related.
 
-      - second element will be the name of the backref set on the previous
-      first element of the tuple, as a list containing the instance.
+    - second element will be the name of the backref set on the previous
+    first element of the tuple, as a list containing the instance.
 
     If you wish that no backref to be set you may use any invalid value
     for a property name, anything other than a string, for example a
     number. Preferably, use None.
 
+    * datetime_default is the datetime object to use for init datetime
+    fields. Defaults to 01-01-1901
+
+    * varchar_default is the string object to use for init varchar
+    fields. Defaults to ""
+
+    * integer_default is the int object to use for init integer
+    fields. Defaults to 0
+
+    * numeric_default is the float object to use for init numeric
+    fields. Defaults to 0.0
+
+    * kwargs may have the name of a certain field you wish to initialize
+    with a value other than the given by the init_data dicionary.
+
     TODO further field types may be set at the init_data dictionary.
     """
-    from datetime import datetime as dt
 
     # init_data knows how to put an init value depending on data type
     init_data = {
-        'DATETIME'        : dt.strptime('1901-01-01','%Y-%m-%d'),
-        'VARCHAR'         : "",
-        'INTEGER'         : 0,
-        'NUMERIC(50, 10)' : 0.0,
+        'DATETIME'        : datetime_default,
+        'VARCHAR'         : varchar_default,
+        'INTEGER'         : integer_default,
+        'NUMERIC(50, 10)' : numeric_default,
         }
 
     # the type of the instance is the SQLAlchemy Table
@@ -43,7 +66,10 @@ def make_dummy(instance, relations={}):
 
     for col in table.__table__.columns:
         # declarative base tables have a columns property useful for reflection
-        setattr(instance, col.name, init_data[str(col.type)])
+        if col.name in kwargs.keys():
+            setattr(instance, col.name, kwargs[col.name])
+        else:
+            setattr(instance, col.name, init_data[str(col.type)])
 
     for k,v in relations.iteritems():
         # set the relationship property with the first element of the tuple
