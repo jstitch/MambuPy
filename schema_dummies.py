@@ -66,9 +66,9 @@ def make_dummy(instance,
 
     for col in table.__table__.columns:
         # declarative base tables have a columns property useful for reflection
-        if col.name in kwargs.keys():
+        try:
             setattr(instance, col.name, kwargs[col.name])
-        else:
+        except KeyError:
             setattr(instance, col.name, init_data[str(col.type)])
 
     for k,v in relations.iteritems():
