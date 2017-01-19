@@ -76,18 +76,18 @@ def make_dummy(instance,
     for k,v in relations.iteritems():
         # set the relationship property with the first element of the tuple
         setattr(instance, k, v[0])
-        try:
-            # set the relationship backref on the first element of the tuple
-            # with a property named according to the second element of the
-            # tuple, pointing to a list with the instance itself (assumes a
-            # one-to-many relationship)
-            # in case you don't want a backref, just send a None as v[1]
-            try:
-                getattr(v[0], v[1]).append(instance)
-            except:
-                setattr(v[0], v[1], [ instance ])
-        except:
-            pass
+        # try:
+        #     # set the relationship backref on the first element of the tuple
+        #     # with a property named according to the second element of the
+        #     # tuple, pointing to a list with the instance itself (assumes a
+        #     # one-to-many relationship)
+        #     # in case you don't want a backref, just send a None as v[1]
+        #     try:
+        #         getattr(v[0], v[1]).append(instance)
+        #     except:
+        #         setattr(v[0], v[1], [ instance ])
+        # except:
+        #     pass
 
     return instance
 
