@@ -229,6 +229,30 @@ class MambuClient(MambuStruct):
         except (KeyError, IndexError):
             pass
 
+    def setGroups(self, *args, **kwargs):
+        """Adds the groups to which this client belongs.
+
+        The 'groupKeys' field of the client holds a list of the
+        encodedKeys of the groups to which this client belongs.
+
+        Returns the number of requests done to Mambu.
+        """
+        from mambugroup import MambuGroup
+
+        requests = 0
+        groups = []
+        try:
+            for gk in self['groupKeys']:
+                g = MambuGroup(entid=gk, *args, **kwargs)
+                requests += 1
+                groups.append(g)
+        except KeyError:
+            pass
+
+        self['groups'] = groups
+
+        return requests
+
 
 class MambuClients(MambuStruct):
     """A list of Clients from Mambu.
