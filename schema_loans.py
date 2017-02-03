@@ -30,6 +30,7 @@ class LoanProduct(Base):
     encodedkey     = Column(String, primary_key=True)
     id             = Column(String, index=True, unique=True)
     productname    = Column(String)
+    activated      = Column(Integer)
 
     def __repr__(self):
         return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
@@ -65,6 +66,7 @@ class LoanAccount(Base):
     encodedkey             = Column(String, primary_key=True)
     id                     = Column(String, index=True, unique=True)
     accountstate           = Column(String)
+    accountsubstate        = Column(String)
     loanamount             = Column(Numeric(50,10))
     loanAmount             = Column(Numeric(50,10)) # redundant with same-as-RESTAPI-case
     notes                  = Column(String)
@@ -80,6 +82,7 @@ class LoanAccount(Base):
     repaymentinstallments  = Column(Integer)
     repaymentInstallments  = Column(Integer) # redundant with same-as-RESTAPI-case
     repaymentperiodunit    = Column(String)
+    repaymentperiodcount   = Column(Integer)
     accountholdertype      = Column(String)
     feesbalance            = Column(Numeric(50,10))
     feespaid               = Column(Numeric(50,10))
