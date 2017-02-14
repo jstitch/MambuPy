@@ -728,6 +728,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         log.write(mess + "\n")
         log.close()
         raise MambuError(mess)
+    sleep(30)
 
     geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
     if verbose:
