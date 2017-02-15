@@ -587,7 +587,7 @@ class MambuStruct(object):
                     custom['name'] = field_name
                     try:
                         self[field_name] = customField['value']
-                    except KeyError
+                    except KeyError:
                         self[field_name] = customField['linkedEntityKeyValue']
         # in case you don't have any customFieldName, don't do anything here
         except AttributeError:
