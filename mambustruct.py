@@ -220,6 +220,13 @@ class MambuStruct(object):
         """
         return self.attrs.has_key(key)
 
+    def keys(self):
+        """Dict-like behaviour.
+
+        TODO: throw NotImplemented exception when not a dict
+        """
+        return self.attrs.keys()
+
     def items(self):
         """Dict-like behaviour.
 
@@ -646,11 +653,14 @@ class MambuStruct(object):
         Returns the number of requests done to Mambu.
         """
         try:
-            customFieldValue = [l['value'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
-            datatype = [l['customField']['dataType'] for l in self[self.customFieldName] if l['customFieldID'] == customfield][0]
+            customFieldValue = self[customfield]
+            datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield ][0]
         except IndexError as ierr:
-            err = MambuError("The object %s has not the custom field '%s'" % (self['id'], customfield))
-            raise err
+            try:
+                datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield.split('_')[0] ][0]
+            except IndexError:
+                err = MambuError("The object %s has not the custom field '%s'" % (self['id'], customfield))
+                raise err
         except AttributeError:
             err = MambuError("The object does not have a custom field to set")
             raise err
@@ -658,6 +668,9 @@ class MambuStruct(object):
         if datatype == "USER_LINK":
             from mambuuser import MambuUser
             self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
+        elif datatype == "CLIENT_LINK":
+            from mambuclient import MambuClient
+            self[customfield] = MambuClient(entid=customFieldValue, *args, **kwargs)
         else:
             self[customfield] = customFieldValue
             return 0
