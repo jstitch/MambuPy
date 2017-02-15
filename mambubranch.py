@@ -53,24 +53,15 @@ class MambuBranch(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         """Tasks done here:
 
-        Set the customFieldName attribute for preprocessing.
+        Just initializes the MambuStruct.
         """
-        self.customFieldName = 'customFieldValues'
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFieldValues', *args, **kwargs)
 
 
     def preprocess(self):
         """Preprocessing.
-
-        Each custom field is given a 'name' key that holds the field
-        name, and for each keyed name, the value of the custom field is
-        assigned.
-        TODO: do not consider deactivated custom fields
         """
-        if self.has_key(self.customFieldName):
-            for custom in self[self.customFieldName]:
-                custom['name'] = custom['customField']['name']
-                self[custom['name']] = custom['value']
+        super(MambuBranch,self).preprocess()
 
 
     def setUsers(self, *args, **kwargs):
