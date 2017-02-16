@@ -62,7 +62,10 @@ class CustomFieldValue(Base):
     def linkedclient(self):
         from schema_clients import Client
         try:
-            return session.query(Client).filter(Client.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customfield.datatype == 'CLIENT_LINK':
+                return session.query(Client).filter(Client.encodedkey==self.linkedentitykeyvalue).one()
+            else:
+                return None
         except NoResultFound:
             return None
 
@@ -70,7 +73,10 @@ class CustomFieldValue(Base):
     def linkedgroup(self):
         from schema_groups import Group
         try:
-            return session.query(Group).filter(Group.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customfield.datatype == 'GROUP_LINK':
+                return session.query(Group).filter(Group.encodedkey==self.linkedentitykeyvalue).one()
+            else:
+                return None
         except NoResultFound:
             return None
 
@@ -78,7 +84,10 @@ class CustomFieldValue(Base):
     def linkeduser(self):
         from schema_users import User
         try:
-            return session.query(User).filter(User.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customfield.datatype == 'USER_LINK':
+                return session.query(User).filter(User.encodedkey==self.linkedentitykeyvalue).one()
+            else:
+                return None
         except NoResultFound:
             return None
 
