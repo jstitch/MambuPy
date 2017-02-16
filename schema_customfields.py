@@ -6,6 +6,7 @@ import schema_orm as orm
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
+from sqlalchemy.orm.exc import NoResultFound
 
 dbname = orm.dbname
 session = orm.session
@@ -57,5 +58,29 @@ class CustomFieldValue(Base):
     customfieldkey           = Column(String, ForeignKey(CustomField.encodedkey))
     customfield              = relationship(CustomField, backref=backref('customfieldvalues'))
 
+    @property
+    def linkedclient(self):
+        from schema_clients import Client
+        try:
+            return session.query(Client).filter(Client.encodedkey==self.linkedentitykeyvalue).one()
+        except NoResultFound:
+            return None
+
+    @property
+    def linkedgroup(self):
+        from schema_groups import Group
+        try:
+            return session.query(Group).filter(Group.encodedkey==self.linkedentitykeyvalue).one()
+        except NoResultFound:
+            return None
+
+    @property
+    def linkeduser(self):
+        from schema_users import User
+        try:
+            return session.query(User).filter(User.encodedkey==self.linkedentitykeyvalue).one()
+        except NoResultFound:
+            return None
+
     def __repr__(self):
-        return "<CustomFieldValue(customfield={},value={})>".format(self.customfield, self.value)
+        return "<CustomFieldValue(customfield={},value={})>".format(self.customfield, self.value if self.value else self.linkedclient if self.linkedclient else self.linkedgroup if self.linkedgroup else self.linkeduser if self.linkeduser else 'None')
