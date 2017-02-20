@@ -214,25 +214,25 @@ class MambuStruct(object):
             return other['encodedKey'] == self['encodedKey']
 
     def has_key(self, key):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.has_key(key)
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.has_key(key)
+        except AttributeError:
+            raise NotImplementedError
 
     def keys(self):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.keys()
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.keys()
+        except AttributeError:
+            raise NotImplementedError
 
     def items(self):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.items()
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.items()
+        except AttributeError:
+            raise NotImplementedError
 
     def init(self, attrs={}, *args, **kwargs):
         """Default initialization from a dictionary responded by Mambu
@@ -578,26 +578,29 @@ class MambuStruct(object):
         effect of the tasks done here.
         """
         try:
-            if self.has_key(self.customFieldName):
-                self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
-                for custom in self[self.customFieldName]:
-                    field_name = custom['customField']['name']
-                    if custom['customFieldSetGroupIndex'] != -1:
-                        field_name += '_'+str(custom['customFieldSetGroupIndex'])
-                    custom['name'] = field_name
-                    try:
-                        self[field_name] = custom['value']
-                    except KeyError:
-                        self[field_name] = custom['linkedEntityKeyValue']
-        # in case you don't have any customFieldName, don't do anything here
-        except AttributeError:
-            pass
-
-        for k,v in self.items():
             try:
-                self[k] = v.strip()
-            except Exception:
+                if self.has_key(self.customFieldName):
+                    self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
+                    for custom in self[self.customFieldName]:
+                        field_name = custom['customField']['name']
+                        if custom['customFieldSetGroupIndex'] != -1:
+                            field_name += '_'+str(custom['customFieldSetGroupIndex'])
+                        custom['name'] = field_name
+                        try:
+                            self[field_name] = custom['value']
+                        except KeyError:
+                            self[field_name] = custom['linkedEntityKeyValue']
+            # in case you don't have any customFieldName, don't do anything here
+            except (AttributeError, TypeError):
                 pass
+
+            for k,v in self.items():
+                try:
+                    self[k] = v.strip()
+                except Exception:
+                    pass
+        except NotImplementedError:
+            pass
 
     def postprocess(self):
         """Each MambuStruct implementation may massage the info on the
