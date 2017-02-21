@@ -114,10 +114,9 @@ class MambuClient(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         """Tasks done here:
 
-        Set the customFieldName attribute for preprocessing.
+        Just initializes the MambuStruct.
         """
-        self.customFieldName = 'customInformation'
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customInformation', *args, **kwargs)
 
 
     def preprocess(self):
@@ -126,13 +125,6 @@ class MambuClient(MambuStruct):
         Flattens the object. Important data comes on the 'client'
         dictionary inside of the response. Instead, every element of the
         'client' dictionary is taken out to the main attrs dictionary.
-
-        Each active custom field is given a 'name' key that holds the
-        field name, and for each keyed name, the value of the custom
-        field is assigned.
-
-        Every item on the attrs dictionary gets stripped from trailing
-        spaces (useful when users make typos).
 
         Removes repeated chars from firstName, middleName and lastName
         fields. Adds a firstLastName and secondLastName fields for
@@ -156,24 +148,14 @@ class MambuClient(MambuStruct):
         the 'CURP' field, instead of going all the way through the
         idDocuments field.
         """
+        super(MambuClient,self).preprocess()
+
         try:
             for k,v in self['client'].items():
                 self[k] = v
             del(self.attrs['client'])
         except Exception as e:
             pass
-
-        if self.has_key(self.customFieldName):
-            self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
-            for custom in self[self.customFieldName]:
-                custom['name'] = custom['customField']['name']
-                self[custom['name']] = custom['value']
-
-        for k,v in self.items():
-            try:
-                self[k] = v.strip()
-            except Exception:
-                pass
 
         try:
             self['firstName'] = scrc(self['firstName'], " ")

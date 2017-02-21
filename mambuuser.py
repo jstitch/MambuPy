@@ -60,37 +60,19 @@ class MambuUser(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         """Tasks done here:
 
-        Set the customFieldName attribute for preprocessing.
+        Just initializes the MambuStruct.
         """
-        self.customFieldName = 'customFields'
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFields', *args, **kwargs)
 
 
     def preprocess(self):
         """Preprocessing.
 
-        Each custom field is given a 'name' key that holds the field
-        name, and for each keyed name, the value of the custom field is
-        assigned.
-        TODO: do not consider deactivated custom fields
-
-        Every item on the attrs dictionary gets stripped from trailing
-        spaces (useful when users make typos).
-
         Removes repeated chars from firstName and lastName fields.
 
         Adds a 'name' field joining all names in to one string.
         """
-        if self.has_key(self.customFieldName):
-            for custom in self[self.customFieldName]:
-                custom['name'] = custom['customField']['name']
-                self[custom['name']] = custom['value']
-
-        for k,v in self.items():
-            try:
-                self[k] = v.strip()
-            except Exception:
-                pass
+        super(MambuUser,self).preprocess()
 
         try:
             self['firstName'] = self['firstName'].strip()

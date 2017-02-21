@@ -214,25 +214,25 @@ class MambuStruct(object):
             return other['encodedKey'] == self['encodedKey']
 
     def has_key(self, key):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.has_key(key)
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.has_key(key)
+        except AttributeError:
+            raise NotImplementedError
 
     def keys(self):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.keys()
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.keys()
+        except AttributeError:
+            raise NotImplementedError
 
     def items(self):
-        """Dict-like behaviour.
-
-        TODO: throw NotImplemented exception when not a dict
-        """
-        return self.attrs.items()
+        """Dict-like behaviour"""
+        try:
+            return self.attrs.items()
+        except AttributeError:
+            raise NotImplementedError
 
     def init(self, attrs={}, *args, **kwargs):
         """Default initialization from a dictionary responded by Mambu
@@ -413,6 +413,13 @@ class MambuStruct(object):
             return          # and each element is init without further configs. EDIT 2015-07-11: Really?
 
         try:
+            self.customFieldName=kwargs['customFieldName']
+            """customFieldName attribute.
+            """
+        except KeyError:
+            pass
+
+        try:
             if kwargs.pop('connect'):
                 connect = True
             else:
@@ -548,6 +555,7 @@ class MambuStruct(object):
 
     def preprocess(self):
         """Each MambuStruct implementation may massage the info on the
+
         Mambu response before conversion to an appropiate format/style
         adequate for its needs.
 
@@ -555,8 +563,44 @@ class MambuStruct(object):
         (IMHO) when retrieved from Mambu, so some easiness is
         implemented here to access them. See some of this objects
         modules and pydocs for further info.
+
+        Tasks done here:
+
+        - Each custom field is given a 'name' key that holds the field
+          name, and for each keyed name, the value of the custom field is
+          assigned.
+
+        - Every item on the attrs dictionary gets stripped from trailing
+          spaces (useful when users make typos).
+
+        PLEASE REMEMBER! whenever you call preprocess on inherited
+        classes you should call this method too, or else you lose the
+        effect of the tasks done here.
         """
-        pass
+        try:
+            try:
+                if self.has_key(self.customFieldName):
+                    self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
+                    for custom in self[self.customFieldName]:
+                        field_name = custom['customField']['name']
+                        if custom['customFieldSetGroupIndex'] != -1:
+                            field_name += '_'+str(custom['customFieldSetGroupIndex'])
+                        custom['name'] = field_name
+                        try:
+                            self[field_name] = custom['value']
+                        except KeyError:
+                            self[field_name] = custom['linkedEntityKeyValue']
+            # in case you don't have any customFieldName, don't do anything here
+            except (AttributeError, TypeError):
+                pass
+
+            for k,v in self.items():
+                try:
+                    self[k] = v.strip()
+                except Exception:
+                    pass
+        except NotImplementedError:
+            pass
 
     def postprocess(self):
         """Each MambuStruct implementation may massage the info on the
@@ -643,12 +687,15 @@ class MambuStruct(object):
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
     def setCustomField(self, customfield="", *args, **kwargs):
-        """Adds a customField field for this object with the value of a
-        given field.
+        """Modifies the customField field for this object with something
+        related to the value of the given field.
 
-        If the dataType == "USER_LINK" then instead of creating a
-        customField with the value of the CF, it will be a MambuUser
-        object
+        If the dataType == "USER_LINK" then instead of using the value
+        of the CF, it will be a MambuUser object.
+
+        Same if dataType == "CLIENT_LINK", but with a MambuClient.
+
+        Default case: just uses the same value the CF already had.
 
         Returns the number of requests done to Mambu.
         """
@@ -656,13 +703,16 @@ class MambuStruct(object):
             customFieldValue = self[customfield]
             datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield ][0]
         except IndexError as ierr:
+        # if no customfield found with the given name, assume it is a
+        # grouped custom field, name must have an index suffix that must
+        # be removed
             try:
                 datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield.split('_')[0] ][0]
             except IndexError:
-                err = MambuError("The object %s has not the custom field '%s'" % (self['id'], customfield))
+                err = MambuError("Object %s has no custom field '%s'" % (self['id'], customfield))
                 raise err
         except AttributeError:
-            err = MambuError("The object does not have a custom field to set")
+            err = MambuError("Object does not have a custom field to set")
             raise err
 
         if datatype == "USER_LINK":

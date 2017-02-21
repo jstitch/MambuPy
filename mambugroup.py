@@ -137,10 +137,9 @@ class MambuGroup(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         """Tasks done here:
 
-        Set the customFieldName attribute for preprocessing.
+        Just initializes the MambuStruct.
         """
-        self.customFieldName = 'customInformation'
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customInformation', *args, **kwargs)
 
 
     def preprocess(self):
@@ -149,10 +148,6 @@ class MambuGroup(MambuStruct):
         Flattens the object. Important data comes on the 'theGroup'
         dictionary inside of the response. Instead, every element of the
         'theGroup' dictionary is taken out to the main attrs dictionary.
-
-        Each active custom field is given a 'name' key that holds the field
-        name, and for each keyed name, the value of the custom field is
-        assigned.
 
         Notes on the group get some html tags removed.
         TODO: use mambuutil.strip_tags() method
@@ -164,18 +159,14 @@ class MambuGroup(MambuStruct):
         matter if you have a client loan or a group loan, you get the
         name of the holder.
         """
+        super(MambuGroup,self).preprocess()
+
         try:
             for k,v in self['theGroup'].items():
                 self[k] = v
             del(self.attrs['theGroup'])
         except Exception as e:
             pass
-
-        if self.has_key(self.customFieldName):
-            self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
-            for custom in self[self.customFieldName]:
-                custom['name'] = custom['customField']['name']
-                self[custom['name']] = custom['value']
 
         try:
             self['notes'] = self['notes'].replace("<div>", "").replace("</div>", "")

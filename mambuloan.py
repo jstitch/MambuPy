@@ -88,10 +88,9 @@ class MambuLoan(MambuStruct):
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
         """Tasks done here:
 
-        Set the customFieldName attribute for preprocessing.
+        Just initializes the MambuStruct.
         """
-        self.customFieldName = 'customFieldValues'
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFieldValues', *args, **kwargs)
 
 
     def getDebt(self):
@@ -112,29 +111,7 @@ class MambuLoan(MambuStruct):
 
         Notes on the group get some html tags removed.
         """
-        import re
-
-        if self.has_key(self.customFieldName):
-            self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
-            for custom in self[self.customFieldName]:
-                custom['name'] = custom['customField']['name']
-                try:
-                    if self.has_key(custom['name']):
-                        keys = sorted([ k for k in self.keys() if re.search(r'^%s_\d*$'%(custom['name'],), k)])
-                        try:
-                            self[custom['name'] + '_' + str(int(keys[-1].split('_')[-1])+1) ] = custom['value']
-                        except IndexError:
-                            self[custom['name'] + '_1'] = custom['value']
-                    self[custom['name']] = custom['value']
-                except KeyError:
-                    if self.has_key(custom['name']):
-                        keys = [ k for k in self.keys() if re.search(r'^%s_\d*$'%(custom['name'],), k)]
-                        try:
-                            self[custom['name'] + '_' + str(int(keys[-1].split('_')[-1])+1) ] = custom['linkedEntityKeyValue']
-                        except IndexError:
-                            self[custom['name'] + '_1'] = custom['linkedEntityKeyValue']
-                    self[custom['name']] = custom['linkedEntityKeyValue']
-                    custom['value'] = custom['linkedEntityKeyValue']
+        super(MambuLoan,self).preprocess()
 
         try:
             self['notes'] = strip_tags(self['notes'])
