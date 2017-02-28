@@ -567,11 +567,14 @@ class MambuStruct(object):
         Tasks done here:
 
         - Each custom field is given a 'name' key that holds the field
-          name, and for each keyed name, the value of the custom field is
-          assigned.
+        name, and for each keyed name, the value of the custom field is
+        assigned. Each pair of custom field name/value is entered as a
+        new property on the main dictionary, allowing an easy access to
+        them, not nested inside a pretty dark 'customInformation/Values'
+        list.
 
         - Every item on the attrs dictionary gets stripped from trailing
-          spaces (useful when users make typos).
+        spaces (useful when users make typos).
 
         PLEASE REMEMBER! whenever you call preprocess on inherited
         classes you should call this method too, or else you lose the
