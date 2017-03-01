@@ -553,13 +553,14 @@ class MambuStruct(object):
 
         self.init(attrs=jsresp, *args, **kwargs)
 
-    def preprocess(self):
-        """Each MambuStruct implementation may massage the info on the
+    def _process_fields(self):
+        """Default info massage to appropiate format/style.
 
-        Mambu response before conversion to an appropiate format/style
-        adequate for its needs.
+        This processing is called on preprocess and postprocess, AKA
+        before and after conversion of fields to appropiate
+        format/style.
 
-        Perfect example, custom fields on certain objects is a mess
+        Perfect example: custom fields on certain objects is a mess
         (IMHO) when retrieved from Mambu, so some easiness is
         implemented here to access them. See some of this objects
         modules and pydocs for further info.
@@ -576,7 +577,7 @@ class MambuStruct(object):
         - Every item on the attrs dictionary gets stripped from trailing
         spaces (useful when users make typos).
 
-        PLEASE REMEMBER! whenever you call preprocess on inherited
+        PLEASE REMEMBER! whenever you call postprocess on inherited
         classes you should call this method too, or else you lose the
         effect of the tasks done here.
         """
@@ -606,12 +607,19 @@ class MambuStruct(object):
         except NotImplementedError:
             pass
 
+    def preprocess(self):
+        """Each MambuStruct implementation may massage the info on the
+        Mambu response before conversion to an appropiate format/style
+        adequate for its needs.
+        """
+        self._process_fields()
+
     def postprocess(self):
         """Each MambuStruct implementation may massage the info on the
         Mambu response after conversion to an appropiate format/style
         adequate for its needs.
         """
-        pass
+        self._process_fields()
 
     def convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a

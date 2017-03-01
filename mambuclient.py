@@ -211,6 +211,8 @@ class MambuClient(MambuStruct):
         except (KeyError, IndexError):
             pass
 
+        super(MambuClient,self).postprocess()
+
     def setGroups(self, *args, **kwargs):
         """Adds the groups to which this client belongs.
 

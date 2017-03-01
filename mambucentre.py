@@ -82,12 +82,6 @@ class MambuCentre(MambuStruct):
         MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFieldValues', *args, **kwargs)
 
 
-    def preprocess(self):
-        """Preprocessing.
-        """
-        super(MambuCentre,self).preprocess()
-
-
 class MambuCentres(MambuStruct):
     """A list of Centres from Mambu.
 

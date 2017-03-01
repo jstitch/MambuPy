@@ -58,12 +58,6 @@ class MambuBranch(MambuStruct):
         MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFieldValues', *args, **kwargs)
 
 
-    def preprocess(self):
-        """Preprocessing.
-        """
-        super(MambuBranch,self).preprocess()
-
-
     def setUsers(self, *args, **kwargs):
         """Adds the active users for this branch to a 'users' field.
 
