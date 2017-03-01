@@ -64,6 +64,10 @@ def connectDb(engine   = dbeng,
 
     Useful when using schema modules in MambuPy
     """
+    # Prevent lookuperror when using utf8mb4 encoding, starts conflicting on MariaDB 10.1.21
+    # https://code.djangoproject.com/ticket/18392#comment:10
+    import codecs
+    codecs.register(lambda name: codecs.lookup('utf8') if name=='utf8mb4' else None)
     from sqlalchemy import create_engine
     return create_engine('%s://%s:%s@%s:%s/%s' % (engine, user, password, host, port, database), echo=echoopt)
 

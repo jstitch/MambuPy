@@ -353,6 +353,7 @@ class MambuLoan(MambuStruct):
 
             self['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
+            self['holder'] = holder
             requests += 1
 
             if getRoles:
@@ -396,7 +397,9 @@ class MambuLoan(MambuStruct):
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
                                  fullDetails=fullDetails, *args, **kwargs)
+            self['holder'] = holder
             requests += 1
+
             if getClients:
                 monto = float(self['loanAmount'])
                 self['clients'] = {holder['name']: {'client'     : holder,
@@ -406,8 +409,6 @@ class MambuLoan(MambuStruct):
                                                           'porcentaje' : 1.0,
                                                          }
                                         }
-
-        self['holder'] = holder
 
         return requests
 
