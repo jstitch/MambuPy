@@ -403,6 +403,13 @@ class MambuStruct(object):
         except KeyError:
             self.__offset=0
 
+        try:
+            self.customFieldName=kwargs['customFieldName']
+            """customFieldName attribute.
+            """
+        except KeyError:
+            pass
+
         self.__urlfunc = urlfunc
         """The given urlfunc argument is saved here.
 
@@ -411,13 +418,6 @@ class MambuStruct(object):
 
         if self.__urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
             return          # and each element is init without further configs. EDIT 2015-07-11: Really?
-
-        try:
-            self.customFieldName=kwargs['customFieldName']
-            """customFieldName attribute.
-            """
-        except KeyError:
-            pass
 
         try:
             if kwargs.pop('connect'):
