@@ -158,19 +158,19 @@ class MambuClient(MambuStruct):
             pass
 
         try:
-            self['firstName'] = scrc(self['firstName'], " ")
+            self['firstName'] = scrc(self['firstName'], " ").strip()
         except Exception as e:
             self['firstName'] = ""
         try:
-            self['middleName'] = scrc(self['middleName'], " ")
+            self['middleName'] = scrc(self['middleName'], " ").strip()
         except Exception as ex:
             self['middleName'] = ""
-        self['givenName']      = self["firstName"] + ((" " + self["middleName"]) if self["middleName"] != "" else "")
-        self['lastName']       = scrc(self['lastName'], " ")
+        self['givenName']      = scrc(self["firstName"] + ((" " + self["middleName"]) if self["middleName"] != "" else ""), " ").strip()
+        self['lastName']       = scrc(self['lastName'], " ").strip()
         self['firstLastName']  = " ".join(self['lastName'].split(" ")[:-1])
         self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:])
 
-        self['name'] = "%s %s" % (self['givenName'], self['lastName'])
+        self['name'] = scrc("%s %s" % (self['givenName'], self['lastName']), " ").strip()
 
         self['address'] = {}
         try:
