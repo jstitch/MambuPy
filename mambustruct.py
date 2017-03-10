@@ -163,12 +163,56 @@ class MambuStruct(object):
         self.attrs[key] = value
 
     def __getattribute__(self, name):
-        """Object-like get attribute"""
-        return object.__getattribute__(self, name)
+        """Object-like get attribute
+
+        When accessing an attribute, tries to find it in the attrs
+        dictionary, so now MambuStruct may act not only as a dict-like
+        structure, but as a full object-like too (this is the getter
+        side).
+        """
+        try:
+            # first, try to read 'name' as if it's a property of the object
+            # if it doesn't exists as property, AttributeError raises
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            # try to read the attrs property
+            attrs = object.__getattribute__(self,"attrs")
+            if type(attrs) == list or not attrs.has_key(name):
+                # magic won't happen when not a dict-like MambuStruct or
+                # when attrs has not the 'name' key (this last one means
+                # that if 'name' is not a property of the object too,
+                # AttributeError will raise by default)
+                return object.__getattribute__(self, name)
+            # all else, read the property from the attrs dict, but with a . syntax
+            return attrs[name]
 
     def __setattr__(self, name, value):
-        """Object-like set attribute"""
-        object.__setattr__(self, name, value)
+        """Object-like set attribute
+
+        When setting an attribute, tries to set it in the attrs
+        dictionary, so now MambuStruct acts not only as a dict-like
+        structure, but as a full object-like too (this is the setter
+        side).
+        """
+        try:
+            # attrs needs to exist to make the magic happen!
+            # ... if not, AttributeError raises
+            attrs = object.__getattribute__(self,"attrs")
+            if type(attrs) == list:
+                # when not treating with a dict-like MambuStruct...
+                raise AttributeError
+            try:
+                # see if 'name' is currently a property of the object
+                prop = object.__getattribute__(self, name)
+            except AttributeError:
+                # if not, then assign it as a new key in the dict
+                attrs[name] = value
+            else:
+                raise AttributeError
+
+        # all else, assign it as a property of the object
+        except AttributeError:
+            object.__setattr__(self, name, value)
 
     def __repr__(self):
         """Mambu object repr tells the class name and the usual 'id' for it.
