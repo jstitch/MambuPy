@@ -46,10 +46,10 @@ class Group(Base):
                                      backref=backref('group'),
                                      foreign_keys=[CustomFieldValue.parentkey],
                                      primaryjoin='CustomFieldValue.parentkey == Group.encodedkey')
-    loans             = relationship(LoanAccount,
-                                     backref=backref('holder_group'),
-                                     foreign_keys=[LoanAccount.accountholderkey],
-                                     primaryjoin='LoanAccount.accountholderkey == Group.encodedkey')
+    loans             = relationship("LoanAccount",
+                                     back_populates = "holder_group",
+                                     foreign_keys   = [LoanAccount.accountholderkey],
+                                     primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)

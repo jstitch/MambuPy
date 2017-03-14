@@ -108,6 +108,10 @@ class LoanAccount(Base):
                                           backref=backref('loan'),
                                           foreign_keys=[CustomFieldValue.parentkey],
                                           primaryjoin='CustomFieldValue.parentkey == LoanAccount.encodedkey')
+    holder_group           = relationship("Group",
+                                          back_populates = "loans",
+                                          foreign_keys   = "LoanAccount.accountholderkey",
+                                          primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
