@@ -32,6 +32,7 @@ class CustomField(Base):
     state            = Column(String)
     creationdate     = Column(DateTime)
     lastmodifieddate = Column(DateTime)
+    customfieldvalues= relationship('CustomFieldValue', back_populates='customfield')
 
     def __repr__(self):
         return "<CustomField(name={})>".format(self.name)
@@ -55,8 +56,28 @@ class CustomFieldValue(Base):
     customfieldsetgroupindex = Column(Integer)
 
     # Relationships
-    customfieldkey           = Column(String, ForeignKey(CustomField.encodedkey))
-    customfield              = relationship(CustomField, backref=backref('customfieldvalues'))
+    customfieldkey = Column(String, ForeignKey(CustomField.encodedkey))
+    customfield    = relationship(CustomField, back_populates='customfieldvalues')
+    loan           = relationship('LoanAccount',
+                                  back_populates = 'custominformation',
+                                  foreign_keys   = 'CustomFieldValue.parentkey',
+                                  primaryjoin    = 'CustomFieldValue.parentkey == LoanAccount.encodedkey')
+    client         = relationship('Client',
+                                  back_populates = 'custominformation',
+                                  foreign_keys   = 'CustomFieldValue.parentkey',
+                                  primaryjoin    = 'CustomFieldValue.parentkey == Client.encodedkey')
+    group          = relationship('Group',
+                                  back_populates = 'custominformation',
+                                  foreign_keys   = 'CustomFieldValue.parentkey',
+                                  primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
+    user           = relationship('User',
+                                  back_populates = 'custominformation',
+                                  foreign_keys   = 'CustomFieldValue.parentkey',
+                                  primaryjoin    = 'CustomFieldValue.parentkey == User.encodedkey')
+    branch         = relationship('Branch',
+                                  back_populates = 'custominformation',
+                                  foreign_keys   = 'CustomFieldValue.parentkey',
+                                  primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
 
     @property
     def linkedclient(self):
