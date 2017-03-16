@@ -7,11 +7,9 @@ are missing.
 import schema_orm as orm
 from schema_branches import Branch
 from schema_users import User
-from schema_addresses import Address
-from schema_customfields import CustomFieldValue
-from schema_loans import LoanAccount
+import schema_clients
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
@@ -35,21 +33,25 @@ class Group(Base):
 
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
-    branch            = relationship(Branch, backref=backref('groups'))
+    branch            = relationship(Branch, back_populates='groups')
     assigneduserkey   = Column(String, ForeignKey(User.encodedkey))
-    user              = relationship(User, backref=backref('groups'))
-    addresses         = relationship(Address,
-                                     backref=backref('group'),
-                                     foreign_keys=[Address.parentkey],
-                                     primaryjoin='Address.parentkey == Group.encodedkey')
-    custominformation = relationship(CustomFieldValue,
-                                     backref=backref('group'),
-                                     foreign_keys=[CustomFieldValue.parentkey],
-                                     primaryjoin='CustomFieldValue.parentkey == Group.encodedkey')
-    loans             = relationship("LoanAccount",
-                                     back_populates = "holder_group",
-                                     foreign_keys   = [LoanAccount.accountholderkey],
+    user              = relationship(User, back_populates='groups')
+    addresses         = relationship('Address',
+                                     back_populates = 'group',
+                                     foreign_keys   = 'Address.parentkey',
+                                     primaryjoin    = 'Address.parentkey == Group.encodedkey')
+    custominformation = relationship('CustomFieldValue',
+                                     back_populates = 'group',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
+    loans             = relationship('LoanAccount',
+                                     back_populates = 'holder_group',
+                                     foreign_keys   = 'LoanAccount.accountholderkey',
                                      primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
+    activities        = relationship('Activity', back_populates='group')
+    clients           = relationship('Client',
+                                secondary=lambda: schema_clients.ClientsGroups,
+                                back_populates='groups')
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)
