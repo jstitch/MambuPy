@@ -8,10 +8,8 @@ import schema_orm as orm
 from schema_groups import Group
 from schema_branches import Branch
 from schema_addresses import Address
-from schema_customfields import CustomFieldValue
-from schema_loans import LoanAccount
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy import Table, ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
@@ -42,24 +40,25 @@ class Client(Base):
     loancycle     = Column(Integer)
     groups        = relationship(Group,
                                 secondary=lambda: ClientsGroups,
-                                backref=backref('clients'))
-
+                                back_populates='clients')
 
     # Relationships
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
-    branch            = relationship(Branch, backref=backref('clients'))
-    addresses         = relationship(Address,
-                                     backref=backref('client'),
-                                     foreign_keys=[Address.parentkey],
-                                     primaryjoin='Address.parentkey == Client.encodedkey')
-    custominformation = relationship(CustomFieldValue,
-                                     backref=backref('client'),
-                                     foreign_keys=[CustomFieldValue.parentkey],
-                                     primaryjoin='CustomFieldValue.parentkey == Client.encodedkey')
-    loans             = relationship(LoanAccount,
-                                     backref=backref('holder_client'),
-                                     foreign_keys=[LoanAccount.accountholderkey],
-                                     primaryjoin='LoanAccount.accountholderkey == Client.encodedkey')
+    branch            = relationship('Branch', back_populates='clients')
+    addresses         = relationship('Address',
+                                     back_populates = 'client',
+                                     foreign_keys   = 'Address.parentkey',
+                                     primaryjoin    = 'Address.parentkey == Client.encodedkey')
+    custominformation = relationship('CustomFieldValue',
+                                     back_populates = 'client',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Client.encodedkey')
+    loans             = relationship('LoanAccount',
+                                     back_populates = 'holder_client',
+                                     foreign_keys   = 'LoanAccount.accountholderkey',
+                                     primaryjoin    = 'LoanAccount.accountholderkey == Client.encodedkey')
+    activities        = relationship('Activity', back_populates='client')
+    identificationdocuments = relationship('IdentificationDocument', back_populates='client')
 
     @property
     def name(self):
@@ -94,7 +93,7 @@ class IdentificationDocument(Base):
 
     # Relationships
     clientkey = Column(String, ForeignKey(Client.encodedkey))
-    client    = relationship(Client, backref=backref('identificationdocuments'))
+    client    = relationship(Client, back_populates='identificationdocuments')
 
     def __repr__(self):
         return "<IdentificationDocument(documentid={})>".format(self.documentid)
