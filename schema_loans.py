@@ -8,9 +8,8 @@ import schema_orm as orm
 
 from schema_branches import Branch
 from schema_users import User
-from schema_customfields import CustomFieldValue
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
@@ -31,6 +30,7 @@ class LoanProduct(Base):
     id             = Column(String, index=True, unique=True)
     productname    = Column(String)
     activated      = Column(Integer)
+    loans          = relationship('LoanAccount', back_populates='product')
 
     def __repr__(self):
         return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
@@ -96,22 +96,29 @@ class LoanAccount(Base):
 
     # Relationships
     producttypekey         = Column(String, ForeignKey(LoanProduct.encodedkey))
-    product                = relationship('LoanProduct')
-    accountholderkey       = Column(String)
+    product                = relationship('LoanProduct', back_populates='loans')
     disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
     disbursementdetails    = relationship('DisbursementDetails')
     assignedbranchkey      = Column(String, ForeignKey(Branch.encodedkey))
-    branch                 = relationship(Branch, backref=backref('loans'))
+    branch                 = relationship('Branch', back_populates = 'loans')
     assigneduserkey        = Column(String, ForeignKey(User.encodedkey))
-    user                   = relationship(User, backref=backref('loans'))
-    custominformation      = relationship(CustomFieldValue,
-                                          backref=backref('loan'),
-                                          foreign_keys=[CustomFieldValue.parentkey],
-                                          primaryjoin='CustomFieldValue.parentkey == LoanAccount.encodedkey')
-    holder_group           = relationship("Group",
-                                          back_populates = "loans",
-                                          foreign_keys   = "LoanAccount.accountholderkey",
+    user                   = relationship('User', back_populates = 'loans')
+    accountholderkey       = Column(String)
+    holder_group           = relationship('Group',
+                                          back_populates = 'loans',
+                                          foreign_keys   = 'LoanAccount.accountholderkey',
                                           primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
+    holder_client          = relationship('Client',
+                                          back_populates = 'loans',
+                                          foreign_keys   = 'LoanAccount.accountholderkey',
+                                          primaryjoin    = 'LoanAccount.accountholderkey == Client.encodedkey')
+    custominformation      = relationship('CustomFieldValue',
+                                          back_populates = 'loan',
+                                          foreign_keys   = 'CustomFieldValue.parentkey',
+                                          primaryjoin    = 'CustomFieldValue.parentkey == LoanAccount.encodedkey')
+    activities             = relationship('Activity', back_populates='loan')
+    repayments             = relationship('Repayment', back_populates='account')
+    transactions           = relationship('LoanTransaction', back_populates='account')
 
     def __repr__(self):
         return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
@@ -140,7 +147,9 @@ class Repayment(Base):
 
     # Relationships
     parentaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account          = relationship('LoanAccount', backref=backref('repayments',order_by='Repayment.duedate'))
+    account          = relationship('LoanAccount',
+                                    back_populates='repayments',
+                                    order_by='Repayment.duedate')
 
     def __repr__(self):
         return "<Repayment(duedate=%s, state=%s,\naccount=%s)>" % (self.duedate.strftime('%Y%m%d'), self.state, self.account)
@@ -170,7 +179,9 @@ class LoanTransaction(Base):
 
     # Relationships
     parentaccountkey       = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account                = relationship('LoanAccount', backref=backref('transactions', order_by='LoanTransaction.transactionid'))
+    account                = relationship('LoanAccount',
+                                          back_populates='transactions',
+                                          order_by='LoanTransaction.transactionid')
 
     def __repr__(self):
         return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
