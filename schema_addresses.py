@@ -3,8 +3,8 @@
 
 import schema_orm as orm
 
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Table, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
 dbname = orm.dbname
@@ -28,6 +28,19 @@ class Address(Base):
     line2         = Column(String)
     postcode      = Column(String)
     region        = Column(String)
+
+    client        = relationship('Client',
+                                 back_populates = 'addresses',
+                                 foreign_keys   = 'Address.parentkey',
+                                 primaryjoin    = 'Address.parentkey == Client.encodedkey')
+    branch        = relationship('Branch',
+                                 back_populates = 'addresses',
+                                 foreign_keys   = 'Address.parentkey',
+                                 primaryjoin    = 'Address.parentkey == Branch.encodedkey')
+    group         = relationship('Group',
+                                 back_populates = 'addresses',
+                                 foreign_keys   = 'Address.parentkey',
+                                 primaryjoin    = 'Address.parentkey == Group.encodedkey')
 
     @property
     def address(self):
