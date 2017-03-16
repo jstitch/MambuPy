@@ -54,12 +54,16 @@ class Activity(Base):
     userkey                     = Column(String, ForeignKey(User.encodedkey))
     assigneduserkey             = Column(String, ForeignKey(User.encodedkey))
 
-    loan                        = relationship(LoanAccount, backref=backref('activities'))
-    branch                      = relationship(Branch, backref=backref('activities'))
-    client                      = relationship(Client, backref=backref('activities'))
-    group                       = relationship(Group, backref=backref('activities'))
-    user                        = relationship(User, primaryjoin="User.encodedkey==Activity.userkey", backref=backref('activities'))
-    assigneduser                = relationship(User, primaryjoin="User.encodedkey==Activity.assigneduserkey", backref=backref('assignedactivities'))
+    loan                        = relationship(LoanAccount, back_populates='activities')
+    branch                      = relationship(Branch, back_populates='activities')
+    client                      = relationship(Client, back_populates='activities')
+    group                       = relationship(Group, back_populates='activities')
+    user                        = relationship(User,
+                                               primaryjoin    = 'User.encodedkey==Activity.userkey',
+                                               back_populates = 'activities')
+    assigneduser                = relationship(User,
+                                               primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
+                                               back_populates = 'activities')
 
     def __repr__(self):
         return "<Activity(type=%s, timestamp=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'))
