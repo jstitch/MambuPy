@@ -5,11 +5,9 @@ are missing.
 """
 
 import schema_orm as orm
-from schema_addresses import Address
-from schema_customfields import CustomFieldValue
 
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Table, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, DateTime, Numeric, Integer
 
 dbname = orm.dbname
@@ -34,14 +32,19 @@ class Branch(Base):
     emailaddress = Column(String)
 
     # Relationships
-    addresses         = relationship(Address,
-                                     backref=backref('branch'),
-                                     foreign_keys=[Address.parentkey],
-                                     primaryjoin='Address.parentkey == Branch.encodedkey')
-    custominformation = relationship(CustomFieldValue,
-                                     backref=backref('branch'),
-                                     foreign_keys=[CustomFieldValue.parentkey],
-                                     primaryjoin='CustomFieldValue.parentkey == Branch.encodedkey')
+    addresses         = relationship('Address',
+                                     back_populates = 'branch',
+                                     foreign_keys   = 'Address.parentkey',
+                                     primaryjoin    = 'Address.parentkey == Branch.encodedkey')
+    custominformation = relationship('CustomFieldValue',
+                                     back_populates = 'branch',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
+    loans             = relationship('LoanAccount', back_populates='branch')
+    activities        = relationship('Activity', back_populates='branch')
+    clients           = relationship('Client', back_populates='branch')
+    groups            = relationship('Group', back_populates='branch')
+    users             = relationship('User', back_populates='branch')
 
     def __repr__(self):
         return "<Branch(id={}, name={})>".format(self.id, self.name)
