@@ -66,7 +66,7 @@ class User(Base):
     activities          = relationship('Activity',
                                        primaryjoin    = 'User.encodedkey==Activity.userkey',
                                        back_populates = 'user')
-    activities          = relationship('Activity',
+    assignedactivities  = relationship('Activity',
                                        primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
                                        back_populates = 'assigneduser')
     groups              = relationship('Group', back_populates = 'user')

@@ -63,7 +63,7 @@ class Activity(Base):
                                                back_populates = 'activities')
     assigneduser                = relationship(User,
                                                primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
-                                               back_populates = 'activities')
+                                               back_populates = 'assignedactivities')
 
     def __repr__(self):
         return "<Activity(type=%s, timestamp=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'))
