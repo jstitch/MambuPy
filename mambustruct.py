@@ -29,11 +29,13 @@ on a relational database but the term table is preferred in this case.
 
 from mambuutil import MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
 
-from urllib import urlopen, urlencode
+import requests
 import json
 from datetime import datetime
 
 import logging
+requests_log = logging.getLogger("requests")
+requests_log.setLevel(logging.WARNING)
 
 def setup_logging(default_path='mambulogging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
     import os, logging.config, yaml
@@ -550,14 +552,18 @@ class MambuStruct(object):
                 try:
                     # POST
                     if self.__data:
-                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, *args, **kwargs)), urlencode(encoded_dict(self.__data)))
+                        headers = {'content-type': 'application/json'}
+                        data = json.dumps(encoded_dict(self.__data))
+                        url = iriToUri(self.__urlfunc(self.entid, *args, **kwargs))
+                        resp = requests.post(url, data=data, headers=headers)
                     # GET
                     else:
-                        resp = urlopen(iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs)))
+                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                        resp = requests.get(url)
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
-                        jsonresp = json.load(resp)
+                        jsonresp = json.loads(resp.content)
                         # Returns list: extend list for offset
                         if type(jsonresp) == list:
                             try:
