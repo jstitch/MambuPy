@@ -86,6 +86,19 @@ class MambuUser(MambuStruct):
         self['name'] = self['firstName'] + " " + self['lastName']
 
 
+    def setGroups(self, *args, **kwargs):
+        """Adds the groups assigned to this user to a 'groups' field.
+
+        Returns the number of requests done to Mambu.
+        """
+        from mambugroup import MambuGroups
+
+        groups = MambuGroups(creditOfficerUsername=self['username'], *args, **kwargs)
+        self['groups'] = groups
+
+        return 1
+
+
 class MambuUsers(MambuStruct):
     """A list of Users from Mambu.
 
