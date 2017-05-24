@@ -22,6 +22,7 @@ class CustomField(Base):
                      }
 
     # Columns
+    encodedKey          = Column(String) # this MUST be declared before primary_key
     encodedkey       = Column(String, primary_key=True)
     name             = Column(String)
     description      = Column(String)
@@ -33,6 +34,13 @@ class CustomField(Base):
     creationdate     = Column(DateTime)
     lastmodifieddate = Column(DateTime)
     customfieldvalues= relationship('CustomFieldValue', back_populates='customfield')
+
+    # redundant with same-as-RESTAPI-case
+    valueLength      = Column(String)
+    dataType         = Column(String)
+    creationDate     = Column(DateTime)
+    lastModifiedDate = Column(DateTime)
+    customFieldValues= relationship('CustomFieldValue', back_populates='customfield')
 
     def __repr__(self):
         return "<CustomField(name={})>".format(self.name)
@@ -47,6 +55,7 @@ class CustomFieldValue(Base):
                      }
 
     # Columns
+    encodedKey               = Column(String) # this MUST be declared before primary_key
     encodedkey               = Column(String, primary_key=True)
     parentkey                = Column(String)
     indexinlist              = Column(Integer)
@@ -78,6 +87,15 @@ class CustomFieldValue(Base):
                                   back_populates = 'custominformation',
                                   foreign_keys   = 'CustomFieldValue.parentkey',
                                   primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
+
+    # redundant with same-as-RESTAPI-case
+    parentKey                = Column(String)
+    indexInList              = Column(Integer)
+    linkedEntityKeyValue     = Column(String)
+    customFieldSetGroupIndex = Column(Integer)
+    # redundant relationships camelCase
+    customfieldKey = Column(String)
+    customField    = relationship(CustomField, back_populates='customfieldvalues')
 
     @property
     def linkedclient(self):
