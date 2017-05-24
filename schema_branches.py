@@ -24,6 +24,7 @@ class Branch(Base):
                      }
 
     # Columns
+    encodedKey          = Column(String) # this MUST be declared before primary_key
     encodedkey   = Column(String, primary_key=True)
     id           = Column(String, index=True, unique=True)
     name         = Column(String)
@@ -45,6 +46,15 @@ class Branch(Base):
     clients           = relationship('Client', back_populates='branch')
     groups            = relationship('Group', back_populates='branch')
     users             = relationship('User', back_populates='branch')
+
+    # redundant with same-as-RESTAPI-case
+    phoneNumber  = Column(String)
+    emailAddress = Column(String)
+    # redundant relationships camelCase
+    customInformation = relationship('CustomFieldValue',
+                                     back_populates = 'branch',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
 
     def __repr__(self):
         return "<Branch(id={}, name={})>".format(self.id, self.name)

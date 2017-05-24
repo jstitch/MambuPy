@@ -26,12 +26,15 @@ class Group(Base):
                      }
 
     # Columns
+    encodedKey = Column(String) # this MUST be declared before primary_key
     encodedkey = Column(String, primary_key=True)
     id         = Column(String, index=True, unique=True)
     groupname  = Column(String)
     loancycle  = Column(Integer)
+    creationdate = Column(DateTime)
 
     # Relationships
+    assignedcentrekey = Column(String)
     assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
     branch            = relationship(Branch, back_populates='groups')
     assigneduserkey   = Column(String, ForeignKey(User.encodedkey))
@@ -52,6 +55,19 @@ class Group(Base):
     clients           = relationship('Client',
                                 secondary=lambda: schema_clients.ClientsGroups,
                                 back_populates='groups')
+
+    # redundant with same-as-RESTAPI-case
+    groupName    = Column(String)
+    loanCycle    = Column(Integer)
+    creationDate = Column(DateTime)
+    # redundant relationships camelCase
+    assignedCentreKey = Column(String)
+    assignedBranchKey = Column(String)
+    assignedUserKey   = Column(String)
+    customInformation = relationship('CustomFieldValue',
+                                     back_populates = 'group',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)

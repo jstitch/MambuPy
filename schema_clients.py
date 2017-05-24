@@ -26,6 +26,7 @@ class Client(Base):
                      }
 
     # Columns
+    encodedKey             = Column(String) # this MUST be declared before primary_key
     encodedkey    = Column(String, primary_key=True)
     id            = Column(String, index=True, unique=True)
     firstname     = Column(String)
@@ -60,6 +61,23 @@ class Client(Base):
     activities        = relationship('Activity', back_populates='client')
     identificationdocuments = relationship('IdentificationDocument', back_populates='client')
 
+    # redundant with same-as-RESTAPI-case
+    firstName     = Column(String)
+    middleName    = Column(String)
+    lastName      = Column(String)
+    birthDate     = Column(DateTime)
+    homePhone     = Column(String)
+    mobilePhone1  = Column(String)
+    emailAddress  = Column(String)
+    loanCycle     = Column(Integer)
+    # redundant relationships camelCase
+    assignedBranchKey = Column(String)
+    customInformation = relationship('CustomFieldValue',
+                                     back_populates = 'client',
+                                     foreign_keys   = 'CustomFieldValue.parentkey',
+                                     primaryjoin    = 'CustomFieldValue.parentkey == Client.encodedkey')
+    identificationDocuments = relationship('IdentificationDocument', back_populates='client')
+
     @property
     def name(self):
         return "{}{} {}".format(self.firstname.strip(),(' '+self.middlename.strip()) if self.middlename else '',self.lastname.strip())
@@ -83,6 +101,7 @@ class IdentificationDocument(Base):
                       'keep_existing' : True
                      }
 
+    encodedKey          = Column(String) # this MUST be declared before primary_key
     encodedkey          = Column(String, primary_key=True)
     documentid          = Column(String)
     documenttype        = Column(String)
@@ -94,6 +113,16 @@ class IdentificationDocument(Base):
     # Relationships
     clientkey = Column(String, ForeignKey(Client.encodedkey))
     client    = relationship(Client, back_populates='identificationdocuments')
+
+    # redundant with same-as-RESTAPI-case
+    documentId          = Column(String)
+    documentType        = Column(String)
+    indexInList         = Column(Integer)
+    issuingAuthority    = Column(String)
+    validUntil          = Column(DateTime)
+    identificationDocumentTemplateKey   = Column(String)
+    # redundant relationships camelCase
+    clientKey = Column(String)
 
     def __repr__(self):
         return "<IdentificationDocument(documentid={})>".format(self.documentid)

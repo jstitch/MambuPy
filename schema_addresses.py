@@ -20,8 +20,10 @@ class Address(Base):
                      }
 
     # Columns
+    encodedKey    = Column(String) # this MUST be declared before primary_key
     encodedkey    = Column(String, primary_key=True)
     parentkey     = Column(String)
+    parentKey     = Column(String) # redundant with same-as-RESTAPI-case
     city          = Column(String)
     country       = Column(String)
     line1         = Column(String)

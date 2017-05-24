@@ -25,6 +25,7 @@ class Activity(Base):
                      }
 
     # Columns
+    encodedKey                  = Column(String) # this MUST be declared before primary_key
     encodedkey                  = Column(String, primary_key=True)
     lineofcreditkey             = Column(String)
     centrekey                   = Column(String)
@@ -62,6 +63,32 @@ class Activity(Base):
                                                primaryjoin    = 'User.encodedkey==Activity.userkey',
                                                back_populates = 'activities')
     assigneduser                = relationship(User,
+                                               primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
+                                               back_populates = 'assignedactivities')
+
+    # redundant with same-as-RESTAPI-case
+    lineOfCreditKey             = Column(String)
+    centreKey                   = Column(String)
+    loanProductKey              = Column(String)
+    savingsAccountKey           = Column(String)
+    savingsProductKey           = Column(String)
+    assignedCentreKey           = Column(String)
+    taskKey                     = Column(String)
+    glAccountKey                = Column(String)
+    glAccountsClosureKey        = Column(String)
+    entityKey                   = Column(String)
+    transactionId               = Column(Integer)
+    entityType                  = Column(String)
+    fieldChangeName             = Column(String)
+    activityChanges_integer_idx = Column(Integer)
+    # redundant relationships camelCase
+    loanAccountKey              = Column(String)
+    branchKey                   = Column(String)
+    clientKey                   = Column(String)
+    groupKey                    = Column(String)
+    userKey                     = Column(String)
+    assignedUserKey             = Column(String)
+    assignedUser                = relationship(User,
                                                primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
                                                back_populates = 'assignedactivities')
 
