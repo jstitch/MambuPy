@@ -24,6 +24,7 @@ class Role(Base):
                      }
 
     # Columns
+    encodedKey = Column(String) # this MUST be declared before primary_key
     encodedkey = Column(String, primary_key=True)
     name       = Column(String)
     users      = relationship('User', back_populates='role')
@@ -40,6 +41,7 @@ class User(Base):
                      }
 
     # Columns
+    encodedKey          = Column(String) # this MUST be declared before primary_key
     encodedkey    = Column(String, primary_key=True)
     id            = Column(String, index=True, unique=True)
     firstname     = Column(String)
@@ -71,6 +73,26 @@ class User(Base):
                                        back_populates = 'assigneduser')
     groups              = relationship('Group', back_populates = 'user')
     loans               = relationship('LoanAccount', back_populates = 'user')
+
+    # redundant with same-as-RESTAPI-case
+    firstName     = Column(String)
+    lastName      = Column(String)
+    userName      = Column(String)
+    creationDate  = Column(DateTime)
+    homePhone     = Column(String)
+    mobilePhone1  = Column(String)
+    userState     = Column(String)
+    isCreditOfficer = Column(Integer)
+    # redundant relationships camelCase
+    assignedBranchKey = Column(String)
+    role_encodedKey_oid = Column(String)
+    customInformation   = relationship('CustomFieldValue',
+                                       back_populates = 'user',
+                                       foreign_keys   = 'CustomFieldValue.parentkey',
+                                       primaryjoin    = 'CustomFieldValue.parentkey == User.encodedkey')
+    assignedActivities  = relationship('Activity',
+                                       primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
+                                       back_populates = 'assigneduser')
 
     @property
     def name(self):
