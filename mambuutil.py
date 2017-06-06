@@ -306,6 +306,13 @@ def getgrouploansurl(idgroup, *args, **kwargs):
     getparams = []
     if kwargs:
         try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
             getparams.append("accountState=%s" % kwargs["accountState"])
         except Exception as ex:
             pass
