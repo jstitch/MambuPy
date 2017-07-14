@@ -376,15 +376,16 @@ class MambuLoan(MambuStruct):
                 loanclientsdata = self.getClientDetails(holder=holder, *args, **kwargs)
 
                 for data in loanclientsdata:
-                    loanclients[data['name']] = {'client'     : data['client'],
-                                                 'loan'       : self,
-                                                 'amount'     : data['amount'],
-                                                 'montoPago'  : data['amount'] / float(self['repaymentInstallments']),
-                                                 'porcentaje' : data['amount'] / float(self['loanAmount']),
-                                                }
+                    loanclients[data['id']] = {'client'     : data['client'],
+                                               'name'       : data['name'],
+                                               'loan'       : self,
+                                               'amount'     : data['amount'],
+                                               'montoPago'  : data['amount'] / float(self['repaymentInstallments']),
+                                               'porcentaje' : data['amount'] / float(self['loanAmount']),
+                                              }
                     # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
                     for k,v in [ (key,val) for (key,val) in data.items() if key not in['amount', 'name'] ]:
-                        loanclients[data['name']][k] = v
+                        loanclients[data['id']][k] = v
 
                 self['clients'] = loanclients
 
