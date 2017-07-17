@@ -102,35 +102,35 @@ def make_dummy(instance,
 from schema_mambu import *
 
 # branches
-branch = make_dummy(branches.Branch())
+branch = make_dummy(Branch())
 
 # users
-role = make_dummy(users.Role())
-user = make_dummy(users.User(),
+role = make_dummy(Role())
+user = make_dummy(User(),
                   relations={'branch' : (branch , 'users'),
                              'role'   : (role   , 'users'),
                             })
 
 # groups
-group = make_dummy(groups.Group(),
+group = make_dummy(Group(),
                    relations={'branch' : (branch , 'groups'),
                               'user'   : (user   , 'groups'),
                              })
 
 # clients
-iddoc  = make_dummy(clients.IdentificationDocument())
-client = make_dummy(clients.Client(),
+iddoc  = make_dummy(IdentificationDocument())
+client = make_dummy(Client(),
                     relations={'branch'                  : (branch    , 'clients'),
                                'groups'                  : ([ group ] , 'clients'),
                                'identificationdocuments' : ([ iddoc ] , 'client'),
                               })
 
 # loan accounts
-loanproduct         = make_dummy(loans.LoanProduct())
-disbursementdetails = make_dummy(loans.DisbursementDetails())
-repayment           = make_dummy(loans.Repayment())
-loantransaction     = make_dummy(loans.LoanTransaction())
-loanaccount         = make_dummy(loans.LoanAccount(),
+loanproduct         = make_dummy(LoanProduct())
+disbursementdetails = make_dummy(DisbursementDetails())
+repayment           = make_dummy(Repayment())
+loantransaction     = make_dummy(LoanTransaction())
+loanaccount         = make_dummy(LoanAccount(),
                                  relations={'product'             : (loanproduct         , None),
                                             'disbursementdetails' : (disbursementdetails , None),
                                             'branch'              : (branch              , None),
@@ -142,8 +142,8 @@ loanaccount         = make_dummy(loans.LoanAccount(),
                                            })
 
 # custom fields
-custominformation = make_dummy(customfields.CustomField())
-customfieldvalue  = make_dummy(customfields.CustomFieldValue(),
+custominformation = make_dummy(CustomField())
+customfieldvalue  = make_dummy(CustomFieldValue(),
                                relations={'customfield' : (custominformation , 'customfieldvalues'),
                                           'branch'      : (branch            , 'cusotminformation'),
                                           'user'        : (user              , 'custominformation'),
@@ -153,14 +153,14 @@ customfieldvalue  = make_dummy(customfields.CustomFieldValue(),
                                          })
 
 # addresses
-address = make_dummy(addresses.Address(),
+address = make_dummy(Address(),
                      relations={'branch' : (branch , 'addresses'),
                                 'group'  : (group  , 'addresses'),
                                 'client' : (client , 'addresses'),
                                })
 
 # activities
-activity = make_dummy(activities.Activity(),
+activity = make_dummy(Activity(),
                       relations={'loan'         : (loanaccount , 'activities'),
                                  'branch'       : (branch      , 'activities'),
                                  'client'       : (client      , 'activities'),
