@@ -70,6 +70,7 @@ class Client(Base):
     mobilePhone1  = Column(String)
     emailAddress  = Column(String)
     loanCycle     = Column(Integer)
+    creationDate  = Column(DateTime)
     # redundant relationships camelCase
     assignedBranchKey = Column(String)
     customInformation = relationship('CustomFieldValue',
