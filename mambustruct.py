@@ -748,43 +748,44 @@ class MambuStruct(object):
                 formato = "%Y-%m-%dT%H:%M:%S+0000"
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
-    def setCustomField(self, customfield="", *args, **kwargs):
-        """Modifies the customField field for this object with something
-        related to the value of the given field.
 
-        If the dataType == "USER_LINK" then instead of using the value
-        of the CF, it will be a MambuUser object.
+from mambuuser import MambuUser
+from mambuclient import MambuClient
+def setCustomField(mambuentity, customfield="", *args, **kwargs):
+    """Modifies the customField field for the given object with
+    something related to the value of the given field.
 
-        Same if dataType == "CLIENT_LINK", but with a MambuClient.
+    If the dataType == "USER_LINK" then instead of using the value
+    of the CF, it will be a MambuUser object.
 
-        Default case: just uses the same value the CF already had.
+    Same if dataType == "CLIENT_LINK", but with a MambuClient.
 
-        Returns the number of requests done to Mambu.
-        """
+    Default case: just uses the same value the CF already had.
+
+    Returns the number of requests done to Mambu.
+    """
+    try:
+        customFieldValue = mambuentity[customfield]
+        datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if l['name'] == customfield ][0]
+    except IndexError as ierr:
+    # if no customfield found with the given name, assume it is a
+    # grouped custom field, name must have an index suffix that must
+    # be removed
         try:
-            customFieldValue = self[customfield]
-            datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield ][0]
-        except IndexError as ierr:
-        # if no customfield found with the given name, assume it is a
-        # grouped custom field, name must have an index suffix that must
-        # be removed
-            try:
-                datatype = [ l['customField']['dataType'] for l in self[self.customFieldName] if l['name'] == customfield.split('_')[0] ][0]
-            except IndexError:
-                err = MambuError("Object %s has no custom field '%s'" % (self['id'], customfield))
-                raise err
-        except AttributeError:
-            err = MambuError("Object does not have a custom field to set")
+            datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if l['name'] == customfield.split('_')[0] ][0]
+        except IndexError:
+            err = MambuError("Object %s has no custom field '%s'" % (mambuentity['id'], customfield))
             raise err
+    except AttributeError:
+        err = MambuError("Object does not have a custom field to set")
+        raise err
 
-        if datatype == "USER_LINK":
-            from mambuuser import MambuUser
-            self[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
-        elif datatype == "CLIENT_LINK":
-            from mambuclient import MambuClient
-            self[customfield] = MambuClient(entid=customFieldValue, *args, **kwargs)
-        else:
-            self[customfield] = customFieldValue
-            return 0
+    if datatype == "USER_LINK":
+        mambuentity[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
+    elif datatype == "CLIENT_LINK":
+        mambuentity[customfield] = MambuClient(entid=customFieldValue, *args, **kwargs)
+    else:
+        mambuentity[customfield] = customFieldValue
+        return 0
 
-        return 1
+    return 1
