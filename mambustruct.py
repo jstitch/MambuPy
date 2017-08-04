@@ -749,8 +749,8 @@ class MambuStruct(object):
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
 
-from mambuuser import MambuUser
-from mambuclient import MambuClient
+import mambuuser
+import mambuclient
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
     something related to the value of the given field.
@@ -781,9 +781,9 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
         raise err
 
     if datatype == "USER_LINK":
-        mambuentity[customfield] = MambuUser(entid=customFieldValue, *args, **kwargs)
+        mambuentity[customfield] = mambuuser.MambuUser(entid=customFieldValue, *args, **kwargs)
     elif datatype == "CLIENT_LINK":
-        mambuentity[customfield] = MambuClient(entid=customFieldValue, *args, **kwargs)
+        mambuentity[customfield] = mambuclient.MambuClient(entid=customFieldValue, *args, **kwargs)
     else:
         mambuentity[customfield] = customFieldValue
         return 0
