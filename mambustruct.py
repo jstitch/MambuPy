@@ -33,30 +33,6 @@ import requests
 import json
 from datetime import datetime
 
-import logging
-requests_log = logging.getLogger("requests")
-requests_log.setLevel(logging.WARNING)
-
-def setup_logging(default_path='mambulogging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
-    import os, logging.config, yaml
-    from codecs import open as copen
-    path = default_path
-    value = os.getenv(env_key,None)
-    if value:
-        path = value
-    if os.path.exists(path):
-        with copen(path, 'rt', 'utf-8') as f:
-            config = yaml.load(f.read())
-        logging.config.dictConfig(config)
-    else:
-        logging.basicConfig(level=default_level)
-
-logger = logging.getLogger(__name__)
-"""The logger.
-
-TODO: no logging is currently done at MambuPy. At least here it gets
-configured...
-"""
 
 class RequestsCounter(object):
     """Singleton that counts requests.
@@ -103,6 +79,7 @@ class MambuStructIterator:
             self.offset += 1
             return item
 
+
 class MambuStruct(object):
     """This one is the Father of all Mambu objects at MambuPy.
 
@@ -114,8 +91,6 @@ class MambuStruct(object):
 
     Further work is needed to hold list-like behaviour however.
     """
-    setup_logging()
-
     RETRIES = 5
     """This one holds the maximum number of retries for requests to Mambu.
 
@@ -233,7 +208,7 @@ class MambuStruct(object):
         try:
             return self.__class__.__name__ + " - " + str(self.attrs)
         except AttributeError:
-            return self.__class__.__name__ + " - " + str(self)
+            return repr(self)
 
     def __len__(self):
         """Length of the attrs attribute.
@@ -254,9 +229,9 @@ class MambuStruct(object):
         if isinstance(other, MambuStruct):
             try:
                 if not other.attrs.has_key('encodedKey') or not self.attrs.has_key('encodedKey'):
-                    return NotImplemented
+                    raise NotImplementedError
             except AttributeError:
-                return NotImplemented
+                raise NotImplementedError
             return other['encodedKey'] == self['encodedKey']
 
     def has_key(self, key):
@@ -430,6 +405,7 @@ class MambuStruct(object):
 
         try:
             self.__limit=kwargs['limit']
+            self.__inilimit = self.__limit
             """Limit the number of elements to be retrieved from Mambu on GET requests.
 
             Defaults to 0 which means (for the connect method) that you
@@ -554,7 +530,7 @@ class MambuStruct(object):
                     if self.__data:
                         headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
-                        url = iriToUri(self.__urlfunc(self.entid, *args, **kwargs))
+                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
                         resp = requests.post(url, data=data, headers=headers)
                     # GET
                     else:
@@ -594,6 +570,7 @@ class MambuStruct(object):
                 self.__limit -= limit
                 if self.__limit <= 0:
                     window = False
+                    self.__limit = self.__inilimit
 
         try:
             if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
