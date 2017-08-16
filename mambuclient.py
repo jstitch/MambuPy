@@ -167,8 +167,8 @@ class MambuClient(MambuStruct):
             self['middleName'] = ""
         self['givenName']      = scrc(self["firstName"] + ((" " + self["middleName"]) if self["middleName"] != "" else ""), " ").strip()
         self['lastName']       = scrc(self['lastName'], " ").strip()
-        self['firstLastName']  = " ".join(self['lastName'].split(" ")[:-1])
-        self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:])
+        self['firstLastName']  = " ".join(self['lastName'].split(" ")[:-1]) if len(self['lastName'].split(" ")) > 1 else self['lastName']
+        self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:]) if len(self['lastName'].split(" ")) > 1 else ""
 
         self['name'] = scrc("%s %s" % (self['givenName'], self['lastName']), " ").strip()
 
