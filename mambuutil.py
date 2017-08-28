@@ -688,6 +688,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     * verbose is a boolean flag for verbosity.
 
     * retries number of retries for bool_func or -1 for keep waiting.
+
+    * force_download_latest boolean, True to force download even if no
+    callback is called. False to throw error if callback isn't received
+    after retries.
     """
     from datetime import datetime
     from time import sleep
@@ -701,6 +705,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         retries = kwargs['retries']
     except KeyError:
         retries = -1
+    try:
+        force_download_latest = bool(kwargs['force_download_latest'])
+    except KeyError:
+        force_download_latest = False
 
     if verbose:
         log = open('/tmp/log_mambu_backup','a')
@@ -738,8 +746,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if not retries:
         mess = "Tired of waiting, giving up..."
         log.write(mess + "\n")
-        log.close()
-        raise MambuError(mess)
+        log.flush()
+        if not force_download_latest:
+            log.close()
+            raise MambuError(mess)
     sleep(30)
 
     geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
