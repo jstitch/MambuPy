@@ -31,6 +31,7 @@ class Branch(Base):
     notes        = Column(String)
     phonenumber  = Column(String)
     emailaddress = Column(String)
+    state        = Column(String)
 
     # Relationships
     addresses         = relationship('Address',
