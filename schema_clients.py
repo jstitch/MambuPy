@@ -5,7 +5,7 @@ are missing.
 """
 
 import schema_orm as orm
-from schema_groups import Group
+from schema_groups import Group, GroupRoleName
 from schema_branches import Branch
 from schema_addresses import Address
 
@@ -26,7 +26,7 @@ class Client(Base):
                      }
 
     # Columns
-    encodedKey             = Column(String) # this MUST be declared before primary_key
+    encodedKey    = Column(String) # this MUST be declared before primary_key
     encodedkey    = Column(String, primary_key=True)
     id            = Column(String, index=True, unique=True)
     firstname     = Column(String)
@@ -60,6 +60,7 @@ class Client(Base):
                                      primaryjoin    = 'LoanAccount.accountholderkey == Client.encodedkey')
     activities        = relationship('Activity', back_populates='client')
     identificationdocuments = relationship('IdentificationDocument', back_populates='client')
+    roles             = relationship('GroupRole', back_populates = 'client')
 
     # redundant with same-as-RESTAPI-case
     firstName     = Column(String)
@@ -91,6 +92,33 @@ ClientsGroups = Table('groupmember', Base.metadata,
     Column('clientkey', Integer, ForeignKey(Client.encodedkey), nullable=False, primary_key=True, doc='Reference to client'),
     Column('groupkey',  Integer, ForeignKey(Group.encodedkey),  nullable=False, primary_key=True, doc='Reference to group'),
     schema=dbname)
+
+class GroupRole(Base):
+    """GroupRole table.
+
+    Association object for many-to-many relationship
+    """
+    __tablename__  = "grouprole"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    encodedKey       = Column(String, primary_key=True)
+
+    clientKey        = Column(String, ForeignKey(Client.encodedkey), nullable=False, doc='Reference to client')
+    groupKey         = Column(String, ForeignKey(Group.encodedkey), nullable=False, doc='Reference to group')
+    groupRoleNameKey = Column(String, ForeignKey(GroupRoleName.encodedKey), nullable=False, doc='Reference to role name')
+
+    client   = relationship(Client, back_populates="roles")
+    group    = relationship(Group, back_populates="roles")
+    roleName = relationship(GroupRoleName, back_populates='roles')
+
+    @property
+    def rolename(self):
+        return self.roleName.name
+
+    def __repr__(self):
+        return "<GroupRole(name={}, client={}, group={})>".format(self.rolename, self.client, self.group)
 
 
 class IdentificationDocument(Base):

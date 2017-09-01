@@ -55,6 +55,7 @@ class Group(Base):
     clients           = relationship('Client',
                                 secondary=lambda: schema_clients.ClientsGroups,
                                 back_populates='groups')
+    roles             = relationship('GroupRole', back_populates='group')
 
     # redundant with same-as-RESTAPI-case
     groupName    = Column(String)
@@ -71,3 +72,21 @@ class Group(Base):
 
     def __repr__(self):
         return "<Group(id={}, groupname={})>".format(self.id, self.groupname)
+
+
+class GroupRoleName(Base):
+    """GroupRoleName table.
+    """
+    __tablename__  = "grouprolename"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    # Columns
+    encodedKey = Column(String, primary_key=True)
+    name       = Column(String)
+
+    roles = relationship('schema_clients.GroupRole', back_populates='roleName')
+
+    def __repr__(self):
+        return "<GroupRoleName(name={})>".format(self.name)
