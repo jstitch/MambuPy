@@ -139,6 +139,10 @@ class MambuStruct(object):
         """Dict-like set"""
         self.attrs[key] = value
 
+    def __delitem__(self, key):
+        """Dict-like del key"""
+        del self.attrs[key]
+
     def __getattribute__(self, name):
         """Object-like get attribute
 

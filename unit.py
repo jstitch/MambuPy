@@ -129,6 +129,22 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch('mambustruct.iriToUri')
     @mock.patch('mambustruct.json')
     @mock.patch('mambustruct.requests')
+    def test___delitem__(self, requests, json, iriToUri):
+        """Del an item from the attrs dict"""
+        json.loads.return_value = {'hello':'goodbye'}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        ms['hello'] = 'world'
+        del ms['hello']
+        self.assertFalse(ms.attrs.has_key('hello'))
+
+        json.loads.return_value = [1,2,3]
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        del ms[1]
+        self.assertEqual(len(ms.attrs), 2)
+
+    @mock.patch('mambustruct.iriToUri')
+    @mock.patch('mambustruct.json')
+    @mock.patch('mambustruct.requests')
     def test___str__(self, requests, json, iriToUri):
         """String representation of MambuStruct"""
         # when urlfunc is None, or not connected yet connected to Mambu
