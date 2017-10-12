@@ -26,11 +26,13 @@ class Group(Base):
                      }
 
     # Columns
-    encodedKey = Column(String) # this MUST be declared before primary_key
-    encodedkey = Column(String, primary_key=True)
-    id         = Column(String, index=True, unique=True)
-    groupname  = Column(String)
-    loancycle  = Column(Integer)
+    encodedKey   = Column(String) # this MUST be declared before primary_key
+    encodedkey   = Column(String, primary_key=True)
+    id           = Column(String, index=True, unique=True)
+    groupname    = Column(String)
+    homePhone    = Column(String)
+    mobilePhone1 = Column(String)
+    loancycle    = Column(Integer)
     creationdate = Column(DateTime)
 
     # Relationships
