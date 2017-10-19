@@ -692,6 +692,9 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     * force_download_latest boolean, True to force download even if no
     callback is called. False to throw error if callback isn't received
     after retries.
+
+    * returns a dictionary with info about the download
+        -latest     boolean flag, if the db downloaded was the latest or not
     """
     from datetime import datetime
     from time import sleep
@@ -736,6 +739,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
             log.close()
         raise MambuCommError(mess)
 
+    data['latest'] = True
     while retries and not bool_func():
         if verbose:
             log.write("waiting...\n")
@@ -750,6 +754,8 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         if not force_download_latest:
             log.close()
             raise MambuError(mess)
+        else:
+            data['latest'] = False
     sleep(30)
 
     geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
@@ -774,3 +780,5 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if verbose:
         log.write("DONE!\n")
         log.close()
+
+    return data
