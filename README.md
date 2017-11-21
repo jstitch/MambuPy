@@ -41,6 +41,8 @@ For more information, look at the scripts named ``schema*.py``
 
 ### Installation
 
+Currently MambuPy works on Python 2.7
+
 You may install MambuPy by git-cloning this repository on your local
 environment and making it available anywhere on your ``PYTHONPATH``.
 
