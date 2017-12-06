@@ -208,6 +208,25 @@ class MambuGroup(MambuStruct):
 
         return requests
 
+    def setBranch(self, *args, **kwargs):
+        """Adds the branch to which this groups belongs
+        """
+        from mambubranch import MambuBranch
+
+        branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
+        self['branch'] = branch
+
+        return 1
+
+    def setCentre(self, *args, **kwargs):
+        """Adds the centre to which this groups belongs
+        """
+        from mambucentre import  MambuCentre
+
+        centre = MambuCentre(entid=self['assignedCentreKey'], *args, **kwargs)
+        self['centre'] = centre
+
+        return 1
 
     def setActivities(self, *args, **kwargs):
         """Adds the activities for this group to a 'activities' field.
