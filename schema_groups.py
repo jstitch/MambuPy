@@ -26,54 +26,41 @@ class Group(Base):
                      }
 
     # Columns
-    encodedKey   = Column(String) # this MUST be declared before primary_key
-    encodedkey   = Column(String, primary_key=True)
+    encodedKey   = Column(String, primary_key=True)
     id           = Column(String, index=True, unique=True)
-    groupname    = Column(String)
+    groupName    = Column(String)
     homePhone    = Column(String)
     mobilePhone1 = Column(String)
-    loancycle    = Column(Integer)
-    creationdate = Column(DateTime)
+    loanCycle    = Column(Integer)
+    creationDate = Column(DateTime)
 
     # Relationships
-    assignedcentrekey = Column(String)
-    assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
-    branch            = relationship(Branch, back_populates='groups')
-    assigneduserkey   = Column(String, ForeignKey(User.encodedkey))
+    assignedCentreKey = Column(String)
+    assignedUserKey   = Column(String, ForeignKey(User.encodedKey))
+    assignedBranchKey = Column(String, ForeignKey(Branch.encodedKey))
     user              = relationship(User, back_populates='groups')
+    branch            = relationship(Branch, back_populates='groups')
     addresses         = relationship('Address',
                                      back_populates = 'group',
-                                     foreign_keys   = 'Address.parentkey',
-                                     primaryjoin    = 'Address.parentkey == Group.encodedkey')
-    custominformation = relationship('CustomFieldValue',
+                                     foreign_keys   = 'Address.parentKey',
+                                     primaryjoin    = 'Address.parentKey == Group.encodedKey')
+    customInformation = relationship('CustomFieldValue',
                                      back_populates = 'group',
-                                     foreign_keys   = 'CustomFieldValue.parentkey',
-                                     primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
+                                     foreign_keys   = 'CustomFieldValue.parentKey',
+                                     primaryjoin    = 'CustomFieldValue.parentKey == Group.encodedKey')
     loans             = relationship('LoanAccount',
                                      back_populates = 'holder_group',
-                                     foreign_keys   = 'LoanAccount.accountholderkey',
-                                     primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
+                                     foreign_keys   = 'LoanAccount.accountHolderKey',
+                                     primaryjoin    = 'LoanAccount.accountHolderKey == Group.encodedKey')
     activities        = relationship('Activity', back_populates='group')
     clients           = relationship('Client',
                                 secondary=lambda: schema_clients.ClientsGroups,
                                 back_populates='groups')
     roles             = relationship('GroupRole', back_populates='group')
 
-    # redundant with same-as-RESTAPI-case
-    groupName    = Column(String)
-    loanCycle    = Column(Integer)
-    creationDate = Column(DateTime)
-    # redundant relationships camelCase
-    assignedCentreKey = Column(String)
-    assignedBranchKey = Column(String)
-    assignedUserKey   = Column(String)
-    customInformation = relationship('CustomFieldValue',
-                                     back_populates = 'group',
-                                     foreign_keys   = 'CustomFieldValue.parentkey',
-                                     primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
 
     def __repr__(self):
-        return "<Group(id={}, groupname={})>".format(self.id, self.groupname)
+        return "<Group(id={}, groupName={})>".format(self.id, self.groupName)
 
 
 class GroupRoleName(Base):

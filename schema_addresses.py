@@ -20,9 +20,7 @@ class Address(Base):
                      }
 
     # Columns
-    encodedKey    = Column(String) # this MUST be declared before primary_key
-    encodedkey    = Column(String, primary_key=True)
-    parentkey     = Column(String)
+    encodedKey    = Column(String, primary_key=True)
     parentKey     = Column(String) # redundant with same-as-RESTAPI-case
     city          = Column(String)
     country       = Column(String)
@@ -33,16 +31,16 @@ class Address(Base):
 
     client        = relationship('Client',
                                  back_populates = 'addresses',
-                                 foreign_keys   = 'Address.parentkey',
-                                 primaryjoin    = 'Address.parentkey == Client.encodedkey')
+                                 foreign_keys   = 'Address.parentKey',
+                                 primaryjoin    = 'Address.parentKey == Client.encodedKey')
     branch        = relationship('Branch',
                                  back_populates = 'addresses',
-                                 foreign_keys   = 'Address.parentkey',
-                                 primaryjoin    = 'Address.parentkey == Branch.encodedkey')
+                                 foreign_keys   = 'Address.parentKey',
+                                 primaryjoin    = 'Address.parentKey == Branch.encodedKey')
     group         = relationship('Group',
                                  back_populates = 'addresses',
-                                 foreign_keys   = 'Address.parentkey',
-                                 primaryjoin    = 'Address.parentkey == Group.encodedkey')
+                                 foreign_keys   = 'Address.parentKey',
+                                 primaryjoin    = 'Address.parentKey == Group.encodedKey')
 
     @property
     def address(self):

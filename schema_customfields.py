@@ -22,25 +22,17 @@ class CustomField(Base):
                      }
 
     # Columns
-    encodedKey          = Column(String) # this MUST be declared before primary_key
-    encodedkey       = Column(String, primary_key=True)
+    encodedKey       = Column(String, primary_key=True)
     name             = Column(String)
     description      = Column(String)
     id               = Column(String)
     type             = Column(String)
-    valuelength      = Column(String)
-    datatype         = Column(String)
     state            = Column(String)
-    creationdate     = Column(DateTime)
-    lastmodifieddate = Column(DateTime)
-    customfieldvalues= relationship('CustomFieldValue', back_populates='customfield')
-
-    # redundant with same-as-RESTAPI-case
     valueLength      = Column(String)
     dataType         = Column(String)
     creationDate     = Column(DateTime)
     lastModifiedDate = Column(DateTime)
-    customFieldValues= relationship('CustomFieldValue', back_populates='customfield')
+    customFieldValues= relationship('CustomFieldValue', back_populates='customField')
 
     def __repr__(self):
         return "<CustomField(name={})>".format(self.name)
@@ -55,54 +47,44 @@ class CustomFieldValue(Base):
                      }
 
     # Columns
-    encodedKey               = Column(String) # this MUST be declared before primary_key
-    encodedkey               = Column(String, primary_key=True)
-    parentkey                = Column(String)
-    indexinlist              = Column(Integer)
-    value                    = Column(String)
-    linkedentitykeyvalue     = Column(String)
-    amount                   = Column(Numeric(50,10))
-    customfieldsetgroupindex = Column(Integer)
-
-    # Relationships
-    customfieldkey = Column(String, ForeignKey(CustomField.encodedkey))
-    customfield    = relationship(CustomField, back_populates='customfieldvalues')
-    loan           = relationship('LoanAccount',
-                                  back_populates = 'custominformation',
-                                  foreign_keys   = 'CustomFieldValue.parentkey',
-                                  primaryjoin    = 'CustomFieldValue.parentkey == LoanAccount.encodedkey')
-    client         = relationship('Client',
-                                  back_populates = 'custominformation',
-                                  foreign_keys   = 'CustomFieldValue.parentkey',
-                                  primaryjoin    = 'CustomFieldValue.parentkey == Client.encodedkey')
-    group          = relationship('Group',
-                                  back_populates = 'custominformation',
-                                  foreign_keys   = 'CustomFieldValue.parentkey',
-                                  primaryjoin    = 'CustomFieldValue.parentkey == Group.encodedkey')
-    user           = relationship('User',
-                                  back_populates = 'custominformation',
-                                  foreign_keys   = 'CustomFieldValue.parentkey',
-                                  primaryjoin    = 'CustomFieldValue.parentkey == User.encodedkey')
-    branch         = relationship('Branch',
-                                  back_populates = 'custominformation',
-                                  foreign_keys   = 'CustomFieldValue.parentkey',
-                                  primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
-
-    # redundant with same-as-RESTAPI-case
+    encodedKey               = Column(String, primary_key=True)
     parentKey                = Column(String)
     indexInList              = Column(Integer)
+    value                    = Column(String)
     linkedEntityKeyValue     = Column(String)
+    amount                   = Column(Numeric(50,10))
     customFieldSetGroupIndex = Column(Integer)
-    # redundant relationships camelCase
-    customfieldKey = Column(String)
-    customField    = relationship(CustomField, back_populates='customfieldvalues')
+
+    # Relationships
+    customFieldKey = Column(String, ForeignKey(CustomField.encodedKey))
+    customField    = relationship(CustomField, back_populates='customFieldValues')
+    loan           = relationship('LoanAccount',
+                                  back_populates = 'customInformation',
+                                  foreign_keys   = 'CustomFieldValue.parentKey',
+                                  primaryjoin    = 'CustomFieldValue.parentKey == LoanAccount.encodedKey')
+    client         = relationship('Client',
+                                  back_populates = 'customInformation',
+                                  foreign_keys   = 'CustomFieldValue.parentKey',
+                                  primaryjoin    = 'CustomFieldValue.parentKey == Client.encodedKey')
+    group          = relationship('Group',
+                                  back_populates = 'customInformation',
+                                  foreign_keys   = 'CustomFieldValue.parentKey',
+                                  primaryjoin    = 'CustomFieldValue.parentKey == Group.encodedKey')
+    user           = relationship('User',
+                                  back_populates = 'customInformation',
+                                  foreign_keys   = 'CustomFieldValue.parentKey',
+                                  primaryjoin    = 'CustomFieldValue.parentKey == User.encodedKey')
+    branch         = relationship('Branch',
+                                  back_populates = 'customInformation',
+                                  foreign_keys   = 'CustomFieldValue.parentKey',
+                                  primaryjoin    = 'CustomFieldValue.parentKey == Branch.encodedKey')
 
     @property
     def linkedclient(self):
         from schema_clients import Client
         try:
-            if self.customfield.datatype == 'CLIENT_LINK':
-                return session.query(Client).filter(Client.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customField.dataType == 'CLIENT_LINK':
+                return session.query(Client).filter(Client.encodedKey==self.linkedEntityKeyValue).one()
             else:
                 return None
         except NoResultFound:
@@ -112,8 +94,8 @@ class CustomFieldValue(Base):
     def linkedgroup(self):
         from schema_groups import Group
         try:
-            if self.customfield.datatype == 'GROUP_LINK':
-                return session.query(Group).filter(Group.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customField.dataType == 'GROUP_LINK':
+                return session.query(Group).filter(Group.encodedKey==self.linkedEntityKeyValue).one()
             else:
                 return None
         except NoResultFound:
@@ -123,12 +105,12 @@ class CustomFieldValue(Base):
     def linkeduser(self):
         from schema_users import User
         try:
-            if self.customfield.datatype == 'USER_LINK':
-                return session.query(User).filter(User.encodedkey==self.linkedentitykeyvalue).one()
+            if self.customField.dataType == 'USER_LINK':
+                return session.query(User).filter(User.encodedKey==self.linkedEntityKeyValue).one()
             else:
                 return None
         except NoResultFound:
             return None
 
     def __repr__(self):
-        return "<CustomFieldValue(customfield={},value={})>".format(self.customfield, self.value if self.value else self.linkedclient if self.linkedclient else self.linkedgroup if self.linkedgroup else self.linkeduser if self.linkeduser else 'None')
+        return "<CustomFieldValue(customField={},value={})>".format(self.customField, self.value if self.value else self.linkedclient if self.linkedclient else self.linkedgroup if self.linkedgroup else self.linkeduser if self.linkeduser else 'None')

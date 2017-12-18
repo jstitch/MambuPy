@@ -24,8 +24,7 @@ class Role(Base):
                      }
 
     # Columns
-    encodedKey = Column(String) # this MUST be declared before primary_key
-    encodedkey = Column(String, primary_key=True)
+    encodedKey = Column(String, primary_key=True)
     name       = Column(String)
     users      = relationship('User', back_populates='role')
 
@@ -41,62 +40,41 @@ class User(Base):
                      }
 
     # Columns
-    encodedKey          = Column(String) # this MUST be declared before primary_key
-    encodedkey    = Column(String, primary_key=True)
+    encodedKey    = Column(String, primary_key=True)
     id            = Column(String, index=True, unique=True)
-    firstname     = Column(String)
-    lastname      = Column(String)
-    username      = Column(String)
-    creationdate  = Column(DateTime)
-    homephone     = Column(String)
-    mobilephone1  = Column(String)
-    email         = Column(String)
-    userstate     = Column(String)
-    iscreditofficer = Column(Integer)
-
-    # Relationships
-    assignedbranchkey = Column(String, ForeignKey(Branch.encodedkey))
-    branch            = relationship(Branch, back_populates='users')
-
-    role_encodedkey_oid = Column(String, ForeignKey(Role.encodedkey))
-    role                = relationship(Role, back_populates='users')
-
-    custominformation   = relationship('CustomFieldValue',
-                                       back_populates = 'user',
-                                       foreign_keys   = 'CustomFieldValue.parentkey',
-                                       primaryjoin    = 'CustomFieldValue.parentkey == User.encodedkey')
-    activities          = relationship('Activity',
-                                       primaryjoin    = 'User.encodedkey==Activity.userkey',
-                                       back_populates = 'user')
-    assignedactivities  = relationship('Activity',
-                                       primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
-                                       back_populates = 'assigneduser')
-    groups              = relationship('Group', back_populates = 'user')
-    loans               = relationship('LoanAccount', back_populates = 'user')
-
-    # redundant with same-as-RESTAPI-case
     firstName     = Column(String)
     lastName      = Column(String)
     userName      = Column(String)
-    creationDate  = Column(DateTime)
     homePhone     = Column(String)
     mobilePhone1  = Column(String)
     userState     = Column(String)
+    email         = Column(String)
+    creationDate  = Column(DateTime)
     isCreditOfficer = Column(Integer)
-    # redundant relationships camelCase
-    assignedBranchKey = Column(String)
-    role_encodedKey_oid = Column(String)
+
+    # Relationships
+    assignedBranchKey = Column(String, ForeignKey(Branch.encodedKey))
+    branch            = relationship(Branch, back_populates='users')
+
+    role_encodedKey_oid = Column(String, ForeignKey(Role.encodedKey))
+    role                = relationship(Role, back_populates='users')
+
     customInformation   = relationship('CustomFieldValue',
                                        back_populates = 'user',
-                                       foreign_keys   = 'CustomFieldValue.parentkey',
-                                       primaryjoin    = 'CustomFieldValue.parentkey == User.encodedkey')
+                                       foreign_keys   = 'CustomFieldValue.parentKey',
+                                       primaryjoin    = 'CustomFieldValue.parentKey == User.encodedKey')
+    activities          = relationship('Activity',
+                                       primaryjoin    = 'User.encodedKey==Activity.userKey',
+                                       back_populates = 'user')
     assignedActivities  = relationship('Activity',
-                                       primaryjoin    = 'User.encodedkey==Activity.assigneduserkey',
-                                       back_populates = 'assigneduser')
+                                       primaryjoin    = 'User.encodedKey==Activity.assignedUserKey',
+                                       back_populates = 'assignedUser')
+    groups              = relationship('Group', back_populates = 'user')
+    loans               = relationship('LoanAccount', back_populates = 'user')
 
     @property
     def name(self):
-        return "{} {}".format(self.firstname, self.lastname)
+        return "{} {}".format(self.firstName, self.lastName)
 
     def __repr__(self):
         return "<User(id={}, name={})>".format(self.id, self.name)

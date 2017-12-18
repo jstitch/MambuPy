@@ -26,13 +26,11 @@ class LoanProduct(Base):
                      }
 
     # Columns
-    encodedKey     = Column(String) # this MUST be declared before primary_key
-    encodedkey     = Column(String, primary_key=True)
-    id             = Column(String, index=True, unique=True)
-    productname    = Column(String)
-    productName    = Column(String) # redundant with same-as-RESTAPI-case
-    activated      = Column(Integer)
-    loans          = relationship('LoanAccount', back_populates='product')
+    encodedKey  = Column(String, primary_key=True)
+    id          = Column(String, index=True, unique=True)
+    productName = Column(String) # redundant with same-as-RESTAPI-case
+    activated   = Column(Integer)
+    loans       = relationship('LoanAccount', back_populates='product')
 
     def __repr__(self):
         return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
@@ -47,19 +45,13 @@ class DisbursementDetails(Base):
                                }
 
     # Columns
-    encodedKey               = Column(String) # this MUST be declared before primary_key
-    encodedkey               = Column(String, primary_key=True)
-    expecteddisbursementdate = Column(DateTime)
-    disbursementdate         = Column(DateTime)
-    firstrepaymentdate       = Column(DateTime)
-
-    # redundant with same-as-RESTAPI-case
+    encodedKey               = Column(String, primary_key=True)
     expectedDisbursementDate = Column(DateTime)
     disbursementDate         = Column(DateTime)
     firstRepaymentDate       = Column(DateTime)
 
     def __repr__(self):
-        return "<DisbursementDetails(disbursementdate=%s)>" % (self.disbursementdate)
+        return "<DisbursementDetails(disbursementDate=%s)>" % (self.disbursementDate)
 
 
 class LoanAccount(Base):
@@ -71,68 +63,12 @@ class LoanAccount(Base):
                              }
 
     # Columns
-    encodedKey             = Column(String) # this MUST be declared before primary_key
-    encodedkey             = Column(String, primary_key=True)
+    encodedKey             = Column(String, primary_key=True)
     id                     = Column(String, index=True, unique=True)
-    accountstate           = Column(String)
-    accountsubstate        = Column(String)
-    loanamount             = Column(Numeric(50,10))
-    notes                  = Column(String)
-    principalbalance       = Column(Numeric(50,10))
-    principalpaid          = Column(Numeric(50,10))
-    principaldue           = Column(Numeric(50,10))
-    interestbalance        = Column(Numeric(50,10))
-    interestpaid           = Column(Numeric(50,10))
-    interestdue            = Column(Numeric(50,10))
-    interestrate           = Column(Numeric(50,10))
-    interestcalculationmethod        = Column(String)
-    interestbalancecalculationmethod = Column(String)
-    repaymentinstallments  = Column(Integer)
-    repaymentperiodunit    = Column(String)
-    repaymentperiodcount   = Column(Integer)
-    accountholdertype      = Column(String)
-    feesbalance            = Column(Numeric(50,10))
-    feespaid               = Column(Numeric(50,10))
-    feesdue                = Column(Numeric(50,10))
-    penaltybalance         = Column(Numeric(50,10))
-    penaltypaid            = Column(Numeric(50,10))
-    penaltydue             = Column(Numeric(50,10))
-    creationdate           = Column(DateTime)
-    approveddate           = Column(DateTime)
-    closeddate             = Column(DateTime)
-    assignedcentrekey      = Column(String)
-    lastsettoarrearsdate   = Column(DateTime)
-
-    # Relationships
-    producttypekey         = Column(String, ForeignKey(LoanProduct.encodedkey))
-    product                = relationship('LoanProduct', back_populates='loans')
-    disbursementdetailskey = Column(String, ForeignKey(DisbursementDetails.encodedkey))
-    disbursementdetails    = relationship('DisbursementDetails')
-    assignedbranchkey      = Column(String, ForeignKey(Branch.encodedkey))
-    branch                 = relationship('Branch', back_populates = 'loans')
-    assigneduserkey        = Column(String, ForeignKey(User.encodedkey))
-    user                   = relationship('User', back_populates = 'loans')
-    accountholderkey       = Column(String)
-    holder_group           = relationship('Group',
-                                          back_populates = 'loans',
-                                          foreign_keys   = 'LoanAccount.accountholderkey',
-                                          primaryjoin    = 'LoanAccount.accountholderkey == Group.encodedkey')
-    holder_client          = relationship('Client',
-                                          back_populates = 'loans',
-                                          foreign_keys   = 'LoanAccount.accountholderkey',
-                                          primaryjoin    = 'LoanAccount.accountholderkey == Client.encodedkey')
-    custominformation      = relationship('CustomFieldValue',
-                                          back_populates = 'loan',
-                                          foreign_keys   = 'CustomFieldValue.parentkey',
-                                          primaryjoin    = 'CustomFieldValue.parentkey == LoanAccount.encodedkey')
-    activities             = relationship('Activity', back_populates='loan')
-    repayments             = relationship('Repayment', back_populates='account')
-    transactions           = relationship('LoanTransaction', back_populates='account')
-
-    # redundant with same-as-RESTAPI-case
     accountState           = Column(String)
-    accountSubstate        = Column(String) # redundant camelCase not in API
+    accountSubstate        = Column(String) # not in API
     loanAmount             = Column(Numeric(50,10))
+    notes                  = Column(String)
     principalBalance       = Column(Numeric(50,10))
     principalPaid          = Column(Numeric(50,10))
     principalDue           = Column(Numeric(50,10))
@@ -155,22 +91,37 @@ class LoanAccount(Base):
     creationDate           = Column(DateTime)
     approvedDate           = Column(DateTime)
     closedDate             = Column(DateTime)
-    assignedCentreKey      = Column(String) # redundant camelCase not in API
-    lastSetToArrearsDate   = Column(DateTime) # redundant camelCase not in API
-    # redundant relationships camelCase
-    productTypeKey         = Column(String)
-    disbursementDetailsKey = Column(String)
+    assignedCentreKey      = Column(String) # not in API
+    lastSetToArrearsDate   = Column(DateTime) # not in API
+
+    # Relationships
+    productTypeKey         = Column(String, ForeignKey(LoanProduct.encodedKey))
+    product                = relationship('LoanProduct', back_populates='loans')
+    disbursementDetailsKey = Column(String, ForeignKey(DisbursementDetails.encodedKey))
     disbursementDetails    = relationship('DisbursementDetails')
-    assignedBranchKey      = Column(String)
-    assignedUserKey        = Column(String)
+    assignedBranchKey      = Column(String, ForeignKey(Branch.encodedKey))
+    branch                 = relationship('Branch', back_populates = 'loans')
+    assignedUserKey        = Column(String, ForeignKey(User.encodedKey))
+    user                   = relationship('User', back_populates = 'loans')
     accountHolderKey       = Column(String)
+    holder_group           = relationship('Group',
+                                          back_populates = 'loans',
+                                          foreign_keys   = 'LoanAccount.accountHolderKey',
+                                          primaryjoin    = 'LoanAccount.accountHolderKey == Group.encodedKey')
+    holder_client          = relationship('Client',
+                                          back_populates = 'loans',
+                                          foreign_keys   = 'LoanAccount.accountHolderKey',
+                                          primaryjoin    = 'LoanAccount.accountHolderKey == Client.encodedKey')
     customInformation      = relationship('CustomFieldValue',
                                           back_populates = 'loan',
-                                          foreign_keys   = 'CustomFieldValue.parentkey',
-                                          primaryjoin    = 'CustomFieldValue.parentkey == LoanAccount.encodedkey')
+                                          foreign_keys   = 'CustomFieldValue.parentKey',
+                                          primaryjoin    = 'CustomFieldValue.parentKey == LoanAccount.encodedKey')
+    activities             = relationship('Activity', back_populates='loan')
+    repayments             = relationship('Repayment', back_populates='account')
+    transactions           = relationship('LoanTransaction', back_populates='account')
 
     def __repr__(self):
-        return "<LoanAccount(id=%s, accountstate=%s)>" % (self.id, self.accountstate)
+        return "<LoanAccount(id=%s, accountState=%s)>" % (self.id, self.accountState)
 
 
 class Repayment(Base):
@@ -182,26 +133,7 @@ class Repayment(Base):
                        }
 
     # Columns
-    # encodedKey MUST be declared before primary_key
-    encodedKey       = Column(String)
-    encodedkey       = Column(String, primary_key=True)
-    duedate          = Column(DateTime, index=True)
-    state            = Column(String, index=True)
-    principaldue     = Column(Numeric(50,10))
-    principalpaid    = Column(Numeric(50,10))
-    interestdue      = Column(Numeric(50,10))
-    interestpaid     = Column(Numeric(50,10))
-    feesdue          = Column(Numeric(50,10))
-    feespaid         = Column(Numeric(50,10))
-    penaltydue       = Column(Numeric(50,10))
-    penaltypaid      = Column(Numeric(50,10))
-
-    # Relationships
-    parentaccountkey = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account          = relationship('LoanAccount',
-                                    back_populates='repayments',
-                                    order_by='Repayment.duedate')
-    # redundant with same-as-RESTAPI-case
+    encodedKey       = Column(String, primary_key=True)
     dueDate          = Column(DateTime, index=True)
     principalDue     = Column(Numeric(50,10))
     principalPaid    = Column(Numeric(50,10))
@@ -212,11 +144,16 @@ class Repayment(Base):
     penaltyDue       = Column(Numeric(50,10))
     penaltyPaid      = Column(Numeric(50,10))
     repaidDate       = Column(DateTime)
-    # redundant relationships camelCase
-    parentAccountKey = Column(String)
+    state            = Column(String, index=True)
+
+    # Relationships
+    parentAccountKey = Column(String, ForeignKey(LoanAccount.encodedKey))
+    account          = relationship('LoanAccount',
+                                    back_populates='repayments',
+                                    order_by='Repayment.dueDate')
 
     def __repr__(self):
-        return "<Repayment(duedate=%s, state=%s,\naccount=%s)>" % (self.duedate.strftime('%Y%m%d'), self.state, self.account)
+        return "<Repayment(dueDate=%s, state=%s,\naccount=%s)>" % (self.dueDate.strftime('%Y%m%d'), self.state, self.account)
 
 
 class LoanTransaction(Base):
@@ -228,26 +165,7 @@ class LoanTransaction(Base):
                              }
 
     # Columns
-    encodedKey             = Column(String) # this MUST be declared before primary_key
-    encodedkey             = Column(String, primary_key=True)
-    transactionid          = Column(Integer, index=True)
-    amount                 = Column(Numeric(50,10))
-    creationdate           = Column(DateTime)
-    entrydate              = Column(DateTime)
-    type                   = Column(String)
-    principalamount        = Column(Numeric(50,10))
-    interestamount         = Column(Numeric(50,10))
-    feesamount             = Column(Numeric(50,10))
-    penaltyamount          = Column(Numeric(50,10))
-    reversaltransactionkey = Column(String)
-    comment                = Column(String)
-
-    # Relationships
-    parentaccountkey       = Column(String, ForeignKey(LoanAccount.encodedkey))
-    account                = relationship('LoanAccount',
-                                          back_populates='transactions',
-                                          order_by='LoanTransaction.transactionid')
-    # redundant with same-as-RESTAPI-case
+    encodedKey             = Column(String, primary_key=True)
     transactionId          = Column(Integer, index=True)
     creationDate           = Column(DateTime)
     entryDate              = Column(DateTime)
@@ -256,8 +174,15 @@ class LoanTransaction(Base):
     feesAmount             = Column(Numeric(50,10))
     penaltyAmount          = Column(Numeric(50,10))
     reversalTransactionKey = Column(String)
-    # redundant relationships camelCase
-    parentAccountKey       = Column(String)
+    amount                 = Column(Numeric(50,10))
+    type                   = Column(String)
+    comment                = Column(String)
+
+    # Relationships
+    parentAccountKey       = Column(String, ForeignKey(LoanAccount.encodedKey))
+    account                = relationship('LoanAccount',
+                                          back_populates='transactions',
+                                          order_by='LoanTransaction.transactionId')
 
     def __repr__(self):
-        return "<LoanTransaction(transactionid=%s, amount=%s, creationdate=%s, entrydate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionid, self.amount, self.creationdate.strftime('%Y%m%d'), self.entrydate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversaltransactionkey else "No", self.account)
+        return "<LoanTransaction(transactionId=%s, amount=%s, creationDate=%s, entryDate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionId, self.amount, self.creationDate.strftime('%Y%m%d'), self.entryDate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversalTransactionKey else "No", self.account)
