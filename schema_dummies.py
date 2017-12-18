@@ -122,7 +122,7 @@ iddoc  = make_dummy(IdentificationDocument())
 client = make_dummy(Client(),
                     relations={'branch'                  : (branch    , 'clients'),
                                'groups'                  : ([ group ] , 'clients'),
-                               'identificationdocuments' : ([ iddoc ] , 'client'),
+                               'identificationDocuments' : ([ iddoc ] , 'client'),
                               })
 
 # loan accounts
@@ -132,7 +132,7 @@ repayment           = make_dummy(Repayment())
 loantransaction     = make_dummy(LoanTransaction())
 loanaccount         = make_dummy(LoanAccount(),
                                  relations={'product'             : (loanproduct         , None),
-                                            'disbursementdetails' : (disbursementdetails , None),
+                                            'disbursementDetails' : (disbursementdetails , None),
                                             'branch'              : (branch              , None),
                                             'user'                : (user                , 'loans'),
                                             'holder_group'        : (group               , 'loans'),
@@ -144,12 +144,12 @@ loanaccount         = make_dummy(LoanAccount(),
 # custom fields
 custominformation = make_dummy(CustomField())
 customfieldvalue  = make_dummy(CustomFieldValue(),
-                               relations={'customfield' : (custominformation , 'customfieldvalues'),
-                                          'branch'      : (branch            , 'cusotminformation'),
-                                          'user'        : (user              , 'custominformation'),
-                                          'group'       : (group             , 'custominformation'),
-                                          'client'      : (client            , 'custominformation'),
-                                          'loan'        : (loanaccount       , 'custominformation'),
+                               relations={'customField' : (custominformation , 'customFieldValues'),
+                                          'branch'      : (branch            , 'customInformation'),
+                                          'user'        : (user              , 'customInformation'),
+                                          'group'       : (group             , 'customInformation'),
+                                          'client'      : (client            , 'customInformation'),
+                                          'loan'        : (loanaccount       , 'customInformation'),
                                          })
 
 # addresses
@@ -166,5 +166,5 @@ activity = make_dummy(Activity(),
                                  'client'       : (client      , 'activities'),
                                  'group'        : (group       , 'activities'),
                                  'user'         : (user        , 'activities'),
-                                 'assigneduser' : (user        , 'assignedactivities'),
+                                 'assignedUser' : (user        , 'assignedActivities'),
                                 })

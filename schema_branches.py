@@ -24,38 +24,28 @@ class Branch(Base):
                      }
 
     # Columns
-    encodedKey          = Column(String) # this MUST be declared before primary_key
-    encodedkey   = Column(String, primary_key=True)
+    encodedKey   = Column(String, primary_key=True)
     id           = Column(String, index=True, unique=True)
     name         = Column(String)
     notes        = Column(String)
-    phonenumber  = Column(String)
-    emailaddress = Column(String)
+    phoneNumber  = Column(String)
+    emailAddress = Column(String)
     state        = Column(String)
 
     # Relationships
     addresses         = relationship('Address',
                                      back_populates = 'branch',
-                                     foreign_keys   = 'Address.parentkey',
-                                     primaryjoin    = 'Address.parentkey == Branch.encodedkey')
-    custominformation = relationship('CustomFieldValue',
+                                     foreign_keys   = 'Address.parentKey',
+                                     primaryjoin    = 'Address.parentKey == Branch.encodedKey')
+    customInformation = relationship('CustomFieldValue',
                                      back_populates = 'branch',
-                                     foreign_keys   = 'CustomFieldValue.parentkey',
-                                     primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
+                                     foreign_keys   = 'CustomFieldValue.parentKey',
+                                     primaryjoin    = 'CustomFieldValue.parentKey == Branch.encodedKey')
     loans             = relationship('LoanAccount', back_populates='branch')
     activities        = relationship('Activity', back_populates='branch')
     clients           = relationship('Client', back_populates='branch')
     groups            = relationship('Group', back_populates='branch')
     users             = relationship('User', back_populates='branch')
-
-    # redundant with same-as-RESTAPI-case
-    phoneNumber  = Column(String)
-    emailAddress = Column(String)
-    # redundant relationships camelCase
-    customInformation = relationship('CustomFieldValue',
-                                     back_populates = 'branch',
-                                     foreign_keys   = 'CustomFieldValue.parentkey',
-                                     primaryjoin    = 'CustomFieldValue.parentkey == Branch.encodedkey')
 
     def __repr__(self):
         return "<Branch(id={}, name={})>".format(self.id, self.name)
