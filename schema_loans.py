@@ -144,6 +144,7 @@ class Repayment(Base):
     penaltyDue       = Column(Numeric(50,10))
     penaltyPaid      = Column(Numeric(50,10))
     repaidDate       = Column(DateTime)
+    lastPaidDate     = Column(DateTime)
     state            = Column(String, index=True)
 
     # Relationships
