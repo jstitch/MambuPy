@@ -51,12 +51,14 @@ class MambuCommError(MambuError):
 
 
 # Connects to DB
+from sqlalchemy import create_engine
 def connectDb(engine   = dbeng,
               user     = dbuser,
               password = dbpwd,
               host     = dbhost,
               port     = dbport,
               database = dbname,
+              params   = "?charset=utf8&use_unicode=1",
               echoopt  = False):
     """Connect to database utility function.
 
@@ -64,8 +66,7 @@ def connectDb(engine   = dbeng,
 
     Useful when using schema modules in MambuPy
     """
-    from sqlalchemy import create_engine
-    return create_engine('%s://%s:%s@%s:%s/%s' % (engine, user, password, host, port, database), echo=echoopt)
+    return create_engine('%s://%s:%s@%s:%s/%s%s' % (engine, user, password, host, port, database, params), echo=echoopt)
 
 
 def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):
@@ -608,22 +609,6 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
-from HTMLParser import HTMLParser
-class MLStripper(HTMLParser):
-    """Aux class for stripping HTML tags.
-
-    Note fields on several Mambu entities come with additional HTML tags
-    (they are rich text fields, I guess that's why). Sometimes they are
-    useless, so stripping them is a good idea.
-    """
-    def __init__(self):
-        self.reset()
-        self.fed = []
-    def handle_data(self, d):
-        self.fed.append(d)
-    def get_data(self):
-        return ''.join(self.fed)
-
 def strip_tags(html):
     """Stripts HTML tags from text.
 
@@ -631,12 +616,28 @@ def strip_tags(html):
     (they are rich text fields, I guess that's why). Sometimes they are
     useless, so stripping them is a good idea.
     """
+    from HTMLParser import HTMLParser
+    class MLStripper(HTMLParser):
+        """Aux class for stripping HTML tags.
+
+         fields on several Mambu entities come with additional HTML tags
+        (they are rich text fields, I guess that's why). Sometimes they are
+        useless, so stripping them is a good idea.
+        """
+        def __init__(self):
+            self.reset()
+            self.fed = []
+        def handle_data(self, d):
+            self.fed.append(d)
+        def get_data(self):
+            return ''.join(self.fed)
+
     s = MLStripper()
     s.feed(html.replace("&nbsp;"," "))
     return s.get_data()
 
 
-def strip_consecutive_repeated_char(s, ch, circ=True):
+def strip_consecutive_repeated_char(s, ch):
     """Strip characters in a string which are consecutively repeated.
 
     Useful when in notes or some other free text fields on Mambu, users
@@ -647,21 +648,13 @@ def strip_consecutive_repeated_char(s, ch, circ=True):
     """
     sdest = ""
     for i,c in enumerate(s):
-        if s[i] == ch and s[i] == s[i-1]:
+        if i != 0 and s[i] == ch and s[i] == s[i-1]:
             continue
         sdest += s[i]
     return sdest
 
 
-def urlEncodeNonAscii(b):
-    """Encode Non ASCII chars to URL-friendly chars.
-
-    Sometimes unicode gets in the way. A shame, I know. And perhaps the
-    biggest shame is not me correctly handling it.
-    """
-    import re
-    return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
-
+import urlparse
 def iriToUri(iri):
     """Change an IRI (internationalized R) to an URI.
 
@@ -674,8 +667,16 @@ def iriToUri(iri):
     MambuUser object with them, I get a BIG problem because of the
     unicode chars there. Using this I solved the problem.
     """
-    import urlparse
-    parts= urlparse.urlparse(iri)
+    def urlEncodeNonAscii(b):
+        """Encode Non ASCII chars to URL-friendly chars.
+
+        Sometimes unicode gets in the way. A shame, I know. And perhaps the
+        biggest shame is not me correctly handling it.
+        """
+        import re
+        return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
+
+    parts = urlparse.urlparse(iri)
     return urlparse.urlunparse(
         part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
         for parti, part in enumerate(parts)
@@ -688,7 +689,7 @@ def encoded_dict(in_dict):
     Useful for POSTing requests on the 'data' parameter of urlencode.
     """
     out_dict = {}
-    for k, v in in_dict.iteritems():
+    for k, v in in_dict.viewitems():
         if isinstance(v, unicode):
             v = v.encode('utf8')
         elif isinstance(v, str):
@@ -697,6 +698,9 @@ def encoded_dict(in_dict):
         out_dict[k] = v
     return out_dict
 
+
+from time import sleep
+from urllib import urlopen, urlencode
 def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     """Backup Mambu Database via REST API.
 
@@ -738,8 +742,6 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         -latest     boolean flag, if the db downloaded was the latest or not
     """
     from datetime import datetime
-    from time import sleep
-    from urllib import urlopen, urlencode
 
     try:
         verbose = kwargs['verbose']

@@ -4,4 +4,6 @@ python:
 install:
   - pip install requests
 script:
-  - python unit.py
+  - python unit_mambustruct.py
+  - python unit_mambuconfig.py
+  - python unit_mambuutil.py
