@@ -312,10 +312,7 @@ class MambuStruct(object):
             pass
         try:
             for propname,propval in kwargs['properties'].iteritems():
-                try:
-                    setattr(self,propname,propval)
-                except Exception:
-                    pass
+                setattr(self,propname,propval)
         except Exception:
             pass
 

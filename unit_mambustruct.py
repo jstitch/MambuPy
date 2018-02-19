@@ -255,12 +255,12 @@ class MambuStructTests(unittest.TestCase):
         """Dictionary-like keys method"""
         # when no attrs or not dict-like, raises NotImplementedError
         with self.assertRaises(NotImplementedError) as ex:
-            self.ms.has_key('bla')
+            self.ms.keys()
 
         json.loads.return_value = [1,2,3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
         with self.assertRaises(NotImplementedError) as ex:
-            ms.has_key('bla')
+            ms.keys()
 
         # when attrs dict-like, return what attrs.keys returns
         json.loads.return_value = {'hello':'goodbye'}
@@ -289,6 +289,8 @@ class MambuStructTests(unittest.TestCase):
     def test___init__(self):
         """Build MambuStruct object"""
         ms = mambustruct.MambuStruct(urlfunc=None, entid='12345')
+        self.assertEqual(getattr(ms, 'entid'), '12345')
+        ms = mambustruct.MambuStruct(urlfunc={}, entid='12345', connect=True)
         self.assertEqual(getattr(ms, 'entid'), '12345')
 
 
@@ -556,6 +558,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms.util_dateFormat(field=today.strftime("%Y-%m-%dT%H:%M:%S+0000"), formato="%Y%m%d").strftime("%Y%m%d"),
                          today.strftime("%Y%m%d"))
 
+        del(self.ms._MambuStruct__formatoFecha)
+        self.assertEqual(self.ms.util_dateFormat(field=today.strftime("%Y-%m-%dT%H:%M:%S+0000")).strftime("%Y%m%d%H%M%S"),
+                         today.strftime("%Y%m%d%H%M%S"))
+
     @mock.patch('mambustruct.iriToUri')
     @mock.patch('mambustruct.json')
     @mock.patch('mambustruct.requests')
@@ -809,6 +815,20 @@ class mambustructFunctionTests(unittest.TestCase):
         mambustruct.setCustomField(ms, customfield="field")
         self.assertEqual(type(ms.field), dict)
         self.assertEqual(ms.field['id'], 'client123')
+
+        # grouped custom field
+        json.loads.return_value = {'customFields':[{'customField' : {'state':'',
+                                                                     'name': 'field',
+                                                                     'dataType': 'STRING',
+                                                                    },
+                                                    'customFieldSetGroupIndex': 0,
+                                                    'value' : 'val'
+                                                    },
+                                                  ]}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
+                                     customFieldName = 'customFields')
+        mambustruct.setCustomField(ms, customfield="field_0")
+        self.assertEqual(ms.field_0, "val")
 
 
 class MambuStructIteratorTests(unittest.TestCase):
