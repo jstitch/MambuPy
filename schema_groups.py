@@ -11,7 +11,7 @@ import schema_clients
 
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
-from sqlalchemy import Column, String, DateTime, Numeric, Integer
+from sqlalchemy import Column, String, DateTime, Numeric, Integer, Text
 
 dbname = orm.dbname
 session = orm.session
@@ -33,6 +33,7 @@ class Group(Base):
     mobilePhone1 = Column(String)
     loanCycle    = Column(Integer)
     creationDate = Column(DateTime)
+    notes        = Column(Text)
 
     # Relationships
     assignedCentreKey = Column(String)
