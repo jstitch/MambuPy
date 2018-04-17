@@ -237,6 +237,17 @@ class MambuClient(MambuStruct):
 
         return requests
 
+    def setBranch(self, *args, **kwargs):
+        """Adds the branch to which the client belongs.
+        """
+        from mambubranch import MambuBranch
+
+        branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
+        self['assignedBranchName'] = branch['name']
+        self['assignedBranch'] = branch
+
+        return 1
+
 
 class MambuClients(MambuStruct):
     """A list of Clients from Mambu.
