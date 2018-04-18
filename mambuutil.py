@@ -515,8 +515,14 @@ def getproductsurl(idproduct, *args, **kwargs):
     url = getmambuurl(*args,**kwargs) + "loanproducts" + productidparam
     return url
 
-def gettasksurl(*args, **kwargs):
+def gettasksurl(dummyId='', *args, **kwargs):
     """Request Tasks URL.
+
+    dummyId is used because MambuStruct always requires an Id from an
+    entity, but the Mambu API doesn't requires it for Tasks, because of
+    that dummyId defaults to '', but in practice it is never used (if
+    someone sends dummyId='someId' nothing happens). The fact of forcing
+    to send an entid is a technical debt that should be payed.
 
     TODO: a MambuTask object to implement this. Currently you'll need to
     implement a urllib.urlopen call to use something like this. Not good!
