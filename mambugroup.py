@@ -125,7 +125,7 @@ behaviours are obsolete here
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getgroupurl
 
-
+# Other options include getgrouploansurl and getgroupcustominformationurl
 mod_urlfunc = getgroupurl
 
 class MambuGroup(MambuStruct):
@@ -173,7 +173,10 @@ class MambuGroup(MambuStruct):
         except Exception as e:
             self['notes'] = ""
 
-        self['name'] = self['groupName']
+        try:
+            self['name'] = self['groupName']
+        except KeyError:
+            pass
 
 
     def setClients(self, *args, **kwargs):
