@@ -242,6 +242,11 @@ class UrlFuncTests(unittest.TestCase):
 
     def test_gettasksurl(self):
         self.assertEqual(mambuutil.gettasksurl(), self.prefix + "/api/" + "tasks")
+        self.assertEqual(mambuutil.gettasksurl(username='auser'), self.prefix + "/api/" + "tasks?username=auser&status=OPEN")
+        self.assertEqual(mambuutil.gettasksurl(clientId='ABC123'), self.prefix + "/api/" + "tasks?clientid=ABC123&status=OPEN")
+        self.assertEqual(mambuutil.gettasksurl(groupId='XY890'), self.prefix + "/api/" + "tasks?groupid=XY890&status=OPEN")
+        self.assertEqual(mambuutil.gettasksurl(status='COMPLETED'), self.prefix + "/api/" + "tasks?status=COMPLETED")
+        self.assertEqual(mambuutil.gettasksurl(username='auser', clientId='ABC123', groupId='XY890', status='OVERDUE'), self.prefix + "/api/" + "tasks?username=auser&clientid=ABC123&groupid=XY890&status=OVERDUE")
 
     def test_getactivitiesurl(self):
         self.assertEqual(mambuutil.getactivitiesurl(), self.prefix + "/api/" + "activities")

@@ -524,15 +524,41 @@ def gettasksurl(dummyId='', *args, **kwargs):
     someone sends dummyId='someId' nothing happens). The fact of forcing
     to send an entid is a technical debt that should be payed.
 
-    TODO: a MambuTask object to implement this. Currently you'll need to
-    implement a urllib.urlopen call to use something like this. Not good!
+    Currently implemented filter parameters:
+    * username
+    * clientId
+    * groupId
+    * status
 
-    No current implemented filter parameters.
+    Mambu REST API defaults to open when status not provided. Here we
+    are just making that explicit always defaulting status to 'OPEN'
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
     """
-    url = getmambuurl(*args, **kwargs) + "tasks"
+    getparams = []
+    if kwargs:
+        try:
+            getparams.append("username=%s" % kwargs["username"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("clientid=%s" % kwargs["clientId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("groupid=%s" % kwargs["groupId"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("status=%s" % kwargs["status"])
+        except Exception as ex:
+            getparams.append("status=OPEN")
+
+    url = getmambuurl(*args,**kwargs) + "tasks" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
 def getactivitiesurl(dummyId='', *args, **kwargs):
