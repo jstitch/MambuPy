@@ -8,3 +8,4 @@ UnitTests:
     - python unit_mambustruct.py
     - python unit_mambuconfig.py
     - python unit_mambuutil.py
+    - python unit_mambutask.py
