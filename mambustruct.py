@@ -202,6 +202,8 @@ class MambuStruct(object):
         """
         try:
             return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+        except KeyError:
+            return self.__class__.__name__ + " (no standard entity)"
         except AttributeError:
             return self.__class__.__name__ + " - id: '%s' (not synced with Mambu)" % self.entid
         except TypeError:
@@ -400,9 +402,15 @@ class MambuStruct(object):
 
         try:
             self.__data=kwargs['data']
-            """POST data to be sent to Mambu for POST requests."""
+            """JSON data to be sent to Mambu for POST/PATCH requests."""
         except KeyError:
             self.__data=None
+
+        try:
+            self.__method=kwargs['method']
+            """REST method to use when calling connect"""
+        except KeyError:
+            self.__method="GET"
 
         try:
             self.__limit=kwargs['limit']
@@ -532,7 +540,10 @@ class MambuStruct(object):
                         headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
                         url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
-                        resp = requests.post(url, data=data, headers=headers)
+                        if self.__method=="PATCH":
+                            resp = requests.patch(url, data=data, headers=headers)
+                        else:
+                            resp = requests.post(url, data=data, headers=headers)
                     # GET
                     else:
                         url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
@@ -574,12 +585,13 @@ class MambuStruct(object):
                     self.__limit = self.__inilimit
 
         try:
-            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus'):
+            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus') and jsresp[u'returnCode'] != 0:
                 raise MambuError(jsresp[u'returnStatus'])
         except AttributeError:
             pass
 
-        self.init(attrs=jsresp, *args, **kwargs)
+        if self.__method != "PATCH":
+            self.init(attrs=jsresp, *args, **kwargs)
 
     def _process_fields(self):
         """Default info massage to appropiate format/style.

@@ -178,6 +178,10 @@ class UrlFuncTests(unittest.TestCase):
 
         self.assertEqual(mambuutil.getgrouploansurl(idgroup="XY890", anything="whatever"), self.prefix + "/api/" + "groups/XY890/loans")
 
+    def test_getgroupcustominformationurl(self):
+        self.assertEqual(mambuutil.getgroupcustominformationurl(idgroup="XY890"), self.prefix + "/api/"+ "groups/XY890/custominformation")
+        self.assertEqual(mambuutil.getgroupcustominformationurl(idgroup="XY890", customfield="bla"), self.prefix + "/api/"+ "groups/XY890/custominformation/bla")
+
     def test_gettransactionsurl(self):
         self.assertEqual(mambuutil.gettransactionsurl(idcred="12345"), self.prefix + "/api/" + "loans/12345/transactions")
         self.assertEqual(mambuutil.gettransactionsurl("12345"), self.prefix + "/api/" + "loans/12345/transactions")
@@ -205,6 +209,10 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.getclienturl(idclient="ABC123", fullDetails=True, state="INACTIVE", firstName="FULANA", lastName="DE TAL", idDocument="WXYZ098765MDFXYZ99", birthdate="1981-12-31", offset=2, limit=0), self.prefix + "/api/" + "clients/ABC123?fullDetails=true&firstName=FULANA&lastName=DE TAL&idDocument=WXYZ098765MDFXYZ99&birthdate=1981-12-31&state=INACTIVE&offset=2&limit=0")
 
         self.assertEqual(mambuutil.getclienturl(idclient="ABC123", anything="whatever"), self.prefix + "/api/" + "clients/ABC123")
+
+    def test_getgroupcustominformationurl(self):
+        self.assertEqual(mambuutil.getclientcustominformationurl(idclient="ABC123"), self.prefix + "/api/"+ "clients/ABC123/custominformation")
+        self.assertEqual(mambuutil.getclientcustominformationurl(idclient="ABC123", customfield="bla"), self.prefix + "/api/"+ "clients/ABC123/custominformation/bla")
 
     def test_getclientloansurl(self):
         self.assertEqual(mambuutil.getclientloansurl(idclient="ABC123"), self.prefix + "/api/" + "clients/ABC123/loans")

@@ -175,6 +175,11 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
         self.assertEqual(repr(ms), "MambuStruct - id: 12345")
 
+        # when attrs is a dict with no id
+        json.loads.return_value = {}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        self.assertEqual(repr(ms), "MambuStruct (no standard entity)")
+
         # when attrs is a list
         json.loads.return_value = [1,2,3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
@@ -470,6 +475,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=None, data=data)
         self.assertEqual(getattr(ms, '_MambuStruct__data'), data)
 
+        self.assertEqual(getattr(self.ms,'_MambuStruct__method'), "GET")
+        ms = mambustruct.MambuStruct(urlfunc=None, method="PATCH")
+        self.assertEqual(getattr(ms, '_MambuStruct__method'), "PATCH")
+
         self.assertEqual(getattr(self.ms,'_MambuStruct__limit'), 0)
         ms = mambustruct.MambuStruct(urlfunc=None, limit=123)
         self.assertEqual(getattr(ms, '_MambuStruct__limit'), 123)
@@ -690,8 +699,20 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.post.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data)
+        self.assertTrue(requests.post.called)
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
+
+        # PATCH data
+        data = {'data1':'value1'}
+        iriToUri.return_value = ""
+        json.dumps.return_value = data
+        requests.patch.return_value = mock.Mock()
+        json.loads.return_value = {'field1':'value1', 'field2':'value2'}
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, method="PATCH")
+        self.assertTrue(requests.patch.called)
+        self.assertIsNone(ms.connect())
+        self.assertEqual(getattr(ms, 'attrs', "Monty Python Flying Circus"), "Monty Python Flying Circus")
 
         # normal load with error
         iriToUri.return_value = ""

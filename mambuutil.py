@@ -296,7 +296,7 @@ def getgrouploansurl(idgroup, *args, **kwargs):
     haven't needed it for anything but for loans of one and just
     one group.
 
-    See mambuloan module and pydoc for further information.
+    See mambugroup module and pydoc for further information.
 
     Currently implemented filter parameters:
     * accountState
@@ -319,6 +319,18 @@ def getgrouploansurl(idgroup, *args, **kwargs):
             pass
     groupidparam = "/" + idgroup
     url = getmambuurl(*args,**kwargs) + "groups" + groupidparam  + "/loans" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getgroupcustominformationurl(idgroup, customfield="", *args, **kwargs):
+    """Request Group Custom Information URL.
+
+    See mambugroup module and pydoc for further information.
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    groupidparam = "/" + idgroup
+    url = getmambuurl(*args, **kwargs) + "groups" + groupidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
     return url
 
 def gettransactionsurl(idcred, *args, **kwargs):
@@ -456,6 +468,18 @@ def getclientloansurl(idclient, *args, **kwargs):
             pass
     clientidparam = "/" + idclient
     url = getmambuurl(*args,**kwargs) + "clients" + clientidparam  + "/loans" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getclientcustominformationurl(idclient, customfield="", *args, **kwargs):
+    """Request Client Custom Information URL.
+
+    See mambugroup module and pydoc for further information.
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    clientidparam = "/" + idclient
+    url = getmambuurl(*args, **kwargs) + "clients" + clientidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
     return url
 
 def getuserurl(iduser, *args, **kwargs):
