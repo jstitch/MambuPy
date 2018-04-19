@@ -85,13 +85,36 @@ class MambuUtilTests(unittest.TestCase):
             def __init__(self, code):
                 self.code = code
             def read(self):
-                return ""
+                return "hello world"
 
         mock_urlopen.return_value = response(code=200)
 
         d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test")
         self.assertEqual(d['callback'], 'da-callback')
         self.assertTrue(d['latest'])
+
+        d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : False, retries=1, output_fname="/tmp/out_test", force_download_latest=True)
+        self.assertEqual(d['callback'], 'da-callback')
+        self.assertFalse(d['latest'])
+
+        d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
+        self.assertEqual(d['callback'], 'da-callback')
+        self.assertTrue(d['latest'])
+
+        with self.assertRaisesRegexp(mambuutil.MambuError, r'Tired of waiting, giving up...') as e:
+            d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : False, retries=5, output_fname="/tmp/out_test", verbose=True)
+
+        mock_urlopen.return_value = response(code=404)
+        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error posting request for backup: hello world$') as e:
+            d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
+
+        mock_urlopen.side_effect = Exception("something wrong")
+        with self.assertRaisesRegexp(mambuutil.MambuError, r"Error requesting backup: Exception\('something wrong',\)") as e:
+            d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
+
+        mock_urlopen.side_effect = [response(code=200),response(code=404)]
+        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error getting database backup: hello world$') as e:
+            d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
 
 class UrlFuncTests(unittest.TestCase):

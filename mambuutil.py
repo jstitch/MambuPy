@@ -848,10 +848,12 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         if retries < 0: retries = -1
     if not retries:
         mess = "Tired of waiting, giving up..."
-        log.write(mess + "\n")
-        log.flush()
+        if verbose:
+            log.write(mess + "\n")
+            log.flush()
         if not force_download_latest:
-            log.close()
+            if verbose:
+                log.close()
             raise MambuError(mess)
         else:
             data['latest'] = False
