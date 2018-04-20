@@ -88,6 +88,10 @@ TODO comments for hackers are included at:
 * pydoc string at ``__init__.py``
 * pydoc strings all around the code
 
+#### Release Notes
+* v0.8 first release notes
+  - implementation of PATCH request method on MambuStruct
+  - implementation of MambuTask entity and MambuTasks iterable
 
 ### Author
 
