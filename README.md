@@ -48,7 +48,7 @@ Currently MambuPy works on Python 2.7
 You may install MambuPy by git-cloning this repository on your local
 environment and making it available anywhere on your ``PYTHONPATH``.
 
-You may also use ``pip install MambuPy`` but please consider that the
+You may also use ``pip install mambupy`` but please consider that the
 current configuration process doesn't works well with this kind of
 installation.
 
@@ -88,6 +88,10 @@ TODO comments for hackers are included at:
 * pydoc string at ``__init__.py``
 * pydoc strings all around the code
 
+#### Release Notes
+* v0.8 first release notes
+  - implementation of PATCH request method on MambuStruct
+  - implementation of MambuTask entity and MambuTasks iterable
 
 ### Author
 
