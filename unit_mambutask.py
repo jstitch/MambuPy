@@ -62,6 +62,31 @@ class MambuTaskTests(unittest.TestCase):
             t = mambutask.MambuTask(urlfunc=gettasksurl, data={"task":{'dueDate':date.today().strftime("%Y-%m-%d"), 'status':"OPEN"}})
             self.assertRegexpMatches(repr(t), r"^MambuTask - taskid: '', \d+-\d+-\d+, OPEN")
 
+    def test_close(self):
+        from datetime import date
+        from mambuutil import gettasksurl
+        def connect_mocked(task):
+            task.attrs['status']         = "COMPLETED"
+            task.attrs['completionDate'] = date.today()
+        def build_mock_task(self, *args, **kwargs):
+            self.attrs = {
+                'id'              : args[1],
+                'encodedKey'      : "",
+                'status'          : "OPEN",
+                'dueDate'         : date.today(),
+                'taskLinkType'    : "",
+                'taskLinkKey'     : "",
+                'title'           : "",
+                'description'     : "",
+                'assignedUserKey' : "",
+                }
+        with mock.patch.object(mambutask.MambuStruct, "__init__", build_mock_task) as mock_init, mock.patch.object(mambutask.MambuStruct, "connect", connect_mocked) as mock_connect:
+            t = mambutask.MambuTask(urlfunc=gettasksurl, entid="1")
+            self.assertRegexpMatches(repr(t), r"^MambuTask - taskid: '1'")
+            t.close()
+            self.assertEqual(t.attrs['status'], "COMPLETED")
+            self.assertEqual(t.attrs['completionDate'], date.today())
+
 
 class MambuTasksTests(unittest.TestCase):
     def test_class(self):

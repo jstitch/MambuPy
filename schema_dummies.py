@@ -61,6 +61,7 @@ def make_dummy(instance,
         'VARCHAR'         : varchar_default,
         'INTEGER'         : integer_default,
         'NUMERIC(50, 10)' : numeric_default,
+        'TEXT'            : varchar_default,
         }
 
     # the type of the instance is the SQLAlchemy Table

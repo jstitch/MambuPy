@@ -683,34 +683,43 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertFalse(json.loads.called)
 
         # normal load
+        requests.reset_mock()
         rc_cnt = ms.rc.cnt
-        iriToUri.return_value = ""
+        iriToUri.return_value = "http://example.com"
         requests.get.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
-        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset: "")
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", user="my_user", pwd="my_password")
+        requests.get.assert_called_with("http://example.com", auth=("my_user", "my_password"))
         self.assertEqual(ms.rc.cnt, rc_cnt+1)
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
 
         # POST data
+        requests.reset_mock()
         data = {'data1':'value1'}
-        iriToUri.return_value = ""
+        iriToUri.return_value = "http://example.com"
         json.dumps.return_value = data
         requests.post.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
-        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data)
-        self.assertTrue(requests.post.called)
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, user="my_user", pwd="my_password")
+        requests.post.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
 
+        from mambuutil import apiuser, apipwd
+        requests.reset_mock()
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data)
+        requests.post.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=(apiuser, apipwd))
+
         # PATCH data
+        requests.reset_mock()
         data = {'data1':'value1'}
-        iriToUri.return_value = ""
+        iriToUri.return_value = "http://example.com"
         json.dumps.return_value = data
         requests.patch.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
-        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, method="PATCH")
-        self.assertTrue(requests.patch.called)
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, method="PATCH", user="my_user", pwd="my_password")
+        requests.patch.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(getattr(ms, 'attrs', "Monty Python Flying Circus"), "Monty Python Flying Circus")
 

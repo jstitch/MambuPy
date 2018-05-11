@@ -27,7 +27,7 @@ REST API. It's a more abstract thing in fact. Also may refer to entities
 on a relational database but the term table is preferred in this case.
 """
 
-from mambuutil import MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
+from mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
 
 import requests
 import json
@@ -535,19 +535,23 @@ class MambuStruct(object):
             retries = 0
             while retries < MambuStruct.RETRIES:
                 try:
-                    # POST
+                    # Basic authentication
+                    user = kwargs.pop('user', apiuser)
+                    pwd = kwargs.pop('pwd', apipwd)
                     if self.__data:
                         headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
                         url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                    # PATCH
                         if self.__method=="PATCH":
-                            resp = requests.patch(url, data=data, headers=headers)
+                            resp = requests.patch(url, data=data, headers=headers, auth=(user, pwd))
+                    # POST
                         else:
-                            resp = requests.post(url, data=data, headers=headers)
+                            resp = requests.post(url, data=data, headers=headers, auth=(user, pwd))
                     # GET
                     else:
                         url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
-                        resp = requests.get(url)
+                        resp = requests.get(url, auth=(user, pwd))
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
