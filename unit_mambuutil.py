@@ -119,7 +119,7 @@ class MambuUtilTests(unittest.TestCase):
 
 class UrlFuncTests(unittest.TestCase):
     def setUp(self):
-        self.prefix = "https://mambu_api_user:mambu_api_password@domain.mambu.com"
+        self.prefix = "https://domain.mambu.com"
 
     def test_getmambuurl(self):
         self.assertEqual(mambuutil.getmambuurl(), self.prefix + "/api/")

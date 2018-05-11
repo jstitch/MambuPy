@@ -69,7 +69,7 @@ def connectDb(engine   = dbeng,
     return create_engine('%s://%s:%s@%s:%s/%s%s' % (engine, user, password, host, port, database, params), echo=echoopt)
 
 
-def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):
+def getmambuurl(url=apiurl, *args, **kwargs):
     """Basic Mambu URL function. Builds the Mambu basic request string.
 
     Receives a user, password and url arguments to connect to Mambu.
@@ -78,7 +78,7 @@ def getmambuurl(user=apiuser, pwd=apipwd, url=apiurl, *args, **kwargs):
     (for instance: MambuLoan(user=myuser, pwd=mypwd, url=myurl,
     entid='12345', ...)
     """
-    mambuurl = "https://" + user + ":" + pwd + "@" + url + "/api/"
+    mambuurl = "https://" + url + "/api/"
     return mambuurl
 
 ###*** Behold, the urlfuncs magic follows ***###
