@@ -64,6 +64,40 @@ class MambuTask(MambuStruct):
                     return self.__class__.__name__ + " - taskid: '%s'" % self['id']
 
 
+    def close(self, *args, **kwargs):
+        """"""
+        from datetime import datetime
+
+        data =  {
+            "task" : {
+                "status"          : "COMPLETED",
+                "completionDate"  : datetime.now().strftime("%Y-%m-%d"),
+                "encodedKey"      : self['encodedKey'],
+                "dueDate"         : self['dueDate'].strftime("%Y-%m-%d"),
+                "title"           : self['title'],
+                "description"     : self['description'],
+                "assignedUserKey" : self['assignedUserKey'],
+                }
+            }
+        try:
+            data['taskLinkType'] = self['taskLinkType']
+        except KeyError:
+            pass
+        try:
+            data['taskLinkKey'] = self['taskLinkKey']
+        except KeyError:
+            pass
+
+        self._MambuStruct__method  = "POST"
+        self._MambuStruct__urlfunc = gettasksurl
+        self._MambuStruct__data    = data
+        self.connect(*args, **kwargs)
+
+        self._MambuStruct__method  = "GET"
+        self._MambuStruct__urlfunc = None
+        self._MambuStruct__data    = None
+
+
 class MambuTasks(MambuStruct):
     """A list of Tasks from Mambu.
     """
