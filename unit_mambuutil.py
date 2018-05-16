@@ -72,9 +72,9 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(d2['b'], 'yes-utf')
         self.assertEqual(d2['c'], 'strange-char-ñ')
 
-    @mock.patch('mambuutil.urlopen')
+    @mock.patch('mambuutil.requests')
     @mock.patch('mambuutil.sleep')
-    def test_backup_db(self, mock_sleep, mock_urlopen):
+    def test_backup_db(self, mock_sleep, mock_requests):
         import os
         try:
             os.remove("/tmp/out_test")
@@ -82,12 +82,12 @@ class MambuUtilTests(unittest.TestCase):
             pass
 
         class response():
-            def __init__(self, code):
-                self.code = code
-            def read(self):
-                return "hello world"
+            def __init__(self, code, content):
+                self.status_code = code
+                self.content = content
 
-        mock_urlopen.return_value = response(code=200)
+        mock_requests.post.return_value = response(code=200, content="hello world")
+        mock_requests.get.return_value = response(code=200, content="hello world")
 
         d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test")
         self.assertEqual(d['callback'], 'da-callback')
@@ -104,16 +104,17 @@ class MambuUtilTests(unittest.TestCase):
         with self.assertRaisesRegexp(mambuutil.MambuError, r'Tired of waiting, giving up...') as e:
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : False, retries=5, output_fname="/tmp/out_test", verbose=True)
 
-        mock_urlopen.return_value = response(code=404)
-        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error posting request for backup: hello world$') as e:
+        mock_requests.post.return_value = response(code=404, content="hello world (not found)")
+        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error posting request for backup: hello world \(not found\)$') as e:
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
-        mock_urlopen.side_effect = Exception("something wrong")
+        mock_requests.post.side_effect = Exception("something wrong")
         with self.assertRaisesRegexp(mambuutil.MambuError, r"Error requesting backup: Exception\('something wrong',\)") as e:
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
-        mock_urlopen.side_effect = [response(code=200),response(code=404)]
-        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error getting database backup: hello world$') as e:
+        mock_requests.post.side_effect = [response(code=200, content="hello world")]
+        mock_requests.get.return_value = response(code=404, content="hello world (not found)")
+        with self.assertRaisesRegexp(mambuutil.MambuCommError, r'Error getting database backup: hello world \(not found\)$') as e:
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
 
