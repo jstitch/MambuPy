@@ -756,7 +756,7 @@ def encoded_dict(in_dict):
 
 
 from time import sleep
-from urllib import urlopen, urlencode
+import requests
 def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     """Backup Mambu Database via REST API.
 
@@ -817,13 +817,15 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         log.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + " - Mambu DB Backup\n")
         log.flush()
 
+    user = kwargs.pop('user', apiuser)
+    pwd = kwargs.pop('pwd', apipwd)
     data = {'callback' : callback}
     try:
         posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
         if verbose:
             log.write("open url: "+posturl+"\n")
             log.flush()
-        resp = urlopen(posturl, urlencode(encoded_dict(data)))
+        resp = requests.post(posturl, data=data, headers={'content-type': 'application/json'}, auth=(apiuser, apipwd))
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
         if verbose:
@@ -831,8 +833,8 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
             log.close()
         raise MambuError(mess)
 
-    if resp.code != 200:
-        mess = "Error posting request for backup: %s" % resp.read()
+    if resp.status_code != 200:
+        mess = "Error posting request for backup: %s" % resp.content
         if verbose:
             log.write(mess + "\n")
             log.close()
@@ -863,10 +865,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if verbose:
         log.write("open url: "+geturl+"\n")
         log.flush()
-    resp = urlopen(geturl)
+    resp = requests.get(geturl, auth=(apiuser, apipwd))
 
-    if resp.code != 200:
-        mess = "Error getting database backup: %s" % resp.read()
+    if resp.status_code != 200:
+        mess = "Error getting database backup: %s" % resp.content
         if verbose:
             log.write(mess + "\n")
             log.close()
@@ -876,7 +878,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         log.write("saving...\n")
         log.flush()
     with open(output_fname, "w") as fw:
-        fw.write(resp.read())
+        fw.write(resp.content)
 
     if verbose:
         log.write("DONE!\n")
