@@ -297,6 +297,11 @@ class UrlFuncTests(unittest.TestCase):
 
         self.assertEqual(mambuutil.getactivitiesurl(fromDate="2018-01-01", toDate="2018-01-31", branchId="CCCC", clientId="ABC123", centreId="CCCC", userId="j.doe", loanAccountId="12345", groupId="XYZ890", limit=0), self.prefix + "/api/" + "activities?from=2018-01-01&to=2018-01-31&branchID=CCCC&clientID=ABC123&centreID=CCCC&userID=j.doe&loanAccountID=12345&groupID=XYZ890&limit=0")
 
+    def test_getrolesurl(self):
+        self.assertEqual(mambuutil.getrolesurl(), self.prefix + "/api/" + "userroles")
+        self.assertEqual(mambuutil.getrolesurl("ABC123"), self.prefix + "/api/" + "userroles/ABC123")
+        self.assertEqual(mambuutil.getrolesurl(idrole="ABC123"), self.prefix + "/api/" + "userroles/ABC123")
+
 
 if __name__ == '__main__':
     unittest.main()
