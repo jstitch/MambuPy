@@ -89,9 +89,16 @@ TODO comments for hackers are included at:
 * pydoc strings all around the code
 
 #### Release Notes
-* v0.8 first release notes
+* v0.8 first release notes 2018-04-20
   - implementation of PATCH request method on MambuStruct
   - implementation of MambuTask entity and MambuTasks iterable
+  - v0.8.1 and v0.8.2 are identical to v0.8.1
+* v0.8.3 2018-05-22
+  - MambuStruct convertDict2Attrs constantFields added 'email'
+  - mambuuser unittests
+  - mamburoles module
+  - MambuUser setRoles() method
+  - MambuTask close() method
 
 ### Author
 
