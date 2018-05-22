@@ -662,6 +662,19 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
     url = getmambuurl(*args,**kwargs) + "activities" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
+def getrolesurl(idrole='', *args, **kwargs):
+    """Request Roles URL.
+
+    If idrole is set, you'll get a response adequate for a MambuRole
+    object.  If not set, you'll get a response adequate for a MambuRoles
+    object too.  See mamburoles module and pydoc for further
+    information.
+
+    See Mambu official developer documentation for further details.
+    """
+    url = getmambuurl(*args,**kwargs) + "userroles" + (("/" + idrole) if idrole else "")
+    return url
+
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
