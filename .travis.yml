@@ -10,3 +10,4 @@ script:
   - python unit_mambuutil.py
   - python unit_mambutask.py
   - python unit_mamburoles.py
+  - python unit_mambuuser.py

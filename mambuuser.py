@@ -47,6 +47,8 @@ behaviours are obsolete here
 
 from mambustruct import MambuStruct, MambuStructIterator
 from mambuutil import getuserurl
+from mambugroup import MambuGroups
+from mamburoles import MambuRole
 
 
 mod_urlfunc = getuserurl
@@ -91,10 +93,25 @@ class MambuUser(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambugroup import MambuGroups
-
         groups = MambuGroups(creditOfficerUsername=self['username'], *args, **kwargs)
         self['groups'] = groups
+
+        return 1
+
+
+    def setRoles(self, *args, **kwargs):
+        """Adds the role assigned to this user to a 'role' field.
+
+        Depends on the 'role' field that comes with a fullDetails=True
+        build of the MambuUser.
+
+        Returns the number of requests done to Mambu.
+        """
+        try:
+            role = MambuRole(entid=self['role']['encodedKey'], *args, **kwargs)
+        except KeyError:
+            return 0
+        self['role']['role'] = role
 
         return 1
 
