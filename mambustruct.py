@@ -743,8 +743,6 @@ class MambuStruct(object):
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
 
-import mambuuser
-import mambuclient
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
     something related to the value of the given field.
@@ -758,6 +756,8 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
 
     Returns the number of requests done to Mambu.
     """
+    import mambuuser
+    import mambuclient
     try:
         customFieldValue = mambuentity[customfield]
         datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if l['name'] == customfield ][0]

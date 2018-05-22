@@ -788,77 +788,79 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertEqual(len(ms.attrs), 3)
 
 
+import mambuuser
+import mambuclient
 class mambustructFunctionTests(unittest.TestCase):
     """mambustruct module Functions Tests"""
     def setUp(self):
         self.ms = mambustruct.MambuStruct(urlfunc=None)
 
-    @mock.patch('mambustruct.mambuuser')
-    @mock.patch('mambustruct.mambuclient')
     @mock.patch('mambustruct.iriToUri')
     @mock.patch('mambustruct.json')
     @mock.patch('mambustruct.requests')
-    def test_setCustomField(self, requests, json, iriToUri, mambuclient, mambuuser):
+    def test_setCustomField(self, requests, json, iriToUri):
         """Test setCustomField"""
-        mambuuser.MambuUser.return_value = {'id':'user123'}
-        mambuclient.MambuClient.return_value = {'id':'client123'}
-        # default case: any datatype
-        json.loads.return_value = {'customFields':[{'customField' : {'state':'',
-                                                                     'name': 'field',
-                                                                     'dataType': 'STRING',
-                                                                    },
-                                                    'customFieldSetGroupIndex': -1,
-                                                    'value' : 'val'
-                                                    },
-                                                  ]}
-        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
-                                     customFieldName = 'customFields')
-        mambustruct.setCustomField(ms, customfield="field")
-        self.assertEqual(ms.field, "val")
+        with mock.patch('mambuuser.MambuUser') as mock_mambuuser, mock.patch('mambuclient.MambuClient') as mock_mambuclient:
+            mock_mambuuser.return_value = {'id':'user123'}
+            mock_mambuclient.return_value = {'id':'client123'}
 
-        # user_link custom field
-        json.loads.return_value = {'customFields':[{'customField' : {'state':'',
-                                                                     'name': 'field',
-                                                                     'dataType': 'USER_LINK',
-                                                                    },
-                                                    'customFieldSetGroupIndex': -1,
-                                                    'value' : 'user123'
-                                                    },
-                                                  ]}
-        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
-                                     customFieldName = 'customFields')
-        mambustruct.setCustomField(ms, customfield="field")
-        self.assertEqual(type(ms.field), dict)
-        self.assertEqual(ms.field['id'], 'user123')
+            # default case: any datatype
+            json.loads.return_value = {'customFields':[{'customField' : {'state':'',
+                                                                         'name': 'field',
+                                                                         'dataType': 'STRING',
+                                                                        },
+                                                        'customFieldSetGroupIndex': -1,
+                                                        'value' : 'val'
+                                                       },
+                                                      ]}
+            ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
+                                         customFieldName = 'customFields')
+            mambustruct.setCustomField(ms, customfield="field")
+            self.assertEqual(ms.field, "val")
 
-        # client_link custom field
-        json.loads.return_value = {'customFields':[{'customField' : {'state':'',
-                                                                     'name': 'field',
-                                                                     'dataType': 'CLIENT_LINK',
-                                                                    },
-                                                    'customFieldSetGroupIndex': -1,
-                                                    'value' : 'client123'
-                                                    },
-                                                  ]}
-        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
-                                     customFieldName = 'customFields')
-        mambustruct.setCustomField(ms, customfield="field")
-        self.assertEqual(type(ms.field), dict)
-        self.assertEqual(ms.field['id'], 'client123')
+            # user_link custom field
+            json.loads.return_value = {'customFields':[{'customField' : {'state':'',
+                                                                         'name': 'field',
+                                                                         'dataType': 'USER_LINK',
+                                                                        },
+                                                        'customFieldSetGroupIndex': -1,
+                                                        'value' : 'user123'
+                                                       },
+                                                      ]}
+            ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
+                                         customFieldName = 'customFields')
+            mambustruct.setCustomField(ms, customfield="field")
+            self.assertEqual(type(ms.field), dict)
+            self.assertEqual(ms.field['id'], 'user123')
 
-        # grouped custom field
-        json.loads.return_value = {'customFields':[{'customField' : {'state':'',
-                                                                     'name': 'field',
-                                                                     'dataType': 'STRING',
-                                                                    },
-                                                    'customFieldSetGroupIndex': 0,
-                                                    'value' : 'val'
-                                                    },
-                                                  ]}
-        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
-                                     customFieldName = 'customFields')
-        mambustruct.setCustomField(ms, customfield="field_0")
-        self.assertEqual(ms.field_0, "val")
+            # client_link custom field
+            json.loads.return_value = {'customFields':[{'customField' : {'state':'',
+                                                                         'name': 'field',
+                                                                         'dataType': 'CLIENT_LINK',
+                                                                        },
+                                                        'customFieldSetGroupIndex': -1,
+                                                        'value' : 'client123'
+                                                       },
+                                                      ]}
+            ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
+                                         customFieldName = 'customFields')
+            mambustruct.setCustomField(ms, customfield="field")
+            self.assertEqual(type(ms.field), dict)
+            self.assertEqual(ms.field['id'], 'client123')
+
+            # grouped custom field
+            json.loads.return_value = {'customFields':[{'customField' : {'state':'',
+                                                                         'name': 'field',
+                                                                         'dataType': 'STRING',
+                                                                        },
+                                                        'customFieldSetGroupIndex': 0,
+                                                        'value' : 'val'
+                                                       },
+                                                      ]}
+            ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
+                                         customFieldName = 'customFields')
+            mambustruct.setCustomField(ms, customfield="field_0")
+            self.assertEqual(ms.field_0, "val")
 
 
 class MambuStructIteratorTests(unittest.TestCase):
