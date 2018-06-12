@@ -631,13 +631,18 @@ class MambuStruct(object):
                     self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
                     for custom in self[self.customFieldName]:
                         field_name = custom['customField']['name']
+                        field_id = custom['customField']['id']
                         if custom['customFieldSetGroupIndex'] != -1:
                             field_name += '_'+str(custom['customFieldSetGroupIndex'])
+                            field_id += '_'+str(custom['customFieldSetGroupIndex'])
                         custom['name'] = field_name
+                        custom['id'] = field_id
                         try:
                             self[field_name] = custom['value']
+                            self[field_id] = custom['value']
                         except KeyError:
                             self[field_name] = custom['linkedEntityKeyValue']
+                            self[field_id] = custom['linkedEntityKeyValue']
                             custom['value']  = custom['linkedEntityKeyValue']
             # in case you don't have any customFieldName, don't do anything here
             except (AttributeError, TypeError):
@@ -760,13 +765,15 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
     import mambuclient
     try:
         customFieldValue = mambuentity[customfield]
-        datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if l['name'] == customfield ][0]
+        # find the dataType customfield by name or id
+        datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if (l['name'] == customfield or l['id'] == customfield) ][0]
     except IndexError as ierr:
     # if no customfield found with the given name, assume it is a
     # grouped custom field, name must have an index suffix that must
     # be removed
         try:
-            datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if l['name'] == customfield.split('_')[0] ][0]
+            # find the dataType customfield by name or id
+            datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if (l['name'] == customfield.split('_')[0] or l['id'] == customfield.split('_')[0]) ][0]
         except IndexError:
             err = MambuError("Object %s has no custom field '%s'" % (mambuentity['id'], customfield))
             raise err

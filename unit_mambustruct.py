@@ -503,6 +503,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         # instead of buried down on the customFields property
         json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                      'name': 'field',
+                                                                     'id': 'fieldid',
                                                                     },
                                                     'customFieldSetGroupIndex': -1,
                                                     'value' : 'val'
@@ -511,18 +512,21 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
                                      customFieldName='customFields')
         self.assertEqual(ms.field, 'val')
+        self.assertEqual(ms.fieldid, 'val')
 
         # setGroupindex allows custom fields to be part of a list of
         # indexed custom fields. This sets are then named with an
         # index as a way to allow counting them.
         json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                      'name': 'field',
+                                                                     'id': 'fieldid',
                                                                     },
                                                     'customFieldSetGroupIndex': 0,
                                                     'value' : 'val0'
                                                     },
                                                     {'customField' : {'state':'',
                                                                      'name': 'field',
+                                                                     'id': 'fieldid',
                                                                     },
                                                     'customFieldSetGroupIndex': 1,
                                                     'value' : 'val1'
@@ -532,12 +536,15 @@ class MambuStructMethodsTests(unittest.TestCase):
                                      customFieldName='customFields')
         self.assertEqual(ms.field_0, 'val0')
         self.assertEqual(ms.field_1, 'val1')
+        self.assertEqual(ms.fieldid_0, 'val0')
+        self.assertEqual(ms.fieldid_1, 'val1')
 
         # linkedEntityKeyValue creates a 'value' key with the value of
         # the entity key, an entity key is a pointer to some enttity
         # on Mambu, it's value is its encodingKey
         json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                      'name': 'field',
+                                                                     'id': 'fieldid',
                                                                     },
                                                     'customFieldSetGroupIndex': -1,
                                                     'linkedEntityKeyValue' : 'abc123'
@@ -546,6 +553,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset, *args, **kwargs : "",
                                      customFieldName='customFields')
         self.assertEqual(ms.field, 'abc123')
+        self.assertEqual(ms.fieldid, 'abc123')
         self.assertEqual(ms.customFields[0]['value'], 'abc123')
 
     @mock.patch('mambustruct.iriToUri')
@@ -807,6 +815,7 @@ class mambustructFunctionTests(unittest.TestCase):
             # default case: any datatype
             json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                          'name': 'field',
+                                                                         'id': 'fieldid',
                                                                          'dataType': 'STRING',
                                                                         },
                                                         'customFieldSetGroupIndex': -1,
@@ -817,10 +826,13 @@ class mambustructFunctionTests(unittest.TestCase):
                                          customFieldName = 'customFields')
             mambustruct.setCustomField(ms, customfield="field")
             self.assertEqual(ms.field, "val")
+            mambustruct.setCustomField(ms, customfield="fieldid")
+            self.assertEqual(ms.fieldid, "val")
 
             # user_link custom field
             json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                          'name': 'field',
+                                                                         'id': 'fieldid',
                                                                          'dataType': 'USER_LINK',
                                                                         },
                                                         'customFieldSetGroupIndex': -1,
@@ -832,10 +844,14 @@ class mambustructFunctionTests(unittest.TestCase):
             mambustruct.setCustomField(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
             self.assertEqual(ms.field['id'], 'user123')
+            mambustruct.setCustomField(ms, customfield="fieldid")
+            self.assertEqual(type(ms.fieldid), dict)
+            self.assertEqual(ms.fieldid['id'], 'user123')
 
             # client_link custom field
             json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                          'name': 'field',
+                                                                         'id': 'fieldid',
                                                                          'dataType': 'CLIENT_LINK',
                                                                         },
                                                         'customFieldSetGroupIndex': -1,
@@ -847,10 +863,14 @@ class mambustructFunctionTests(unittest.TestCase):
             mambustruct.setCustomField(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
             self.assertEqual(ms.field['id'], 'client123')
+            mambustruct.setCustomField(ms, customfield="fieldid")
+            self.assertEqual(type(ms.fieldid), dict)
+            self.assertEqual(ms.fieldid['id'], 'client123')
 
             # grouped custom field
             json.loads.return_value = {'customFields':[{'customField' : {'state':'',
                                                                          'name': 'field',
+                                                                         'id': 'fieldid',
                                                                          'dataType': 'STRING',
                                                                         },
                                                         'customFieldSetGroupIndex': 0,
@@ -861,6 +881,8 @@ class mambustructFunctionTests(unittest.TestCase):
                                          customFieldName = 'customFields')
             mambustruct.setCustomField(ms, customfield="field_0")
             self.assertEqual(ms.field_0, "val")
+            mambustruct.setCustomField(ms, customfield="fieldid_0")
+            self.assertEqual(ms.fieldid_0, "val")
 
 
 class MambuStructIteratorTests(unittest.TestCase):
