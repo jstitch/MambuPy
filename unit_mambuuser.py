@@ -83,6 +83,19 @@ class MambuUserTests(unittest.TestCase):
             self.assertEqual(u.setRoles(), 0)
             self.assertFalse(mock_mamburole.called)
 
+    @mock.patch("mambuuser.MambuStruct.create")
+    def test_create(self, mock_super_create):
+        """Test create"""
+        attrs = {"user":{"user":"moreData"}, "customInformation":[{"linkedEntityKeyValue":"userLink","customFieldSetGroupIndex":0,"customId":"id", "customValue":"value", "customField":{"state":"ACTIVE", "name":"customFieldX", "id":"customFieldID"}}]}
+        u = mambuuser.MambuUser(connect=False)
+        u.attrs = attrs
+
+        self.assertEqual(u.create({}), None)
+        self.assertEqual(u._MambuStruct__method, "GET")
+        self.assertEqual(u._MambuStruct__data, None)
+        self.assertTrue(u._MambuStruct__urlfunc)
+        self.assertTrue(u.customFields)
+
 
 class MambuUsersTests(unittest.TestCase):
     def test_class(self):

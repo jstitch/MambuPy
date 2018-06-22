@@ -116,6 +116,14 @@ class MambuUser(MambuStruct):
         return 1
 
 
+    def create(self, data, *args, **kwargs):
+        """
+        """
+        super(MambuUser, self).create(data)
+        self['user'][self.customFieldName] = self['customInformation']
+        self.init(attrs=self['user'])
+
+
 class MambuUsers(MambuStruct):
     """A list of Users from Mambu.
 
