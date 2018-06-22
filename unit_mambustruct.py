@@ -669,6 +669,32 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(serial['att1'],{'att1':'1','att2':'1.23'})
         self.assertEqual(serial['att2'],'001')
 
+    @mock.patch('mambustruct.iriToUri')
+    @mock.patch('mambustruct.json')
+    @mock.patch('mambustruct.requests')
+    def test_create(self, requests, json, iriToUri):
+        """Test create"""
+        # inside __init__ if urlfunc is None connect is False
+        ms = mambustruct.MambuStruct(connect=False, urlfunc=lambda entid, limit, offset : "")
+        data = {"user":{"user":"moreData"}, "customInformation":["customFields"]}
+        iriToUri.return_value = "http://example.com"
+        requests.post.return_value = mock.Mock()
+        responsePOST = {"user":{"user":"moreData"}, "customInformation":[{"customId":"id", "customValue":"value"}]}
+        json.loads.return_value = responsePOST
+
+        self.assertEqual(ms.create(data), None)
+        self.assertEqual(ms.attrs, responsePOST)
+        self.assertEqual(ms.keys(), responsePOST.keys())
+
+        # if the class who call method create is direfent who implemented it
+        ms.create.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
+            ms.create(data)
+
+        self.assertEqual(ms._MambuStruct__method, "GET")
+        self.assertEqual(ms._MambuStruct__data, None)
+        self.assertTrue(ms._MambuStruct__urlfunc)
+
 
 class MambuStructConnectTests(unittest.TestCase):
     """MambuStruct Connect Tests"""
