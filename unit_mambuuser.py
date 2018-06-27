@@ -83,6 +83,24 @@ class MambuUserTests(unittest.TestCase):
             self.assertEqual(u.setRoles(), 0)
             self.assertFalse(mock_mamburole.called)
 
+    @mock.patch("mambuuser.MambuStruct.create")
+    def test_create(self, mock_super_create):
+        """Test create"""
+        attrs = {"user":{"user":"moreData"}, "customInformation":[{"linkedEntityKeyValue":"userLink","customFieldSetGroupIndex":0,"customId":"id", "customValue":"value", "customField":{"state":"ACTIVE", "name":"customFieldX", "id":"customFieldID"}}]}
+        u = mambuuser.MambuUser(connect=False)
+        u.attrs = attrs
+
+        data = {"dataDummy":"dataDummy"}
+        # before init() method is called inside create() the attribute
+        # u[u.customFieldName] not exists
+        with self.assertRaisesRegexp(KeyError, r"^'%s'"%(u.customFieldName)) as ex:
+            self.assertTrue(u[u.customFieldName])
+        self.assertEqual(u.create(data), None)
+        mock_super_create.assert_called_with(data)
+        # after init() method is called inside create() the attribute
+        # u[u.customFieldName] is created
+        self.assertTrue(u[u.customFieldName])
+
 
 class MambuUsersTests(unittest.TestCase):
     def test_class(self):

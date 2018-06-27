@@ -747,6 +747,27 @@ class MambuStruct(object):
                 formato = "%Y-%m-%dT%H:%M:%S+0000"
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
+    def create(self, data, *args, **kwargs):
+        """Creates an entity in Mambu
+
+        This method must be implemented in child classes
+
+        Parameters
+        -data       dictionary with data to send, this dictionary is specific
+                    for each Mambu entity
+
+        """
+        # if module of the function is diferent from the module of the object
+        # that means create is not implemented in child class
+        if self.create.__func__.__module__ != self.__module__:
+            raise Exception("Child method not implemented")
+
+        self._MambuStruct__method  = "POST"
+        self._MambuStruct__data    = data
+        self.connect(*args, **kwargs)
+        self._MambuStruct__method  = "GET"
+        self._MambuStruct__data    = None
+
 
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
