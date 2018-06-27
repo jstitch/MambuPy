@@ -748,7 +748,14 @@ class MambuStruct(object):
         return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
 
     def create(self, data, *args, **kwargs):
-        """
+        """Creates an entity in Mambu
+
+        This method must be implemented in child classes
+
+        Parameters
+        -data       dictionary with data to send, this dictionary is specific
+                    for each Mambu entity
+
         """
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
