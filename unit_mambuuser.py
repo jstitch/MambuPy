@@ -90,11 +90,16 @@ class MambuUserTests(unittest.TestCase):
         u = mambuuser.MambuUser(connect=False)
         u.attrs = attrs
 
-        self.assertEqual(u.create({}), None)
-        self.assertEqual(u._MambuStruct__method, "GET")
-        self.assertEqual(u._MambuStruct__data, None)
-        self.assertTrue(u._MambuStruct__urlfunc)
-        self.assertTrue(u.customFields)
+        data = {"dataDummy":"dataDummy"}
+        # before init() method is called inside create() the attribute
+        # u[u.customFieldName] not exists
+        with self.assertRaisesRegexp(KeyError, r"^'%s'"%(u.customFieldName)) as ex:
+            self.assertTrue(u[u.customFieldName])
+        self.assertEqual(u.create(data), None)
+        mock_super_create.assert_called_with(data)
+        # after init() method is called inside create() the attribute
+        # u[u.customFieldName] is created
+        self.assertTrue(u[u.customFieldName])
 
 
 class MambuUsersTests(unittest.TestCase):
