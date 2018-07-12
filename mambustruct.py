@@ -143,6 +143,13 @@ class MambuStruct(object):
         """Dict-like del key"""
         del self.attrs[key]
 
+    def __hash__(self):
+        """Hash of the object"""
+        try:
+            return hash(self.id)
+        except:
+            return hash(self.__repr__())
+
     def __getattribute__(self, name):
         """Object-like get attribute
 

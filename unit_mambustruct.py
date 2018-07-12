@@ -145,6 +145,18 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch('mambustruct.iriToUri')
     @mock.patch('mambustruct.json')
     @mock.patch('mambustruct.requests')
+    def test__hash__(self, requests, json, iriToUri):
+        json.loads.return_value = {'hello':'goodbye'}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        self.assertEqual(ms.__hash__(), hash(repr(ms)))
+
+        json.loads.return_value = {'id':'12345'}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "abcd")
+        self.assertEqual(ms.__hash__(), hash(ms.id))
+
+    @mock.patch('mambustruct.iriToUri')
+    @mock.patch('mambustruct.json')
+    @mock.patch('mambustruct.requests')
     def test___str__(self, requests, json, iriToUri):
         """String representation of MambuStruct"""
         # when urlfunc is None, or not connected yet connected to Mambu
