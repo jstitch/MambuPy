@@ -1,0 +1,6 @@
+*~
+*.pyc
+_autosummary/
+_build/
+dist/
+MambuPy.egg-info/

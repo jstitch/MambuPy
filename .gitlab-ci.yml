@@ -5,6 +5,7 @@ before_script:
 
 UnitTests:
   script:
+    - cd MambuPy
     - python unit_mambustruct.py
     - python unit_mambuconfig.py
     - python unit_mambuutil.py
