@@ -13,7 +13,7 @@ from MambuPy import __version__
 def readme():
     """print long description"""
     import m2r
-    with open('MambuPy/README.md') as f:
+    with open('README.md') as f:
         return m2r.convert(f.read())
 
 
