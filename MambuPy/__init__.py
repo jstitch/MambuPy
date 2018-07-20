@@ -105,5 +105,5 @@ TODOS
 .. todo:: Please also read the TODO file for more suggestions
 """
 
-__version__ = "0.8.4"
+__version__ = "0.8.4.1"
 """The version of this module."""
