@@ -17,7 +17,7 @@ Uses mambuutil.getgroupurl as default urlfunc
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getgroupurl
+from ..mambuutil import getgroupurl
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
 mod_urlfunc = getgroupurl

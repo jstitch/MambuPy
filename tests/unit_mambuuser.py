@@ -1,13 +1,17 @@
 # coding: utf-8
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 import mock
 import unittest
 
-import mambuuser
+from MambuPy.rest import mambuuser
 
 class MambuUserTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from mambuutil import getuserurl
+        from MambuPy.mambuutil import getuserurl
         self.assertEqual(mambuuser.mod_urlfunc, getuserurl)
 
     def test_class(self):
@@ -18,9 +22,9 @@ class MambuUserTests(unittest.TestCase):
         u = mambuuser.MambuUser(urlfunc=None, entid="anything")
         self.assertEqual(u.entid, "anything")
 
-    @mock.patch("mambuuser.MambuStruct.preprocess")
+    @mock.patch("MambuPy.rest.mambuuser.MambuStruct.preprocess")
     def test_preprocess(self, mock_super_preprocess):
-        from mambuutil import getuserurl
+        from MambuPy.mambuutil import getuserurl
         def build_mock_user(self, *args, **kwargs):
             self.attrs = {
                 'username'  : args[1],
@@ -45,9 +49,9 @@ class MambuUserTests(unittest.TestCase):
             self.assertEqual(u.lastName, '')
             self.assertEqual(u.name, ' ')
 
-    @mock.patch("mambuuser.MambuGroups")
+    @mock.patch("MambuPy.rest.mambuuser.MambuGroups")
     def test_setGroups(self, mock_mambugroups):
-        from mambuutil import getuserurl
+        from MambuPy.mambuutil import getuserurl
         def build_mock_user(self, *args, **kwargs):
             self.attrs = {
                 'username'  : args[1],
@@ -60,9 +64,9 @@ class MambuUserTests(unittest.TestCase):
             mock_mambugroups.assert_called_with(creditOfficerUsername="jstitch")
             self.assertEqual(u.groups, {'id':"mock_group"})
 
-    @mock.patch("mambuuser.MambuRole")
+    @mock.patch("MambuPy.rest.mambuuser.MambuRole")
     def test_setRole(self, mock_mamburole):
-        from mambuutil import getuserurl
+        from MambuPy.mambuutil import getuserurl
         def build_mock_user(self, *args, **kwargs):
             self.attrs = {
                 'username'  : args[1],
@@ -83,7 +87,7 @@ class MambuUserTests(unittest.TestCase):
             self.assertEqual(u.setRoles(), 0)
             self.assertFalse(mock_mamburole.called)
 
-    @mock.patch("mambuuser.MambuStruct.create")
+    @mock.patch("MambuPy.rest.mambuuser.MambuStruct.create")
     def test_create(self, mock_super_create):
         """Test create"""
         attrs = {"user":{"user":"moreData"}, "customInformation":[{"linkedEntityKeyValue":"userLink","customFieldSetGroupIndex":0,"customId":"id", "customValue":"value", "customField":{"state":"ACTIVE", "name":"customFieldX", "id":"customFieldID"}}]}

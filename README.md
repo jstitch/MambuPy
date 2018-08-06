@@ -100,6 +100,8 @@ TODO comments for hackers are included at:
   - MambuTask close() method
 * v0.8.4 2018-07-18
   - Sphinx documentation and ReadTheDocs site
+* v0.9.0 2018-08-06
+  - reallocation of modules in packages according to functionality
 
 ### Author
 

@@ -1,13 +1,17 @@
 # coding: utf-8
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 import mock
 import unittest
 
-import mamburoles
+from MambuPy.rest import mamburoles
 
 class MambuRoleTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from mambuutil import getrolesurl
+        from MambuPy.mambuutil import getrolesurl
         self.assertEqual(mamburoles.mod_urlfunc, getrolesurl)
 
     def test_class(self):
@@ -20,7 +24,7 @@ class MambuRoleTests(unittest.TestCase):
 
     def test___repr__(self):
         from datetime import date
-        from mambuutil import getrolesurl
+        from MambuPy.mambuutil import getrolesurl
         def build_mock_role_1(self, *args, **kwargs):
             self.attrs = {
                 'name' : args[1]

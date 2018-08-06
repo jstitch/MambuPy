@@ -36,7 +36,7 @@ Some basic definitions:
   relational database but the term table is preferred in this case.
 """
 
-from mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
+from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
 
 import requests
 import json

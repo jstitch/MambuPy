@@ -1,13 +1,17 @@
 # coding: utf-8
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 import mock
 import unittest
 
-import mambutask
+from MambuPy.rest import mambutask
 
 class MambuTaskTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from mambuutil import gettasksurl
+        from MambuPy.mambuutil import gettasksurl
         self.assertEqual(mambutask.mod_urlfunc, gettasksurl)
 
     def test_class(self):
@@ -20,7 +24,7 @@ class MambuTaskTests(unittest.TestCase):
 
     def test___repr__(self):
         from datetime import date
-        from mambuutil import gettasksurl
+        from MambuPy.mambuutil import gettasksurl
         def build_mock_task_1(self, *args, **kwargs):
             self.attrs = {
                 "task" : {
@@ -64,7 +68,7 @@ class MambuTaskTests(unittest.TestCase):
 
     def test_close(self):
         from datetime import date
-        from mambuutil import gettasksurl
+        from MambuPy.mambuutil import gettasksurl
         def connect_mocked(task):
             task.attrs['status']         = "COMPLETED"
             task.attrs['completionDate'] = date.today()

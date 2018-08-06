@@ -1,10 +1,14 @@
 # coding: utf-8
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 import mock
 import unittest
 from datetime import datetime
 
-import mambuutil
+from MambuPy import mambuutil
 
 
 class MambuUtilTests(unittest.TestCase):
@@ -24,7 +28,7 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(mambuutil.MambuError.__bases__, (Exception,))
         self.assertEqual(mambuutil.MambuCommError.__bases__, (mambuutil.MambuError,))
 
-    @mock.patch("mambuutil.create_engine")
+    @mock.patch("MambuPy.mambuutil.create_engine")
     def test_connectDB(self, mock_create_engine):
         mock_create_engine.return_value = "test_connectDB"
         en = mambuutil.connectDb()
@@ -72,8 +76,8 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(d2['b'], 'yes-utf')
         self.assertEqual(d2['c'], 'strange-char-ñ')
 
-    @mock.patch('mambuutil.requests')
-    @mock.patch('mambuutil.sleep')
+    @mock.patch('MambuPy.mambuutil.requests')
+    @mock.patch('MambuPy.mambuutil.sleep')
     def test_backup_db(self, mock_sleep, mock_requests):
         import os
         try:

@@ -2,5 +2,6 @@
 *.pyc
 _autosummary/
 _build/
+build/
 dist/
 MambuPy.egg-info/

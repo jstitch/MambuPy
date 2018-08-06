@@ -20,7 +20,7 @@ Loan ID as the entid argument in the constructor in that case).
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getloansurl, MambuError, strip_tags
+from ..mambuutil import getloansurl, MambuError, strip_tags
 
 
 mod_urlfunc = getloansurl

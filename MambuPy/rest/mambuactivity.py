@@ -18,7 +18,7 @@ Uses mambuutil.getactivitiesurl as default urlfunc
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getactivitiesurl
+from ..mambuutil import getactivitiesurl
 
 
 mod_urlfunc = getactivitiesurl

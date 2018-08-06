@@ -18,7 +18,7 @@ Uses mambuutil.getproducturl as default urlfunc
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getproductsurl
+from ..mambuutil import getproductsurl
 
 
 mod_urlfunc = getproductsurl

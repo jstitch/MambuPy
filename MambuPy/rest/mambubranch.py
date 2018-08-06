@@ -17,7 +17,7 @@ Uses mambuutil.getbranchesurl as default urlfunc
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getbranchesurl
+from ..mambuutil import getbranchesurl
 
 
 mod_urlfunc = getbranchesurl

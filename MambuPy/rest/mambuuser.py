@@ -17,7 +17,7 @@ Uses mambuutil.getuserurl as default urlfunc
 
 
 from mambustruct import MambuStruct, MambuStructIterator
-from mambuutil import getuserurl
+from ..mambuutil import getuserurl
 from mambugroup import MambuGroups
 from mamburoles import MambuRole
 

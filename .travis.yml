@@ -5,7 +5,7 @@ install:
   - pip install requests
   - pip install sqlalchemy
 script:
-  - cd MambuPy
+  - cd tests
   - python unit_mambustruct.py
   - python unit_mambuconfig.py
   - python unit_mambuutil.py
