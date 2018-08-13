@@ -77,7 +77,7 @@ class Activity(Base):
         return "<Activity(type=%s, timestamp=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'))
 
 class FieldChangeItem(Base):
-    """Activity table.
+    """Fieldchangeitem table.
     """
     __tablename__  = "fieldchangeitem"
     __table_args__ = {'schema'        : dbname,
