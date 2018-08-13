@@ -70,6 +70,33 @@ class Activity(Base):
     assignedUser                = relationship(User,
                                                primaryjoin    = 'User.encodedKey==Activity.assignedUserKey',
                                                back_populates = 'assignedActivities')
+    fieldChanges                = relationship('FieldChangeItem', back_populates='activity')
+
 
     def __repr__(self):
         return "<Activity(type=%s, timestamp=%s)>" % (self.type, self.timestamp.strftime('%Y%m%d'))
+
+class FieldChangeItem(Base):
+    """Activity table.
+    """
+    __tablename__  = "fieldchangeitem"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    # Columns
+    id                          = Column(String, primary_key=True)
+    fieldChangeName             = Column(String)
+    fieldDetailName             = Column(String)
+    fieldDetailKey              = Column(String)
+    newValue                    = Column(String)
+    originalValue               = Column(String)
+    fieldchanges_integer_idx    = Column(Integer)
+
+    # Relationships
+    fieldchanges_encodedkey_own = Column(String, ForeignKey(Activity.encodedKey))
+    activity                = relationship(Activity, back_populates='fieldChanges')
+
+
+    def __repr__(self):
+        return "<FieldChangeItem(newValue=%s, originalValue=%s, fieldChangeName=%s)>" % (self.originalValue, self.newValue, self.fieldChangeName)
