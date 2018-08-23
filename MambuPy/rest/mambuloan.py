@@ -19,7 +19,7 @@ Loan ID as the entid argument in the constructor in that case).
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getloansurl, MambuError, strip_tags
 
 
@@ -293,7 +293,7 @@ class MambuLoan(MambuStruct):
 .. todo:: what to do on Hybrid loan accounts?
         """
         requests = 0
-        if kwargs.has_key('fullDetails'):
+        if 'fullDetails' in kwargs:
             fullDetails = kwargs['fullDetails']
             kwargs.pop('fullDetails')
         else:

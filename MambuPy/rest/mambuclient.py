@@ -16,8 +16,9 @@ Uses mambuutil.getclienturl as default urlfunc
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getclienturl, strip_consecutive_repeated_char as scrc
+from builtins import str as unicode
 
 
 mod_urlfunc = getclienturl

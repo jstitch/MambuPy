@@ -17,7 +17,7 @@ Uses mambuutil.gettransactionssurl as default urlfunc
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import gettransactionsurl
 
 

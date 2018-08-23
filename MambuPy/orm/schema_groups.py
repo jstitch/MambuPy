@@ -11,10 +11,15 @@
           are missing.
 """
 
-import schema_orm as orm
-from schema_branches import Branch
-from schema_users import User
-import schema_clients
+from . import schema_orm as orm
+from .schema_branches import Branch
+from .schema_users import User
+
+# technical debt, cannot import name schema_clients
+try:
+    from . import schema_clients # this should work for python2 and python3, but doesnt
+except Exception as e:
+    import schema_clients # python 2
 
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey

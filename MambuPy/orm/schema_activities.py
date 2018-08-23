@@ -7,12 +7,12 @@
    Activity
 """
 
-import schema_orm as orm
-from schema_branches import Branch
-from schema_clients import Client
-from schema_groups import Group
-from schema_loans import LoanAccount
-from schema_users import User
+from . import schema_orm as orm
+from .schema_branches import Branch
+from .schema_clients import Client
+from .schema_groups import Group
+from .schema_loans import LoanAccount
+from .schema_users import User
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Table, ForeignKey

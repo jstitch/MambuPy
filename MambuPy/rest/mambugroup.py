@@ -16,7 +16,7 @@ Uses mambuutil.getgroupurl as default urlfunc
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getgroupurl
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
@@ -89,7 +89,7 @@ class MambuGroup(MambuStruct):
         from mambuclient import MambuClient
 
         requests = 0
-        if kwargs.has_key('fullDetails'):
+        if 'fullDetails' in kwargs:
             fullDetails = kwargs['fullDetails']
             kwargs.pop('fullDetails')
         else:

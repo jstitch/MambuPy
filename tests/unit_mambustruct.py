@@ -10,7 +10,10 @@ from datetime import datetime
 
 from MambuPy.rest import mambustruct
 
-
+try:
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
+except Exception as e:
+    pass # DeprecationWarning: Please use assertRaisesRegex instead
 
 class RequestsCounterTests(unittest.TestCase):
     """Requests Counter singleton tests"""
@@ -115,7 +118,7 @@ class MambuStructTests(unittest.TestCase):
         """Get an item from the attrs dict"""
         json.loads.return_value = {'hello':'goodbye'}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
-        self.assertTrue(ms.attrs.has_key('hello'))
+        self.assertTrue('hello' in ms.attrs)
         self.assertEqual(ms.attrs['hello'], 'goodbye')
         self.assertEqual(ms['hello'], 'goodbye')
 
@@ -139,7 +142,7 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
         ms['hello'] = 'world'
         del ms['hello']
-        self.assertFalse(ms.attrs.has_key('hello'))
+        self.assertFalse('hello' in ms.attrs)
 
         json.loads.return_value = [1,2,3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
@@ -286,7 +289,7 @@ class MambuStructTests(unittest.TestCase):
         # when attrs dict-like, return what attrs.keys returns
         json.loads.return_value = {'hello':'goodbye'}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
-        self.assertEqual(ms.keys(), ['hello'])
+        self.assertEqual([k for k in ms.keys()], ['hello'])
 
     @mock.patch('MambuPy.rest.mambustruct.iriToUri')
     @mock.patch('MambuPy.rest.mambustruct.json')
@@ -305,7 +308,7 @@ class MambuStructTests(unittest.TestCase):
         # when attrs dict-like, return what attrs.items returns
         json.loads.return_value = {'hello':'goodbye'}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
-        self.assertEqual(ms.items(), [('hello','goodbye')])
+        self.assertEqual([k for k in ms.items()], [('hello','goodbye')])
 
     def test___init__(self):
         """Build MambuStruct object"""
@@ -808,7 +811,7 @@ class MambuStructConnectTests(unittest.TestCase):
         iriToUri.return_value = ""
         requests.get.side_effect = [ mock.Mock() ]
         json.loads.side_effect = [ Exception("TEST ERROR") ]
-        with self.assertRaisesRegexp(mambustruct.MambuError, r"^JSON Error: Exception\('TEST ERROR',\)$") as ex:
+        with self.assertRaisesRegexp(mambustruct.MambuError, r"^JSON Error: Exception\('TEST ERROR'") as ex:
             ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset: "")
 
         # pagination mechanism

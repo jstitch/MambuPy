@@ -25,11 +25,11 @@ Instead, if you use schema_mambu the query executes correctly::
  loan = session.query(LoanAccount).filter(LoanAccount.id=="12345").one()
 """
 
-from schema_activities import *
-from schema_groups import *
-from schema_clients import *
-from schema_loans import *
-from schema_branches import *
-from schema_users import *
-from schema_addresses import *
-from schema_customfields import *
+from .schema_activities import *
+from .schema_groups import *
+from .schema_clients import *
+from .schema_loans import *
+from .schema_branches import *
+from .schema_users import *
+from .schema_addresses import *
+from .schema_customfields import *

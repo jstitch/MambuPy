@@ -9,6 +9,11 @@ import unittest
 
 from MambuPy.rest import mamburoles
 
+try:
+    unittest.TestCase.assertRegexpMatches = unittest.TestCase.assertRegex # python3
+except Exception as e:
+    pass # DeprecationWarning: Please use assertRegex instead
+
 class MambuRoleTests(unittest.TestCase):
     def test_mod_urlfunc(self):
         from MambuPy.mambuutil import getrolesurl
@@ -45,7 +50,7 @@ class MambuRolesTests(unittest.TestCase):
         rs.attrs = [{'0':0}, {'1':1}, {'2':2}]
         self.assertEqual(len(rs), 3)
         for n,a in enumerate(rs):
-            self.assertEqual(str(n), a.keys()[0])
+            self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):

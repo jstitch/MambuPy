@@ -16,7 +16,7 @@ Uses mambuutil.getrolesurl as default urlfunc
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getrolesurl
 
 

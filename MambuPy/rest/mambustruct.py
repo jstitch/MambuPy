@@ -41,6 +41,7 @@ from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUN
 import requests
 import json
 from datetime import datetime
+from builtins import str as unicode
 
 
 class RequestsCounter(object):
@@ -67,6 +68,9 @@ class RequestsCounter(object):
         cls.requests = []
 
 
+
+from future.utils import implements_iterator
+@implements_iterator
 class MambuStructIterator:
     """Enables iteration for some Mambu objects that may want to have iterators.
 
@@ -80,13 +84,17 @@ class MambuStructIterator:
         self.wrapped = wrapped
         self.offset = 0
 
-    def next(self):
+    def __next__(self):
         if self.offset >= len(self.wrapped):
             raise StopIteration
         else:
             item = self.wrapped[self.offset]
             self.offset += 1
             return item
+    def next(self):
+        return self.__next__()
+    def __iter__(self):
+        return self
 
 
 class MambuStruct(object):
@@ -175,7 +183,7 @@ class MambuStruct(object):
         except AttributeError:
             # try to read the attrs property
             attrs = object.__getattribute__(self,"attrs")
-            if type(attrs) == list or not attrs.has_key(name):
+            if type(attrs) == list or not name in attrs:
                 # magic won't happen when not a dict-like MambuStruct or
                 # when attrs has not the 'name' key (this last one means
                 # that if 'name' is not a property of the object too,
@@ -251,7 +259,7 @@ class MambuStruct(object):
         """
         if isinstance(other, MambuStruct):
             try:
-                if not other.attrs.has_key('encodedKey') or not self.attrs.has_key('encodedKey'):
+                if not 'encodedKey' in other.attrs or not 'encodedKey' in self.attrs:
                     raise NotImplementedError
             except AttributeError:
                 raise NotImplementedError
@@ -260,8 +268,11 @@ class MambuStruct(object):
     def has_key(self, key):
         """Dict-like behaviour"""
         try:
-            return self.attrs.has_key(key)
-        except AttributeError:
+            if type(self.attrs) == dict:
+                return key in self.attrs
+            else:
+                raise AttributeError    # if attrs is not a dict
+        except AttributeError:          # if attrs doesnt exist
             raise NotImplementedError
 
     def keys(self):
@@ -331,7 +342,7 @@ class MambuStruct(object):
         except Exception:
             pass
         try:
-            for propname,propval in kwargs['properties'].iteritems():
+            for propname,propval in kwargs['properties'].items():
                 setattr(self,propname,propval)
         except Exception:
             pass
@@ -615,7 +626,7 @@ class MambuStruct(object):
                     self.__limit = self.__inilimit
 
         try:
-            if jsresp.has_key(u'returnCode') and jsresp.has_key(u'returnStatus') and jsresp[u'returnCode'] != 0:
+            if u'returnCode' in jsresp and u'returnStatus' in jsresp and jsresp[u'returnCode'] != 0:
                 raise MambuError(jsresp[u'returnStatus'])
         except AttributeError:
             pass
@@ -807,8 +818,8 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
 
     Returns the number of requests done to Mambu.
     """
-    import mambuuser
-    import mambuclient
+    from . import mambuuser
+    from . import mambuclient
     try:
         customFieldValue = mambuentity[customfield]
         # find the dataType customfield by name or id

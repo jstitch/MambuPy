@@ -16,10 +16,10 @@ Uses mambuutil.getuserurl as default urlfunc
 """
 
 
-from mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getuserurl
-from mambugroup import MambuGroups
-from mamburoles import MambuRole
+from .mambugroup import MambuGroups
+from .mamburoles import MambuRole
 
 
 mod_urlfunc = getuserurl

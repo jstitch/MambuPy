@@ -10,8 +10,8 @@
 .. todo:: this are just very basic schemas for users.
 """
 
-import schema_orm as orm
-from schema_branches import Branch
+from . import schema_orm as orm
+from .schema_branches import Branch
 
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey

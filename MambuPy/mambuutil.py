@@ -18,17 +18,18 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
    is a bad idea. Got to improve this!
 """
 
-from mambuconfig import apiurl
-from mambuconfig import apiuser
-from mambuconfig import apipwd
+from .mambuconfig import apiurl
+from .mambuconfig import apiuser
+from .mambuconfig import apipwd
 
-from mambuconfig import dbname
-from mambuconfig import dbuser
-from mambuconfig import dbpwd
-from mambuconfig import dbhost
-from mambuconfig import dbport
-from mambuconfig import dbeng
+from .mambuconfig import dbname
+from .mambuconfig import dbuser
+from .mambuconfig import dbpwd
+from .mambuconfig import dbhost
+from .mambuconfig import dbport
+from .mambuconfig import dbeng
 
+from builtins import str as unicode
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
@@ -696,7 +697,7 @@ def strip_tags(html):
     (they are rich text fields, I guess that's why). Sometimes they are
     useless, so stripping them is a good idea.
     """
-    from HTMLParser import HTMLParser
+    from html.parser import HTMLParser
     class MLStripper(HTMLParser):
         """Aux class for stripping HTML tags.
 
@@ -705,6 +706,10 @@ def strip_tags(html):
         useless, so stripping them is a good idea.
         """
         def __init__(self):
+            try:
+                super().__init__() # required for python3
+            except TypeError as e:
+                pass # with python2 raises TypeError
             self.reset()
             self.fed = []
         def handle_data(self, d):
@@ -733,8 +738,7 @@ def strip_consecutive_repeated_char(s, ch):
         sdest += s[i]
     return sdest
 
-
-import urlparse
+from future.moves.urllib import parse as urlparse
 def iriToUri(iri):
     """Change an IRI (internationalized R) to an URI.
 
@@ -757,24 +761,30 @@ def iriToUri(iri):
         return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
 
     parts = urlparse.urlparse(iri)
-    return urlparse.urlunparse(
-        part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
-        for parti, part in enumerate(parts)
-    )
+    try:
+        # python2
+        uri = [part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8')) for parti, part in enumerate(parts)]
+    except Exception as e:
+        # python3
+        uri = [str(part) if parti==1 else urlEncodeNonAscii(part) for parti, part in enumerate(parts)]
 
+    return urlparse.urlunparse(uri)
 
+import sys
 def encoded_dict(in_dict):
     """Encode every value of a dict to UTF-8.
 
     Useful for POSTing requests on the 'data' parameter of urlencode.
     """
     out_dict = {}
-    for k, v in in_dict.viewitems():
+    for k, v in in_dict.items():
         if isinstance(v, unicode):
-            v = v.encode('utf8')
+            if sys.version_info < (3, 0):
+                v = v.encode('utf8')
         elif isinstance(v, str):
             # Must be encoded in UTF-8
-            v.decode('utf8')
+            if sys.version_info < (3, 0):
+                v.decode('utf8')
         out_dict[k] = v
     return out_dict
 

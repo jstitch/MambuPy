@@ -9,6 +9,11 @@ import unittest
 
 from MambuPy.rest import mambuuser
 
+try:
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
+except Exception as e:
+    pass # DeprecationWarning: Please use assertRaisesRegex instead
+
 class MambuUserTests(unittest.TestCase):
     def test_mod_urlfunc(self):
         from MambuPy.mambuutil import getuserurl
@@ -71,7 +76,7 @@ class MambuUserTests(unittest.TestCase):
             self.attrs = {
                 'username'  : args[1],
                 }
-            if kwargs.has_key('fullDetails') and kwargs['fullDetails']==True:
+            if 'fullDetails' in kwargs and kwargs['fullDetails']==True:
                 self.attrs['role'] = {'encodedKey' : 'role_id'}
         mock_mamburole.return_value = {'name':"mock_role"}
 
@@ -116,7 +121,7 @@ class MambuUsersTests(unittest.TestCase):
         us.attrs = [{'0':0}, {'1':1}, {'2':2}]
         self.assertEqual(len(us), 3)
         for n,a in enumerate(us):
-            self.assertEqual(str(n), a.keys()[0])
+            self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):

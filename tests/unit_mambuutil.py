@@ -10,6 +10,10 @@ from datetime import datetime
 
 from MambuPy import mambuutil
 
+try:
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
+except Exception as e:
+    pass # DeprecationWarning: Please use assertRaisesRegex instead
 
 class MambuUtilTests(unittest.TestCase):
     def test_attrs(self):
@@ -113,7 +117,7 @@ class MambuUtilTests(unittest.TestCase):
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
         mock_requests.post.side_effect = Exception("something wrong")
-        with self.assertRaisesRegexp(mambuutil.MambuError, r"Error requesting backup: Exception\('something wrong',\)") as e:
+        with self.assertRaisesRegexp(mambuutil.MambuError, r"Error requesting backup: Exception\('something wrong'") as e:
             d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test", verbose=True)
 
         mock_requests.post.side_effect = [response(code=200, content="hello world")]
