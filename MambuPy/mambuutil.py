@@ -761,12 +761,12 @@ def iriToUri(iri):
         return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
 
     parts = urlparse.urlparse(iri)
-    try:
+    if sys.version_info < (3, 0):
         # python2
-        uri = [part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8')) for parti, part in enumerate(parts)]
-    except Exception as e:
-        # python3
         uri = [str(part) if parti==1 else urlEncodeNonAscii(part) for parti, part in enumerate(parts)]
+    else:
+        # python3
+        uri = [part.decode('utf8') for parti, part in enumerate(parts.encode('utf8'))]
 
     return urlparse.urlunparse(uri)
 

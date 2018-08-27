@@ -67,7 +67,10 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_iriToUri(self):
         self.assertEqual(mambuutil.iriToUri(u"https://domain.mambu.com/some_url"), "https://domain.mambu.com/some_url")
-        self.assertEqual(mambuutil.iriToUri(u"https://domain.mambu.com/some_url/strange_name/having_ñ"), "https://domain.mambu.com/some_url/strange_name/having_%c3%b1")
+        if sys.version_info < (3, 0):
+            self.assertEqual(mambuutil.iriToUri("https://domain.mambu.com/some_url/strange_name/having_ñ"), "https://domain.mambu.com/some_url/strange_name/having_%c3%b1")
+        else:
+            self.assertEqual(mambuutil.iriToUri("https://domain.mambu.com/some_url/strange_name/having_ñ"), "https://domain.mambu.com/some_url/strange_name/having_ñ")
 
     def test_encoded_dict(self):
         d = {
