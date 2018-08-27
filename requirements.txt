@@ -3,3 +3,5 @@ SQLAlchemy==1.1.7
 
 mock
 coverage
+future
+mysqlclient
