@@ -183,7 +183,7 @@ class MambuStruct(object):
         except AttributeError:
             # try to read the attrs property
             attrs = object.__getattribute__(self,"attrs")
-            if type(attrs) == list or not name in attrs:
+            if type(attrs) == list or name not in attrs:
                 # magic won't happen when not a dict-like MambuStruct or
                 # when attrs has not the 'name' key (this last one means
                 # that if 'name' is not a property of the object too,
@@ -259,7 +259,7 @@ class MambuStruct(object):
         """
         if isinstance(other, MambuStruct):
             try:
-                if not 'encodedKey' in other.attrs or not 'encodedKey' in self.attrs:
+                if 'encodedKey' not in other.attrs or 'encodedKey' not in self.attrs:
                     raise NotImplementedError
             except AttributeError:
                 raise NotImplementedError
