@@ -42,7 +42,7 @@ For more information, look at the scripts named ``schema*.py``
 
 ### Installation
 
-Currently MambuPy works on Python 2.7
+Currently MambuPy works on Python 2.7 and Python 3.6
 
 You may install MambuPy by git-cloning this repository on your local
 environment and making it available anywhere on your ``PYTHONPATH``.
@@ -100,6 +100,10 @@ TODO comments for hackers are included at:
   - MambuTask close() method
 * v0.8.4 2018-07-18
   - Sphinx documentation and ReadTheDocs site
+* v0.9.0 2018-08-06
+  - reallocation of modules in packages according to functionality
+* v1.0.0 2018-08-31
+  - support for Python 3 ready!
 
 ### Author
 

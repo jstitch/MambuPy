@@ -17,6 +17,7 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
    Secutiry WARNING: Imports the configurations from mambuconfig. It surely
    is a bad idea. Got to improve this!
 """
+import sys
 
 from .mambuconfig import apiurl
 from .mambuconfig import apiuser
@@ -29,7 +30,9 @@ from .mambuconfig import dbhost
 from .mambuconfig import dbport
 from .mambuconfig import dbeng
 
-from builtins import str as unicode
+if sys.version_info >= (3, 0):
+    # python3
+    from builtins import str as unicode
 
 API_RETURN_CODES = {
     "SUCCESS": 0,

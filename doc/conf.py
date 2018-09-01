@@ -44,6 +44,8 @@ autosummary_generate = True # Make _autosummary files and include them
 napoleon_numpy_docstring = False # Force consistency, leave only Google
 napoleon_use_rtype = False # More legible
 napoleon_include_init_with_doc = True
+napoleon_include_special_with_doc = True
+napoleon_include_private_with_doc = True
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
