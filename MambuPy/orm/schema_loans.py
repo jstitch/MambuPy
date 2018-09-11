@@ -8,6 +8,8 @@
    DisbursementDetails
    LoanAccount
    Repayment
+   TransactionChannel
+   TransactionDetails
    LoanTransaction
 
 .. todo:: this are just very basic schemas for loan tables. A lot of fields
@@ -167,6 +169,42 @@ class Repayment(Base):
         return "<Repayment(dueDate=%s, state=%s,\naccount=%s)>" % (self.dueDate.strftime('%Y%m%d'), self.state, self.account)
 
 
+class TransactionChannel(Base):
+    """TransactionChannel table.
+    """
+    __tablename__            = "transactionchannel"
+    __table_args__           = {'schema'        : dbname,
+                                'keep_existing' : True
+                               }
+
+    # Columns
+    encodedKey               = Column(String, primary_key=True)
+    id                       = Column(String)
+    name                     = Column(String)
+
+    def __repr__(self):
+        return "<TransactionChannel(name=%s)>" % (self.name)
+
+
+class TransactionDetails(Base):
+    """TransactionDetails table.
+    """
+    __tablename__            = "transactiondetails"
+    __table_args__           = {'schema'        : dbname,
+                                'keep_existing' : True
+                               }
+
+    # Columns
+    encodedKey               = Column(String, primary_key=True)
+
+    # Relationships
+    transactionChannelKey  = Column(String, ForeignKey(TransactionChannel.encodedKey))
+    transactionChannel     = relationship('TransactionChannel')
+
+    def __repr__(self):
+        return "<TransactionDetails(TransactionChannel=%s)>" % (self.transactionChannel)
+
+
 class LoanTransaction(Base):
     """LoanTransaction table.
     """
@@ -194,6 +232,8 @@ class LoanTransaction(Base):
     account                = relationship('LoanAccount',
                                           back_populates='transactions',
                                           order_by='LoanTransaction.transactionId')
+    details_encodedkey_oid = Column(String, ForeignKey(TransactionDetails.encodedKey))
+    transactionDetails     = relationship('TransactionDetails')
 
     def __repr__(self):
         return "<LoanTransaction(transactionId=%s, amount=%s, creationDate=%s, entryDate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (self.transactionId, self.amount, self.creationDate.strftime('%Y%m%d'), self.entryDate.strftime('%Y%m%d'), self.type, self.comment, "Yes" if self.reversalTransactionKey else "No", self.account)
