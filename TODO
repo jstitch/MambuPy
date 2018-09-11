@@ -1,5 +1,11 @@
+# TODO
+
 -Unittests for ALL of the code (aiming to do TDD from now on...)
+
 -Translation, of certain code and almost all comments to english
+
 -Better configuration
+
 -Remove old json comments on each mambu struct (perhaps change them to a more general thing, as an aid to developers?)
+
 -A LOT of functionality from Mambu APIs

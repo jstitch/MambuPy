@@ -741,7 +741,9 @@ def strip_consecutive_repeated_char(s, ch):
         sdest += s[i]
     return sdest
 
-from future.moves.urllib import parse as urlparse
+if sys.version_info >= (3, 0):
+    # python3
+    from future.moves.urllib import parse as urlparse
 def iriToUri(iri):
     """Change an IRI (internationalized R) to an URI.
 
