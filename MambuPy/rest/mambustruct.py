@@ -41,7 +41,10 @@ from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUN
 import requests
 import json
 from datetime import datetime
-from builtins import str as unicode
+
+if sys.version_info >= (3, 0):
+    # python3
+    from builtins import str as unicode
 
 
 class RequestsCounter(object):
