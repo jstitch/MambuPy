@@ -17,8 +17,6 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
    Secutiry WARNING: Imports the configurations from mambuconfig. It surely
    is a bad idea. Got to improve this!
 """
-import sys
-
 from .mambuconfig import apiurl
 from .mambuconfig import apiuser
 from .mambuconfig import apipwd
@@ -30,9 +28,7 @@ from .mambuconfig import dbhost
 from .mambuconfig import dbport
 from .mambuconfig import dbeng
 
-if sys.version_info >= (3, 0):
-    # python3
-    from builtins import str as unicode
+from builtins import str as unicode
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
@@ -741,12 +737,7 @@ def strip_consecutive_repeated_char(s, ch):
         sdest += s[i]
     return sdest
 
-if sys.version_info >= (3, 0):
-    # python3
-    from future.moves.urllib import parse as urlparse
-else:
-    # python2
-    import urlparse
+from future.moves.urllib import parse as urlparse
 def iriToUri(iri):
     """Change an IRI (internationalized R) to an URI.
 
