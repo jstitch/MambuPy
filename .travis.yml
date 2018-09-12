@@ -4,6 +4,8 @@ python:
 install:
   - pip install requests
   - pip install sqlalchemy
+  - pip install future
+  - pip install mysqlclient
 script:
   - cd tests
   - python unit_mambustruct.py
