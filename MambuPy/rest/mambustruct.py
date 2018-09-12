@@ -40,6 +40,7 @@ from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUN
 
 import requests
 import json
+import sys
 from datetime import datetime
 
 if sys.version_info >= (3, 0):
