@@ -29,6 +29,7 @@ from .mambuconfig import dbport
 from .mambuconfig import dbeng
 
 from builtins import str as unicode
+import sys
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
@@ -737,7 +738,12 @@ def strip_consecutive_repeated_char(s, ch):
         sdest += s[i]
     return sdest
 
-from future.moves.urllib import parse as urlparse
+if sys.version_info >= (3, 0):
+    # python3
+    from future.moves.urllib import parse as urlparse
+else:
+    # python2
+    import urlparse
 def iriToUri(iri):
     """Change an IRI (internationalized R) to an URI.
 
@@ -762,14 +768,17 @@ def iriToUri(iri):
     parts = urlparse.urlparse(iri)
     if sys.version_info < (3, 0):
         # python2
-        uri = [str(part) if parti==1 else urlEncodeNonAscii(part) for parti, part in enumerate(parts)]
+        return urlparse.urlunparse(
+            part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
+            for parti, part in enumerate(parts)
+        )
+
     else:
         # python3
         uri = [part.decode('utf8') for parti, part in enumerate(parts.encode('utf8'))]
+        return urlparse.urlunparse(uri)
 
-    return urlparse.urlunparse(uri)
 
-import sys
 def encoded_dict(in_dict):
     """Encode every value of a dict to UTF-8.
 
