@@ -69,11 +69,11 @@ class MambuTask(MambuStruct):
                 }
             }
         try:
-            data['taskLinkType'] = self['taskLinkType']
+            data['task']['taskLinkType'] = self['taskLinkType']
         except KeyError:
             pass
         try:
-            data['taskLinkKey'] = self['taskLinkKey']
+            data['task']['taskLinkKey'] = self['taskLinkKey']
         except KeyError:
             pass
 
@@ -81,6 +81,12 @@ class MambuTask(MambuStruct):
         self._MambuStruct__urlfunc = gettasksurl
         self._MambuStruct__data    = data
         self.connect(*args, **kwargs)
+
+        data['task']['id'] = self['task']['id']
+        data['task']['completionDate'] = datetime.strptime(data['task']['completionDate'], "%Y-%m-%d")
+        data['task']['dueDate'] = datetime.strptime(data['task']['dueDate'], "%Y-%m-%d")
+        self.attrs = data['task']
+        self.convertDict2Attrs()
 
         self._MambuStruct__method  = "GET"
         self._MambuStruct__urlfunc = None

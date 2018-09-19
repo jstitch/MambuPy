@@ -75,6 +75,7 @@ class MambuTaskTests(unittest.TestCase):
         from datetime import date
         from MambuPy.mambuutil import gettasksurl
         def connect_mocked(task):
+            task.attrs['task'] = task.attrs
             task.attrs['status']         = "COMPLETED"
             task.attrs['completionDate'] = date.today()
         def build_mock_task(self, *args, **kwargs):
@@ -89,12 +90,13 @@ class MambuTaskTests(unittest.TestCase):
                 'description'     : "",
                 'assignedUserKey' : "",
                 }
-        with mock.patch.object(mambutask.MambuStruct, "__init__", build_mock_task) as mock_init, mock.patch.object(mambutask.MambuStruct, "connect", connect_mocked) as mock_connect:
+        with mock.patch.object(mambutask.MambuStruct, "__init__", build_mock_task) as mock_init, \
+             mock.patch.object(mambutask.MambuStruct, "connect", connect_mocked) as mock_connect:
             t = mambutask.MambuTask(urlfunc=gettasksurl, entid="1")
             self.assertRegexpMatches(repr(t), r"^MambuTask - taskid: '1'")
             t.close()
             self.assertEqual(t.attrs['status'], "COMPLETED")
-            self.assertEqual(t.attrs['completionDate'], date.today())
+            self.assertEqual(t.attrs['completionDate'].strftime("%Y-%m-%d"), date.today().strftime("%Y-%m-%d"))
 
 
 class MambuTasksTests(unittest.TestCase):
