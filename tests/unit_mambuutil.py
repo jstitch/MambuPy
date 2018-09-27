@@ -193,10 +193,12 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", fullDetails=False), self.prefix + "/api/" + "groups/XY890?fullDetails=false")
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", fullDetails=None), self.prefix + "/api/" + "groups/XY890?fullDetails=false")
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", fullDetails="whatever"), self.prefix + "/api/" + "groups/XY890?fullDetails=false")
+        self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", branchId="BRANCH"), self.prefix + "/api/" + "groups/XY890?branchId=BRANCH")
+        self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", centreId="CENTRE"), self.prefix + "/api/" + "groups/XY890?centreId=CENTRE")
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", offset=10), self.prefix + "/api/" + "groups/XY890?offset=10")
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", limit=10), self.prefix + "/api/" + "groups/XY890?limit=10")
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", creditOfficerUsername="fulanito"), self.prefix + "/api/" + "groups/XY890?creditOfficerUsername=fulanito")
-        self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", fullDetails=True, creditOfficerUsername="fulanito", offset=2, limit=0), self.prefix + "/api/" + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&limit=0&offset=2")
+        self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", fullDetails=True, creditOfficerUsername="fulanito", branchId="BRANCH", centreId="CENTRE", offset=2, limit=0), self.prefix + "/api/" + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&branchId=BRANCH&centreId=CENTRE&limit=0&offset=2")
 
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890", anything="whatever"), self.prefix + "/api/" + "groups/XY890")
 

@@ -261,6 +261,8 @@ def getgroupurl(idgroup, *args, **kwargs):
     Currently implemented filter parameters:
     * fullDetails
     * creditOfficerUsername
+    * branchId
+    * centreId
     * limit
     * offset
 
@@ -278,6 +280,14 @@ def getgroupurl(idgroup, *args, **kwargs):
             pass
         try:
             getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("branchId=%s" % kwargs["branchId"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("centreId=%s" % kwargs["centreId"])
         except Exception as ex:
             pass
         try:
