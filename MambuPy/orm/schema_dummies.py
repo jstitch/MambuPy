@@ -136,7 +136,11 @@ client = make_dummy(Client(),
 loanproduct         = make_dummy(LoanProduct())
 disbursementdetails = make_dummy(DisbursementDetails())
 repayment           = make_dummy(Repayment())
-loantransaction     = make_dummy(LoanTransaction())
+transactionchannel  = make_dummy(TransactionChannel())
+transactiondetails  = make_dummy(TransactionDetails(),
+                                 relations={'transactionChannel'  : (transactionchannel, None)})
+loantransaction     = make_dummy(LoanTransaction(),
+                                 relations={'transactionDetails'  : (transactiondetails, None)})
 loanaccount         = make_dummy(LoanAccount(),
                                  relations={'product'             : (loanproduct         , None),
                                             'disbursementDetails' : (disbursementdetails , None),
