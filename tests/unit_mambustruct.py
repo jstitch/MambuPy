@@ -458,6 +458,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.convertDict2Attrs()
         self.assertEqual(ms.postcode, '12345')
 
+        ms.attrs = {'emailAddress' : '12345'}
+        ms.convertDict2Attrs()
+        self.assertEqual(ms.emailAddress, '12345')
+
     def test_RequestsCounter(self):
         """Tests that MambuStruct instance has a RequestsCounter singleton"""
         self.assertEqual(getattr(self.ms, 'rc'), mambustruct.RequestsCounter())
