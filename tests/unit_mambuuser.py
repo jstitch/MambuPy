@@ -4,7 +4,10 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import mock
+try:
+    import mock
+except ModuleNotFoundError:
+    import unittest.mock as mock
 import unittest
 
 from MambuPy.rest import mambuuser

@@ -104,6 +104,8 @@ TODO comments for hackers are included at:
   - reallocation of modules in packages according to functionality
 * v1.0.0 2018-08-31
   - support for Python 3 ready!
+* v1.1.0 2018-12-16
+  - config parsers for a better configuration of MambuPy
 
 ### Author
 
