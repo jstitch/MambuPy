@@ -107,7 +107,7 @@ def get_conf(conf, sect, opt):
     return envir
 
 # Read config from $HOME/.mambupy.rc or /etc/mambupy.rc if not found
-if not config.read(os.environ['HOME']+"/.mambupy.rc"):
+if 'HOME' not in os.environ or not config.read(os.environ['HOME']+"/.mambupy.rc"):
     config.read("/etc/mambupy.rc")
 
 # Read configs from config file

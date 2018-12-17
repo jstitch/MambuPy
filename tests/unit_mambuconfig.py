@@ -35,17 +35,44 @@ Another=BrickInTheWall
             self.config = configparser.ConfigParser(defaults=defaults)
 
     def test_api_attrs(self):
-        self.assertEqual(mambuconfig.apiurl, "domain.mambu.com")
-        self.assertEqual(mambuconfig.apiuser, "mambu_api_user")
-        self.assertEqual(mambuconfig.apipwd, "mambu_api_password")
+        try:
+            mambuconfig.apiurl
+        except AttributeError:
+            self.fail("No apiurl attribute in mambuconfig")
+        try:
+            mambuconfig.apiuser
+        except AttributeError:
+            self.fail("No apiuser attribute in mambuconfig")
+        try:
+            mambuconfig.apipwd
+        except AttributeError:
+            self.fail("No apipwd attribute in mambuconfig")
 
     def test_db_attrs(self):
-        self.assertEqual(mambuconfig.dbname, "mambu_db")
-        self.assertEqual(mambuconfig.dbuser, "mambu_db_user")
-        self.assertEqual(mambuconfig.dbpwd, "mambu_db_pwd")
-        self.assertEqual(mambuconfig.dbhost, "localhost")
-        self.assertEqual(mambuconfig.dbport, "3306")
-        self.assertEqual(mambuconfig.dbeng, "mysql")
+        try:
+            mambuconfig.dbname
+        except AttributeError:
+            self.fail("No dbname attribute in mambuconfig")
+        try:
+            mambuconfig.dbuser
+        except AttributeError:
+            self.fail("No dbuser attribute in mambuconfig")
+        try:
+            mambuconfig.dbpwd
+        except AttributeError:
+            self.fail("No dbpwd attribute in mambuconfig")
+        try:
+            mambuconfig.dbhost
+        except AttributeError:
+            self.fail("No dbhost attribute in mambuconfig")
+        try:
+            mambuconfig.dbport
+        except AttributeError:
+            self.fail("No dbport attribute in mambuconfig")
+        try:
+            mambuconfig.dbeng
+        except AttributeError:
+            self.fail("No dbeng attribute in mambuconfig")
 
     def test_default_configs(self):
         self.assertEqual(mambuconfig.default_configs.get("apiurl"),"domain.mambu.com")
@@ -72,7 +99,6 @@ Another=BrickInTheWall
         self.assertEqual(self.config.get("SECTION2","AllInAll"),"You'reJust")
 
     def test_environ(self):
-        import os
         self.config.read("/tmp/test.ini")
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Test"), "Value")
         os.environ["MAMBUPY_TEST"] = "OtherValue"
