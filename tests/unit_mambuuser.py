@@ -10,6 +10,9 @@ except ModuleNotFoundError:
     import unittest.mock as mock
 import unittest
 
+from MambuPy import mambuconfig
+for k,v in mambuconfig.default_configs.items():
+    setattr(mambuconfig, k, v)
 from MambuPy.rest import mambuuser
 
 try:

@@ -11,6 +11,9 @@ except ModuleNotFoundError:
 import unittest
 from datetime import datetime
 
+from MambuPy import mambuconfig
+for k,v in mambuconfig.default_configs.items():
+    setattr(mambuconfig, k, v)
 from MambuPy.rest import mambustruct
 
 try:

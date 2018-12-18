@@ -87,12 +87,18 @@ Another=BrickInTheWall
 
     def test_get_conf(self):
         self.config.read("/tmp/test.ini")
+        mambuconfig.args = mock.Mock()
+        mambuconfig.args.mambupy_test = None
+        mambuconfig.args.mambupy_hello = None
+        mambuconfig.args.mambupy_another = None
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Test"), "Value")
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Hello"), "World")
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION2","Another"), "BrickInTheWall")
 
     def test_defaults(self):
         mambuconfig.default_configs['AllInAll'] = "You'reJust"
+        mambuconfig.args = mock.Mock()
+        mambuconfig.args.mambupy_allinall = None
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","AllInAll"),"You'reJust")
         self.config.read("/tmp/test.ini")
         self.assertEqual(self.config.get("SECTION1","AllInAll"),"You'reJust")
@@ -100,10 +106,18 @@ Another=BrickInTheWall
 
     def test_environ(self):
         self.config.read("/tmp/test.ini")
+        mambuconfig.args = mock.Mock()
+        mambuconfig.args.mambupy_test = None
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Test"), "Value")
         os.environ["MAMBUPY_TEST"] = "OtherValue"
         self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Test"), "OtherValue")
         del(os.environ["MAMBUPY_TEST"])
+
+    def test_args(self):
+        self.config.read("/tmp/test.ini")
+        mambuconfig.args = mock.Mock()
+        mambuconfig.args.mambupy_test = "OtherValue"
+        self.assertEqual(mambuconfig.get_conf(self.config,"SECTION1","Test"), "OtherValue")
 
 
 if __name__ == '__main__':

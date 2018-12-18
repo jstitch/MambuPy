@@ -47,9 +47,8 @@ Currently MambuPy works on Python 2.7 and Python 3.6
 You may install MambuPy by git-cloning this repository on your local
 environment and making it available anywhere on your ``PYTHONPATH``.
 
-You may also use ``pip install mambupy`` but please consider that the
-current configuration process doesn't works well with this kind of
-installation.
+You may also use ``pip install mambupy`` but please consider that you
+must configure your installation before using it.
 
 ### Configuration
 
@@ -106,6 +105,8 @@ TODO comments for hackers are included at:
   - support for Python 3 ready!
 * v1.1.0 2018-12-16
   - config parsers for a better configuration of MambuPy
+* v1.1.1 2018-12-17
+  - argparse to override configuration of MambuPy from command line
 
 ### Author
 

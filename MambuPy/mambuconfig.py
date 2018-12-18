@@ -8,7 +8,9 @@ IMPORTANT: be careful of who can read/import this file. It may contain
 sensitive data to connect to your Mambu instance, or to your DB server.
 
 Supports ConfigParser to read a config file (in INI format) from
-$HOME/.mambupy.rc, or /etc/mambupy.rc if the previous one not found.
+$HOME/.mambupy.rc, or /etc/mambupy.rc if the previous one not found. If you
+send a --mambupy_rcfile it overrides this previous behavior using the RC file
+wherever you say it is.
 
 You may edit the default_configs dictionary to have some defaults defined
 even if no RC file is found (NOT RECOMMENDED)
@@ -27,7 +29,32 @@ RC files must have the following format::
     dbport=Database_port
     dbeng=Database_engine
 
-Note for Mamby SysAdmins: please correctly configure your API user, with
+You can use environment variables to override the previous behaviour for any
+option. The variable must be named as follows::
+
+    MAMBUPY_UPPERCASEOPTION
+
+You can use command line arguments to override the previous behaviour for any
+option. The command line argument must be named as follows::
+
+    mambupy_lowercaseoption
+
+IMPORTANT!!! if you use argparse anywhere on your own programs using MambuPy,
+then you must parse using the parse_known_args() method from your parser.
+Otherwise, your programs won't work by not recognizing MambuPy's own command
+line arguments.
+
+So, the configuration hierarchy goes like this::
+
+    0) Command line arguments (overrides any config on the following)
+      1) Environment variables (overrides any config on the following)
+        2) RC file sent via --mambupy_rcfile command line argument
+        3) RC file at $HOME/.mambupy.rc (if previous one not found)
+        4) RC file at /etc/mambupy.rc (if previous one not found)
+          5) values of default_configs dictionary, if any config is absent
+             on any of the previous, this is used to default it
+
+Note for Mambu SysAdmins: please correctly configure your API user, with
 right permissions that allow your users to access the data you wish to
 make available but not to make any changes/access any information you
 don't wish to be accessed. Please mind that this may restrict some of
@@ -46,25 +73,21 @@ your Mambu Database on some server.
 """
 
 default_configs = {
-    # Mamby API configurations
-#    'API' : {
+        # Mambu API configurations
         'apiurl'  : "domain.mambu.com",
         'apiuser' : "mambu_api_user",
         'apipwd'  : "mambu_api_password",
-#    },
-    # Mambu DB configurations,
-#    'DB' : {
+        # Mambu DB configurations
         'dbname' : "mambu_db",
         'dbuser' : "mambu_db_user",
         'dbpwd'  : "mambu_db_pwd",
         'dbhost' : "localhost",
         'dbport' : "3306",
         'dbeng'  : "mysql",
-#    },
 }
 """ Defaults dictionary for the options configured here.
 
-You may edit this to your own liking. Beware of pricking eyes!
+You may edit this to your own liking. But beware of pricking eyes!
 """
 
 # import ConfigParser depending on Python version
@@ -78,14 +101,32 @@ else:
     from configparser import NoOptionError, NoSectionError
     config = configparser.ConfigParser(defaults=default_configs)
 
+# argparse for command line arguments overriding
+import argparse
+argparser = argparse.ArgumentParser()
+argparser.add_argument("--mambupy_rcfile")
+argparser.add_argument("--mambupy_apiurl")
+argparser.add_argument("--mambupy_apiuser")
+argparser.add_argument("--mambupy_apipwd")
+argparser.add_argument("--mambupy_dbname")
+argparser.add_argument("--mambupy_dbuser")
+argparser.add_argument("--mambupy_dbpwd")
+argparser.add_argument("--mambupy_dbhost")
+argparser.add_argument("--mambupy_dbport")
+argparser.add_argument("--mambupy_dbeng")
+args, unknown = argparser.parse_known_args()
+
 def get_conf(conf, sect, opt):
     """ Gets a config 'opt' from 'conf' file, under section 'sect'.
 
     If no 'opt' exists under 'sect', it looks for option on the default_configs
     dictionary
 
-    Defaults to environmental variable named MAMBUPY_{upper_case_opt} if it
-    exists, overriding whatever the conf files or default_configs dict says
+    If there exists an environmental variable named MAMBUPY_{upper_case_opt},
+    it overrides whatever the conf files or default_configs dict says.
+
+    But if you send a command line argument named mambupy_{lower_case_opt},
+    it overrides anything else.
 
     Args:
      conf (ConfigParser): ConfigParser that reads from certain config file (INI
@@ -98,17 +139,23 @@ def get_conf(conf, sect, opt):
              default_configs dict. If environmental variable exists with name
              MAMBUPY_{upper_case_opt} it overrides anything else
     """
-    envir = os.environ.get(("mambupy_"+opt).upper())
-    if not envir:
-        try:
-            return conf.get(sect,opt)
-        except NoSectionError:
-            return default_configs[opt]
-    return envir
+    argu = getattr(args, "mambupy_"+opt.lower())
 
-# Read config from $HOME/.mambupy.rc or /etc/mambupy.rc if not found
-if 'HOME' not in os.environ or not config.read(os.environ['HOME']+"/.mambupy.rc"):
-    config.read("/etc/mambupy.rc")
+    if not argu:
+        envir = os.environ.get("MAMBUPY_"+opt.upper())
+        if not envir:
+            try:
+                return conf.get(sect,opt)
+            except NoSectionError:
+                return default_configs[opt]
+        return envir
+    return argu
+
+# Read config from --mambupy_rcfile, or $HOME/.mambupy.rc if not found, or
+# /etc/mambupy.rc if not found
+if not args.mambupy_rcfile or not config.read(args.mambupy_rcfile):
+    if 'HOME' not in os.environ or not config.read(os.environ['HOME']+"/.mambupy.rc"):
+        config.read("/etc/mambupy.rc")
 
 # Read configs from config file
 apiurl  = get_conf(config, "API", "apiurl")
