@@ -714,6 +714,8 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms.create(data), None)
         self.assertEqual(ms.attrs, responsePOST)
         self.assertEqual(ms.keys(), responsePOST.keys())
+        self.assertEqual(ms._MambuStruct__args, ())
+        self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if the class who call method create is direfent who implemented it
         ms.create.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
@@ -756,6 +758,10 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertEqual(ms.rc.cnt, rc_cnt+1)
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
+        # connect saves old parameter calls
+        self.assertEqual(ms._MambuStruct__kwargs,{'user':'my_user', 'pwd':'my_password'})
+        ms.connect()
+        requests.get.assert_called_with("http://example.com", auth=("my_user", "my_password"))
 
         # POST data
         requests.reset_mock()

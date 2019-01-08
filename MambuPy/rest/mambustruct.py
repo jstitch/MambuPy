@@ -495,6 +495,8 @@ class MambuStruct(object):
         except KeyError:
             connect = True
 
+        self.__args = ()
+        self.__kwargs = {}
         if connect:
             self.connect(*args, **kwargs)
 
@@ -554,6 +556,13 @@ class MambuStruct(object):
           (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
           # Reusing impossible-to-reuse code)
         """
+        from copy import deepcopy
+        if args:
+            self.__args = deepcopy(args)
+        if kwargs:
+            for k,v in kwargs.items():
+                self.__kwargs[k] = deepcopy(v)
+
         jsresp = {}
 
         if not self.__urlfunc:
@@ -574,12 +583,12 @@ class MambuStruct(object):
             while retries < MambuStruct.RETRIES:
                 try:
                     # Basic authentication
-                    user = kwargs.pop('user', apiuser)
-                    pwd = kwargs.pop('pwd', apipwd)
+                    user = self.__kwargs.get('user', apiuser)
+                    pwd = self.__kwargs.get('pwd', apipwd)
                     if self.__data:
                         headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
-                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
                     # PATCH
                         if self.__method=="PATCH":
                             resp = requests.patch(url, data=data, headers=headers, auth=(user, pwd))
@@ -588,7 +597,7 @@ class MambuStruct(object):
                             resp = requests.post(url, data=data, headers=headers, auth=(user, pwd))
                     # GET
                     else:
-                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *args, **kwargs))
+                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
                         resp = requests.get(url, auth=(user, pwd))
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
@@ -633,7 +642,7 @@ class MambuStruct(object):
             pass
 
         if self.__method != "PATCH":
-            self.init(attrs=jsresp, *args, **kwargs)
+            self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
     def _process_fields(self):
         """Default info massage to appropiate format/style.
