@@ -497,6 +497,14 @@ class MambuStruct(object):
 
         self.__args = ()
         self.__kwargs = {}
+
+        from copy import deepcopy
+        if args:
+            self.__args = deepcopy(args)
+        if kwargs:
+            for k,v in kwargs.items():
+                self.__kwargs[k] = deepcopy(v)
+
         if connect:
             self.connect(*args, **kwargs)
 

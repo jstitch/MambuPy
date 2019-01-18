@@ -322,6 +322,9 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(getattr(ms, 'entid'), '12345')
         ms = mambustruct.MambuStruct(urlfunc={}, entid='12345', connect=True)
         self.assertEqual(getattr(ms, 'entid'), '12345')
+        # MambuStruct saves parameter calls
+        ms = mambustruct.MambuStruct(urlfunc={}, entid='12345', fullDetails=True, connect=False)
+        self.assertEqual(ms._MambuStruct__kwargs,{'fullDetails':True})
 
 
 class MambuStructMethodsTests(unittest.TestCase):
