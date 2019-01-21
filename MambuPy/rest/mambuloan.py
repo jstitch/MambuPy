@@ -86,7 +86,7 @@ class MambuLoan(MambuStruct):
                 return repayment['dueDate']
             except KeyError as kerr:
                 return datetime.now()
-        from mamburepayment import MambuRepayments
+        from .mamburepayment import MambuRepayments
 
         reps = MambuRepayments(entid=self['id'], *args, **kwargs)
         reps.attrs = sorted(reps.attrs, key=duedate)
@@ -115,7 +115,7 @@ class MambuLoan(MambuStruct):
                 return transaction['transactionId']
             except KeyError as kerr:
                 return None
-        from mambutransaction import MambuTransactions
+        from .mambutransaction import MambuTransactions
 
         trans = MambuTransactions(entid=self['id'], *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
@@ -133,7 +133,7 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambubranch import MambuBranch
+        from .mambubranch import MambuBranch
 
         branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
         self['assignedBranchName'] = branch['name']
@@ -151,7 +151,7 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambucentre import MambuCentre
+        from .mambucentre import MambuCentre
 
         centre = MambuCentre(entid=self['assignedCentreKey'], *args, **kwargs)
         self['assignedCentreName'] = centre['name']
@@ -167,7 +167,7 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambuuser import MambuUser
+        from .mambuuser import MambuUser
 
         try:
             user = MambuUser(entid=self['assignedUserKey'], *args, **kwargs)
@@ -193,7 +193,7 @@ class MambuLoan(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         if cache:
-            from mambuproduct import AllMambuProducts
+            from .mambuproduct import AllMambuProducts
             prods = AllMambuProducts(*args, **kwargs)
             for prod in prods:
                 if prod['encodedKey'] == self['productTypeKey']:
@@ -205,7 +205,7 @@ class MambuLoan(MambuStruct):
                 return 1
             return 0
 
-        from mambuproduct import MambuProduct
+        from .mambuproduct import MambuProduct
 
         product = MambuProduct(entid=self['productTypeKey'], *args, **kwargs)
         self['product'] = product
@@ -300,7 +300,7 @@ class MambuLoan(MambuStruct):
             fullDetails = True
 
         if self['accountHolderType'] == "GROUP":
-            from mambugroup import MambuGroup
+            from .mambugroup import MambuGroup
 
             self['holderType'] = "Grupo"
             holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
@@ -308,7 +308,7 @@ class MambuLoan(MambuStruct):
             requests += 1
 
             if getRoles:
-                from mambuclient import MambuClient
+                from .mambuclient import MambuClient
 
                 roles = []
                 # If holder is group, attach role client data to the group
@@ -342,7 +342,7 @@ class MambuLoan(MambuStruct):
 
 
         else: # "CLIENT"
-            from mambuclient import MambuClient
+            from .mambuclient import MambuClient
 
             self['holderType'] = "Cliente"
             holder = MambuClient(entid=self['accountHolderKey'],
@@ -413,7 +413,7 @@ class MambuLoan(MambuStruct):
                 return activity['activity']['timestamp']
             except KeyError as kerr:
                 return None
-        from mambuactivity import MambuActivities
+        from .mambuactivity import MambuActivities
 
         activities = MambuActivities(loanAccountId=self['encodedKey'], *args, **kwargs)
         activities.attrs = sorted(activities.attrs, key=activityDate)

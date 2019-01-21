@@ -12,3 +12,4 @@ UnitTests:
     - python unit_mambutask.py
     - python unit_mamburoles.py
     - python unit_mambuuser.py
+    - python unit_mambuloan.py
