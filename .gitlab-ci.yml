@@ -1,9 +1,9 @@
-image: python:2
+stages:
+  - "UnitTests"
 
-before_script:
-  - pip install -q --no-cache-dir --upgrade -r requirements.txt
-
-UnitTests:
+.UnitTests:
+  before_script:
+    - pip install -q --no-cache-dir --upgrade -r requirements.txt
   script:
     - cd tests
     - python unit_mambustruct.py
@@ -13,3 +13,13 @@ UnitTests:
     - python unit_mamburoles.py
     - python unit_mambuuser.py
     - python unit_mambuloan.py
+
+UnitTests-3:
+  extends: ".UnitTests"
+  stage: "UnitTests"
+  image: "python:3"
+
+UnitTests-2:
+  extends: ".UnitTests"
+  stage: "UnitTests"
+  image: "python:2"

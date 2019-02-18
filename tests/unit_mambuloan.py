@@ -351,7 +351,7 @@ class MambuLoanTests(unittest.TestCase):
             mock_mambuclient.reset_mock()
 
             self.assertEqual(ln.setHolder(getRoles=True),3)
-            self.assertTrue(ln['holder'].has_key('roles'))
+            self.assertTrue('roles' in ln['holder'].keys())
             self.assertEqual(len(ln['holder']['roles']), 2)
             self.assertEqual(ln['holder']['roles'][0]['role'], "ROLE1")
             self.assertEqual(ln['holder']['roles'][1]['role'], "ROLE2")

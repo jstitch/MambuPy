@@ -107,6 +107,10 @@ TODO comments for hackers are included at:
   - config parsers for a better configuration of MambuPy
 * v1.1.1 2018-12-17
   - argparse to override configuration of MambuPy from command line
+* v1.2.0 2019-01-21
+  - MambuStruct now holds a copy of the args and kwargs originally
+    passed to the constructor, so they may be reused on future calls
+    of connect() method
 
 ### Author
 
