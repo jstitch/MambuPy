@@ -297,7 +297,9 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.gettasksurl(clientId='ABC123'), self.prefix + "/api/" + "tasks?clientid=ABC123&status=OPEN")
         self.assertEqual(mambuutil.gettasksurl(groupId='XY890'), self.prefix + "/api/" + "tasks?groupid=XY890&status=OPEN")
         self.assertEqual(mambuutil.gettasksurl(status='COMPLETED'), self.prefix + "/api/" + "tasks?status=COMPLETED")
-        self.assertEqual(mambuutil.gettasksurl(username='auser', clientId='ABC123', groupId='XY890', status='OVERDUE'), self.prefix + "/api/" + "tasks?username=auser&clientid=ABC123&groupid=XY890&status=OVERDUE")
+        self.assertEqual(mambuutil.gettasksurl(offset=10), self.prefix + "/api/" + "tasks?status=OPEN&offset=10")
+        self.assertEqual(mambuutil.gettasksurl(limit=10), self.prefix + "/api/" + "tasks?status=OPEN&limit=10")
+        self.assertEqual(mambuutil.gettasksurl(username='auser', clientId='ABC123', groupId='XY890', status='OVERDUE', offset=2, limit=0), self.prefix + "/api/" + "tasks?username=auser&clientid=ABC123&groupid=XY890&status=OVERDUE&offset=2&limit=0")
 
     def test_getactivitiesurl(self):
         self.assertEqual(mambuutil.getactivitiesurl(), self.prefix + "/api/" + "activities")

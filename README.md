@@ -115,6 +115,8 @@ TODO comments for hackers are included at:
   - MambuStruct catches correctly requests errors and throws
     MambuCommError only on that cases. Any other exception is
     re-raised again.
+* v1.2.2 2019-02-19
+  - gettasksurl now support limit and offset params
 
 ### Author
 

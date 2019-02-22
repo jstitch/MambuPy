@@ -575,6 +575,8 @@ def gettasksurl(dummyId='', *args, **kwargs):
     * clientId
     * groupId
     * status
+    * limit
+    * offset
 
     Mambu REST API defaults to open when status not provided. Here we
     are just making that explicit always defaulting status to 'OPEN'
@@ -603,6 +605,16 @@ def gettasksurl(dummyId='', *args, **kwargs):
             getparams.append("status=%s" % kwargs["status"])
         except Exception as ex:
             getparams.append("status=OPEN")
+
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
 
     url = getmambuurl(*args,**kwargs) + "tasks" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
