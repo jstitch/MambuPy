@@ -35,14 +35,14 @@ Some basic definitions:
   API. It's a more abstract thing in fact. Also may refer to entities on a
   relational database but the term table is preferred in this case.
 """
-
-from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError, OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
-
-import requests
-import json
-from datetime import datetime
-
 from builtins import str as unicode
+from datetime import datetime
+import json
+import requests
+from future.utils import implements_iterator
+
+from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError
+from ..mambuutil import OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
 
 
 class RequestsCounter(object):
@@ -70,7 +70,6 @@ class RequestsCounter(object):
 
 
 
-from future.utils import implements_iterator
 @implements_iterator
 class MambuStructIterator:
     """Enables iteration for some Mambu objects that may want to have iterators.
@@ -625,17 +624,23 @@ class MambuStruct(object):
                             jsresp = jsonresp
                             window = False
                     except ValueError as ex:
+                        # json.loads invalid data argument
                         raise ex
                     except Exception as ex:
+                        # any other json error
                         raise MambuError("JSON Error: %s" % repr(ex))
+                    # if we reach here, we're done and safe
                     break
                 except MambuError as merr:
                     raise merr
-                except Exception as ex:
+                except requests.exceptions.RequestException:
                     retries += 1
+                except Exception as ex:
+                    raise ex
             else:
                 raise MambuCommError("ERROR I can't communicate with Mambu")
 
+            # next window, moving offset...
             offset = offset + limit
             if self.__limit:
                 self.__limit -= limit

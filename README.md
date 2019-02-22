@@ -111,6 +111,10 @@ TODO comments for hackers are included at:
   - MambuStruct now holds a copy of the args and kwargs originally
     passed to the constructor, so they may be reused on future calls
     of connect() method
+* v1.2.1 2019-02-18
+  - MambuStruct catches correctly requests errors and throws
+    MambuCommError only on that cases. Any other exception is
+    re-raised again.
 
 ### Author
 

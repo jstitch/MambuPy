@@ -820,8 +820,10 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
 
         # exceeds retry number
+        import requests as reqs
+        mambustruct.requests.exceptions = reqs.exceptions
         iriToUri.return_value = ""
-        requests.get.side_effect = [ ValueError("TESTING RETRIES") for i in range(mambustruct.MambuStruct.RETRIES) ]
+        requests.get.side_effect = [ reqs.exceptions.RequestException("TESTING RETRIES") for i in range(mambustruct.MambuStruct.RETRIES) ]
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         with self.assertRaisesRegexp(mambustruct.MambuCommError, r"^ERROR I can't communicate with Mambu") as ex:
             ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset: "")
