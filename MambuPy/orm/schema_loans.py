@@ -128,6 +128,10 @@ class LoanAccount(Base):
                                           back_populates = 'loan',
                                           foreign_keys   = 'CustomFieldValue.parentKey',
                                           primaryjoin    = 'CustomFieldValue.parentKey == LoanAccount.encodedKey')
+    tasks                  = relationship('Task',
+                                     back_populates = 'link_loan',
+                                     foreign_keys   = 'Task.taskLinkKey',
+                                     primaryjoin    = 'Task.taskLinkKey == LoanAccount.encodedKey')
     activities             = relationship('Activity', back_populates='loan')
     repayments             = relationship('Repayment', back_populates='account')
     transactions           = relationship('LoanTransaction', back_populates='account')

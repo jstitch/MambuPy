@@ -47,6 +47,8 @@ class Client(Base):
     loanCycle     = Column(Integer)
     birthDate     = Column(DateTime)
     creationDate  = Column(DateTime)
+    activationDate= Column(DateTime)
+    approvedDate  = Column(DateTime)
     groups        = relationship(Group,
                                 secondary=lambda: ClientsGroups,
                                 back_populates='clients')

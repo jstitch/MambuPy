@@ -76,6 +76,12 @@ class User(Base):
     assignedActivities  = relationship('Activity',
                                        primaryjoin    = 'User.encodedKey==Activity.assignedUserKey',
                                        back_populates = 'assignedUser')
+    createdTasks        = relationship('Task',
+                                       primaryjoin    = 'User.encodedKey==Task.createdByUserKey',
+                                       back_populates = 'createdByUser')
+    assignedTasks       = relationship('Task',
+                                       primaryjoin    = 'User.encodedKey==Task.assignedUserKey',
+                                       back_populates = 'assignedUser')
     groups              = relationship('Group', back_populates = 'user')
     loans               = relationship('LoanAccount', back_populates = 'user')
 

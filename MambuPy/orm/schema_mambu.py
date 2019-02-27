@@ -33,3 +33,4 @@ from .schema_branches import *
 from .schema_users import *
 from .schema_addresses import *
 from .schema_customfields import *
+from .schema_tasks import *

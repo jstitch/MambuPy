@@ -37,6 +37,8 @@ class Branch(Base):
     phoneNumber  = Column(String)
     emailAddress = Column(String)
     state        = Column(String)
+    creationDate = Column(DateTime)
+    lastModifiedDate  = Column(DateTime)
 
     # Relationships
     addresses         = relationship('Address',

@@ -66,6 +66,11 @@ class Group(Base):
                                      foreign_keys   = 'LoanAccount.accountHolderKey',
                                      primaryjoin    = 'LoanAccount.accountHolderKey == Group.encodedKey')
     activities        = relationship('Activity', back_populates='group')
+    tasks             = relationship('Task',
+                                     back_populates = 'link_group',
+                                     foreign_keys   = 'Task.taskLinkKey',
+                                     primaryjoin    = 'Task.taskLinkKey == Group.encodedKey',
+                                     order_by       = 'Task.dueDate')
     clients           = relationship('Client',
                                 secondary=lambda: schema_clients.ClientsGroups,
                                 back_populates='groups')
