@@ -179,3 +179,10 @@ activity = make_dummy(Activity(),
                                  'user'         : (user        , 'activities'),
                                  'assignedUser' : (user        , 'assignedActivities'),
                                 })
+# tasks
+tasks = make_dummy(Task(),
+                      relations={'createdByUser' : (user        , 'createdTasks'),
+                                 'assignedUser'  : (user        , 'assignedTasks'),
+                                 'link_group'    : (group       , 'tasks'),
+                                 'link_loan'     : (loanaccount , 'tasks'),
+                                })
