@@ -60,43 +60,51 @@ class MambuUserTests(unittest.TestCase):
             self.assertEqual(u.lastName, '')
             self.assertEqual(u.name, ' ')
 
-    @mock.patch("MambuPy.rest.mambuuser.MambuGroups")
-    def test_setGroups(self, mock_mambugroups):
-        from MambuPy.mambuutil import getuserurl
-        def build_mock_user(self, *args, **kwargs):
-            self.attrs = {
-                'username'  : args[1],
-                }
-        mock_mambugroups.return_value = {'id':"mock_group"}
+    def test_setGroups(self):
+        def mock_connect(*args, **kwargs):
+            args[0].attrs = {'username':"u.sername"}
+        with mock.patch.object(mambuuser.MambuStruct, "connect", mock_connect),\
+             mock.patch('MambuPy.rest.mambugroup.MambuGroups') as mock_mambugroups:
+            gps = mock.Mock(return_value=[{'id':"abc123"},{'id':"xyz321"}])
+            gps.__iter__ = mock.Mock(return_value=iter([{'id':"abc123"},{'id':"xyz321"}]))
+            gps.attrs = [{'id':"abc123"},{'id':"xyz321"}]
+            mock_mambugroups.return_value = gps
+            mock_mambugroups.attrs = [{'id':"abc123"},{'id':"xyz321"}]
 
-        with mock.patch.object(mambuuser.MambuStruct, "__init__", build_mock_user):
-            u = mambuuser.MambuUser(urlfunc=getuserurl, entid="jstitch")
-            self.assertEqual(u.setGroups(), 1)
-            mock_mambugroups.assert_called_with(creditOfficerUsername="jstitch")
-            self.assertEqual(u.groups, {'id':"mock_group"})
+            u = mambuuser.MambuUser(urlfunc=lambda x:x)
+            self.assertFalse(u.has_key('groups'))
+            self.assertFalse(u.has_key('mambugroupsclass'))
+            u.setGroups()
+            self.assertTrue(u.has_key('groups'))
+            self.assertTrue(u.has_key('mambugroupsclass'))
+            mock_mambugroups.assert_called_once_with(creditOfficerUsername='u.sername')
+            self.assertEqual(list(u['groups']), gps.attrs)
 
-    @mock.patch("MambuPy.rest.mambuuser.MambuRole")
-    def test_setRole(self, mock_mamburole):
-        from MambuPy.mambuutil import getuserurl
-        def build_mock_user(self, *args, **kwargs):
-            self.attrs = {
-                'username'  : args[1],
-                }
-            if 'fullDetails' in kwargs and kwargs['fullDetails']==True:
-                self.attrs['role'] = {'encodedKey' : 'role_id'}
-        mock_mamburole.return_value = {'name':"mock_role"}
+    def test_setRoles(self):
+        def mock_connect(*args, **kwargs):
+            args[0].attrs = {"role": {"encodedKey":"roleEncodedKey"}}
+        class my_role(object):
+            def __init__(self, id, name):
+                self.attrs = {'id':id, 'name':name}
+            def __getitem__(self,item):
+                return self.attrs[item]
+        with mock.patch.object(mambuuser.MambuStruct, "connect", mock_connect),\
+             mock.patch('MambuPy.rest.mamburoles.MambuRole') as mock_mamburole:
+            my_role_instance = my_role(id="dummyRoleId",name="myRoleName")
+            mock_mamburole.return_value = my_role_instance
 
-        with mock.patch.object(mambuuser.MambuStruct, "__init__", build_mock_user):
-            u = mambuuser.MambuUser(urlfunc=getuserurl, entid="jstitch", fullDetails=True)
-            self.assertEqual(u.setRoles(), 1)
-            mock_mamburole.assert_called_with(entid="role_id")
-            self.assertEqual(u.role['role'], {'name':"mock_role"})
+            u = mambuuser.MambuUser(urlfunc=lambda x:x)
+            self.assertTrue(u['role'].get('encodedKey'))
+            self.assertFalse(u['role'].get('role'))
+            self.assertFalse(u.has_key('mamburoleclass'))
+            u.setRoles()
+            self.assertTrue(u['role'].get('role'))
+            self.assertTrue(u.has_key('mamburoleclass'))
+            mock_mamburole.assert_called_once_with(entid='roleEncodedKey')
+            self.assertEqual(u['role']['role'], my_role_instance)
+            self.assertEqual(u['role']['role']['id'], "dummyRoleId")
+            self.assertEqual(u['role']['role']['name'], "myRoleName")
 
-        mock_mamburole.reset_mock()
-        with mock.patch.object(mambuuser.MambuStruct, "__init__", build_mock_user):
-            u = mambuuser.MambuUser(urlfunc=getuserurl, entid="jstitch")
-            self.assertEqual(u.setRoles(), 0)
-            self.assertFalse(mock_mamburole.called)
 
     @mock.patch("MambuPy.rest.mambuuser.MambuStruct.create")
     def test_create(self, mock_super_create):
@@ -136,7 +144,10 @@ class MambuUsersTests(unittest.TestCase):
             {'username':"a_user"},
             {'username':"other_user"},
             ]
+        with self.assertRaisesRegexp(AttributeError,"'MambuUsers' object has no attribute 'mambuuserclass'"):
+            us.mambuuserclass
         us.convertDict2Attrs()
+        self.assertTrue(us.mambuuserclass)
         for u in us:
             self.assertEqual(u.__class__.__name__, 'MambuUser')
 

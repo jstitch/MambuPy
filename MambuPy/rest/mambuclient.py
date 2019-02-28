@@ -141,13 +141,17 @@ class MambuClient(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambugroup import MambuGroup
 
         requests = 0
         groups = []
         try:
             for gk in self['groupKeys']:
-                g = MambuGroup(entid=gk, *args, **kwargs)
+                try:
+                    g = self.mambugroupclass(entid=gk, *args, **kwargs)
+                except AttributeError as ae:
+                    from .mambugroup import MambuGroup
+                    self.mambugroupclass = MambuGroup
+                    g = self.mambugroupclass(entid=gk, *args, **kwargs)
                 requests += 1
                 groups.append(g)
         except KeyError:
@@ -160,9 +164,13 @@ class MambuClient(MambuStruct):
     def setBranch(self, *args, **kwargs):
         """Adds the branch to which the client belongs.
         """
-        from mambubranch import MambuBranch
 
-        branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
+        try:
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambubranch import MambuBranch
+            self.mambubranchclass = MambuBranch
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
         self['assignedBranchName'] = branch['name']
         self['assignedBranch'] = branch
 
@@ -209,6 +217,10 @@ class MambuClients(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            client = MambuClient(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuclientclass = MambuClient
+                client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
             client.init(c, *args, **kwargs)
             self.attrs[n] = client

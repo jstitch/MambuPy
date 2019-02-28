@@ -18,8 +18,6 @@ Uses mambuutil.getuserurl as default urlfunc
 
 from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getuserurl
-from .mambugroup import MambuGroups
-from .mamburoles import MambuRole
 
 
 mod_urlfunc = getuserurl
@@ -64,7 +62,12 @@ class MambuUser(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        groups = MambuGroups(creditOfficerUsername=self['username'], *args, **kwargs)
+        try:
+            groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambugroup import MambuGroups
+            self.mambugroupsclass = MambuGroups
+            groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
         self['groups'] = groups
 
         return 1
@@ -79,9 +82,16 @@ class MambuUser(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         try:
-            role = MambuRole(entid=self['role']['encodedKey'], *args, **kwargs)
+            role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
         except KeyError:
             return 0
+        except AttributeError as ae:
+            from .mamburoles import MambuRole
+            self.mamburoleclass = MambuRole
+            try:
+                role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
+            except KeyError:
+                return 0
         self['role']['role'] = role
 
         return 1
@@ -153,6 +163,10 @@ class MambuUsers(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            user = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuuserclass = self.itemclass
+                user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
             user.init(u, *args, **kwargs)
             self.attrs[n] = user

@@ -62,6 +62,7 @@ class MambuTransactions(MambuStruct):
     MambuError.
     """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+        self.Transaction = MambuTransaction
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
 
@@ -91,6 +92,6 @@ class MambuTransactions(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            trans = MambuTransaction(urlfunc=None, entid=None, *args, **kwargs)
+            trans = self.Transaction(urlfunc=None, entid=None, *args, **kwargs)
             trans.init(t, *args, **kwargs)
             self.attrs[n] = trans

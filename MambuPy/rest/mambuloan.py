@@ -86,9 +86,14 @@ class MambuLoan(MambuStruct):
                 return repayment['dueDate']
             except KeyError as kerr:
                 return datetime.now()
-        from .mamburepayment import MambuRepayments
 
-        reps = MambuRepayments(entid=self['id'], *args, **kwargs)
+        try:
+            reps = self.mamburepaymentsclass(entid=self['id'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mamburepayment import MambuRepayments
+            self.mamburepaymentsclass = MambuRepayments
+            reps = self.mamburepaymentsclass(entid=self['id'], *args, **kwargs)
+
         reps.attrs = sorted(reps.attrs, key=duedate)
         self['repayments'] = reps
 
@@ -115,9 +120,14 @@ class MambuLoan(MambuStruct):
                 return transaction['transactionId']
             except KeyError as kerr:
                 return None
-        from .mambutransaction import MambuTransactions
 
-        trans = MambuTransactions(entid=self['id'], *args, **kwargs)
+        try:
+            trans = self.mambutransactionsclass(entid=self['id'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambutransaction import MambuTransactions
+            self.mambutransactionsclass = MambuTransactions
+            trans = self.mambutransactionsclass(entid=self['id'], *args, **kwargs)
+
         trans.attrs = sorted(trans.attrs, key=transactionid)
         self['transactions'] = trans
 
@@ -133,9 +143,14 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from .mambubranch import MambuBranch
 
-        branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
+        try:
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambubranch import MambuBranch
+            self.mambubranchclass = MambuBranch
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+
         self['assignedBranchName'] = branch['name']
         self['assignedBranch'] = branch
 
@@ -151,9 +166,14 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from .mambucentre import MambuCentre
 
-        centre = MambuCentre(entid=self['assignedCentreKey'], *args, **kwargs)
+        try:
+            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambucentre import MambuCentre
+            self.mambucentreclass = MambuCentre
+            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
+
         self['assignedCentreName'] = centre['name']
         self['assignedCentre'] = centre
 
@@ -167,14 +187,21 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from .mambuuser import MambuUser
-
         try:
-            user = MambuUser(entid=self['assignedUserKey'], *args, **kwargs)
+            user = self.mambuuserclass(entid=self['assignedUserKey'], *args, **kwargs)
         except KeyError as kerr:
             err = MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
             err.noUser = True
             raise err
+        except AttributeError as ae:
+            from .mambuuser import MambuUser
+            self.mambuuserclass = MambuUser
+            try:
+                user = self.mambuuserclass(entid=self['assignedUserKey'], *args, **kwargs)
+            except KeyError as kerr:
+                err = MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
+                err.noUser = True
+                raise err
 
         self['user'] = user
 
@@ -193,8 +220,12 @@ class MambuLoan(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         if cache:
-            from .mambuproduct import AllMambuProducts
-            prods = AllMambuProducts(*args, **kwargs)
+            try:
+                prods = self.allmambuproductsclass(*args, **kwargs)
+            except AttributeError as ae:
+                from .mambuproduct import AllMambuProducts
+                self.allmambuproductsclass = AllMambuProducts
+                prods = self.allmambuproductsclass(*args, **kwargs)
             for prod in prods:
                 if prod['encodedKey'] == self['productTypeKey']:
                     self['product'] = prod
@@ -204,10 +235,13 @@ class MambuLoan(MambuStruct):
             except AttributeError:
                 return 1
             return 0
+        try:
+            product = self.mambuproductclass(entid=self['productTypeKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambuproduct import MambuProduct
+            self.mambuproductclass = MambuProduct
+            product = self.mambuproductclass(entid=self['productTypeKey'], *args, **kwargs)
 
-        from .mambuproduct import MambuProduct
-
-        product = MambuProduct(entid=self['productTypeKey'], *args, **kwargs)
         self['product'] = product
 
         return 1
@@ -300,21 +334,30 @@ class MambuLoan(MambuStruct):
             fullDetails = True
 
         if self['accountHolderType'] == "GROUP":
-            from .mambugroup import MambuGroup
 
             self['holderType'] = "Grupo"
-            holder = MambuGroup(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
+            try:
+                holder = self.mambugroupclass(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
+            except AttributeError as ae:
+                from .mambugroup import MambuGroup
+                self.mambugroupclass = MambuGroup
+                holder = self.mambugroupclass(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
             self['holder'] = holder
             requests += 1
 
             if getRoles:
-                from .mambuclient import MambuClient
-
                 roles = []
                 # If holder is group, attach role client data to the group
                 for c in holder['groupRoles']:
+                    try:
+                        cli = self.mambuclientclass(entid=c['clientKey'], *args, **kwargs)
+                    except AttributeError as ae:
+                        from .mambuclient import MambuClient
+                        self.mambuclientclass = MambuClient
+                        cli = self.mambuclientclass(entid=c['clientKey'], *args, **kwargs)
+
                     roles.append({'role'   : c['roleName'],
-                                  'client' : MambuClient(entid=c['clientKey'], *args, **kwargs)
+                                  'client' : cli
                                  })
                     requests += 1
                 holder['roles'] = roles
@@ -342,11 +385,14 @@ class MambuLoan(MambuStruct):
 
 
         else: # "CLIENT"
-            from .mambuclient import MambuClient
-
             self['holderType'] = "Cliente"
-            holder = MambuClient(entid=self['accountHolderKey'],
-                                 fullDetails=fullDetails, *args, **kwargs)
+            try:
+                holder = self.mambuclientclass(entid=self['accountHolderKey'], fullDetails=fullDetails, *args, **kwargs)
+            except AttributeError as ae:
+                from .mambuclient import MambuClient
+                self.mambuclientclass = MambuClient
+                holder = self.mambuclientclass(entid=self['accountHolderKey'], fullDetails=fullDetails, *args, **kwargs)
+
             self['holder'] = holder
             requests += 1
 
@@ -413,9 +459,14 @@ class MambuLoan(MambuStruct):
                 return activity['activity']['timestamp']
             except KeyError as kerr:
                 return None
-        from .mambuactivity import MambuActivities
 
-        activities = MambuActivities(loanAccountId=self['encodedKey'], *args, **kwargs)
+        try:
+            activities = self.mambuactivitiesclass(loanAccountId=self['encodedKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambuactivity import MambuActivities
+            self.mambuactivitiesclass = MambuActivities
+            activities = self.mambuactivitiesclass(loanAccountId=self['encodedKey'], *args, **kwargs)
+
         activities.attrs = sorted(activities.attrs, key=activityDate)
         self['activities'] = activities
 
@@ -482,6 +533,10 @@ class MambuLoans(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            loan = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuloanclass = self.itemclass
+                loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
             loan.init(l, *args, **kwargs)
             self.attrs[n] = loan

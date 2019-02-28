@@ -49,7 +49,6 @@ class MambuCentres(MambuStruct):
         """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
@@ -76,6 +75,10 @@ class MambuCentres(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            centre = MambuCentre(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambucentreclass = MambuCentre
+                centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
             centre.init(b, *args, **kwargs)
             self.attrs[n] = centre

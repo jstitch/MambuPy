@@ -77,7 +77,11 @@ class MambuProducts(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            product = MambuProduct(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuproductclass = MambuProduct
+                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
             product.init(r, *args, **kwargs)
             self.attrs[n] = product
 
@@ -169,6 +173,10 @@ class AllMambuProducts(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            product = MambuProduct(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuproductclass = MambuProduct
+                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
             product.init(r, *args, **kwargs)
             self.attrs[n] = product

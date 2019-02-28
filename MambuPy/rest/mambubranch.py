@@ -46,8 +46,12 @@ class MambuBranch(MambuStruct):
           counter singleton holds true information about how many requests
           were done to Mambu, in fact this return value may be obsolete
         """
-        from mambuuser import MambuUsers
-        usrs = [ us for us in MambuUsers(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
+        try:
+            usrs = [ us for us in self.mambuusersclass(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
+        except AttributeError as ae:
+            from .mambuuser import MambuUsers
+            self.mambuusersclass = MambuUsers
+            usrs = [ us for us in self.mambuusersclass(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
         self['users'] = usrs
 
         return 1
@@ -93,6 +97,10 @@ class MambuBranches(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            branch = MambuBranch(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambubranchclass = MambuBranch
+                branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
             branch.init(b, *args, **kwargs)
             self.attrs[n] = branch

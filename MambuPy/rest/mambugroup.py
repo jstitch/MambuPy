@@ -86,7 +86,6 @@ class MambuGroup(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
-        from mambuclient import MambuClient
 
         requests = 0
         if 'fullDetails' in kwargs:
@@ -96,9 +95,15 @@ class MambuGroup(MambuStruct):
             fullDetails = True
 
         clients = []
+
+
         for m in self['groupMembers']:
-            client = MambuClient(entid=m['clientKey'],
-                                 fullDetails=fullDetails, *args, **kwargs)
+            try:
+                client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
+            except AttributeError as ae:
+                from .mambuclient import MambuClient
+                self.mambuclientclass = MambuClient
+                client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
             requests += 1
             clients.append(client)
 
@@ -109,9 +114,13 @@ class MambuGroup(MambuStruct):
     def setBranch(self, *args, **kwargs):
         """Adds the branch to which this groups belongs
         """
-        from mambubranch import MambuBranch
+        try:
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambubranch import MambuBranch
+            self.mambubranchclass = MambuBranch
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
 
-        branch = MambuBranch(entid=self['assignedBranchKey'], *args, **kwargs)
         self['branch'] = branch
 
         return 1
@@ -119,9 +128,13 @@ class MambuGroup(MambuStruct):
     def setCentre(self, *args, **kwargs):
         """Adds the centre to which this groups belongs
         """
-        from mambucentre import  MambuCentre
+        try:
+            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambucentre import MambuCentre
+            self.mambucentreclass = MambuCentre
+            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
 
-        centre = MambuCentre(entid=self['assignedCentreKey'], *args, **kwargs)
         self['centre'] = centre
 
         return 1
@@ -141,9 +154,13 @@ class MambuGroup(MambuStruct):
                 return activity['activity']['timestamp']
             except KeyError as kerr:
                 return None
-        from mambuactivity import MambuActivities
+        try:
+            activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
+        except AttributeError as ae:
+            from .mambuactivity import MambuActivities
+            self.mambuactivitiesclass = MambuActivities
+            activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
 
-        activities = MambuActivities(groupId=self['encodedKey'], *args, **kwargs)
         activities.attrs = sorted(activities.attrs, key=activityDate)
         self['activities'] = activities
 
@@ -191,6 +208,10 @@ class MambuGroups(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            group = MambuGroup(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambugroupclass = MambuGroup
+                group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
             group.init(c, *args, **kwargs)
             self.attrs[n] = group

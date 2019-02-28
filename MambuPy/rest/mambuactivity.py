@@ -81,7 +81,11 @@ class MambuActivities(MambuStruct):
             except AttributeError as aerr:
                 params = {}
             kwargs.update(params)
-            activity = MambuActivity(urlfunc=None, entid=None, *args, **kwargs)
+            try:
+                activity = self.mambuactivityclass(urlfunc=None, entid=None, *args, **kwargs)
+            except AttributeError as ae:
+                self.mambuactivityclass = MambuActivity
+                activity = self.mambuactivityclass(urlfunc=None, entid=None, *args, **kwargs)
             activity.init(a, *args, **kwargs)
             self.attrs[n] = activity
 

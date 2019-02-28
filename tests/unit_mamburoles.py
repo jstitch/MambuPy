@@ -65,7 +65,10 @@ class MambuRolesTests(unittest.TestCase):
             {'name':"my_role", 'permissions':{}},
             {'name':"my_2_role", 'permissions':{}},
             ]
+        with self.assertRaisesRegexp(AttributeError,"'MambuRoles' object has no attribute 'mamburoleclass'"):
+            rs.mamburoleclass
         rs.convertDict2Attrs()
+        self.assertTrue(rs.mamburoleclass)
         for r in rs:
             self.assertEqual(r.__class__.__name__, 'MambuRole')
 
