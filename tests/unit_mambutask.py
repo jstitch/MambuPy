@@ -127,7 +127,7 @@ class MambuTasksTests(unittest.TestCase):
         with self.assertRaisesRegexp(AttributeError,"'MambuTasks' object has no attribute 'mambutaskclass'"):
             ts.mambutaskclass
         ts.convertDict2Attrs()
-        self.assertTrue(ts.mambutaskclass)
+        self.assertEqual(str(ts.mambutaskclass), "<class 'MambuPy.rest.mambutask.MambuTask'>")
         for t in ts:
             self.assertEqual(t.__class__.__name__, 'MambuTask')
 

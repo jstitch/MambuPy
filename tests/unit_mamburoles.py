@@ -68,7 +68,7 @@ class MambuRolesTests(unittest.TestCase):
         with self.assertRaisesRegexp(AttributeError,"'MambuRoles' object has no attribute 'mamburoleclass'"):
             rs.mamburoleclass
         rs.convertDict2Attrs()
-        self.assertTrue(rs.mamburoleclass)
+        self.assertEqual(str(rs.mamburoleclass), "<class 'MambuPy.rest.mamburoles.MambuRole'>")
         for r in rs:
             self.assertEqual(r.__class__.__name__, 'MambuRole')
 

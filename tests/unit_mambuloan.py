@@ -430,7 +430,7 @@ class MambuLoansTests(unittest.TestCase):
         with self.assertRaisesRegexp(AttributeError,"'MambuLoans' object has no attribute 'mambuloanclass'"):
             ln.mambuloanclass
         ln.convertDict2Attrs()
-        self.assertTrue(ln.mambuloanclass)
+        self.assertEqual(str(ln.mambuloanclass), "<class 'MambuPy.rest.mambuloan.MambuLoan'>")
         for l in ln:
             self.assertEqual(l.__class__.__name__, 'MambuLoan')
 

@@ -69,7 +69,6 @@ class MambuUserTests(unittest.TestCase):
             gps.__iter__ = mock.Mock(return_value=iter([{'id':"abc123"},{'id':"xyz321"}]))
             gps.attrs = [{'id':"abc123"},{'id':"xyz321"}]
             mock_mambugroups.return_value = gps
-            mock_mambugroups.attrs = [{'id':"abc123"},{'id':"xyz321"}]
 
             u = mambuuser.MambuUser(urlfunc=lambda x:x)
             self.assertFalse(u.has_key('groups'))
@@ -147,7 +146,7 @@ class MambuUsersTests(unittest.TestCase):
         with self.assertRaisesRegexp(AttributeError,"'MambuUsers' object has no attribute 'mambuuserclass'"):
             us.mambuuserclass
         us.convertDict2Attrs()
-        self.assertTrue(us.mambuuserclass)
+        self.assertEqual(str(us.mambuuserclass), "<class 'MambuPy.rest.mambuuser.MambuUser'>")
         for u in us:
             self.assertEqual(u.__class__.__name__, 'MambuUser')
 
