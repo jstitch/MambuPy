@@ -146,7 +146,7 @@ class AllMambuProducts(MambuStruct):
             # Iterable AllMambuProducts singleton also uses a special
             # noinit property that should raise AttributeError when
             # not set
-            if name=='params' or name=='noinit':
+            if name in ['params', 'noinit', 'mambuproductclass']:
                 raise AttributeError
             return self[name]
 
