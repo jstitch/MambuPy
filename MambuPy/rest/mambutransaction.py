@@ -62,7 +62,6 @@ class MambuTransactions(MambuStruct):
     MambuError.
     """
     def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        self.Transaction = MambuTransaction
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
 
