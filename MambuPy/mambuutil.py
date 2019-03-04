@@ -790,11 +790,18 @@ def iriToUri(iri):
     parts = urlparse.urlparse(iri)
     if sys.version_info < (3, 0):
         # python2
-        return urlparse.urlunparse(
-            part.encode('idna') if parti==1 else urlEncodeNonAscii(part.encode('utf-8'))
-            for parti, part in enumerate(parts)
-        )
-
+        partes = []
+        for parti, part in enumerate(parts):
+            try:
+                if parti != 1:
+                    partes.append(urlEncodeNonAscii(part.encode('utf-8')))
+                else:
+                    partes.append(part.encode('idna'))
+            except UnicodeDecodeError as ue:
+                partes.append(urlEncodeNonAscii(part.decode('latin')))
+            except Exception as e:
+                raise e
+        return urlparse.urlunparse(partes)
     else:
         # python3
         uri = [part.decode('utf8') for parti, part in enumerate(parts.encode('utf8'))]

@@ -25,9 +25,17 @@ class MambuUserTests(unittest.TestCase):
         from MambuPy.mambuutil import getuserurl
         self.assertEqual(mambuuser.mod_urlfunc, getuserurl)
 
-    def test_class(self):
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_class(self, mock_requests, mock_json):
         u = mambuuser.MambuUser(urlfunc=None)
         self.assertTrue(mambuuser.MambuStruct in u.__class__.__bases__)
+
+        #calling with non ascii char in entid
+        mock_requests.get.return_value = mock.Mock()
+        mock_json.loads.return_value = {}
+        u = mambuuser.MambuUser(entid="d.muñoz", branchId="añil", limit=500)
+        self.assertEqual(u.entid, "d.muñoz")
 
     def test___init__(self):
         u = mambuuser.MambuUser(urlfunc=None, entid="anything")

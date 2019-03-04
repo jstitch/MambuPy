@@ -74,7 +74,9 @@ class MambuUtilTests(unittest.TestCase):
     def test_iriToUri(self):
         self.assertEqual(mambuutil.iriToUri(u"https://domain.mambu.com/some_url"), "https://domain.mambu.com/some_url")
         if sys.version_info < (3, 0):
-            self.assertEqual(mambuutil.iriToUri(u"https://domain.mambu.com/some_url/strange_name/having_ñ"), "https://domain.mambu.com/some_url/strange_name/having_%c3%b1")
+            url = "https://domain.mambu.com/some_url/strange_ñame/having_ñ"
+            resUrl = "https://domain.mambu.com/some_url/strange_%c3%b1ame/having_%c3%b1"
+            self.assertEqual(mambuutil.iriToUri(url), resUrl)
         else:
             self.assertEqual(mambuutil.iriToUri("https://domain.mambu.com/some_url/strange_name/having_ñ"), "https://domain.mambu.com/some_url/strange_name/having_ñ")
 
