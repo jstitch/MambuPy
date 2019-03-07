@@ -117,6 +117,11 @@ TODO comments for hackers are included at:
     re-raised again.
 * v1.2.2 2019-02-19
   - gettasksurl now support limit and offset params
+* v1.3.0 2019-03-06
+  - orm schema_tasks script added.
+  - rest added properties to each Mambmu entity to support
+    instantiation of attributes with a default related-entity class,
+    allowing overriding this with your own related-entity classes.
 
 ### Author
 
