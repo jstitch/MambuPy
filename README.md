@@ -122,6 +122,9 @@ TODO comments for hackers are included at:
   - rest added properties to each Mambmu entity to support
     instantiation of attributes with a default related-entity class,
     allowing overriding this with your own related-entity classes.
+* v1.3.1 2019-03-15
+  - bugfix on MambuStruct.__init__, urlfunc parameter should be
+    treated almost at the end
 
 ### Author
 
