@@ -477,15 +477,6 @@ class MambuStruct(object):
         except KeyError:
             pass
 
-        self.__urlfunc = urlfunc
-        """The given urlfunc argument is saved here.
-
-        It's used at the connect() method, when called.
-        """
-
-        if self.__urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
-            return          # and each element is init without further configs. EDIT 2015-07-11: Really?
-
         try:
             if kwargs.pop('connect'):
                 connect = True
@@ -496,13 +487,21 @@ class MambuStruct(object):
 
         self.__args = ()
         self.__kwargs = {}
-
         from copy import deepcopy
         if args:
             self.__args = deepcopy(args)
         if kwargs:
             for k,v in kwargs.items():
                 self.__kwargs[k] = deepcopy(v)
+
+        self.__urlfunc = urlfunc
+        """The given urlfunc argument is saved here.
+
+        It's used at the connect() method, when called.
+        """
+
+        if self.__urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
+            return          # and each element is init without further configs. EDIT 2015-07-11: Really?
 
         if connect:
             self.connect(*args, **kwargs)
