@@ -277,13 +277,10 @@ class MambuStruct(object):
 
     def get(self, key, default=None):
         """Dict-like behaviour"""
-        try:
-            if type(self.attrs) == dict:
-                return self.attrs.get(key, default)
-            else:
-                raise AttributeError    # if attrs is not a dict
-        except Exception:
-            return NotImplementedError
+        if type(self.attrs) == dict:
+            return self.attrs.get(key, default)
+        else:
+            raise NotImplementedError    # if attrs is not a dict
 
     def keys(self):
         """Dict-like behaviour"""

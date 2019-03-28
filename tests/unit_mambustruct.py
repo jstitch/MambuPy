@@ -283,6 +283,11 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch('MambuPy.rest.mambustruct.requests')
     def test_get(self, requests, json, iriToUri):
         """Dictionary-like get method"""
+        json.loads.return_value = [1,2,3]
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        with self.assertRaises(NotImplementedError) as ex:
+            ms.get('bla')
+
         json.loads.return_value = {'hello':'world'}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
         self.assertEqual(ms.get('hello'), "world")
