@@ -275,6 +275,16 @@ class MambuStruct(object):
         except AttributeError:          # if attrs doesnt exist
             raise NotImplementedError
 
+    def get(self, key, default=None):
+        """Dict-like behaviour"""
+        try:
+            if type(self.attrs) == dict:
+                return self.attrs.get(key, default)
+            else:
+                raise AttributeError    # if attrs is not a dict
+        except Exception:
+            return NotImplementedError
+
     def keys(self):
         """Dict-like behaviour"""
         try:

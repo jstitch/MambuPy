@@ -281,6 +281,17 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch('MambuPy.rest.mambustruct.iriToUri')
     @mock.patch('MambuPy.rest.mambustruct.json')
     @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_get(self, requests, json, iriToUri):
+        """Dictionary-like get method"""
+        json.loads.return_value = {'hello':'world'}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        self.assertEqual(ms.get('hello'), "world")
+        self.assertEqual(ms.get('bla'), None)
+        self.assertEqual(ms.get('bla', False), False)
+
+    @mock.patch('MambuPy.rest.mambustruct.iriToUri')
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
     def test_keys(self, requests, json, iriToUri):
         """Dictionary-like keys method"""
         # when no attrs or not dict-like, raises NotImplementedError
