@@ -255,7 +255,7 @@ class UrlFuncTests(unittest.TestCase):
 
         self.assertEqual(mambuutil.getclienturl(idclient="ABC123", anything="whatever"), self.prefix + "/api/" + "clients/ABC123")
 
-    def test_getgroupcustominformationurl(self):
+    def test_getclientcustominformationurl(self):
         self.assertEqual(mambuutil.getclientcustominformationurl(idclient="ABC123"), self.prefix + "/api/"+ "clients/ABC123/custominformation")
         self.assertEqual(mambuutil.getclientcustominformationurl(idclient="ABC123", customfield="bla"), self.prefix + "/api/"+ "clients/ABC123/custominformation/bla")
 
