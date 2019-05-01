@@ -16,6 +16,7 @@ stages:
     - python unit_mambuactivity.py
     - python unit_mambubranch.py
     - python unit_mambucentre.py
+    - python unit_mambuclient.py
 
 UnitTests-3:
   extends: ".UnitTests"
