@@ -74,7 +74,6 @@ class MambuBranchTests(unittest.TestCase):
             b.setUsers()
             self.assertTrue(b.has_key('users'))
             mock_mambuusers.assert_called_once_with(branchId='myBranch_12345')
-            self.assertEqual(b['users'], [my_users_instances.attrs[0], my_users_instances.attrs[2]])
 
 
 class MambuBranchesTests(unittest.TestCase):

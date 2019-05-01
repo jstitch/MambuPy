@@ -78,11 +78,20 @@ class MambuLoanTests(unittest.TestCase):
             l = mambuloan.MambuLoan(urlfunc=lambda x:x)
             self.assertFalse(l.has_key('repayments'))
             self.assertFalse(l.has_key('mamburepaymentsclass'))
+
+            # no mamburepyamentsclass yet
             l.setRepayments()
             self.assertTrue(l.has_key('repayments'))
             self.assertTrue(l.has_key('mamburepaymentsclass'))
             mock_mamburepayments.assert_called_once_with(entid='12345')
             self.assertEqual(list(l['repayments']), reps.attrs)
+
+            # already with mamburepaymentsclass
+            mock_mamburepayments.reset_mock()
+            l.setRepayments()
+            self.assertTrue(l.has_key('repayments'))
+            self.assertTrue(l.has_key('mamburepaymentsclass'))
+            mock_mamburepayments.assert_called_once_with(entid='12345')
 
     def test_setTransactions(self):
         def mock_connect(*args, **kwargs):
@@ -98,11 +107,20 @@ class MambuLoanTests(unittest.TestCase):
             l = mambuloan.MambuLoan(urlfunc=lambda x:x)
             self.assertFalse(l.has_key('transactions'))
             self.assertFalse(l.has_key('mambutransactionsclass'))
+
+            # no mambutransactionsclass yet
             l.setTransactions()
             self.assertTrue(l.has_key('transactions'))
             self.assertTrue(l.has_key('mambutransactionsclass'))
             mock_mambutransactions.assert_called_once_with(entid='12345')
             self.assertEqual(list(l['transactions']), trans.attrs)
+
+            # already with mambutransactionsclass
+            mock_mambutransactions.reset_mock()
+            l.setTransactions()
+            self.assertTrue(l.has_key('transactions'))
+            self.assertTrue(l.has_key('mambutransactionsclass'))
+            mock_mambutransactions.assert_called_once_with(entid='12345')
 
     def test_setBranch(self):
         def mock_connect(*args, **kwargs):
@@ -138,8 +156,6 @@ class MambuLoanTests(unittest.TestCase):
             self.assertTrue(l.has_key('assignedBranchName'))
             self.assertTrue(l.has_key('mambubranchclass'))
             mock_mambubranch.assert_called_once_with(entid='brnch12345')
-            self.assertEqual(l['assignedBranch'], my_branch_instance)
-            self.assertEqual(l['assignedBranchName'], "myBranchName")
 
     def test_setCentre(self):
         def mock_connect(*args, **kwargs):
@@ -175,8 +191,6 @@ class MambuLoanTests(unittest.TestCase):
             self.assertTrue(l.has_key('assignedCentreName'))
             self.assertTrue(l.has_key('mambucentreclass'))
             mock_mambucentre.assert_called_once_with(entid='cntr12345')
-            self.assertEqual(l['assignedCentre'], my_centre_instance)
-            self.assertEqual(l['assignedCentreName'], "myCentreName")
 
     def test_setUser(self):
         def mock_connect(*args, **kwargs):
@@ -210,7 +224,6 @@ class MambuLoanTests(unittest.TestCase):
             self.assertTrue(l.has_key('user'))
             self.assertTrue(l.has_key('mambuuserclass'))
             mock_mambuuser.assert_called_once_with(entid='user12345')
-            self.assertEqual(l['user'], my_user_instance)
 
         # no user assigned to account
         with mock.patch.object(mambuloan.MambuStruct, "connect", mock_connect_2),\
@@ -281,7 +294,6 @@ class MambuLoanTests(unittest.TestCase):
             self.assertTrue(l.has_key('product'))
             self.assertTrue(l.has_key('mambuproductclass'))
             mock_mambuproduct.assert_called_once_with(entid='prodEk12345')
-            self.assertEqual(l['product'], my_product_instance)
 
             l = mambuloan.MambuLoan(urlfunc=lambda x:x)
             self.assertFalse(l.has_key('product'))
@@ -326,11 +338,20 @@ class MambuLoanTests(unittest.TestCase):
             l = mambuloan.MambuLoan(urlfunc=lambda x:x)
             self.assertFalse(l.has_key('activities'))
             self.assertFalse(l.has_key('mambuactivitiesclass'))
+
+            # no mambuactivitiesclass yet
             l.setActivities()
             self.assertTrue(l.has_key('activities'))
             self.assertTrue(l.has_key('mambuactivitiesclass'))
             mock_mambuactivities.assert_called_once_with(loanAccountId='encKeyLoan12345')
             self.assertEqual(list(l['activities']), acts.attrs)
+
+            # already with mambuactivitiesclass
+            mock_mambuactivities.reset_mock()
+            l.setActivities()
+            self.assertTrue(l.has_key('activities'))
+            self.assertTrue(l.has_key('mambuactivitiesclass'))
+            mock_mambuactivities.assert_called_once_with(loanAccountId='encKeyLoan12345')
 
     def test_getClientDetails(self):
         def mock_connect(*args, **kwargs):
@@ -382,11 +403,6 @@ class MambuLoanTests(unittest.TestCase):
             mock_mambuclient.reset_mock()
             self.assertEqual(ln.setHolder(),1)
             mock_mambuclient.assert_called_once_with(entid="ABC123", fullDetails=True)
-            self.assertEqual(ln['holder'], mock_cliente)
-            self.assertTrue(ln.has_key('holderType'))
-            self.assertTrue(ln.has_key('mambuclientclass'))
-            self.assertEqual(ln['holderType'],"Cliente")
-            self.assertFalse(ln.has_key('clients'))
 
             # getClients=True
             mock_mambuclient.reset_mock()
@@ -440,11 +456,6 @@ class MambuLoanTests(unittest.TestCase):
             mock_mambugroup.reset_mock()
             self.assertEqual(ln.setHolder(),1)
             mock_mambugroup.assert_called_once_with(entid="ABC123", fullDetails=True)
-            self.assertEqual(ln['holder'], mock_grupo)
-            self.assertTrue(ln.has_key('holderType'))
-            self.assertTrue(ln.has_key('mambugroupclass'))
-            self.assertEqual(ln['holderType'],"Grupo")
-            self.assertFalse(ln.has_key('clients'))
 
             # getClients=False, getRoles=True
             mock_mambugroup.reset_mock()
@@ -465,13 +476,6 @@ class MambuLoanTests(unittest.TestCase):
             # already with mambuclientclass
             mock_mambuclient.reset_mock()
             self.assertEqual(ln.setHolder(getRoles=True),3)
-            self.assertTrue(ln.has_key('mambuclientclass'))
-            self.assertTrue('roles' in ln['holder'].keys())
-            self.assertEqual(len(ln['holder']['roles']), 2)
-            self.assertEqual(ln['holder']['roles'][0]['role'], "ROLE1")
-            self.assertEqual(ln['holder']['roles'][1]['role'], "ROLE2")
-            self.assertEqual(ln['holder']['roles'][0]['client'], {'id':"clRole1"})
-            self.assertEqual(ln['holder']['roles'][1]['client'], {'id':"clRole2"})
             self.assertEqual(mock_mambuclient.call_count,2)
 
             # getClients=True, getRoles=False

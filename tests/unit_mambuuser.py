@@ -81,11 +81,20 @@ class MambuUserTests(unittest.TestCase):
             u = mambuuser.MambuUser(urlfunc=lambda x:x)
             self.assertFalse(u.has_key('groups'))
             self.assertFalse(u.has_key('mambugroupsclass'))
+
+            # no mambugroupsclass yet
             u.setGroups()
             self.assertTrue(u.has_key('groups'))
             self.assertTrue(u.has_key('mambugroupsclass'))
             mock_mambugroups.assert_called_once_with(creditOfficerUsername='u.sername')
             self.assertEqual(list(u['groups']), gps.attrs)
+
+            # already with mambugroupsclass
+            mock_mambugroups.reset_mock()
+            u.setGroups()
+            self.assertTrue(u.has_key('groups'))
+            self.assertTrue(u.has_key('mambugroupsclass'))
+            mock_mambugroups.assert_called_once_with(creditOfficerUsername='u.sername')
 
     def test_setRoles(self):
         def mock_connect(*args, **kwargs):
@@ -120,9 +129,6 @@ class MambuUserTests(unittest.TestCase):
             self.assertTrue(u['role'].get('role'))
             self.assertTrue(u.has_key('mamburoleclass'))
             mock_mamburole.assert_called_once_with(entid='roleEncodedKey')
-            self.assertEqual(u['role']['role'], my_role_instance)
-            self.assertEqual(u['role']['role']['id'], "dummyRoleId")
-            self.assertEqual(u['role']['role']['name'], "myRoleName")
 
 
     @mock.patch("MambuPy.rest.mambuuser.MambuStruct.create")
