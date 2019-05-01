@@ -47,11 +47,12 @@ class MambuBranch(MambuStruct):
           were done to Mambu, in fact this return value may be obsolete
         """
         try:
-            usrs = [ us for us in self.mambuusersclass(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
+            self.mambuuserclass
         except AttributeError as ae:
             from .mambuuser import MambuUsers
             self.mambuusersclass = MambuUsers
-            usrs = [ us for us in self.mambuusersclass(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
+
+        usrs = [ us for us in self.mambuusersclass(branchId=self['id'], *args, **kwargs) if us['userState'] == "ACTIVE" ]
         self['users'] = usrs
 
         return 1
@@ -98,9 +99,10 @@ class MambuBranches(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambubranchclass
             except AttributeError as ae:
                 self.mambubranchclass = MambuBranch
-                branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
             branch.init(b, *args, **kwargs)
             self.attrs[n] = branch

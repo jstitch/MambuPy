@@ -535,9 +535,10 @@ class MambuLoans(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambuloanclass
             except AttributeError as ae:
                 self.mambuloanclass = self.itemclass
-                loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
             loan.init(l, *args, **kwargs)
             self.attrs[n] = loan

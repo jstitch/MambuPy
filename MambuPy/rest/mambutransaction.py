@@ -92,9 +92,10 @@ class MambuTransactions(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                trans = self.mambutransactionclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambutransactionclass
             except AttributeError as ae:
                 self.mambutransactionclass = MambuTransaction
-                trans = self.mambutransactionclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            trans = self.mambutransactionclass(urlfunc=None, entid=None, *args, **kwargs)
             trans.init(t, *args, **kwargs)
             self.attrs[n] = trans

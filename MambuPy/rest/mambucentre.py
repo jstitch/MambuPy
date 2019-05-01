@@ -76,9 +76,10 @@ class MambuCentres(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambucentreclass
             except AttributeError as ae:
                 self.mambucentreclass = MambuCentre
-                centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
             centre.init(b, *args, **kwargs)
             self.attrs[n] = centre

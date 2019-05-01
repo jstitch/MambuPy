@@ -122,9 +122,10 @@ class MambuTasks(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                task = self.mambutaskclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambutaskclass
             except AttributeError as ae:
                 self.mambutaskclass = MambuTask
-                task = self.mambutaskclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            task = self.mambutaskclass(urlfunc=None, entid=None, *args, **kwargs)
             task.init(a, *args, **kwargs)
             self.attrs[n] = task
