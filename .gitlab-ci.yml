@@ -13,6 +13,9 @@ stages:
     - python unit_mamburoles.py
     - python unit_mambuuser.py
     - python unit_mambuloan.py
+    - python unit_mambuactivity.py
+    - python unit_mambubranch.py
+    - python unit_mambucentre.py
 
 UnitTests-3:
   extends: ".UnitTests"
