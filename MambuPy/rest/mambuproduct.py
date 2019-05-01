@@ -78,10 +78,11 @@ class MambuProducts(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambuproductclass
             except AttributeError as ae:
                 self.mambuproductclass = MambuProduct
-                product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
             product.init(r, *args, **kwargs)
             self.attrs[n] = product
 
