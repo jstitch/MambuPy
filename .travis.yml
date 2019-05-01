@@ -20,3 +20,5 @@ script:
   - python unit_mambubranch.py
   - python unit_mambucentre.py
   - python unit_mambuclient.py
+  - python unit_mamburepayment.py
+  - python unit_mambutransaction.py
