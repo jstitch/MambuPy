@@ -147,11 +147,12 @@ class MambuClient(MambuStruct):
         try:
             for gk in self['groupKeys']:
                 try:
-                    g = self.mambugroupclass(entid=gk, *args, **kwargs)
+                    self.mambugroupclass
                 except AttributeError as ae:
                     from .mambugroup import MambuGroup
                     self.mambugroupclass = MambuGroup
-                    g = self.mambugroupclass(entid=gk, *args, **kwargs)
+
+                g = self.mambugroupclass(entid=gk, *args, **kwargs)
                 requests += 1
                 groups.append(g)
         except KeyError:
@@ -166,11 +167,12 @@ class MambuClient(MambuStruct):
         """
 
         try:
-            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+            self.mambubranchclass
         except AttributeError as ae:
             from .mambubranch import MambuBranch
             self.mambubranchclass = MambuBranch
-            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+
+        branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
         self['assignedBranchName'] = branch['name']
         self['assignedBranch'] = branch
 
@@ -218,9 +220,10 @@ class MambuClients(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambuclientclass
             except AttributeError as ae:
                 self.mambuclientclass = MambuClient
-                client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
             client.init(c, *args, **kwargs)
             self.attrs[n] = client
