@@ -119,7 +119,8 @@ class AllMambuProducts(MambuStruct):
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
-            cls.__instance = super(AllMambuProducts, cls).__new__(cls, *args, **kwargs)
+            # cls.__instance = super(AllMambuProducts, cls).__new__(cls, *args, **kwargs)
+            cls.__instance = super(AllMambuProducts, cls).__new__(cls)
         else:
             cls.__instance.noinit = True
         return cls.__instance
