@@ -20,6 +20,7 @@ stages:
     - python unit_mamburepayment.py
     - python unit_mambutransaction.py
     - python unit_mambugroup.py
+    - python unit_mambuproduct.py
 
 UnitTests-3:
   extends: ".UnitTests"
