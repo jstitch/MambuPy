@@ -88,9 +88,10 @@ class MambuRepayments(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                repayment = self.mamburepaymentclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mamburepaymentclass
             except AttributeError as ae:
                 self.mamburepaymentclass = MambuRepayment
-                repayment = self.mamburepaymentclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            repayment = self.mamburepaymentclass(urlfunc=None, entid=None, *args, **kwargs)
             repayment.init(r, *args, **kwargs)
             self.attrs[n] = repayment

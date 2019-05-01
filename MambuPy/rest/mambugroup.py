@@ -99,11 +99,12 @@ class MambuGroup(MambuStruct):
 
         for m in self['groupMembers']:
             try:
-                client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
+                self.mambuclientclass
             except AttributeError as ae:
                 from .mambuclient import MambuClient
                 self.mambuclientclass = MambuClient
-                client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
+
+            client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
             requests += 1
             clients.append(client)
 
@@ -115,12 +116,12 @@ class MambuGroup(MambuStruct):
         """Adds the branch to which this groups belongs
         """
         try:
-            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+            self.mambubranchclass
         except AttributeError as ae:
             from .mambubranch import MambuBranch
             self.mambubranchclass = MambuBranch
-            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
 
+        branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
         self['branch'] = branch
 
         return 1
@@ -129,12 +130,12 @@ class MambuGroup(MambuStruct):
         """Adds the centre to which this groups belongs
         """
         try:
-            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
+            self.mambucentreclass
         except AttributeError as ae:
             from .mambucentre import MambuCentre
             self.mambucentreclass = MambuCentre
-            centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
 
+        centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
         self['centre'] = centre
 
         return 1
@@ -155,12 +156,12 @@ class MambuGroup(MambuStruct):
             except KeyError as kerr:
                 return None
         try:
-            activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
+            self.mambuactivitiesclass
         except AttributeError as ae:
             from .mambuactivity import MambuActivities
             self.mambuactivitiesclass = MambuActivities
-            activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
 
+        activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
         activities.attrs = sorted(activities.attrs, key=activityDate)
         self['activities'] = activities
 
@@ -209,9 +210,10 @@ class MambuGroups(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambugroupclass
             except AttributeError as ae:
                 self.mambugroupclass = MambuGroup
-                group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
             group.init(c, *args, **kwargs)
             self.attrs[n] = group

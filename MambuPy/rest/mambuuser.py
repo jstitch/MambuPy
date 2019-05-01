@@ -67,6 +67,7 @@ class MambuUser(MambuStruct):
         except AttributeError as ae:
             from .mambugroup import MambuGroups
             self.mambugroupsclass = MambuGroups
+
         groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
         self['groups'] = groups
 
@@ -86,6 +87,7 @@ class MambuUser(MambuStruct):
         except AttributeError as ae:
             from .mamburoles import MambuRole
             self.mamburoleclass = MambuRole
+
         try:
             role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
         except KeyError:
@@ -162,9 +164,10 @@ class MambuUsers(MambuStruct):
                 params = {}
             kwargs.update(params)
             try:
-                user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
+                self.mambuuserclass
             except AttributeError as ae:
                 self.mambuuserclass = self.itemclass
-                user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
+
+            user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
             user.init(u, *args, **kwargs)
             self.attrs[n] = user
