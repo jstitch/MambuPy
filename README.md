@@ -127,6 +127,8 @@ TODO comments for hackers are included at:
     treated almost at the end
 * v1.3.2 2019-03-27
   - get method for dict-like MambuStructs
+* v1.3.3 2019-05-01
+  - AllMambuProducts singleton py3 compatibility
 
 ### Author
 
