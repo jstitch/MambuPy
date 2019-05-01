@@ -96,7 +96,6 @@ class MambuGroup(MambuStruct):
 
         clients = []
 
-
         for m in self['groupMembers']:
             try:
                 self.mambuclientclass

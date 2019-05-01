@@ -64,7 +64,10 @@ class MambuClientTests(unittest.TestCase):
             self.assertEqual(cl['middleName'], ' MyMiddleName ')
             self.assertEqual(cl['lastName'], ' MyLastName1 MyLastName2 ')
             self.assertFalse(cl.has_key('givenName'))
+            self.assertTrue(cl.has_key('client'))
             cl.preprocess()
+            self.assertEqual(cl['uno'],1)
+            self.assertEqual(cl['dos'],2)
             self.assertEqual(cl['firstName'], 'MyName')
             self.assertEqual(cl['middleName'], 'MyMiddleName')
             self.assertEqual(cl['lastName'], 'MyLastName1 MyLastName2')
@@ -75,6 +78,7 @@ class MambuClientTests(unittest.TestCase):
             self.assertEqual(cl['address'], {'dir1':"PERIFERICO", 'num':"2258"})
             self.assertEqual(cl['CURP'],"ABCD123456DEFGHI12")
             self.assertEqual(cl['INE'],"1234567890")
+            self.assertFalse(cl.has_key('client'))
 
     def test_postprocess(self):
         def mock_connect(*args, **kwargs):
