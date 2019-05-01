@@ -63,11 +63,11 @@ class MambuUser(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         try:
-            groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
+            self.mambugroupsclass
         except AttributeError as ae:
             from .mambugroup import MambuGroups
             self.mambugroupsclass = MambuGroups
-            groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
+        groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
         self['groups'] = groups
 
         return 1
@@ -82,16 +82,14 @@ class MambuUser(MambuStruct):
         Returns the number of requests done to Mambu.
         """
         try:
-            role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
-        except KeyError:
-            return 0
+            self.mamburoleclass
         except AttributeError as ae:
             from .mamburoles import MambuRole
             self.mamburoleclass = MambuRole
-            try:
-                role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
-            except KeyError:
-                return 0
+        try:
+            role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
+        except KeyError:
+            return 0
         self['role']['role'] = role
 
         return 1

@@ -104,6 +104,18 @@ class MambuUserTests(unittest.TestCase):
             self.assertTrue(u['role'].get('encodedKey'))
             self.assertFalse(u['role'].get('role'))
             self.assertFalse(u.has_key('mamburoleclass'))
+
+            # no mamburolesclass yet
+            u.setRoles()
+            self.assertTrue(u['role'].get('role'))
+            self.assertTrue(u.has_key('mamburoleclass'))
+            mock_mamburole.assert_called_once_with(entid='roleEncodedKey')
+            self.assertEqual(u['role']['role'], my_role_instance)
+            self.assertEqual(u['role']['role']['id'], "dummyRoleId")
+            self.assertEqual(u['role']['role']['name'], "myRoleName")
+
+            # already with mamburolesclass
+            mock_mamburole.reset_mock()
             u.setRoles()
             self.assertTrue(u['role'].get('role'))
             self.assertTrue(u.has_key('mamburoleclass'))

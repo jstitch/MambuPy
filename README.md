@@ -125,6 +125,8 @@ TODO comments for hackers are included at:
 * v1.3.1 2019-03-15
   - bugfix on MambuStruct.__init__, urlfunc parameter should be
     treated almost at the end
+* v1.3.2 2019-03-27
+  - get method for dict-like MambuStructs
 
 ### Author
 

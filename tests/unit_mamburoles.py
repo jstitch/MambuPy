@@ -55,9 +55,9 @@ class MambuRolesTests(unittest.TestCase):
         rs = mamburoles.MambuRoles(urlfunc=None)
         rs.attrs = [{'0':0}, {'1':1}, {'2':2}]
         self.assertEqual(len(rs), 3)
-        for n,a in enumerate(rs):
-            self.assertEqual(str(n), [k for k in a][0])
-            self.assertEqual(n, a[str(n)])
+        for n,r in enumerate(rs):
+            self.assertEqual(str(n), [k for k in r][0])
+            self.assertEqual(n, r[str(n)])
 
     def test_convertDict2Attrs(self):
         rs = mamburoles.MambuRoles(urlfunc=None)
