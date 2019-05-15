@@ -526,6 +526,8 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(getattr(self.ms,'_MambuStruct__method'), "GET")
         ms = mambustruct.MambuStruct(urlfunc=None, method="PATCH")
         self.assertEqual(getattr(ms, '_MambuStruct__method'), "PATCH")
+        ms = mambustruct.MambuStruct(urlfunc=None, method="DELETE")
+        self.assertEqual(getattr(ms, '_MambuStruct__method'), "DELETE")
 
         self.assertEqual(getattr(self.ms,'_MambuStruct__limit'), 0)
         ms = mambustruct.MambuStruct(urlfunc=None, limit=123)
@@ -810,6 +812,17 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.patch.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(getattr(ms, 'attrs', "Monty Python Flying Circus"), "Monty Python Flying Circus")
+
+        # DELETE data
+        requests.reset_mock()
+        iriToUri.return_value = "http://example.com"
+        json.dumps.return_value = data
+        requests.delete.return_value = mock.Mock()
+        json.loads.return_value = {'field1':'value1', 'field2':'value2'}
+        ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", method="DELETE", user="my_user", pwd="my_password")
+        requests.delete.assert_called_with("http://example.com", auth=("my_user", "my_password"))
+        self.assertIsNone(ms.connect())
+        self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
 
         # normal load with error
         iriToUri.return_value = ""

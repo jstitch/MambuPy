@@ -598,20 +598,23 @@ class MambuStruct(object):
                     # Basic authentication
                     user = self.__kwargs.get('user', apiuser)
                     pwd = self.__kwargs.get('pwd', apipwd)
+                    url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
                     if self.__data:
                         headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
-                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
                     # PATCH
                         if self.__method=="PATCH":
                             resp = requests.patch(url, data=data, headers=headers, auth=(user, pwd))
                     # POST
                         else:
                             resp = requests.post(url, data=data, headers=headers, auth=(user, pwd))
-                    # GET
                     else:
-                        url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
-                        resp = requests.get(url, auth=(user, pwd))
+                        # DELETE
+                        if self.__method=="DELETE":
+                            resp = requests.delete(url, auth=(user, pwd))
+                        # GET
+                        else:
+                            resp = requests.get(url, auth=(user, pwd))
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
