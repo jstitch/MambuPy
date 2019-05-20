@@ -129,6 +129,8 @@ TODO comments for hackers are included at:
   - get method for dict-like MambuStructs
 * v1.3.3 2019-05-01
   - AllMambuProducts singleton py3 compatibility
+* v1.3.4 2019-05-16
+  - add support for DELETE method on MambuStruct connect()
 
 ### Author
 
