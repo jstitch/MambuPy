@@ -16,6 +16,9 @@ Objects using `Mambu REST API <https://developer.mambu.com/customer/en/portal/ar
     MambuPy.rest.mambucentre
     MambuPy.rest.mambuactivity
     MambuPy.rest.mambutask
+    MambuPy.rest.mambusaving
+    MambuPy.rest.mambusavingtransaction
+    MambuPy.rest.mambutransactionchannel
     MambuPy.rest.mambuuser
     MambuPy.rest.mamburoles
 

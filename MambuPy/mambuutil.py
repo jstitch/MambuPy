@@ -186,12 +186,207 @@ def getrepaymentsurl(idcred, *args, **kwargs):
 
     See mamburepayment module and pydoc for further information.
 
-    No current implemented filter parameters.
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
     """
-    url = getmambuurl(*args,**kwargs) + "loans/" + idcred + "/repayments"
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "loans/" + idcred + "/repayments" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getsavingssurl(idcred, *args, **kwargs):
+    """Request loan savings URL.
+
+    If idcred is set, you'll get a response adequate for a
+    MambuSaving object.
+
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "savings/" + idcred + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getsavingfundingrepaymentsurl(idcred, loan_id, *args, **kwargs):
+    """Request loan saving Repayments URL.
+
+    If idcred is set, you'll get a response adequate for a
+    MambuSaving object.
+
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "savings/" + idcred + "/funding/" + loan_id + '/repayments' + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getsavingstransactionsurl(idcred, *args, **kwargs):
+    """Request saving transaction URL.
+
+    If idcred is set, you'll get a response adequate for a
+    MambuSavingTransaction object.
+
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "savings/" + idcred + "/transactions/" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def getsavingstransactionssearchurl(idcred, *args, **kwargs):
+    """Request saving transaction URL.
+
+    idcred is not used - search is rather defined via POST filter parameter.
+
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "savings/transactions/search" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
+    return url
+
+def gettransactionchannelsurl(idcred, *args, **kwargs):
+    """Transaction channels URL.
+
+    If idcred is set, you'll get a response adequate for a
+    MambuTransactionChannel object.
+
+    Currently implemented GET filter parameters:
+        * fullDetails
+        * limit
+        * offset
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+    """
+    getparams = []
+    if kwargs:
+        try:
+            if kwargs["fullDetails"] == True:
+                getparams.append("fullDetails=true")
+            else:
+                getparams.append("fullDetails=false")
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("offset=%s" % kwargs["offset"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("limit=%s" % kwargs["limit"])
+        except Exception as ex:
+            pass
+
+    url = getmambuurl(*args,**kwargs) + "transactionchannels/" + idcred + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
 
 def getloansurl(idcred, *args, **kwargs):

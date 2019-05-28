@@ -618,6 +618,7 @@ class MambuStruct(object):
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
+                        self._raw_resonse_data = resp.content
                         jsonresp = json.loads(resp.content)
                         # Returns list: extend list for offset
                         if type(jsonresp) == list:
