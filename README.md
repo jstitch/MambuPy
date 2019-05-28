@@ -131,6 +131,8 @@ TODO comments for hackers are included at:
   - AllMambuProducts singleton py3 compatibility
 * v1.3.4 2019-05-16
   - add support for DELETE method on MambuStruct connect()
+* v1.3.5 2019-05-28
+  - add Mambu Savings related entities (unit test still TODO)
 
 ### Author
 
