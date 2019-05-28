@@ -773,12 +773,14 @@ class MambuStructConnectTests(unittest.TestCase):
         rc_cnt = ms.rc.cnt
         iriToUri.return_value = "http://example.com"
         requests.get.return_value = mock.Mock()
+        requests.get.return_value.content = "my raw response"
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", user="my_user", pwd="my_password")
         requests.get.assert_called_with("http://example.com", auth=("my_user", "my_password"))
         self.assertEqual(ms.rc.cnt, rc_cnt+1)
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
+        self.assertEqual(ms._raw_response_data, "my raw response")
         # connect saves old parameter calls
         self.assertEqual(ms._MambuStruct__kwargs,{'user':'my_user', 'pwd':'my_password'})
         ms.connect()
