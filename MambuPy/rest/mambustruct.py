@@ -747,7 +747,7 @@ class MambuStruct(object):
         Some default constantFields are left as is (strings), because
         they are better treated as strings.
         """
-        constantFields = ['id', 'groupName', 'name', 'homePhone', 'mobilePhone1', 'phoneNumber', 'postcode', 'emailAddress']
+        constantFields = ['id', 'groupName', 'name', 'homePhone', 'mobilePhone1', 'phoneNumber', 'postcode', 'emailAddress', 'description']
         def convierte(data):
             """Recursively convert the fields on the data given to a python object."""
             # Iterators, lists and dictionaries

@@ -133,6 +133,8 @@ TODO comments for hackers are included at:
   - add support for DELETE method on MambuStruct connect()
 * v1.3.5 2019-05-28
   - add Mambu Savings related entities (unit test still TODO)
+* v1.3.6 2019-06-11
+  - MambuStruct convertDict2Attrs constantFields added 'description'
 
 ### Author
 

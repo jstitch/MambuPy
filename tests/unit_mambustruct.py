@@ -483,6 +483,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.convertDict2Attrs()
         self.assertEqual(ms.postcode, '12345')
 
+        ms.attrs = {'description' : '12345'}
+        ms.convertDict2Attrs()
+        self.assertEqual(ms.description, '12345')
+
         ms.attrs = {'emailAddress' : '12345'}
         ms.convertDict2Attrs()
         self.assertEqual(ms.emailAddress, '12345')
