@@ -1092,7 +1092,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         if verbose:
             log.write("open url: "+posturl+"\n")
             log.flush()
-        resp = requests.post(posturl, data=data, headers={'content-type': 'application/json'}, auth=(apiuser, apipwd))
+        resp = requests.post(posturl, data=data, headers={'content-type': 'application/json'}, auth=(user, pwd))
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
         if verbose:
@@ -1132,7 +1132,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if verbose:
         log.write("open url: "+geturl+"\n")
         log.flush()
-    resp = requests.get(geturl, auth=(apiuser, apipwd))
+    resp = requests.get(geturl, auth=(user, pwd))
 
     if resp.status_code != 200:
         mess = "Error getting database backup: %s" % resp.content
