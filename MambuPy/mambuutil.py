@@ -28,7 +28,13 @@ from .mambuconfig import dbhost
 from .mambuconfig import dbport
 from .mambuconfig import dbeng
 
-from builtins import str as unicode
+try:
+    # python2
+    unicode
+except NameError:
+    # python3
+    unicode = str
+
 import sys
 
 API_RETURN_CODES = {
