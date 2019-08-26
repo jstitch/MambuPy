@@ -135,6 +135,11 @@ TODO comments for hackers are included at:
   - add Mambu Savings related entities (unit test still TODO)
 * v1.3.6 2019-06-11
   - MambuStruct convertDict2Attrs constantFields added 'description'
+* v1.3.7 2019-07-30
+  - Auth paramos for backup_db func were incorrectly set
+* v1.3.8 2019-08-26
+  - change import builtins for unicode to a more generic way of
+    importing it
 
 ### Author
 
