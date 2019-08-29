@@ -1,7 +1,8 @@
 requests
-SQLAlchemy==1.2.12
+SQLAlchemy==1.3.6
 
 mock
 coverage
+pylint
 future
 mysqlclient
