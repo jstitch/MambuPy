@@ -72,7 +72,17 @@ class MambuGroup(MambuStruct):
             self['name'] = self['groupName']
         except KeyError:
             pass
-
+        
+        self['address'] = {}
+        try:
+            for name,item in self['addresses'][0].items():
+                try:
+                    self['addresses'][0][name] = item.strip()
+                    self['address'][name] = item.strip()
+                except AttributeError:
+                    pass
+        except (KeyError, IndexError):
+            pass
 
     def setClients(self, *args, **kwargs):
         """Adds the clients for this group to a 'clients' field.
