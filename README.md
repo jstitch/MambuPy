@@ -140,6 +140,8 @@ TODO comments for hackers are included at:
 * v1.3.8 2019-08-26
   - change import builtins for unicode to a more generic way of
     importing it
+* v1.3.9 2019-10-30
+  - MambuGroup support one address via preprocess
 
 ### Author
 
