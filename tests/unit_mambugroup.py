@@ -51,6 +51,9 @@ class MambuGroupTests(unittest.TestCase):
                              'theGroup'  : {'uno':1, 'dos':2},
                              'notes'     : "<div>Hello World</div>",
                              'groupName' : "MyGroupName",
+                             'addresses'  : [{'dir1':"PERIFERICO"      , 'num':"2258"},
+                                             {'dir1':"ESTADO DE MEXICO", 'num':"3"}
+                                            ],
                             }
         with mock.patch.object(mambugroup.MambuStruct, "connect", mock_connect):
             grp = mambugroup.MambuGroup(urlfunc=lambda x:x)
@@ -61,6 +64,7 @@ class MambuGroupTests(unittest.TestCase):
             self.assertEqual(grp['dos'],2)
             self.assertEqual(grp['notes'], "Hello World")
             self.assertEqual(grp['name'], grp['groupName'])
+            self.assertEqual(grp['address'], {'dir1':"PERIFERICO", 'num':"2258"})
             self.assertFalse(grp.has_key('theGroup'))
 
     def test_setClients(self):
