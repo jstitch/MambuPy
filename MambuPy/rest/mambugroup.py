@@ -72,7 +72,7 @@ class MambuGroup(MambuStruct):
             self['name'] = self['groupName']
         except KeyError:
             pass
-        
+
         self['address'] = {}
         try:
             for name,item in self['addresses'][0].items():
