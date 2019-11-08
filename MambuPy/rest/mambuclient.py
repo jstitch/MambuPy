@@ -178,6 +178,16 @@ class MambuClient(MambuStruct):
 
         return 1
 
+    def create(self, data, *args, **kwargs):
+        """Create a client in Mambu
+
+        Parameters
+        -data       dictionary with data to send
+
+        """
+        super(MambuClient, self).create(data)
+        return True
+
 
 class MambuClients(MambuStruct):
     """A list of Clients from Mambu.
