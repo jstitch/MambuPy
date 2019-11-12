@@ -185,8 +185,8 @@ class MambuClient(MambuStruct):
         -data       dictionary with data to send
 
         """
-        super(MambuClient, self).create(data)
-        return True
+        return super(MambuClient, self).create(data)
+
 
 
 class MambuClients(MambuStruct):

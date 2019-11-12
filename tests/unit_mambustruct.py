@@ -736,7 +736,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         responsePOST = {"user":{"user":"moreData"}, "customInformation":[{"customId":"id", "customValue":"value"}]}
         json.loads.return_value = responsePOST
 
-        self.assertEqual(ms.create(data), None)
+        self.assertEqual(ms.create(data), 1)
         self.assertEqual(ms.attrs, responsePOST)
         self.assertEqual(ms.keys(), responsePOST.keys())
         self.assertEqual(ms._MambuStruct__args, ())

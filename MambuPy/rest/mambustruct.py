@@ -836,6 +836,7 @@ class MambuStruct(object):
         self.connect(*args, **kwargs)
         self._MambuStruct__method  = "GET"
         self._MambuStruct__data    = None
+        return 1
 
 
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
