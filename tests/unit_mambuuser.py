@@ -143,7 +143,7 @@ class MambuUserTests(unittest.TestCase):
         # u[u.customFieldName] not exists
         with self.assertRaisesRegexp(KeyError, r"^'%s'"%(u.customFieldName)) as ex:
             self.assertTrue(u[u.customFieldName])
-        self.assertEqual(u.create(data), None)
+        self.assertEqual(u.create(data), 1)
         mock_super_create.assert_called_with(data)
         # after init() method is called inside create() the attribute
         # u[u.customFieldName] is created

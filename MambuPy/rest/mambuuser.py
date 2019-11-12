@@ -107,6 +107,7 @@ class MambuUser(MambuStruct):
         super(MambuUser, self).create(data)
         self['user'][self.customFieldName] = self['customInformation']
         self.init(attrs=self['user'])
+        return 1
 
 
 class MambuUsers(MambuStruct):
