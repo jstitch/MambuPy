@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 sys.path.insert(0, os.path.abspath('..'))
 
 try:
@@ -20,6 +21,12 @@ try:
     unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
 except Exception as e:
     pass # DeprecationWarning: Please use assertRaisesRegex instead
+
+class Response(object):
+    def __init__(self, text):
+        self.text = json.dumps(text)
+        self.content = text
+
 
 class RequestsCounterTests(unittest.TestCase):
     """Requests Counter singleton tests"""
@@ -746,6 +753,31 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.create.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
             ms.create(data)
+
+        self.assertEqual(ms._MambuStruct__method, "GET")
+        self.assertEqual(ms._MambuStruct__data, None)
+        self.assertTrue(ms._MambuStruct__urlfunc)
+
+
+    @mock.patch('MambuPy.rest.mambustruct.iriToUri')
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_update(self, requests, json, iriToUri):
+        """Test update"""
+        # inside __init__ if urlfunc is None connect is False
+        ms = mambustruct.MambuStruct(connect=False, urlfunc=lambda entid, limit, offset : "")
+        data = {"user":{"user":"moreData"}, "customInformation":["customFields"]}
+        iriToUri.return_value = "http://example.com"
+        requests.patch.return_value = Response(str(data))
+
+        self.assertEqual(ms.update(data), 1)
+        self.assertEqual(ms._MambuStruct__args, ())
+        self.assertEqual(ms._MambuStruct__kwargs, {})
+
+        # if the class who call method update is direfent who implemented it
+        ms.update.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
+            ms.update(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
         self.assertEqual(ms._MambuStruct__data, None)

@@ -484,6 +484,9 @@ class MambuStruct(object):
         except KeyError:
             pass
 
+        # for API v1
+        self.__headers = {'content-type': 'application/json'}
+
         try:
             if kwargs.pop('connect'):
                 connect = True
@@ -599,15 +602,15 @@ class MambuStruct(object):
                     user = self.__kwargs.get('user', apiuser)
                     pwd = self.__kwargs.get('pwd', apipwd)
                     url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
+                    self.__url = url
                     if self.__data:
-                        headers = {'content-type': 'application/json'}
                         data = json.dumps(encoded_dict(self.__data))
                     # PATCH
                         if self.__method=="PATCH":
-                            resp = requests.patch(url, data=data, headers=headers, auth=(user, pwd))
+                            resp = requests.patch(url, data=data, headers=self.__headers, auth=(user, pwd))
                     # POST
                         else:
-                            resp = requests.post(url, data=data, headers=headers, auth=(user, pwd))
+                            resp = requests.post(url, data=data, headers=self.__headers, auth=(user, pwd))
                     else:
                         # DELETE
                         if self.__method=="DELETE":
@@ -832,6 +835,29 @@ class MambuStruct(object):
             raise Exception("Child method not implemented")
 
         self._MambuStruct__method  = "POST"
+        self._MambuStruct__data    = data
+        self.connect(*args, **kwargs)
+        self._MambuStruct__method  = "GET"
+        self._MambuStruct__data    = None
+        return 1
+
+    def update(self, data, *args, **kwargs):
+        """Creates an entity in Mambu
+
+        This method must be implemented in child classes
+
+        Args:
+            data (dictionary): dictionary with data to send, this dictionary
+                               is specific for each Mambu entity
+        """
+        # if module of the function is diferent from the module of the object
+        # that means create is not implemented in child class
+        if self.update.__func__.__module__ != self.__module__:
+            raise Exception("Child method not implemented")
+        if not data:
+            raise Exception("Any data to update")
+
+        self._MambuStruct__method  = "PATCH"
         self._MambuStruct__data    = data
         self.connect(*args, **kwargs)
         self._MambuStruct__method  = "GET"
