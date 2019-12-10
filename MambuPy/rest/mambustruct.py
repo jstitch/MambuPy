@@ -841,7 +841,7 @@ class MambuStruct(object):
         self._MambuStruct__data    = None
         return 1
 
-    def update(self, data, *args, **kwargs):
+    def updatePatch(self, data, *args, **kwargs):
         """Creates an entity in Mambu
 
         This method must be implemented in child classes
@@ -852,10 +852,10 @@ class MambuStruct(object):
         """
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
-        if self.update.__func__.__module__ != self.__module__:
+        if self.updatePatch.__func__.__module__ != self.__module__:
             raise Exception("Child method not implemented")
         if not data:
-            raise Exception("Any data to update")
+            raise Exception("Requires data to update")
 
         self._MambuStruct__method  = "PATCH"
         self._MambuStruct__data    = data
@@ -864,6 +864,28 @@ class MambuStruct(object):
         self._MambuStruct__data    = None
         return 1
 
+    def updatePost(self, data, *args, **kwargs):
+        """Creates an entity in Mambu
+
+        This method must be implemented in child classes
+
+        Args:
+            data (dictionary): dictionary with data to send, this dictionary
+                               is specific for each Mambu entity
+        """
+        # if module of the function is diferent from the module of the object
+        # that means create is not implemented in child class
+        if self.updatePost.__func__.__module__ != self.__module__:
+            raise Exception("Child method not implemented")
+        if not data:
+            raise Exception("Requires data to update")
+
+        self._MambuStruct__method  = "POST"
+        self._MambuStruct__data    = data
+        self.connect(*args, **kwargs)
+        self._MambuStruct__method  = "GET"
+        self._MambuStruct__data    = None
+        return 1
 
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with

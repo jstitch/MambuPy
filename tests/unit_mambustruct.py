@@ -762,7 +762,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch('MambuPy.rest.mambustruct.iriToUri')
     @mock.patch('MambuPy.rest.mambustruct.json')
     @mock.patch('MambuPy.rest.mambustruct.requests')
-    def test_update(self, requests, json, iriToUri):
+    def test_updatePatch(self, requests, json, iriToUri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(connect=False, urlfunc=lambda entid, limit, offset : "")
@@ -770,14 +770,45 @@ class MambuStructMethodsTests(unittest.TestCase):
         iriToUri.return_value = "http://example.com"
         requests.patch.return_value = Response(str(data))
 
-        self.assertEqual(ms.update(data), 1)
+        self.assertEqual(ms.updatePatch(data), 1)
         self.assertEqual(ms._MambuStruct__args, ())
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
+        # if not send any data raises an Exception
+        with self.assertRaisesRegexp(Exception, r"^Requires data to update$") as ex:
+            ms.updatePatch({})
         # if the class who call method update is direfent who implemented it
-        ms.update.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        ms.updatePatch.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
-            ms.update(data)
+            ms.updatePatch(data)
+
+        self.assertEqual(ms._MambuStruct__method, "GET")
+        self.assertEqual(ms._MambuStruct__data, None)
+        self.assertTrue(ms._MambuStruct__urlfunc)
+
+
+    @mock.patch('MambuPy.rest.mambustruct.iriToUri')
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_updatePost(self, requests, json, iriToUri):
+        """Test update"""
+        # inside __init__ if urlfunc is None connect is False
+        ms = mambustruct.MambuStruct(connect=False, urlfunc=lambda entid, limit, offset : "")
+        data = {"user":{"user":"moreData"}, "customInformation":["customFields"]}
+        iriToUri.return_value = "http://example.com"
+        requests.post.return_value = Response(str(data))
+
+        self.assertEqual(ms.updatePost(data), 1)
+        self.assertEqual(ms._MambuStruct__args, ())
+        self.assertEqual(ms._MambuStruct__kwargs, {})
+
+        # if not send any data raises an Exception
+        with self.assertRaisesRegexp(Exception, r"^Requires data to update$") as ex:
+            ms.updatePost({})
+        # if the class who call method update is direfent who implemented it
+        ms.updatePost.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
+            ms.updatePost(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
         self.assertEqual(ms._MambuStruct__data, None)
@@ -855,12 +886,11 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.reset_mock()
         iriToUri.return_value = "http://example.com"
         json.dumps.return_value = data
-        requests.delete.return_value = mock.Mock()
-        json.loads.return_value = {'field1':'value1', 'field2':'value2'}
+        requests.delete.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", method="DELETE", user="my_user", pwd="my_password")
         requests.delete.assert_called_with("http://example.com", auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
-        self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
+        self.assertEqual(ms._raw_response_data, '{"returnCode":0,"returnStatus":"SUCCESS"}')
 
         # normal load with error
         iriToUri.return_value = ""
