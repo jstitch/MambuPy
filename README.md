@@ -142,6 +142,8 @@ TODO comments for hackers are included at:
     importing it
 * v1.3.9 2019-10-30
   - MambuGroup support one address via preprocess
+* v1.3.10 2019-12-09
+  - MambuStruct support to update info via PATCH and POST
 
 ### Author
 
