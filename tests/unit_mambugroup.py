@@ -215,6 +215,26 @@ class MambuGroupTests(unittest.TestCase):
         self.assertEqual(g["groupName"], "NUEVO AMANECER I(COPIA)")
         self.assertEqual(g["id"], "RV982")
 
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_update(self, mock_requests):
+        """Test create"""
+        # set data response
+        mock_requests.patch.return_value = Response('{}')
+        mock_requests.post.return_value = Response('{}')
+        g = mambugroup.MambuGroup(connect=False)
+        g.attrs = {}
+        gData = {}
+        # send none data
+        self.assertEqual(g.update(gData), 0)
+        gData["groupMembers"] = [1,2,3]
+        gData["groupRoles"] = [1,2,3]
+        self.assertEqual(g.update(gData), 1)
+        gData["group"] = {"groupName": "Grupo secreto",}
+        gData["customInformation"] = {"f1":1}
+        self.assertEqual(g.update(gData), 2)
+        gData["addresses"] = ["oneAddress"]
+        self.assertEqual(g.update(gData), 3)
+
 
 class MambuGroupsTests(unittest.TestCase):
     def test_class(self):

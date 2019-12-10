@@ -194,6 +194,95 @@ class MambuGroup(MambuStruct):
         self.init(attrs=self['group'])
         return 1
 
+    def update(self, data, *args, **kwargs):
+        """Updates a group in Mambu
+
+        Uses PATCH and POST methods, for update "groupMembers", "groupRoles"
+        and "group fields" PATCH method is used, for "customInformation" also
+        Patch is used but url needs to be changed, in order to update
+        "addresses" POST method is needed.
+
+        https://support.mambu.com/docs/groups-api#post-group
+        https://support.mambu.com/docs/groups-api#patch-group-information
+        https://support.mambu.com/docs/groups-api#patch-group-custom-field-values
+
+        Parameters
+        -data       dictionary with data to update
+        """
+        cont_requests = 0
+        data2update = {}
+        # SET groupMembers
+        if data.get("groupMembers"):
+            data2update["groupMembers"] = data.get("groupMembers")
+        # SET groupRoles
+        if data.get("groupRoles"):
+            data2update["groupRoles"] = data.get("groupRoles")
+
+        # if there is data to update or data group to update, updates
+        if data2update or data.get("group"):
+            # SET group fields
+            data2update["group"] = data.get("group", {})
+            # UPDATE group fields
+            cont_requests += super(MambuGroup, self).updatePatch(data2update)
+
+        # UPDATE customFields
+        if data.get("customInformation"):
+            data2update = {"group":{}}
+            data2update["customInformation"] = data.get("customInformation")
+            self._MambuStruct__urlfunc = getgroupcustominformationurl
+            cont_requests += super(MambuGroup, self).updatePatch(data2update)
+            self._MambuStruct__urlfunc = getgroupurl
+
+        # UPDATE addresses
+        if data.get("addresses"):
+            data2update = self._notUpdateData()
+            data2update["addresses"] = data.get("addresses")
+            cont_requests += super(MambuGroup, self).updatePost(data2update)
+
+        return cont_requests
+
+    def updatePatch(self, data, *args, **kwargs):
+        """Updates a group Mambu using method PATCH
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/groups-api#patch-group-information
+        """
+        return super(MambuGroup, self).updatePatch(data)
+
+    def updatePost(self, data, *args, **kwargs):
+        """Updates a group in Mambu using method POST
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/groups-api#post-group
+        """
+        return super(MambuGroup, self).updatePost(data)
+
+    def _notUpdateData(self):
+        """Data that would not be updated/overwritten in case of POST
+
+        Dictionary with group data copied
+        """
+        notUpdateFields = [
+            'id',
+            'groupName',
+            'mobilePhone1',
+            'homePhone',
+            'emailAddress',
+            'preferredLanguage',
+            'notes',
+            'assignedUserKey',
+            'assignedCentreKey',
+            'assignedBranchKey',
+        ]
+        data = {"group":{}}
+        data["group"] = {f:self.get(f) for f in notUpdateFields if self.get(f)}
+
+        return data
+
 
 class MambuGroups(MambuStruct):
     """A list of Groups from Mambu.
