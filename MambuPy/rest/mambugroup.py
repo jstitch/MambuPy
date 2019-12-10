@@ -17,7 +17,7 @@ Uses mambuutil.getgroupurl as default urlfunc
 
 
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getgroupurl
+from ..mambuutil import getgroupurl, getgroupcustominformationurl
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
 mod_urlfunc = getgroupurl
@@ -176,6 +176,23 @@ class MambuGroup(MambuStruct):
 
         return 1
 
+
+    def create(self, data, *args, **kwargs):
+        """Creates a group in Mambu
+
+        Parameters
+        -data       dictionary with data to send
+
+        """
+        super(MambuGroup, self).create(data)
+        if self.get('customInformation'):
+            self['group'][self.customFieldName] = self['customInformation']
+        if self.get('addresses'):
+            self['group']["addresses"] = self['addresses']
+        if self.get('groupMembers'):
+            self['group']["groupMembers"] = self['groupMembers']
+        self.init(attrs=self['group'])
+        return 1
 
 
 class MambuGroups(MambuStruct):
