@@ -146,6 +146,8 @@ TODO comments for hackers are included at:
   - MambuStruct support to update info via PATCH and POST
 * v1.3.11 2019-12-10
   - MambuGroups support to create Group entities in Mambu
+* v1.3.12 2019-12-11
+  - MamguGroups support to update Group entities in Mambu
 
 ### Author
 
