@@ -842,7 +842,7 @@ class MambuStruct(object):
         return 1
 
     def updatePatch(self, data, *args, **kwargs):
-        """Creates an entity in Mambu
+        """Updates an entity in Mambu
 
         This method must be implemented in child classes
 
@@ -865,7 +865,7 @@ class MambuStruct(object):
         return 1
 
     def updatePost(self, data, *args, **kwargs):
-        """Creates an entity in Mambu
+        """Updates an entity in Mambu
 
         This method must be implemented in child classes
 
