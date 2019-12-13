@@ -17,7 +17,7 @@ Uses mambuutil.getclienturl as default urlfunc
 
 
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getclienturl, strip_consecutive_repeated_char as scrc
+from ..mambuutil import getclienturl, getclientcustominformationurl, strip_consecutive_repeated_char as scrc
 
 from builtins import str as unicode
 
@@ -187,6 +187,69 @@ class MambuClient(MambuStruct):
         """
         return super(MambuClient, self).create(data)
 
+    def update(self, data, *args, **kwargs):
+        """Updates a client in Mambu
+
+        Uses PATCH and POST methods, for update "customInformation" and
+        "client fields" PATCH method is used, for "customInformation" also
+        Patch is used but url needs to be changed, in order to update
+        "addresses" or "idDocuments" POST method is needed.
+
+        https://support.mambu.com/docs/clients-api#post-clients
+        https://support.mambu.com/docs/clients-api#patch-client
+        https://support.mambu.com/docs/clients-api#patch-client-custom-field-values
+
+        Parameters
+        -data       dictionary with data to update
+        """
+        cont_requests = 0
+        data2update = {}
+        # UPDATE client fields
+        if data.get("client"):
+            data2update["client"] = data.get("client", {})
+            cont_requests += super(MambuClient, self).updatePatch(data2update)
+
+        # UPDATE customFields
+        if data.get("customInformation"):
+            data2update = {"client":{}}
+            data2update["customInformation"] = data.get("customInformation")
+            self._MambuStruct__urlfunc = getclientcustominformationurl
+            cont_requests += super(MambuClient, self).updatePatch(data2update)
+            self._MambuStruct__urlfunc = getclienturl
+
+        # UPDATE addresses or idDocuments
+        if data.get("addresses") or data.get("idDocuments"):
+            #data2update = self._notUpdateData()
+            data2update = {}
+            # UPDATE addresses
+            if data.get("addresses"):
+                data2update["addresses"] = data.get("addresses")
+            # UPDATE idDocuments
+            if data.get("idDocuments"):
+                data2update["idDocuments"] = data.get("idDocuments")
+            cont_requests += super(MambuClient, self).updatePost(data2update)
+
+        return cont_requests
+
+    def updatePatch(self, data, *args, **kwargs):
+        """Updates a client Mambu using method PATCH
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/clients-api#patch-client
+        """
+        return super(MambuGroup, self).updatePatch(data)
+
+    def updatePost(self, data, *args, **kwargs):
+        """Updates a client in Mambu using method POST
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/clients-api#post-clients
+        """
+        return super(MambuGroup, self).updatePost(data)
 
 
 class MambuClients(MambuStruct):
