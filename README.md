@@ -148,6 +148,8 @@ TODO comments for hackers are included at:
   - MambuGroups support to create Group entities in Mambu
 * v1.3.12 2019-12-11
   - MamguGroups support to update Group entities in Mambu
+* v1.3.13 2019-12-13
+  - MambuClient suuport to update Client entities in Mambu
 
 ### Author
 
