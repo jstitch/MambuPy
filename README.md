@@ -149,7 +149,9 @@ TODO comments for hackers are included at:
 * v1.3.12 2019-12-11
   - MamguGroups support to update Group entities in Mambu
 * v1.3.13 2019-12-13
-  - MambuClient suuport to update Client entities in Mambu
+  - MambuClient support to update Client entities in Mambu
+* v1.3.14 2020-01-09
+  - MambuGroup method addMembers
 
 ### Author
 
