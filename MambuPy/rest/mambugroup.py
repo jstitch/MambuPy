@@ -294,8 +294,8 @@ class MambuGroup(MambuStruct):
         # get actual members
         groupMembers = [{"clientKey":i["clientKey"]} for i in self.get("groupMembers", [])]
         data2update["groupMembers"] = groupMembers
-        # add new members
-        newMembers = [{"clientKey":i} for i in newMembers]
+        # add new members if not already exists in group
+        newMembers = [{"clientKey":i} for i in newMembers if i not in [c["clientKey"] for c in groupMembers]]
         data2update["groupMembers"].extend(newMembers)
 
         return super(MambuGroup, self).updatePatch(data2update)
