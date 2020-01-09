@@ -235,6 +235,51 @@ class MambuGroupTests(unittest.TestCase):
         gData["addresses"] = ["oneAddress"]
         self.assertEqual(g.update(gData), 3)
 
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_addMember(self, mock_requests):
+        """Test add member to group"""
+        # set data response
+        mock_requests.get.return_value = Response('{}')
+        mock_requests.patch.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
+        g = mambugroup.MambuGroup(entid="fakeID", urlfunc=lambda *args, **kwargs: "urlMambu", user="fakeUser", pwd="fakePwd")
+        g.attrs = {}
+        gData = {}
+        # set groupMembers
+        g.attrs["groupMembers"] = [
+            {u'clientKey': u'8a818fc56e65226e016e65fcd66c64ca',
+            #u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
+            u'encodedKey': u'8a818fc56e65226e016e660b08f567b5',
+            u'groupKey': u'8a818fc56e65226e016e66065da26736',
+            u'indexInList': 1},
+            {u'clientKey': u'8a818fc56e65226e016e656582853e9d',
+            #u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
+            u'encodedKey': u'8a818fc56e65226e016e660b08f567b6',
+            u'groupKey': u'8a818fc56e65226e016e66065da26736',
+            u'indexInList': 2},
+            {u'clientKey': u'8a818e5b61de14e70161de42a3fc21a5',
+            #u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
+            u'encodedKey': u'8a818fc56e65226e016e660b08f567b7',
+            u'groupKey': u'8a818fc56e65226e016e66065da26736',
+            u'indexInList': 3},
+        ]
+        # call method
+        g.addMembers(["idDeIntegranteNueva"])
+        mock_requests.patch.assert_called_with(
+            'urlMambu',
+            auth=('fakeUser', 'fakePwd'),
+            headers={'content-type': 'application/json'},
+            data='{"group": {}, "groupMembers": [{"clientKey": "8a818fc56e65226e016e65fcd66c64ca"}, {"clientKey": "8a818fc56e65226e016e656582853e9d"}, {"clientKey": "8a818e5b61de14e70161de42a3fc21a5"}, {"clientKey": "idDeIntegranteNueva"}]}',
+        )
+
+        # GROUP whithout members
+        g.attrs.pop("groupMembers")
+        g.addMembers(["idDeIntegranteNueva"])
+        mock_requests.patch.assert_called_with(
+            'urlMambu',
+            auth=('fakeUser', 'fakePwd'),
+            headers={'content-type': 'application/json'},
+            data='{"group": {}, "groupMembers": [{"clientKey": "idDeIntegranteNueva"}]}',
+        )
 
 class MambuGroupsTests(unittest.TestCase):
     def test_class(self):

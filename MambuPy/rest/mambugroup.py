@@ -283,6 +283,22 @@ class MambuGroup(MambuStruct):
 
         return data
 
+    def addMembers(self, newMembers=[], *args, **kwargs):
+        """Adds a list of members to the group
+
+        Args:
+            newMembers (list): list with encoded keys of the members to add to group
+        """
+        data2update = {}
+        data2update["group"] = {}
+        # get actual members
+        groupMembers = [{"clientKey":i["clientKey"]} for i in self.get("groupMembers", [])]
+        data2update["groupMembers"] = groupMembers
+        # add new members
+        newMembers = [{"clientKey":i} for i in newMembers]
+        data2update["groupMembers"].extend(newMembers)
+
+        return super(MambuGroup, self).updatePatch(data2update)
 
 class MambuGroups(MambuStruct):
     """A list of Groups from Mambu.
