@@ -298,7 +298,10 @@ class MambuGroup(MambuStruct):
         newMembers = [{"clientKey":i} for i in newMembers if i not in [c["clientKey"] for c in groupMembers]]
         data2update["groupMembers"].extend(newMembers)
 
-        return super(MambuGroup, self).updatePatch(data2update)
+        cont_requests = super(MambuGroup, self).updatePatch(data2update)
+        self.connect()
+        cont_requests += 1
+        return cont_requests
 
 class MambuGroups(MambuStruct):
     """A list of Groups from Mambu.
