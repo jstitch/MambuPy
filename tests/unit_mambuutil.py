@@ -109,6 +109,12 @@ class MambuUtilTests(unittest.TestCase):
         mock_requests.get.return_value = response(code=200, content="hello world")
 
         d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test")
+        # API is called with these arguments using GET method
+        mock_requests.get.assert_called_with(
+            mambuutil.iriToUri(mambuutil.getmambuurl() + "database/backup/LATEST"),
+            auth=(mambuconfig.apiuser, mambuconfig.apipwd),
+            headers={'content-type': 'application/json'}
+        )
         self.assertEqual(d['callback'], 'da-callback')
         self.assertTrue(d['latest'])
 
