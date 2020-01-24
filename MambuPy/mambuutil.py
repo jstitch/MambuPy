@@ -1084,6 +1084,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         force_download_latest = bool(kwargs['force_download_latest'])
     except KeyError:
         force_download_latest = False
+    try:
+        headers = kwargs['headers']
+    except KeyError:
+        headers = {'content-type': 'application/json'}
 
     if verbose:
         log = open('/tmp/log_mambu_backup','a')
@@ -1138,7 +1142,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if verbose:
         log.write("open url: "+geturl+"\n")
         log.flush()
-    resp = requests.get(geturl, auth=(user, pwd))
+    resp = requests.get(geturl, auth=(user, pwd), headers=headers)
 
     if resp.status_code != 200:
         mess = "Error getting database backup: %s" % resp.content
