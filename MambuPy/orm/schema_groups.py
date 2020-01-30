@@ -13,6 +13,7 @@
 
 from . import schema_orm as orm
 from .schema_branches import Branch
+from .schema_centres import Centre
 from .schema_users import User
 
 # technical debt, cannot import name schema_clients
@@ -48,10 +49,11 @@ class Group(Base):
     notes        = Column(Text)
 
     # Relationships
-    assignedCentreKey = Column(String)
+    assignedCentreKey = Column(String, ForeignKey(Centre.encodedKey))
     assignedUserKey   = Column(String, ForeignKey(User.encodedKey))
     assignedBranchKey = Column(String, ForeignKey(Branch.encodedKey))
     user              = relationship(User, back_populates='groups')
+    centre            = relationship(Centre, back_populates='groups')
     branch            = relationship(Branch, back_populates='groups')
     addresses         = relationship('Address',
                                      back_populates = 'group',

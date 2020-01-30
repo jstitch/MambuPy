@@ -106,10 +106,13 @@ def make_dummy(instance,
 
 # Current relationships are also dummified here, please add new relations when
 # existing tables are updated with further relationships
-from schema_mambu import *
+from .schema_mambu import *
 
 # branches
 branch = make_dummy(Branch())
+
+# centres
+centre = make_dummy(Centre())
 
 # users
 role = make_dummy(Role())
@@ -121,6 +124,7 @@ user = make_dummy(User(),
 # groups
 group = make_dummy(Group(),
                    relations={'branch' : (branch , 'groups'),
+                              'centre' : (centre , 'groups'),
                               'user'   : (user   , 'groups'),
                              })
 

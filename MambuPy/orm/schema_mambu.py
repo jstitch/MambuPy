@@ -30,6 +30,7 @@ from .schema_groups import *
 from .schema_clients import *
 from .schema_loans import *
 from .schema_branches import *
+from .schema_centres import *
 from .schema_users import *
 from .schema_addresses import *
 from .schema_customfields import *

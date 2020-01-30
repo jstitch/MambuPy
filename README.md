@@ -156,6 +156,8 @@ TODO comments for hackers are included at:
   - MambuGroup method addMembers update MambuGroup once members are added
 * v1.3.15 2020-01-24
   - mambuutil.backup_db GET call to Mambu needs application/json headers
+* v1.4 2020-01-30
+  - ORM gets Centre table
 
 ### Author
 

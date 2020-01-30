@@ -54,6 +54,7 @@ class Branch(Base):
     clients           = relationship('Client', back_populates='branch')
     groups            = relationship('Group', back_populates='branch')
     users             = relationship('User', back_populates='branch')
+    centres           = relationship('Centre', back_populates='branch')
 
     def __repr__(self):
         return "<Branch(id={}, name={})>".format(self.id, self.name)
