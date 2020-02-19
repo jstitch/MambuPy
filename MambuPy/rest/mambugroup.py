@@ -223,21 +223,21 @@ class MambuGroup(MambuStruct):
             # SET group fields
             data2update["group"] = data.get("group", {})
             # UPDATE group fields
-            cont_requests += super(MambuGroup, self).updatePatch(data2update)
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
 
         # UPDATE customFields
         if data.get("customInformation"):
             data2update = {"group":{}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getgroupcustominformationurl
-            cont_requests += super(MambuGroup, self).updatePatch(data2update)
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getgroupurl
 
         # UPDATE addresses
         if data.get("addresses"):
             data2update = self._notUpdateData()
             data2update["addresses"] = data.get("addresses")
-            cont_requests += super(MambuGroup, self).updatePost(data2update)
+            cont_requests += self.updatePost(data2update, *args, **kwargs)
 
         return cont_requests
 
@@ -249,7 +249,7 @@ class MambuGroup(MambuStruct):
 
         https://support.mambu.com/docs/groups-api#patch-group-information
         """
-        return super(MambuGroup, self).updatePatch(data)
+        return super(MambuGroup, self).updatePatch(data, *args, **kwargs)
 
     def updatePost(self, data, *args, **kwargs):
         """Updates a group in Mambu using method POST
@@ -259,7 +259,7 @@ class MambuGroup(MambuStruct):
 
         https://support.mambu.com/docs/groups-api#post-group
         """
-        return super(MambuGroup, self).updatePost(data)
+        return super(MambuGroup, self).updatePost(data, *args, **kwargs)
 
     def _notUpdateData(self):
         """Data that would not be updated/overwritten in case of POST

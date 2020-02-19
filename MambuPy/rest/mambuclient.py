@@ -207,14 +207,14 @@ class MambuClient(MambuStruct):
         # UPDATE client fields
         if data.get("client"):
             data2update["client"] = data.get("client", {})
-            cont_requests += super(MambuClient, self).updatePatch(data2update)
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
 
         # UPDATE customFields
         if data.get("customInformation"):
             data2update = {"client":{}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getclientcustominformationurl
-            cont_requests += super(MambuClient, self).updatePatch(data2update)
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getclienturl
 
         # UPDATE addresses or idDocuments
@@ -227,7 +227,7 @@ class MambuClient(MambuStruct):
             # UPDATE idDocuments
             if data.get("idDocuments"):
                 data2update["idDocuments"] = data.get("idDocuments")
-            cont_requests += super(MambuClient, self).updatePost(data2update)
+            cont_requests += self.updatePost(data2update, *args, **kwargs)
 
         return cont_requests
 
@@ -239,7 +239,7 @@ class MambuClient(MambuStruct):
 
         https://support.mambu.com/docs/clients-api#patch-client
         """
-        return super(MambuGroup, self).updatePatch(data)
+        return super(MambuClient, self).updatePatch(data, *args, **kwargs)
 
     def updatePost(self, data, *args, **kwargs):
         """Updates a client in Mambu using method POST
@@ -249,7 +249,7 @@ class MambuClient(MambuStruct):
 
         https://support.mambu.com/docs/clients-api#post-clients
         """
-        return super(MambuGroup, self).updatePost(data)
+        return super(MambuClient, self).updatePost(data, *args, **kwargs)
 
 
 class MambuClients(MambuStruct):
