@@ -158,6 +158,8 @@ TODO comments for hackers are included at:
   - mambuutil.backup_db GET call to Mambu needs application/json headers
 * v1.4 2020-01-30
   - ORM gets Centre table
+* v1.5 2020-02-20
+  - URL function for loan accounts' custom information
 
 ### Author
 
