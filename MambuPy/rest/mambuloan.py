@@ -20,7 +20,7 @@ Loan ID as the entid argument in the constructor in that case).
 
 
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getloansurl, MambuError, strip_tags
+from ..mambuutil import getloansurl, getloanscustominformationurl, MambuError, strip_tags
 
 
 mod_urlfunc = getloansurl
@@ -472,6 +472,45 @@ class MambuLoan(MambuStruct):
         self['activities'] = activities
 
         return 1
+
+
+    def update(self, data, *args, **kwargs):
+        """Updates a loan in Mambu
+
+        Updates customFields of a MambuLoan
+
+        TODO: update "core fields" of a MambuLoan
+
+        https://support.mambu.com/docs/clients-api#post-loans
+        https://support.mambu.com/docs/clients-api#patch-loan
+        https://support.mambu.com/docs/clients-api#patch-loan-custom-field-values
+
+        Parameters
+        -data       dictionary with data to update
+        """
+        cont_requests = 0
+        data2update = {}
+
+        # UPDATE customFields
+        if data.get("customInformation"):
+            data2update = {}
+            data2update["customInformation"] = data.get("customInformation")
+            self._MambuStruct__urlfunc = getloanscustominformationurl
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            self._MambuStruct__urlfunc = getloansurl
+
+        return cont_requests
+
+
+    def updatePatch(self, data, *args, **kwargs):
+        """Updates a Mambu loan using method PATCH
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/loans-api#patch-loan
+        """
+        return super(MambuLoan, self).updatePatch(data, *args, **kwargs)
 
 
 class MambuLoans(MambuStruct):

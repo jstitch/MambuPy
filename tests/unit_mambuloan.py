@@ -3,6 +3,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+import json
 
 try:
     import mock
@@ -19,6 +20,11 @@ try:
     unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
 except Exception as e:
     pass # DeprecationWarning: Please use assertRaisesRegex instead
+
+class Response(object):
+    def __init__(self, text):
+        self.text = json.dumps(text)
+        self.content = text
 
 class MambuLoanTests(unittest.TestCase):
     def test_mod_urlfunc(self):
@@ -504,6 +510,22 @@ class MambuLoanTests(unittest.TestCase):
             self.assertEqual(ln['clients']['clKey3'], {'id':"clKey3", 'client':"client3", 'name':"CLIENT3", 'loan':ln, 'amount':2000.0, 'montoPago':1000.0, 'porcentaje':0.2, 'extradata':"THIS IS THREE"})
             self.assertEqual(ln['clients']['clKey4'], {'id':"clKey4", 'client':"client4", 'name':"CLIENT4", 'loan':ln, 'amount':2000.0, 'montoPago':1000.0, 'porcentaje':0.2, 'extradata':"THIS IS FOUR"})
             self.assertEqual(ln['clients']['clKey5'], {'id':"clKey5", 'client':"client5", 'name':"CLIENT5", 'loan':ln, 'amount':2000.0, 'montoPago':1000.0, 'porcentaje':0.2, 'extradata':"THIS IS FIVE"})
+
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_update(self, mock_requests):
+        """Test update"""
+        # set data response
+        mock_requests.patch.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
+        l = mambuloan.MambuLoan(connect=False)
+        l.attrs = {}
+        lData = {}
+        # send none data
+        lData["customInformation"] = {"f1":"v1"}
+        self.assertEqual(l.update(lData), 1)
+
+        mock_requests.patch.return_value = Response('{"returnCode":903,"returnStatus":"INVALID_CUSTOM_FIELD_ID"}')
+        with self.assertRaisesRegexp(mambuloan.MambuError,"INVALID_CUSTOM_FIELD_ID"):
+            l.update(lData)
 
 class MambuLoansTests(unittest.TestCase):
     def test_class(self):
