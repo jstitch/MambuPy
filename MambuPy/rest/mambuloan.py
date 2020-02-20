@@ -481,9 +481,9 @@ class MambuLoan(MambuStruct):
 
         TODO: update "core fields" of a MambuLoan
 
-        https://support.mambu.com/docs/clients-api#post-loans
-        https://support.mambu.com/docs/clients-api#patch-loan
-        https://support.mambu.com/docs/clients-api#patch-loan-custom-field-values
+        https://support.mambu.com/docs/loans-api#post-loans
+        https://support.mambu.com/docs/loans-api#patch-loan
+        https://support.mambu.com/docs/loans-api#patch-loan-custom-field-values
 
         Parameters
         -data       dictionary with data to update
