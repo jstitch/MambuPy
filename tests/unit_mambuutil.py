@@ -199,6 +199,10 @@ class UrlFuncTests(unittest.TestCase):
 
         self.assertEqual(mambuutil.getloansurl(idcred="12345", anything="whatever"), self.prefix + "/api/" + "loans/12345")
 
+    def test_getloanscustominformationurl(self):
+        self.assertEqual(mambuutil.getloanscustominformationurl("loanID123"), self.prefix + "/api/"+ "loans/loanID123/custominformation")
+        self.assertEqual(mambuutil.getloanscustominformationurl("loanID123", customfield="bla"), self.prefix + "/api/"+ "loans/loanID123/custominformation/bla")
+
     def test_getgroupurl(self):
         self.assertEqual(mambuutil.getgroupurl(idgroup="XY890"), self.prefix + "/api/" + "groups/XY890")
         self.assertEqual(mambuutil.getgroupurl("XY890"), self.prefix + "/api/" + "groups/XY890")
