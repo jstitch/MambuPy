@@ -453,9 +453,7 @@ def getloansurl(idcred, *args, **kwargs):
     return url
 
 def getloanscustominformationurl(idcred, customfield="", *args, **kwargs):
-    """Request Client Custom Information URL.
-
-    See mambugroup module and pydoc for further information.
+    """Request Loan Custom Information URL.
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
