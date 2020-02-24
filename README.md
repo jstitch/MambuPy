@@ -160,6 +160,8 @@ TODO comments for hackers are included at:
   - ORM gets Centre table
 * v1.5 2020-02-20
   - URL function for loan accounts' custom information
+* v1.6 2020-02-24
+  - setHolder getRoles=True instantiates Clients with fullDetails=True
 
 ### Author
 
