@@ -356,7 +356,7 @@ class MambuLoan(MambuStruct):
                         from .mambuclient import MambuClient
                         self.mambuclientclass = MambuClient
 
-                    cli = self.mambuclientclass(entid=c['clientKey'], *args, **kwargs)
+                    cli = self.mambuclientclass(entid=c['clientKey'],fullDetails=fullDetails, *args, **kwargs)
                     roles.append({'role'   : c['roleName'],
                                   'client' : cli
                                  })
