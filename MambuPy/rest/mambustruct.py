@@ -484,8 +484,7 @@ class MambuStruct(object):
         except KeyError:
             pass
 
-        # for API v1
-        self.__headers = {'content-type': 'application/json'}
+        self.__headers = {'Accept': 'application/vnd.mambu.v1+json'}
 
         try:
             if kwargs.pop('connect'):
@@ -605,6 +604,7 @@ class MambuStruct(object):
                     self.__url = url
                     if self.__data:
                         data = json.dumps(encoded_dict(self.__data))
+                        self.__headers['Content-Type'] = 'application/json'
                     # PATCH
                         if self.__method=="PATCH":
                             resp = requests.patch(url, data=data, headers=self.__headers, auth=(user, pwd))
@@ -614,10 +614,10 @@ class MambuStruct(object):
                     else:
                         # DELETE
                         if self.__method=="DELETE":
-                            resp = requests.delete(url, auth=(user, pwd))
+                            resp = requests.delete(url, headers=self.__headers, auth=(user, pwd))
                         # GET
                         else:
-                            resp = requests.get(url, auth=(user, pwd))
+                            resp = requests.get(url, headers=self.__headers, auth=(user, pwd))
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:

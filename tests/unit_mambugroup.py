@@ -267,13 +267,14 @@ class MambuGroupTests(unittest.TestCase):
         mock_requests.patch.assert_called_with(
             'urlMambu',
             auth=('fakeUser', 'fakePwd'),
-            headers={'content-type': 'application/json'},
+            headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'},
             data='{"group": {}, "groupMembers": [{"clientKey": "8a818fc56e65226e016e65fcd66c64ca"}, {"clientKey": "8a818fc56e65226e016e656582853e9d"}, {"clientKey": "8a818e5b61de14e70161de42a3fc21a5"}, {"clientKey": "idDeIntegranteNueva"}]}',
         )
         # get called when connect()
         mock_requests.get.assert_called_with(
             'urlMambu',
             auth=('fakeUser', 'fakePwd'),
+            headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}
         )
 
         # GROUP whithout members
@@ -281,13 +282,14 @@ class MambuGroupTests(unittest.TestCase):
         mock_requests.patch.assert_called_with(
             'urlMambu',
             auth=('fakeUser', 'fakePwd'),
-            headers={'content-type': 'application/json'},
+            headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'},
             data='{"group": {}, "groupMembers": [{"clientKey": "idDeIntegranteNueva"}]}',
         )
         # get called when connect()
         mock_requests.get.assert_called_with(
             'urlMambu',
             auth=('fakeUser', 'fakePwd'),
+            headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}
         )
 
 class MambuGroupsTests(unittest.TestCase):

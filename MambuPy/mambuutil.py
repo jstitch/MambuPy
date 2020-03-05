@@ -16,7 +16,15 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
 
    Secutiry WARNING: Imports the configurations from mambuconfig. It surely
    is a bad idea. Got to improve this!
-"""
+
+.. todo:: status API V2: fullDetails are not compatible
+
+.. todo:: status API V2: pagination managements needs review
+
+.. todo:: status API V2: almost al GET operations seems
+          compatible. PATCH/POST/DELETE operations needs review
+
+.. todo:: status API V2: testing of EVERYTHING is required """
 from .mambuconfig import apiurl
 from .mambuconfig import apiuser
 from .mambuconfig import apipwd
@@ -95,6 +103,8 @@ def getmambuurl(url=apiurl, *args, **kwargs):
     'user', 'pwd' and 'url' parameters at the Mambu object instantiation
     (for instance: MambuLoan(user=myuser, pwd=mypwd, url=myurl,
     entid='12345', ...)
+
+    .. todo:: status API V2: compatible
     """
     mambuurl = "https://" + url + "/api/"
     return mambuurl
@@ -117,6 +127,8 @@ def getbranchesurl(idbranch, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: compatible
     """
     getparams = []
     if kwargs:
@@ -154,6 +166,8 @@ def getcentresurl(idcentre, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: compatible
     """
     getparams = []
     if kwargs:
@@ -199,6 +213,8 @@ def getrepaymentsurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     getparams = []
     if kwargs:
@@ -234,6 +250,9 @@ def getsavingssurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible . Apparently changing
+              'savings' to 'deposits' may work
     """
     getparams = []
     if kwargs:
@@ -269,6 +288,8 @@ def getsavingfundingrepaymentsurl(idcred, loan_id, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     getparams = []
     if kwargs:
@@ -304,6 +325,9 @@ def getsavingstransactionsurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible . Apparently changing
+              'savings' to 'deposits' may work
     """
     getparams = []
     if kwargs:
@@ -338,6 +362,9 @@ def getsavingstransactionssearchurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible . Apparently changing
+              'savings' to 'deposits' may work
     """
     getparams = []
     if kwargs:
@@ -373,6 +400,9 @@ def gettransactionchannelsurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible . Apparently changing
+              URL to /organization/transactionchannels may work
     """
     getparams = []
     if kwargs:
@@ -413,6 +443,8 @@ def getloansurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: GET compatible
     """
     getparams = []
     if kwargs:
@@ -457,6 +489,8 @@ def getloanscustominformationurl(idcred, customfield="", *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     loanidparam = "/" + idcred
     url = getmambuurl(*args, **kwargs) + "loans" + loanidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
@@ -479,6 +513,10 @@ def getgroupurl(idgroup, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: GET compatible
+
+    .. todo:: status API V2: other opers: needs test
     """
     getparams = []
     if kwargs:
@@ -536,6 +574,8 @@ def getgrouploansurl(idgroup, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     getparams = []
     if kwargs:
@@ -561,6 +601,8 @@ def getgroupcustominformationurl(idgroup, customfield="", *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     groupidparam = "/" + idgroup
     url = getmambuurl(*args, **kwargs) + "groups" + groupidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
@@ -587,6 +629,10 @@ def gettransactionsurl(idcred, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible.
+              Repayments/fees/adjustments/disbursements have their own
+              endpoint each
     """
     getparams = []
     if kwargs:
@@ -620,6 +666,10 @@ def getclienturl(idclient, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: GET compatible
+
+    .. todo:: status API V2: other opers: needs test
     """
     getparams = []
     if kwargs:
@@ -685,6 +735,8 @@ def getclientloansurl(idclient, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     getparams = []
     if kwargs:
@@ -710,6 +762,8 @@ def getclientcustominformationurl(idclient, customfield="", *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
     """
     clientidparam = "/" + idclient
     url = getmambuurl(*args, **kwargs) + "clients" + clientidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
@@ -730,6 +784,8 @@ def getuserurl(iduser, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: compatible
     """
     getparams = []
     if kwargs:
@@ -767,6 +823,9 @@ def getproductsurl(idproduct, *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible. Current (2020-03) v2 only
+              supports GETting a SINGLE product, not all of them
     """
     productidparam = "" if idproduct == "" else "/"+idproduct
     url = getmambuurl(*args,**kwargs) + "loanproducts" + productidparam
@@ -794,6 +853,8 @@ def gettasksurl(dummyId='', *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: GET compatible
     """
     getparams = []
     if kwargs:
@@ -853,6 +914,8 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
 
     See Mambu official developer documentation for further details, and
     info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible. Apparently not yet implemented
     """
     from datetime import datetime
 
@@ -916,6 +979,8 @@ def getrolesurl(idrole='', *args, **kwargs):
     information.
 
     See Mambu official developer documentation for further details.
+
+    .. todo:: status API V2: NOT compatible. Apparently not yet implemented
     """
     url = getmambuurl(*args,**kwargs) + "userroles" + (("/" + idrole) if idrole else "")
     return url
@@ -1079,6 +1144,8 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
 
     * returns a dictionary with info about the download
         -latest     boolean flag, if the db downloaded was the latest or not
+
+    .. todo:: status API V2: compatible
     """
     from datetime import datetime
 
@@ -1097,7 +1164,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     try:
         headers = kwargs['headers']
     except KeyError:
-        headers = {'content-type': 'application/json'}
+        headers = {'content-type': 'application/json', 'Accept': 'application/vnd.mambu.v1+zip'}
 
     if verbose:
         log = open('/tmp/log_mambu_backup','a')
@@ -1112,7 +1179,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         if verbose:
             log.write("open url: "+posturl+"\n")
             log.flush()
-        resp = requests.post(posturl, data=data, headers={'content-type': 'application/json'}, auth=(user, pwd))
+        resp = requests.post(posturl, data=data, headers={'content-type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}, auth=(user, pwd))
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
         if verbose:

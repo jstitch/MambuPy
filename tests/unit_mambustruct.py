@@ -843,7 +843,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.get.return_value.content = "my raw response"
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", user="my_user", pwd="my_password")
-        requests.get.assert_called_with("http://example.com", auth=("my_user", "my_password"))
+        requests.get.assert_called_with("http://example.com", headers={'Accept': 'application/vnd.mambu.v1+json'}, auth=("my_user", "my_password"))
         self.assertEqual(ms.rc.cnt, rc_cnt+1)
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
@@ -851,7 +851,7 @@ class MambuStructConnectTests(unittest.TestCase):
         # connect saves old parameter calls
         self.assertEqual(ms._MambuStruct__kwargs,{'user':'my_user', 'pwd':'my_password'})
         ms.connect()
-        requests.get.assert_called_with("http://example.com", auth=("my_user", "my_password"))
+        requests.get.assert_called_with("http://example.com", headers={'Accept': 'application/vnd.mambu.v1+json'}, auth=("my_user", "my_password"))
 
         # POST data
         requests.reset_mock()
@@ -861,14 +861,14 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.post.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, user="my_user", pwd="my_password")
-        requests.post.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=("my_user", "my_password"))
+        requests.post.assert_called_with("http://example.com", headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}, data={'data1':'value1'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {'field1':'value1', 'field2':'value2'})
 
         from MambuPy.mambuutil import apiuser, apipwd
         requests.reset_mock()
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data)
-        requests.post.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=(apiuser, apipwd))
+        requests.post.assert_called_with("http://example.com", headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}, data={'data1':'value1'}, auth=(apiuser, apipwd))
 
         # PATCH data
         requests.reset_mock()
@@ -878,7 +878,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.patch.return_value = mock.Mock()
         json.loads.return_value = {'field1':'value1', 'field2':'value2'}
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", data=data, method="PATCH", user="my_user", pwd="my_password")
-        requests.patch.assert_called_with("http://example.com", data={'data1':'value1'}, headers={'content-type':'application/json'}, auth=("my_user", "my_password"))
+        requests.patch.assert_called_with("http://example.com", headers={'Content-Type': 'application/json', 'Accept': 'application/vnd.mambu.v1+json'}, data={'data1':'value1'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(getattr(ms, 'attrs', "Monty Python Flying Circus"), "Monty Python Flying Circus")
 
@@ -888,7 +888,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.dumps.return_value = data
         requests.delete.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
         ms = mambustruct.MambuStruct(entid='12345', urlfunc=lambda entid, limit, offset, *args, **kwargs: "", method="DELETE", user="my_user", pwd="my_password")
-        requests.delete.assert_called_with("http://example.com", auth=("my_user", "my_password"))
+        requests.delete.assert_called_with("http://example.com", headers={'Accept': 'application/vnd.mambu.v1+json'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(ms._raw_response_data, '{"returnCode":0,"returnStatus":"SUCCESS"}')
 
