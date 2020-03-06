@@ -162,6 +162,8 @@ TODO comments for hackers are included at:
   - URL function for loan accounts' custom information
 * v1.6 2020-02-24
   - setHolder getRoles=True instantiates Clients with fullDetails=True
+* v1.7 2020-03-05
+  - Accept Headers for all requests, using v1 API Accept Header
 
 ### Author
 
