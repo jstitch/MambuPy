@@ -164,6 +164,10 @@ TODO comments for hackers are included at:
   - setHolder getRoles=True instantiates Clients with fullDetails=True
 * v1.7 2020-03-05
   - Accept Headers for all requests, using v1 API Accept Header
+* v1.7.1 2020-04-03
+  - Update method comes from parent class MambuStruct, it connects to
+    Mambu to refresh info of updated data in the internal structures
+    of MambuPy
 
 ### Author
 
