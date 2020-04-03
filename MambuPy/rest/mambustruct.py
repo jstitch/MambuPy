@@ -841,6 +841,20 @@ class MambuStruct(object):
         self._MambuStruct__data    = None
         return 1
 
+    def update(self, data, *args, **kwargs):
+        """ Downloads an update made to an entity in Mambu.
+
+        This method must be implemented in child classes.
+
+        Args:
+            data (dictionary): data to send
+        """
+        if self.update.__func__.__module__ != self.__module__:
+            raise NotImplementedError
+
+        self.connect(*args, **kwargs)
+        return 1
+
     def updatePatch(self, data, *args, **kwargs):
         """Updates an entity in Mambu
 
@@ -853,7 +867,8 @@ class MambuStruct(object):
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
         if self.updatePatch.__func__.__module__ != self.__module__:
-            raise Exception("Child method not implemented")
+            raise NotImplementedError
+
         if not data:
             raise Exception("Requires data to update")
 
@@ -862,6 +877,7 @@ class MambuStruct(object):
         self.connect(*args, **kwargs)
         self._MambuStruct__method  = "GET"
         self._MambuStruct__data    = None
+
         return 1
 
     def updatePost(self, data, *args, **kwargs):

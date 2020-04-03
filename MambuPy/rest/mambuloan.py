@@ -499,6 +499,8 @@ class MambuLoan(MambuStruct):
             cont_requests += self.updatePatch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getloansurl
 
+        cont_requests += super(MambuLoan, self).update(data, *args, **kwargs)
+
         return cont_requests
 
 

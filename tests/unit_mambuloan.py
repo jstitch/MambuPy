@@ -516,16 +516,20 @@ class MambuLoanTests(unittest.TestCase):
         """Test update"""
         # set data response
         mock_requests.patch.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
+        mambuloan.MambuStruct.update = mock.Mock()
+        mambuloan.MambuStruct.update.return_value = 1
         l = mambuloan.MambuLoan(connect=False)
         l.attrs = {}
         lData = {}
         # send none data
         lData["customInformation"] = {"f1":"v1"}
-        self.assertEqual(l.update(lData), 1)
+        self.assertEqual(l.update(lData), 2)
 
         mock_requests.patch.return_value = Response('{"returnCode":903,"returnStatus":"INVALID_CUSTOM_FIELD_ID"}')
         with self.assertRaisesRegexp(mambuloan.MambuError,"INVALID_CUSTOM_FIELD_ID"):
             l.update(lData)
+
+        mambuloan.MambuStruct.update.assert_called()
 
 class MambuLoansTests(unittest.TestCase):
     def test_class(self):

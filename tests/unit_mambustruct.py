@@ -762,6 +762,30 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch('MambuPy.rest.mambustruct.iriToUri')
     @mock.patch('MambuPy.rest.mambustruct.json')
     @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_update(self, requests, json, iriToUri):
+        """Test update"""
+        # inside __init__ if urlfunc is None connect is False
+        ms = mambustruct.MambuStruct(connect=False, urlfunc=lambda entid, limit, offset : "")
+        data = {"user":{"user":"moreData"}, "customInformation":["customFields"]}
+        iriToUri.return_value = "http://example.com"
+        requests.patch.return_value = Response(str(data))
+
+        self.assertEqual(ms.update(data), 1)
+        self.assertEqual(ms._MambuStruct__args, ())
+        self.assertEqual(ms._MambuStruct__kwargs, {})
+
+        # if the class who call method update is direfent who implemented it
+        ms.update.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        with self.assertRaises(NotImplementedError) as ex:
+            ms.update(data)
+
+        # ensures that connect() was called to refresh the info in the entity
+        iriToUri.assert_called_with('')
+
+
+    @mock.patch('MambuPy.rest.mambustruct.iriToUri')
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
     def test_updatePatch(self, requests, json, iriToUri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
@@ -779,7 +803,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             ms.updatePatch({})
         # if the class who call method update is direfent who implemented it
         ms.updatePatch.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$") as ex:
+        with self.assertRaises(NotImplementedError) as ex:
             ms.updatePatch(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")

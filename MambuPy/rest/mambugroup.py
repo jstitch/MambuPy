@@ -182,7 +182,6 @@ class MambuGroup(MambuStruct):
 
         Parameters
         -data       dictionary with data to send
-
         """
         super(MambuGroup, self).create(data)
         if self.get('customInformation'):
@@ -238,6 +237,8 @@ class MambuGroup(MambuStruct):
             data2update = self._notUpdateData()
             data2update["addresses"] = data.get("addresses")
             cont_requests += self.updatePost(data2update, *args, **kwargs)
+
+        cont_requests += super(MambuGroup, self).update(data, *args, **kwargs)
 
         return cont_requests
 

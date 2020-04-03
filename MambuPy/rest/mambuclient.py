@@ -229,6 +229,8 @@ class MambuClient(MambuStruct):
                 data2update["idDocuments"] = data.get("idDocuments")
             cont_requests += self.updatePost(data2update, *args, **kwargs)
 
+        cont_requests += super(MambuClient, self).update(data, *args, **kwargs)
+
         return cont_requests
 
     def updatePatch(self, data, *args, **kwargs):
