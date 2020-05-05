@@ -288,6 +288,27 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch('MambuPy.rest.mambustruct.iriToUri')
     @mock.patch('MambuPy.rest.mambustruct.json')
     @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_contains(self, requests, json, iriToUri):
+        """__contains__ method"""
+        # when no attrs, raises AttributeError
+        with self.assertRaises(AttributeError) as ex:
+            'bla' in self.ms
+
+        json.loads.return_value = [1,2,3]
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        self.assertFalse(0 in ms)
+        self.assertTrue(1 in ms)
+        self.assertTrue(2 in ms)
+        self.assertTrue(3 in ms)
+
+        json.loads.return_value = {'hello':'goodbye'}
+        ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset : "")
+        self.assertTrue('hello' in ms)
+        self.assertFalse('bla' in ms)
+
+    @mock.patch('MambuPy.rest.mambustruct.iriToUri')
+    @mock.patch('MambuPy.rest.mambustruct.json')
+    @mock.patch('MambuPy.rest.mambustruct.requests')
     def test_get(self, requests, json, iriToUri):
         """Dictionary-like get method"""
         json.loads.return_value = [1,2,3]

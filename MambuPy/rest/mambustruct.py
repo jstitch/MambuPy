@@ -275,6 +275,10 @@ class MambuStruct(object):
         except AttributeError:          # if attrs doesnt exist
             raise NotImplementedError
 
+    def __contains__(self, item):
+        """Dict-like and List-like behaviour"""
+        return item in self.attrs
+
     def get(self, key, default=None):
         """Dict-like behaviour"""
         if type(self.attrs) == dict:

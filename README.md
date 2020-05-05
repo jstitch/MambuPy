@@ -168,6 +168,8 @@ TODO comments for hackers are included at:
   - Update method comes from parent class MambuStruct, it connects to
     Mambu to refresh info of updated data in the internal structures
     of MambuPy
+* v1.8 2020-05-04
+  - Implement __contains__ in MambuStruct so that you can use in operator
 
 ### Author
 
