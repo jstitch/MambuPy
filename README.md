@@ -170,6 +170,8 @@ TODO comments for hackers are included at:
     of MambuPy
 * v1.8 2020-05-04
   - Implement __contains__ in MambuStruct so that you can use in operator
+* v1.8.1 2020-05-11
+  - init method tries to initialize the entid property
 
 ### Author
 

@@ -345,6 +345,10 @@ class MambuStruct(object):
         self.convertDict2Attrs(*args, **kwargs)
         self.postprocess()
         try:
+            self.entid = self.id
+        except (TypeError, AttributeError):
+            pass
+        try:
             for meth in kwargs['methods']:
                 try:
                     getattr(self,meth)()
