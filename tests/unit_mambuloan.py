@@ -531,6 +531,27 @@ class MambuLoanTests(unittest.TestCase):
 
         mambuloan.MambuStruct.update.assert_called()
 
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_uploadDocument(self, mock_requests):
+        """Test upload"""
+        # set data response
+        mock_requests.post.return_value = Response('{"encodedKey":"8a818660727120000172722ce8396e1e","id":48391,"creationDate":"2020-06-01T23:17:25+0000","lastModifiedDate":"2020-06-01T23:17:25+0000","documentHolderKey":"8a818ff870c4d7a30170c6d76ad20fef","documentHolderType":"LOAN_ACCOUNT","name":"otro PDF","type":"pdf","fileSize":718905,"originalFilename":"otro_PDF.pdf","location":"ZLUBRCUJTWKQZFBDRCNCPUVAXXODDW","createdByUserKey":"8a43a79f3664edaa0136a7ab14d4281c"}')
+
+        l = mambuloan.MambuLoan(connect=False)
+        l.attrs = {"id":"ABC123"}
+        lData = {
+            "document"         : {'documentHolderType': 'LOAN_ACCOUNT', 'type': 'pdf', 'name': 'otro PDF', 'documentHolderKey': '8a818ff870c4d7a30170c6d76ad20fef'},
+            "documentContent"   : "['encodedeBase64_file']",
+        }
+        # upload data
+        self.assertEqual(l.uploadDocument(lData), 1)
+        self.assertEqual(l.id, "ABC123")
+
+        # exception
+        mock_requests.post.return_value = Response('{"returnCode":4,"returnStatus":"INVALID_PARAMETERS","errorSource":"OwnerType"}')
+        with self.assertRaisesRegexp(mambuloan.MambuError,"INVALID_PARAMETERS"):
+            l.uploadDocument(lData)
+
 class MambuLoansTests(unittest.TestCase):
     def test_class(self):
         ln = mambuloan.MambuLoans(urlfunc=None)

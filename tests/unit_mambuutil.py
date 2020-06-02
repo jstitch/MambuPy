@@ -335,6 +335,10 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.getrolesurl("ABC123"), self.prefix + "/api/" + "userroles/ABC123")
         self.assertEqual(mambuutil.getrolesurl(idrole="ABC123"), self.prefix + "/api/" + "userroles/ABC123")
 
+    def test_getpostdocumentsurl(self):
+        self.assertEqual(mambuutil.getpostdocumentsurl(), self.prefix + "/api/" + "documents")
+        self.assertEqual(mambuutil.getpostdocumentsurl("123"), self.prefix + "/api/" + "documents")
+
 
 if __name__ == '__main__':
     unittest.main()

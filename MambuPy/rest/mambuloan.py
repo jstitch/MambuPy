@@ -20,7 +20,7 @@ Loan ID as the entid argument in the constructor in that case).
 
 
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getloansurl, getloanscustominformationurl, MambuError, strip_tags
+from ..mambuutil import getloansurl, getloanscustominformationurl, MambuError, strip_tags, getpostdocumentsurl
 
 
 mod_urlfunc = getloansurl
@@ -513,6 +513,36 @@ class MambuLoan(MambuStruct):
         https://support.mambu.com/docs/loans-api#patch-loan
         """
         return super(MambuLoan, self).updatePatch(data, *args, **kwargs)
+
+
+    def uploadDocument(self, data, *args, **kwargs):
+        """Updates a loan in Mambu
+
+        Uploads a document to a MambuLoan
+
+        https://support.mambu.com/docs/attachments-api#post-attachments
+
+        Parameters
+        -data       dictionary with data to upload
+
+        Example
+        data = {
+            "document":{
+                "documentHolderKey"     : self.encodedKey,
+                "documentHolderType"    : "LOAN_ACCOUNT",
+                "name"                  : "loan_resume",
+                "type"                  : "pdf",
+            },
+            "documentContent"           : "['encodedBase64_file']",
+        }
+        """
+        cont_requests = 0
+        # upload document
+        self._MambuStruct__urlfunc = getpostdocumentsurl
+        cont_requests += super(MambuLoan, self).uploadDocument(data, *args, **kwargs)
+        self._MambuStruct__urlfunc = getloansurl
+
+        return cont_requests
 
 
 class MambuLoans(MambuStruct):

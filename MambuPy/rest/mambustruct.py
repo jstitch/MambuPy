@@ -675,7 +675,7 @@ class MambuStruct(object):
         except AttributeError:
             pass
 
-        if self.__method != "PATCH":
+        if ("documents" not in url) and self.__method != "PATCH":
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
     def _process_fields(self):
@@ -903,6 +903,39 @@ class MambuStruct(object):
             raise Exception("Child method not implemented")
         if not data:
             raise Exception("Requires data to update")
+
+        self._MambuStruct__method  = "POST"
+        self._MambuStruct__data    = data
+        self.connect(*args, **kwargs)
+        self._MambuStruct__method  = "GET"
+        self._MambuStruct__data    = None
+        return 1
+
+    def uploadDocument(self, data, *args, **kwargs):
+        """Uploads a document in Mambu
+
+        This method must be implemented in child classes
+        https://support.mambu.com/docs/attachments-api#post-attachments
+
+        Args:
+            data (dictionary): dictionary with data to send
+        Example:
+        data = {
+            "document":{
+                "documentHolderKey"     : self.encodedKey,
+                "documentHolderType"    : "LOAN_ACCOUNT", # CLIENT, GROUP, USER, BRANCH...
+                "name"                  : "loan_resume",
+                "type"                  : "pdf",
+            },
+            "documentContent"           : "['encodedBase64_file']",
+        }
+        """
+        # if module of the function is diferent from the module of the object
+        # that means create is not implemented in child class
+        if self.uploadDocument.__func__.__module__ != self.__module__:
+            raise Exception("Child method not implemented")
+        if not data:
+            raise Exception("Requires data to upload")
 
         self._MambuStruct__method  = "POST"
         self._MambuStruct__data    = data

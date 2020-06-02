@@ -985,6 +985,16 @@ def getrolesurl(idrole='', *args, **kwargs):
     url = getmambuurl(*args,**kwargs) + "userroles" + (("/" + idrole) if idrole else "")
     return url
 
+def getpostdocumentsurl(identity="", *args, **kwargs):
+    """Request to post documents URL.
+
+    See Mambu official developer documentation for further details.
+    https://support.mambu.com/docs/attachments-api
+
+    """
+    url = getmambuurl(*args,**kwargs) + "documents"
+    return url
+
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
