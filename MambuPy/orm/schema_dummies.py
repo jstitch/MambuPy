@@ -80,7 +80,7 @@ def make_dummy(instance,
         except KeyError:
             setattr(instance, col.name, init_data[str(col.type)])
 
-    for k,v in relations.iteritems():
+    for k,v in relations.items():
         # set the relationship property with the first element of the tuple
         setattr(instance, k, v[0])
         # try:
