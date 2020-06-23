@@ -103,6 +103,7 @@ class LoanAccount(Base):
     creationDate           = Column(DateTime)
     approvedDate           = Column(DateTime)
     closedDate             = Column(DateTime)
+    rescheduledAccountKey  = Column(String)
     assignedCentreKey      = Column(String) # not in API
     lastSetToArrearsDate   = Column(DateTime) # not in API
 
