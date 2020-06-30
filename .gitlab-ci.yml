@@ -1,5 +1,6 @@
 stages:
   - "UnitTests"
+  - "deploy"
 
 .UnitTests:
   artifacts:
@@ -48,3 +49,42 @@ UnitTests-2:
   variables:
     PYVERSION: "2"
   image: "python:2"
+
+.deploy:
+  script:
+    - cd ..
+    # comprime el codigo de la version actual
+    - tar czf /tmp/$ENV_NAME-$CI_COMMIT_SHORT_SHA.tar.gz $CI_PROJECT_NAME
+    # crea la estructura de directorios donde se guardara la liberacion
+    - ssh root@$SERVER "mkdir -p $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA && exit"
+    # sube el archivo comprimido al servidor
+    - rsync /tmp/$ENV_NAME-$CI_COMMIT_SHORT_SHA.tar.gz root@$SERVER:$DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/
+    # descomprime el archivo en el servidor
+    - ssh root@$SERVER "cd $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA && tar xzf $ENV_NAME-$CI_COMMIT_SHORT_SHA.tar.gz && exit"
+    # instala el cambio en el servidor
+    - ssh root@$SERVER "cd $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && rsync -avz MambuPy/* $PODEMOS_PATH/lib/python/mambupy/ && exit"
+    # reinicia servicios para cargar los cambios
+    - ssh root@$SERVER "systemctl reload apache2 && exit"
+    # limpia la basura (deja el comprimido, quita el resto que ocupa espacio innecesario)
+    - ssh root@$SERVER "rm -rf $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && exit"
+
+deploy-watson:
+  extends: ".deploy"
+  stage: "deploy"
+  environment: watson_server
+  only:
+    - master_podemos
+    # llama asi al branch para hacer pruebas de este stage...
+    - gitlab_ci
+  variables:
+    ENV_NAME: "staging"
+    SERVER: "watson"
+  before_script:
+    - apt-get update
+    - apt-get install -y rsync
+    - eval $(ssh-agent -s)
+    - echo "$SSH_WATSON_PRIVATE_KEY" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_WATSON_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
