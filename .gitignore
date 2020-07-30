@@ -5,3 +5,8 @@ _build/
 build/
 dist/
 MambuPy.egg-info/
+
+.coverage*
+!.coveragerc
+coverage.*
+htmlcov*
