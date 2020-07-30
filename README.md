@@ -172,6 +172,10 @@ TODO comments for hackers are included at:
   - Implement __contains__ in MambuStruct so that you can use in operator
 * v1.8.1 2020-05-11
   - init method tries to initialize the entid property
+* v1.8.2 2020-07-03
+  - Use of items() instead of iteritems in dictionaries
+  - Atribute rescheduledAccountKey was added to orm LoanAccount
+  - gitlab CI coverage tests
 
 ### Author
 
