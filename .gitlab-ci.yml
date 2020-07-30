@@ -1,6 +1,14 @@
 stages:
+  - "lint"
   - "UnitTests"
   - "deploy"
+
+Linter:
+  stage: lint
+  script:
+    - pip install -q --no-cache-dir pylint
+    - find ./MambuPy -iname "*.py" | xargs pylint --disable=all --enable=trailing-whitespace,trailing-newlines,missing-final-newline --output-format=parseable
+    - find ./tests -iname "*.py" | xargs pylint --disable=all --enable=trailing-whitespace,trailing-newlines,missing-final-newline --output-format=parseable
 
 .UnitTests:
   artifacts:
@@ -63,15 +71,12 @@ UnitTests-2:
     - ssh root@$SERVER "cd $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA && tar xzf $ENV_NAME-$CI_COMMIT_SHORT_SHA.tar.gz && exit"
     # instala el cambio en el servidor
     - ssh root@$SERVER "cd $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && rsync -avz MambuPy/* $PODEMOS_PATH/lib/python/mambupy/ && exit"
-    # reinicia servicios para cargar los cambios
-    - ssh root@$SERVER "systemctl reload apache2 && exit"
-    # limpia la basura (deja el comprimido, quita el resto que ocupa espacio innecesario)
-    - ssh root@$SERVER "rm -rf $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && exit"
 
 deploy-watson:
   extends: ".deploy"
   stage: "deploy"
   environment: watson_server
+  image: "jstitch/mambupy:latest"
   only:
     - master_podemos
     # llama asi al branch para hacer pruebas de este stage...
@@ -80,11 +85,31 @@ deploy-watson:
     ENV_NAME: "staging"
     SERVER: "watson"
   before_script:
-    - apt-get update
-    - apt-get install -y rsync
     - eval $(ssh-agent -s)
     - echo "$SSH_WATSON_PRIVATE_KEY" | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo "$SSH_WATSON_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    # publica el reporte de coverage
+    - sed -i 's/\/builds\/podemos-ti\/mambupy\///g' coverage_${CI_PROJECT_NAME}_2.xml
+    - sed -i 's/\/builds\/podemos-ti\/mambupy\///g' coverage_${CI_PROJECT_NAME}_3.xml
+    - rsync coverage_${CI_PROJECT_NAME}_2.xml root@$SERVER:/var/www/
+    - rsync coverage_${CI_PROJECT_NAME}_3.xml root@$SERVER:/var/www/
+    - rsync htmlcov_${CI_PROJECT_NAME}_2.tar.bz2 root@$SERVER:/var/www
+    - rsync htmlcov_${CI_PROJECT_NAME}_3.tar.bz2 root@$SERVER:/var/www
+    - ssh root@$SERVER "cd /var/www && rm -rf htmlcov_${CI_PROJECT_NAME}_2 && tar xjvf htmlcov_${CI_PROJECT_NAME}_2.tar.bz2 && rm htmlcov_${CI_PROJECT_NAME}_2.tar.bz2 && exit"
+    - ssh root@$SERVER "cd /var/www && rm -rf htmlcov_${CI_PROJECT_NAME}_3 && tar xjvf htmlcov_${CI_PROJECT_NAME}_3.tar.bz2 && rm htmlcov_${CI_PROJECT_NAME}_3.tar.bz2 && exit"
+  after_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_WATSON_PRIVATE_KEY" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_WATSON_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    # sonarqube scan
+    - ssh root@$SERVER "cd $DEPLOY_ROOT_PATH/staging-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && /usr/local/share/sonar-scanner/bin/sonar-scanner -Dsonar.login=$SONARQUBE_LOGIN_KEY && exit"
+    # reinicia servicios para cargar los cambios
+    - ssh root@$SERVER "systemctl reload apache2 && exit"
+    # limpia la basura (deja el comprimido, quita el resto que ocupa espacio innecesario)
+    - ssh root@$SERVER "rm -rf $DEPLOY_ROOT_PATH/$ENV_NAME-$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/$CI_PROJECT_NAME && exit"
