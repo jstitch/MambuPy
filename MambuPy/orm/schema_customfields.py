@@ -19,6 +19,28 @@ dbname = orm.dbname
 session = orm.session
 Base = orm.Base
 
+class CustomFieldSet(Base):
+    """CustomFieldValue table.
+    """
+    __tablename__  = "customfieldset"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    # Columns
+    encodedKey  = Column(String, primary_key=True)
+    id          = Column(String)
+    name        = Column(String)
+    type        = Column(String)
+    indexInList = Column(Integer)
+
+    # Relationships
+    customField    = relationship('CustomField', back_populates='customFieldSet')
+
+    def __repr__(self):
+        return "<CustomFieldSet(name={}, id={})>".format(self.name, self.id)
+
+
 class CustomField(Base):
     """CustomField table.
     Related with CustomFieldValue
@@ -34,12 +56,16 @@ class CustomField(Base):
     description      = Column(String)
     id               = Column(String)
     type             = Column(String)
+    indexInList      = Column(Integer)
     state            = Column(String)
     valueLength      = Column(String)
     dataType         = Column(String)
     creationDate     = Column(DateTime)
     lastModifiedDate = Column(DateTime)
     customFieldValues= relationship('CustomFieldValue', back_populates='customField')
+    customFieldSet_encodedKey_oid = Column(String, ForeignKey(CustomFieldSet.encodedKey))
+    customFieldSet                = relationship(CustomFieldSet, back_populates='customField')
+    customFieldSelection          = relationship('CustomFieldSelection', back_populates='customField')
 
     def __repr__(self):
         return "<CustomField(name={})>".format(self.name)
@@ -121,3 +147,29 @@ class CustomFieldValue(Base):
 
     def __repr__(self):
         return "<CustomFieldValue(customField={},value={})>".format(self.customField, self.value if self.value else self.linkedclient if self.linkedclient else self.linkedgroup if self.linkedgroup else self.linkeduser if self.linkeduser else 'None')
+
+
+class CustomFieldSelection(Base):
+    """CustomFieldValue table.
+    """
+    __tablename__  = "customfieldselection"
+    __table_args__ = {'schema'        : dbname,
+                      'keep_existing' : True
+                     }
+
+    # Columns
+    encodedKey     = Column(String, primary_key=True)
+    id             = Column(String)
+    value          = Column(String)
+    score          = Column(Integer)
+    selectionindex = Column(Integer)
+
+    # Relationships
+    customfieldkey = Column(String, ForeignKey(CustomField.encodedKey))
+    customField    = relationship(CustomField, back_populates='customFieldSelection')
+
+    def __repr__(self):
+        try:
+            return "<CustomFieldSet(id={}, value={})>".format(self.id, self.value)
+        except UnicodeEncodeError as ue:
+            return "<CustomFieldSet(id={}, value={})>".format(self.id, self.value.encode("utf8"))
