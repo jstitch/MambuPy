@@ -97,6 +97,22 @@ class MambuUser(MambuStruct):
         return 1
 
 
+    def setBranch(self, *args, **kwargs):
+        """Adds the branch to which this user belongs
+        """
+        try:
+            self.mambubranchclass
+        except AttributeError as ae:
+            from .mambubranch import MambuBranch
+            self.mambubranchclass = MambuBranch
+        try:
+            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
+            self['branch'] = branch
+        except KeyError:
+            self['branch'] = ""
+        return 1
+
+
     def create(self, data, *args, **kwargs):
         """Creates an user in Mambu
 
