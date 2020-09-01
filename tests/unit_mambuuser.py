@@ -130,6 +130,33 @@ class MambuUserTests(unittest.TestCase):
             self.assertTrue(u.has_key('mamburoleclass'))
             mock_mamburole.assert_called_once_with(entid='roleEncodedKey')
 
+    def test_setBranch(self):
+        def mock_connect(*args, **kwargs):
+            args[0].attrs = {'id':"78945", 'assignedBranchKey':"branch123"}
+        class my_branch(object):
+            def __init__(self, id, name):
+                self.attrs = {'id':id, 'name':name}
+            def __getitem__(self,item):
+                return self.attrs[item]
+        with mock.patch.object(mambuuser.MambuStruct, "connect", mock_connect),\
+             mock.patch('MambuPy.rest.mambubranch.MambuBranch') as mock_mambubranch:
+            my_branch_instance = my_branch(id="dummyBranchId",name="myBranchName")
+            mock_mambubranch.return_value = my_branch_instance
+
+            usr = mambuuser.MambuUser(urlfunc=lambda x:x)
+            self.assertFalse(usr.has_key('branch'))
+            self.assertFalse(usr.has_key('mambubranchclass'))
+
+            # no mambubranchclass yet
+            usr.setBranch()
+            self.assertTrue(usr.has_key('branch'))
+            self.assertTrue(usr.has_key('mambubranchclass'))
+            mock_mambubranch.assert_called_once_with(entid='branch123')
+
+            # already with mambubranchclass
+            mock_mambubranch.reset_mock()
+            usr.setBranch()
+            mock_mambubranch.assert_called_once_with(entid='branch123')
 
     @mock.patch("MambuPy.rest.mambuuser.MambuStruct.create")
     def test_create(self, mock_super_create):
