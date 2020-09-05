@@ -1,3 +1,4 @@
+
 """*MambuPy*, an API library to access `Mambu <https://www.mambu.com/>`_ objects.
 
 .. autosummary::
@@ -33,5 +34,5 @@ TODOS
 .. todo:: Please also read the :any:`TODO` file for more suggestions
 """
 
-__version__ = "1.8.2"
+__version__ = "1.8.3"
 """The version of this module."""

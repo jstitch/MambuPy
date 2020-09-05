@@ -176,6 +176,9 @@ TODO comments for hackers are included at:
   - Use of items() instead of iteritems in dictionaries
   - Atribute rescheduledAccountKey was added to orm LoanAccount
   - gitlab CI coverage tests
+* v1.8.3 2020-09-05
+  - Classes CustomFieldSet and CustomFieldSelection were added for ORM
+  - New setBranch method MambuUser
 
 ### Author
 
