@@ -85,6 +85,7 @@ class MambuLoan(MambuStruct):
             try:
                 return repayment['dueDate']
             except KeyError as kerr:
+                from datetime import datetime
                 return datetime.now()
 
         try:
