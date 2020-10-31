@@ -179,6 +179,8 @@ TODO comments for hackers are included at:
 * v1.8.3 2020-09-05
   - Classes CustomFieldSet and CustomFieldSelection were added for ORM
   - New setBranch method MambuUser
+* v1.8.4 2020-10-30
+  - mambuloan missing import datetime fixed
 
 ### Author
 
