@@ -185,4 +185,5 @@ TODO comments for hackers are included at:
 ### Author
 
 JNC
+Javier Novoa C.
 jstitch@gmail.com
