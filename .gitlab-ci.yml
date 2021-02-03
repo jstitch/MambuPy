@@ -76,7 +76,7 @@ deploy-watson:
   extends: ".deploy"
   stage: "deploy"
   environment: watson_server
-  image: "jstitch/mambupy:latest"
+  image: "jstitch/mambupy:py2"
   only:
     - master_podemos
     # llama asi al branch para hacer pruebas de este stage...
