@@ -108,10 +108,13 @@ class MambuGroup(MambuStruct):
 
         for m in self['groupMembers']:
             try:
-                self.mambuclientclass
-            except AttributeError as ae:
-                from .mambuclient import MambuClient
-                self.mambuclientclass = MambuClient
+                self.mambuclientclass = kwargs.pop('mambuclientclass')
+            except KeyError:
+                try:
+                    self.mambuclientclass
+                except AttributeError as ae:
+                    from .mambuclient import MambuClient
+                    self.mambuclientclass = MambuClient
 
             client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
             requests += 1

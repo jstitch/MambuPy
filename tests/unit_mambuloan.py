@@ -502,7 +502,7 @@ class MambuLoanTests(unittest.TestCase):
             self.assertFalse(ln.has_key('clients'))
             self.assertEqual(ln.setHolder(getClients=True),6)
             self.assertTrue(ln.has_key('clients'))
-            mock_grupo.setClients.assert_called_once_with(fullDetails=True)
+            mock_grupo.setClients.assert_called_once_with(fullDetails=True, mambuclientclass=mock_mambuclient)
             ln.getClientDetails.assert_called_once_with(holder=ln['holder'])
             self.assertEqual(len(ln['clients']), 5)
             self.assertEqual(ln['clients']['clKey1'], {'id':"clKey1", 'client':"client1", 'name':"CLIENT1", 'loan':ln, 'amount':2000.0, 'montoPago':1000.0, 'porcentaje':0.2, 'extradata':"THIS IS ONE"})
