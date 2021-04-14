@@ -365,7 +365,11 @@ class MambuLoan(MambuStruct):
                 holder['roles'] = roles
 
             if getClients:
-                requests += holder.setClients(fullDetails=fullDetails, *args, **kwargs)
+                try:
+                    self.mambuclientclass
+                except AttributeError:
+                    self.mambuclientclass = None
+                requests += holder.setClients(fullDetails=fullDetails, mambuclientclass=self.mambuclientclass, *args, **kwargs)
 
                 loanclients = {}
 

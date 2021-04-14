@@ -114,6 +114,15 @@ class MambuGroupTests(unittest.TestCase):
             mock_mambuclient.assert_any_call(entid='dummyClientId1', fullDetails=False)
             mock_mambuclient.assert_any_call(entid='dummyClientId2', fullDetails=False)
 
+            # specify a mambuclientclass
+            clientclass = mock.Mock()
+            mock_mambuclient.reset_mock()
+            grp.setClients(mambuclientclass=clientclass)
+            self.assertTrue(grp.has_key('clients'))
+            self.assertEqual(mock_mambuclient.call_count, 0)
+            clientclass.assert_any_call(entid='dummyClientId1', fullDetails=True)
+            clientclass.assert_any_call(entid='dummyClientId2', fullDetails=True)
+
     def test_setBranch(self):
         def mock_connect(*args, **kwargs):
             args[0].attrs = {'id':"12345", 'assignedBranchKey':"brnch12345"}
