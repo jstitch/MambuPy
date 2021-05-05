@@ -106,7 +106,7 @@ class MambuUtilTests(unittest.TestCase):
                 self.content = content
 
         mock_requests.post.return_value = response(code=200, content="hello world")
-        mock_requests.get.return_value = response(code=200, content="hello world")
+        mock_requests.get.return_value = response(code=200, content=b"hello world")
 
         d = mambuutil.backup_db(callback="da-callback", bool_func=lambda : True, output_fname="/tmp/out_test")
         # API is called with these arguments using GET method
