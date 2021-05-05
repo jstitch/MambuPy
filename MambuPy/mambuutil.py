@@ -1241,7 +1241,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     if verbose:
         log.write("saving...\n")
         log.flush()
-    with open(output_fname, "w") as fw:
+    with open(output_fname, "wb") as fw:
         fw.write(resp.content)
 
     if verbose:

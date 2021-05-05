@@ -34,5 +34,5 @@ TODOS
 .. todo:: Please also read the :any:`TODO` file for more suggestions
 """
 
-__version__ = "1.8.4"
+__version__ = "1.8.7"
 """The version of this module."""

@@ -181,6 +181,13 @@ TODO comments for hackers are included at:
   - New setBranch method MambuUser
 * v1.8.4 2020-10-30
   - mambuloan missing import datetime fixed
+* v1.8.5 2020-12-16
+  - Path in Unittests script fixeed to run from root directory
+* v1.8.6 2021-04-14
+  - Add a mambuclintclass for clients set under MambuLoan.setHolder
+* v1.8.7 2021-05-04
+  - Backing up Database dump from Mambu, save file using "wb" mode
+  May the 4th be with you!
 
 ### Author
 
