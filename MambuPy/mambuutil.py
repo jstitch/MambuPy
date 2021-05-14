@@ -137,15 +137,15 @@ def getbranchesurl(idbranch, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     branchidparam = "" if idbranch == "" else "/"+idbranch
@@ -176,15 +176,15 @@ def getcentresurl(idcentre, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     centreidparam = "" if idcentre == "" else "/"+idcentre
@@ -223,15 +223,15 @@ def getrepaymentsurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "loans/" + idcred + "/repayments" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -261,15 +261,15 @@ def getsavingssurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "savings/" + idcred + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -298,15 +298,15 @@ def getsavingfundingrepaymentsurl(idcred, loan_id, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "savings/" + idcred + "/funding/" + loan_id + '/repayments' + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -336,15 +336,15 @@ def getsavingstransactionsurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "savings/" + idcred + "/transactions/" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -373,15 +373,15 @@ def getsavingstransactionssearchurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "savings/transactions/search" + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -411,15 +411,15 @@ def gettransactionchannelsurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "transactionchannels/" + idcred + ("" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -453,31 +453,31 @@ def getloansurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("centreId=%s" % kwargs["centreId"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     idcredparam = "" if idcred == "" else "/"+idcred
@@ -525,27 +525,27 @@ def getgroupurl(idgroup, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("centreId=%s" % kwargs["centreId"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
     groupidparam = "" if idgroup == "" else "/"+idgroup
     url = getmambuurl(*args,**kwargs) + "groups" + groupidparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -584,11 +584,11 @@ def getgrouploansurl(idgroup, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception as ex:
+        except Exception:
             pass
     groupidparam = "/" + idgroup
     url = getmambuurl(*args,**kwargs) + "groups" + groupidparam  + "/loans" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -638,11 +638,11 @@ def gettransactionsurl(idcred, *args, **kwargs):
     if kwargs:
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
     url = getmambuurl(*args,**kwargs) + "loans/" + idcred + "/transactions" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
     return url
@@ -678,35 +678,35 @@ def getclienturl(idclient, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("firstName=%s" % kwargs["firstName"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("lastName=%s" % kwargs["lastName"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("idDocument=%s" % kwargs["idDocument"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("birthdate=%s" % kwargs["birthdate"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("state=%s" % kwargs["state"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
     clientidparam = "" if idclient == "" else "/"+idclient
     url = getmambuurl(*args,**kwargs) + "clients" + clientidparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -745,11 +745,11 @@ def getclientloansurl(idclient, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception as ex:
+        except Exception:
             pass
     clientidparam = "/" + idclient
     url = getmambuurl(*args,**kwargs) + "clients" + clientidparam  + "/loans" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -794,19 +794,19 @@ def getuserurl(iduser, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
     useridparam = "" if iduser == "" else "/"+iduser
     url = getmambuurl(*args,**kwargs) + "users" + useridparam + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -860,32 +860,32 @@ def gettasksurl(dummyId='', *args, **kwargs):
     if kwargs:
         try:
             getparams.append("username=%s" % kwargs["username"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("clientid=%s" % kwargs["clientId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("groupid=%s" % kwargs["groupId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("status=%s" % kwargs["status"])
-        except Exception as ex:
+        except Exception:
             getparams.append("status=OPEN")
 
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "tasks" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -923,48 +923,48 @@ def getactivitiesurl(dummyId='', *args, **kwargs):
     if kwargs:
         try:
             getparams.append("from=%s" % kwargs["fromDate"])
-        except Exception as ex:
+        except Exception:
             getparams.append("from=%s" % '1900-01-01')
 
         try:
             getparams.append("to=%s" % kwargs["toDate"])
-        except Exception as ex:
+        except Exception:
             hoy = datetime.now().strftime('%Y-%m-%d')
             getparams.append("to=%s" % hoy)
 
         try:
             getparams.append("branchID=%s" % kwargs["branchId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("clientID=%s" % kwargs["clientId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("centreID=%s" % kwargs["centreId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("userID=%s" % kwargs["userId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("loanAccountID=%s" % kwargs["loanAccountId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("groupID=%s" % kwargs["groupId"])
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception as ex:
+        except Exception:
             pass
 
     url = getmambuurl(*args,**kwargs) + "activities" + ( "" if len(getparams) == 0 else "?" + "&".join(getparams) )
@@ -1085,8 +1085,8 @@ def iriToUri(iri):
                     partes.append(part.encode('idna'))
             except UnicodeDecodeError as ue:
                 partes.append(urlEncodeNonAscii(part.decode('latin')))
-            except Exception as e:
-                raise e
+            except Exception:
+                raise Exception
         return urlparse.urlunparse(partes)
     else:
         # python3
