@@ -60,12 +60,12 @@ class MambuGroup(MambuStruct):
             for k,v in self['theGroup'].items():
                 self[k] = v
             del(self.attrs['theGroup'])
-        except Exception as e:
+        except Exception:
             pass
 
         try:
             self['notes'] = self['notes'].replace("<div>", "").replace("</div>", "")
-        except Exception as e:
+        except Exception:
             self['notes'] = ""
 
         try:
@@ -112,7 +112,7 @@ class MambuGroup(MambuStruct):
             except KeyError:
                 try:
                     self.mambuclientclass
-                except AttributeError as ae:
+                except AttributeError:
                     from .mambuclient import MambuClient
                     self.mambuclientclass = MambuClient
 
@@ -129,7 +129,7 @@ class MambuGroup(MambuStruct):
         """
         try:
             self.mambubranchclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambubranch import MambuBranch
             self.mambubranchclass = MambuBranch
 
@@ -143,7 +143,7 @@ class MambuGroup(MambuStruct):
         """
         try:
             self.mambucentreclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambucentre import MambuCentre
             self.mambucentreclass = MambuCentre
 
@@ -165,11 +165,11 @@ class MambuGroup(MambuStruct):
             """Util function used for sorting activities according to timestamp"""
             try:
                 return activity['activity']['timestamp']
-            except KeyError as kerr:
+            except KeyError:
                 return None
         try:
             self.mambuactivitiesclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambuactivity import MambuActivities
             self.mambuactivitiesclass = MambuActivities
 
@@ -344,12 +344,12 @@ class MambuGroups(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mambugroupclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mambugroupclass = MambuGroup
 
             group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
