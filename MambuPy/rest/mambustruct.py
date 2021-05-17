@@ -608,7 +608,7 @@ class MambuStruct(object):
                     # Basic authentication
                     user = self.__kwargs.get('user', apiuser)
                     pwd = self.__kwargs.get('pwd', apipwd)
-                    url = iriToUri(self.__urlfunc(self.entid, limit=limit, offset=offset, *self.__args, **self.__kwargs))
+                    url = iriToUri(self.__urlfunc(str(self.entid), limit=limit, offset=offset, *self.__args, **self.__kwargs))
                     self.__url = url
                     if self.__data:
                         data = json.dumps(encoded_dict(self.__data))

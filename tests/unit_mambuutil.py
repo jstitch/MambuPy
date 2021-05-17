@@ -339,6 +339,9 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.getpostdocumentsurl(), self.prefix + "/api/" + "documents")
         self.assertEqual(mambuutil.getpostdocumentsurl("123"), self.prefix + "/api/" + "documents")
 
+    def test_getusercustominformationurl(self):
+        self.assertEqual(mambuutil.getusercustominformationurl("456"), self.prefix + "/api/"+ "users/456/custominformation")
+        self.assertEqual(mambuutil.getusercustominformationurl("456", customfield="test"), self.prefix + "/api/"+ "users/456/custominformation/test")
 
 if __name__ == '__main__':
     unittest.main()
