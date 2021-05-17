@@ -17,7 +17,7 @@ Uses mambuutil.getuserurl as default urlfunc
 
 
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getuserurl
+from ..mambuutil import getuserurl, getusercustominformationurl
 
 
 mod_urlfunc = getuserurl
@@ -124,6 +124,42 @@ class MambuUser(MambuStruct):
         self['user'][self.customFieldName] = self['customInformation']
         self.init(attrs=self['user'])
         return 1
+
+    def update(self, data, *args, **kwargs):
+        """Updates a user in Mambu
+
+        Updates customFields of a MambuUser
+
+        https://support.mambu.com/docs/users-api#post-users
+        https://support.mambu.com/docs/users-api#parameters-for-patch-custom-fields-method-for-user
+
+        Parameters
+        -data       dictionary with data to update
+        """
+        cont_requests = 0
+        data2update = {}
+
+        # UPDATE customFields
+        if data.get("customInformation"):
+            data2update = {"user":{}}
+            data2update["customInformation"] = data.get("customInformation")
+            self._MambuStruct__urlfunc = getusercustominformationurl
+            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            self._MambuStruct__urlfunc = getuserurl
+
+        cont_requests += super(MambuUser, self).update(data, *args, **kwargs)
+        return cont_requests
+
+
+    def updatePatch(self, data, *args, **kwargs):
+        """Updates a Mambu user using method PATCH
+
+        Args:
+            data (dictionary): dictionary with data to update
+
+        https://support.mambu.com/docs/users-api#patch-user-custom-field-values
+        """
+        return super(MambuUser, self).updatePatch(data, *args, **kwargs)
 
 
 class MambuUsers(MambuStruct):

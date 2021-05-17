@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 sys.path.insert(0, os.path.abspath('.'))
 
 try:
@@ -19,6 +20,11 @@ try:
     unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex # python3
 except Exception as e:
     pass # DeprecationWarning: Please use assertRaisesRegex instead
+
+class Response(object):
+    def __init__(self, text):
+        self.text = json.dumps(text)
+        self.content = text
 
 class MambuUserTests(unittest.TestCase):
     def test_mod_urlfunc(self):
@@ -176,6 +182,44 @@ class MambuUserTests(unittest.TestCase):
         # u[u.customFieldName] is created
         self.assertTrue(u[u.customFieldName])
 
+    @mock.patch('MambuPy.rest.mambustruct.requests')
+    def test_update(self, mock_requests):
+        """Test update"""
+
+        # set data response
+        mock_requests.patch.return_value = Response('{"returnCode":0,"returnStatus":"SUCCESS"}')
+        mock_requests.post.return_value = Response('{"encodedKey":"8a68ae574f707810014f84add84610ef","id":631,"creationDate":"2015-08-31T16:53:50+0000","lastModifiedDate":"2021-05-14T13:28:35+0000","lastLoggedInDate":"2021-04-23T13:31:39+0000"}')
+        mambuuser.MambuStruct.update = mock.Mock()
+        mambuuser.MambuStruct.update.return_value = 1
+        user = mambuuser.MambuUser(connect=False)
+        user.attrs = {}
+        userData = {}
+
+        # send none data
+        self.assertEqual(user.update(userData), 1)
+        userData["user"] = {"assignedBranchKey": "123456"}
+        userData["customInformation"] = [{
+            "customFieldID" : "UnidadesCoordinador",
+            "value"         : "TribuNR-2",
+            "customFieldSetGroupIndex" : "0"
+            }]
+        self.assertEqual(user.update(userData), 2)
+
+        mambuuser.MambuStruct.update.assert_called()
+
+    def test_update_patch(self):
+        mambuuser.MambuStruct.updatePatch = mock.Mock()
+        mambuuser.MambuStruct.updatePatch.return_value = 1
+        data = {
+            "customInformation" : [{
+                "customFieldID" : "UnidadesCoordinador",
+                "value"         : "PRUEBA"
+            }]
+        }
+        user = mambuuser.MambuUser(connect=False)
+
+        self.assertEqual(user.updatePatch(data), 1)
+        mambuuser.MambuStruct.updatePatch.assert_called()
 
 class MambuUsersTests(unittest.TestCase):
     def test_class(self):

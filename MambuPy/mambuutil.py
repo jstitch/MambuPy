@@ -496,6 +496,18 @@ def getloanscustominformationurl(idcred, customfield="", *args, **kwargs):
     url = getmambuurl(*args, **kwargs) + "loans" + loanidparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
     return url
 
+def getusercustominformationurl(iduser, customfield="", *args, **kwargs):
+    """Request User Custom Information URL.
+
+    See Mambu official developer documentation for further details, and
+    info on parameters that may be implemented here in the future.
+
+    .. todo:: status API V2: NOT compatible
+    """
+    useridparam = "/" + iduser
+    url = getmambuurl(*args, **kwargs) + "users" + useridparam + "/custominformation" + ( ("/"+customfield) if customfield else "" )
+    return url
+
 def getgroupurl(idgroup, *args, **kwargs):
     """Request Groups URL.
 
