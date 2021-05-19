@@ -971,6 +971,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.delete.assert_called_with("http://example.com", headers={'Accept': 'application/vnd.mambu.v1+json'}, auth=("my_user", "my_password"))
         self.assertIsNone(ms.connect())
         self.assertEqual(ms._raw_response_data, '{"returnCode":0,"returnStatus":"SUCCESS"}')
+        self.assertEqual(getattr(ms, 'attrs', "Monty Python Flying Circus"), "Monty Python Flying Circus")
 
         # normal load with error
         iriToUri.return_value = ""

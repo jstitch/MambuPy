@@ -188,6 +188,8 @@ TODO comments for hackers are included at:
 * v1.8.7 2021-05-04
   - Backing up Database dump from Mambu, save file using "wb" mode
   May the 4th be with you!
+* v1.8.8 2021-05-18
+  - MambuUser update and updatePatch methods
 
 ### Author
 

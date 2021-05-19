@@ -675,7 +675,7 @@ class MambuStruct(object):
         except AttributeError:
             pass
 
-        if ("documents" not in url) and self.__method != "PATCH":
+        if ("documents" not in url) and self.__method not in ["PATCH","DELETE"]:
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
     def _process_fields(self):
