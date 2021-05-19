@@ -1,0 +1,6 @@
+git checkout master
+git rebase master_podemos
+
+git rebase -i HEAD~N
+
+aquitar todos los commits que empiecen con GitlabCI...
