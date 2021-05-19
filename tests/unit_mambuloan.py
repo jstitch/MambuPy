@@ -2,8 +2,8 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
 import json
+sys.path.insert(0, os.path.abspath('.'))
 
 try:
     import mock

@@ -438,6 +438,9 @@ def getloansurl(idcred, *args, **kwargs):
     * branchId
     * centreId
     * creditOfficerUsername
+    * fixedDaysOfMonth
+    * startDate
+    * endDate
     * limit
     * offset
 
@@ -470,6 +473,18 @@ def getloansurl(idcred, *args, **kwargs):
         try:
             getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
         except Exception:
+            pass
+        try:
+            getparams.append("startDate=%s" % kwargs["startDate"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("endDate=%s" % kwargs["endDate"])
+        except Exception as ex:
+            pass
+        try:
+            getparams.append("fixedDaysOfMonth=%s" % kwargs["fixedDaysOfMonth"])
+        except Exception as ex:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
