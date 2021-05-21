@@ -58,7 +58,7 @@ class MambuSaving(MambuStruct):
 
         try:
             user = MambuUser(entid=self['assignedUserKey'], *args, **kwargs)
-        except KeyError as kerr:
+        except KeyError:
             err = MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
             err.noUser = True
             raise err
@@ -105,7 +105,7 @@ class MambuSavings(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             saving = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)

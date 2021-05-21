@@ -73,16 +73,16 @@ class MambuClient(MambuStruct):
             for k,v in self['client'].items():
                 self[k] = v
             del(self.attrs['client'])
-        except Exception as e:
+        except Exception:
             pass
 
         try:
             self['firstName'] = scrc(self['firstName'], " ").strip()
-        except Exception as e:
+        except Exception:
             self['firstName'] = ""
         try:
             self['middleName'] = scrc(self['middleName'], " ").strip()
-        except Exception as ex:
+        except Exception:
             self['middleName'] = ""
         self['givenName']      = scrc(self["firstName"] + ((" " + self["middleName"]) if self["middleName"] != "" else ""), " ").strip()
         self['lastName']       = scrc(self['lastName'], " ").strip()
@@ -148,7 +148,7 @@ class MambuClient(MambuStruct):
             for gk in self['groupKeys']:
                 try:
                     self.mambugroupclass
-                except AttributeError as ae:
+                except AttributeError:
                     from .mambugroup import MambuGroup
                     self.mambugroupclass = MambuGroup
 
@@ -168,7 +168,7 @@ class MambuClient(MambuStruct):
 
         try:
             self.mambubranchclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambubranch import MambuBranch
             self.mambubranchclass = MambuBranch
 
@@ -291,12 +291,12 @@ class MambuClients(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mambuclientclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mambuclientclass = MambuClient
 
             client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)

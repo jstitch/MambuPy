@@ -134,7 +134,7 @@ class MambuStruct(object):
             return data.serializeStruct()
         try:
             it = iter(data)
-        except TypeError as terr:
+        except TypeError:
             return unicode(data)
         if type(it) == type(iter([])):
             l = []
@@ -778,9 +778,9 @@ class MambuStruct(object):
                     for e in it:
                         l.append(convierte(e))
                     data = l
-            except TypeError as terr:
+            except TypeError:
                 pass
-            except Exception as ex:
+            except Exception:
                 raise ex
 
             # Python built-in types: ints, floats, or even datetimes. If it
@@ -792,13 +792,13 @@ class MambuStruct(object):
                 if str(d) != data: # if string has trailing 0's, leave it as string, to not lose them
                     return data
                 return d
-            except (TypeError, ValueError) as tverr:
+            except (TypeError, ValueError):
                 try:
                     return float(data)
-                except (TypeError, ValueError) as tverr:
+                except (TypeError, ValueError):
                     try:
                         return self.util_dateFormat(data)
-                    except (TypeError, ValueError) as tverr:
+                    except (TypeError, ValueError):
                         return data
 
             return data
@@ -963,7 +963,7 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
         customFieldValue = mambuentity[customfield]
         # find the dataType customfield by name or id
         datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if (l['name'] == customfield or l['id'] == customfield) ][0]
-    except IndexError as ierr:
+    except IndexError:
     # if no customfield found with the given name, assume it is a
     # grouped custom field, name must have an index suffix that must
     # be removed

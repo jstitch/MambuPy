@@ -84,13 +84,13 @@ class MambuLoan(MambuStruct):
             """Util function used for sorting repayments according to due Date"""
             try:
                 return repayment['dueDate']
-            except KeyError as kerr:
+            except KeyError:
                 from datetime import datetime
                 return datetime.now()
 
         try:
             self.mamburepayments
-        except AttributeError as ae:
+        except AttributeError:
             from .mamburepayment import MambuRepayments
             self.mamburepaymentsclass = MambuRepayments
 
@@ -119,12 +119,12 @@ class MambuLoan(MambuStruct):
             """Util function used for sorting transactions according to id"""
             try:
                 return transaction['transactionId']
-            except KeyError as kerr:
+            except KeyError:
                 return None
 
         try:
             self.mambutransactionsclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambutransaction import MambuTransactions
             self.mambutransactionsclass = MambuTransactions
 
@@ -147,7 +147,7 @@ class MambuLoan(MambuStruct):
 
         try:
             self.mambubranchclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambubranch import MambuBranch
             self.mambubranchclass = MambuBranch
 
@@ -170,7 +170,7 @@ class MambuLoan(MambuStruct):
 
         try:
             self.mambucentreclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambucentre import MambuCentre
             self.mambucentreclass = MambuCentre
 
@@ -191,7 +191,7 @@ class MambuLoan(MambuStruct):
         """
         try:
             self.mambuuserclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambuuser import MambuUser
             self.mambuuserclass = MambuUser
 
@@ -221,7 +221,7 @@ class MambuLoan(MambuStruct):
         if cache:
             try:
                 self.allmambuproductsclass
-            except AttributeError as ae:
+            except AttributeError:
                 from .mambuproduct import AllMambuProducts
                 self.allmambuproductsclass = AllMambuProducts
 
@@ -237,7 +237,7 @@ class MambuLoan(MambuStruct):
             return 0
         try:
             self.mambuproductclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambuproduct import MambuProduct
             self.mambuproductclass = MambuProduct
 
@@ -339,7 +339,7 @@ class MambuLoan(MambuStruct):
             self['holderType'] = "Grupo"
             try:
                 self.mambugroupclass
-            except AttributeError as ae:
+            except AttributeError:
                 from .mambugroup import MambuGroup
                 self.mambugroupclass = MambuGroup
 
@@ -353,7 +353,7 @@ class MambuLoan(MambuStruct):
                 for c in holder['groupRoles']:
                     try:
                         self.mambuclientclass
-                    except AttributeError as ae:
+                    except AttributeError:
                         from .mambuclient import MambuClient
                         self.mambuclientclass = MambuClient
 
@@ -394,7 +394,7 @@ class MambuLoan(MambuStruct):
             self['holderType'] = "Cliente"
             try:
                 self.mambuclientclass
-            except AttributeError as ae:
+            except AttributeError:
                 from .mambuclient import MambuClient
                 self.mambuclientclass = MambuClient
 
@@ -463,12 +463,12 @@ class MambuLoan(MambuStruct):
             """Util function used for sorting activities according to timestamp"""
             try:
                 return activity['activity']['timestamp']
-            except KeyError as kerr:
+            except KeyError:
                 return None
 
         try:
             self.mambuactivitiesclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambuactivity import MambuActivities
             self.mambuactivitiesclass = MambuActivities
 

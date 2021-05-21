@@ -476,15 +476,15 @@ def getloansurl(idcred, *args, **kwargs):
             pass
         try:
             getparams.append("startDate=%s" % kwargs["startDate"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("endDate=%s" % kwargs["endDate"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("fixedDaysOfMonth=%s" % kwargs["fixedDaysOfMonth"])
-        except Exception as ex:
+        except Exception:
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
@@ -1043,7 +1043,7 @@ def strip_tags(html):
         def __init__(self):
             try:
                 super().__init__() # required for python3
-            except TypeError as e:
+            except TypeError:
                 pass # with python2 raises TypeError
             self.reset()
             self.fed = []
@@ -1110,7 +1110,7 @@ def iriToUri(iri):
                     partes.append(urlEncodeNonAscii(part.encode('utf-8')))
                 else:
                     partes.append(part.encode('idna'))
-            except UnicodeDecodeError as ue:
+            except UnicodeDecodeError:
                 partes.append(urlEncodeNonAscii(part.decode('latin')))
             except Exception:
                 raise Exception

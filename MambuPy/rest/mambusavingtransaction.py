@@ -86,7 +86,7 @@ class MambuSavingTransactions(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             transaction_channel = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
@@ -127,7 +127,7 @@ class MambuSavingsTransactionSearch(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             transaction_channel = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)

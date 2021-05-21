@@ -48,7 +48,7 @@ class MambuBranch(MambuStruct):
         """
         try:
             self.mambuuserclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambuuser import MambuUsers
             self.mambuusersclass = MambuUsers
 
@@ -95,12 +95,12 @@ class MambuBranches(MambuStruct):
            # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mambubranchclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mambubranchclass = MambuBranch
 
             branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)

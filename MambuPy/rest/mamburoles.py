@@ -85,12 +85,12 @@ class MambuRoles(MambuStruct):
         for n,u in enumerate(self.attrs):
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mamburoleclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mamburoleclass = MambuRole
 
             role = self.mamburoleclass(urlfunc=None, entid=None, *args, **kwargs)
