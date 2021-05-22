@@ -780,7 +780,7 @@ class MambuStruct(object):
                     data = l
             except TypeError:
                 pass
-            except Exception:
+            except Exception as ex:
                 raise ex
 
             # Python built-in types: ints, floats, or even datetimes. If it
