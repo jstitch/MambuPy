@@ -61,6 +61,8 @@ class MambuTransactionsTests(unittest.TestCase):
             self.assertEqual(n, t[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import gettransactionsurl
+
         trans = mambutransaction.MambuTransactions(urlfunc=None)
         trans.attrs = [
             {'transactionId':"1", 'entryDate':"1979-10-23"},
@@ -72,6 +74,7 @@ class MambuTransactionsTests(unittest.TestCase):
         self.assertEqual(str(trans.mambutransactionclass), "<class 'MambuPy.rest.mambutransaction.MambuTransaction'>")
         for t in trans:
             self.assertEqual(t.__class__.__name__, 'MambuTransaction')
+            self.assertEqual(t._MambuStruct__urlfunc, gettransactionsurl)
 
 
 if __name__ == '__main__':

@@ -566,6 +566,8 @@ class MambuLoansTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getloansurl
+
         ln = mambuloan.MambuLoans(urlfunc=None)
         ln.attrs = [
             {'username':"a_user"},
@@ -577,6 +579,7 @@ class MambuLoansTests(unittest.TestCase):
         self.assertEqual(str(ln.mambuloanclass), "<class 'MambuPy.rest.mambuloan.MambuLoan'>")
         for l in ln:
             self.assertEqual(l.__class__.__name__, 'MambuLoan')
+            self.assertEqual(l._MambuStruct__urlfunc, getloansurl)
 
 
 if __name__ == '__main__':

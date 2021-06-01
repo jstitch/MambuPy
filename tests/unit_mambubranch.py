@@ -90,6 +90,8 @@ class MambuBranchesTests(unittest.TestCase):
             self.assertEqual(n, b[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getbranchesurl
+
         brs = mambubranch.MambuBranches(urlfunc=None)
         brs.attrs = [
             {'id':"1", 'name':"my_branch"},
@@ -101,6 +103,7 @@ class MambuBranchesTests(unittest.TestCase):
         self.assertEqual(str(brs.mambubranchclass), "<class 'MambuPy.rest.mambubranch.MambuBranch'>")
         for b in brs:
             self.assertEqual(b.__class__.__name__, 'MambuBranch')
+            self.assertEqual(b._MambuStruct__urlfunc, getbranchesurl)
 
 
 if __name__ == '__main__':

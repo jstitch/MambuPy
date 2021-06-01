@@ -617,4 +617,5 @@ class MambuLoans(MambuStruct):
 
             loan = self.mambuloanclass(urlfunc=None, entid=None, *args, **kwargs)
             loan.init(l, *args, **kwargs)
+            loan._MambuStruct__urlfunc = getloansurl
             self.attrs[n] = loan

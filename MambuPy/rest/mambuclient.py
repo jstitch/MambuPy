@@ -301,4 +301,5 @@ class MambuClients(MambuStruct):
 
             client = self.mambuclientclass(urlfunc=None, entid=None, *args, **kwargs)
             client.init(c, *args, **kwargs)
+            client._MambuStruct__urlfunc = getclienturl
             self.attrs[n] = client

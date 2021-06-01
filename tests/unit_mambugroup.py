@@ -319,6 +319,8 @@ class MambuGroupsTests(unittest.TestCase):
             self.assertEqual(n, g[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getgroupurl
+
         grps = mambugroup.MambuGroups(urlfunc=None)
         grps.attrs = [
             {'id':"1", 'groupName':"my_group"},
@@ -331,6 +333,7 @@ class MambuGroupsTests(unittest.TestCase):
             self.assertEqual(str(grps.mambugroupclass), "<class 'MambuPy.rest.mambugroup.MambuGroup'>")
             for g in grps:
                 self.assertEqual(g.__class__.__name__, 'MambuGroup')
+                self.assertEqual(g._MambuStruct__urlfunc, getgroupurl)
 
 
 if __name__ == '__main__':

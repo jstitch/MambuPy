@@ -182,4 +182,5 @@ class AllMambuProducts(MambuStruct):
 
             product = self.mambuproductclass(urlfunc=None, entid=None, *args, **kwargs)
             product.init(r, *args, **kwargs)
+            product._MambuStruct__urlfunc = getproductsurl
             self.attrs[n] = product

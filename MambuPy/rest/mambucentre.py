@@ -82,4 +82,5 @@ class MambuCentres(MambuStruct):
 
             centre = self.mambucentreclass(urlfunc=None, entid=None, *args, **kwargs)
             centre.init(b, *args, **kwargs)
+            centre._MambuStruct__urlfunc = getcentresurl
             self.attrs[n] = centre

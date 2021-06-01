@@ -117,6 +117,8 @@ class AllMambuProductsTests(unittest.TestCase):
             self.assertEqual(n, p[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getproductsurl
+
         prods = mambuproduct.AllMambuProducts(urlfunc=None)
         prods.attrs = [
             {'id':"1", 'name':"my_product"},
@@ -126,6 +128,7 @@ class AllMambuProductsTests(unittest.TestCase):
         self.assertEqual(str(prods.mambuproductclass), "<class 'MambuPy.rest.mambuproduct.MambuProduct'>")
         for p in prods:
             self.assertEqual(p.__class__.__name__, 'MambuProduct')
+            self.assertEqual(p._MambuStruct__urlfunc, getproductsurl)
 
 if __name__ == '__main__':
     unittest.main()

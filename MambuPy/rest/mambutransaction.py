@@ -98,4 +98,5 @@ class MambuTransactions(MambuStruct):
 
             trans = self.mambutransactionclass(urlfunc=None, entid=None, *args, **kwargs)
             trans.init(t, *args, **kwargs)
+            trans._MambuStruct__urlfunc = gettransactionsurl
             self.attrs[n] = trans

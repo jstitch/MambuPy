@@ -223,4 +223,5 @@ class MambuUsers(MambuStruct):
 
             user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)
             user.init(u, *args, **kwargs)
+            user._MambuStruct__urlfunc = getuserurl
             self.attrs[n] = user

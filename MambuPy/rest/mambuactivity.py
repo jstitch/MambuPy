@@ -88,4 +88,5 @@ class MambuActivities(MambuStruct):
 
             activity = self.mambuactivityclass(urlfunc=None, entid=None, *args, **kwargs)
             activity.init(a, *args, **kwargs)
+            activity._MambuStruct__urlfunc = getactivitiesurl
             self.attrs[n] = activity

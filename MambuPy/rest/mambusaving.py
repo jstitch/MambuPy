@@ -110,4 +110,5 @@ class MambuSavings(MambuStruct):
             kwargs.update(params)
             saving = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
             saving.init(l, *args, **kwargs)
+            saving._MambuStruct__urlfunc = getsavingssurl
             self.attrs[n] = saving

@@ -94,4 +94,5 @@ class MambuRepayments(MambuStruct):
 
             repayment = self.mamburepaymentclass(urlfunc=None, entid=None, *args, **kwargs)
             repayment.init(r, *args, **kwargs)
+            repayment._MambuStruct__urlfunc = getrepaymentsurl
             self.attrs[n] = repayment

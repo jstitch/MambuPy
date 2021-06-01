@@ -105,4 +105,5 @@ class MambuBranches(MambuStruct):
 
             branch = self.mambubranchclass(urlfunc=None, entid=None, *args, **kwargs)
             branch.init(b, *args, **kwargs)
+            branch._MambuStruct__urlfunc = getbranchesurl
             self.attrs[n] = branch

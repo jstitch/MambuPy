@@ -60,6 +60,8 @@ class MambuCentresTests(unittest.TestCase):
             self.assertEqual(n, c[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getcentresurl
+
         cens = mambucentre.MambuCentres(urlfunc=None)
         cens.attrs = [
             {'id':"1", 'name':"my_centre"},
@@ -71,6 +73,7 @@ class MambuCentresTests(unittest.TestCase):
         self.assertEqual(str(cens.mambucentreclass), "<class 'MambuPy.rest.mambucentre.MambuCentre'>")
         for c in cens:
             self.assertEqual(c.__class__.__name__, 'MambuCentre')
+            self.assertEqual(c._MambuStruct__urlfunc, getcentresurl)
 
 
 if __name__ == '__main__':

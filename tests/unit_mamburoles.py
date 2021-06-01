@@ -60,6 +60,8 @@ class MambuRolesTests(unittest.TestCase):
             self.assertEqual(n, r[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getrolesurl
+
         rs = mamburoles.MambuRoles(urlfunc=None)
         rs.attrs = [
             {'name':"my_role", 'permissions':{}},
@@ -71,6 +73,7 @@ class MambuRolesTests(unittest.TestCase):
         self.assertEqual(str(rs.mamburoleclass), "<class 'MambuPy.rest.mamburoles.MambuRole'>")
         for r in rs:
             self.assertEqual(r.__class__.__name__, 'MambuRole')
+            self.assertEqual(r._MambuStruct__urlfunc, getrolesurl)
 
 
 if __name__ == '__main__':

@@ -95,4 +95,5 @@ class MambuRoles(MambuStruct):
 
             role = self.mamburoleclass(urlfunc=None, entid=None, *args, **kwargs)
             role.init(u, *args, **kwargs)
+            role._MambuStruct__urlfunc = getrolesurl
             self.attrs[n] = role

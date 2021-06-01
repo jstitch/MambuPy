@@ -212,6 +212,8 @@ class MambuClientsTests(unittest.TestCase):
             self.assertEqual(n, c[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getclienturl
+
         clns = mambuclient.MambuClients(urlfunc=None)
         clns.attrs = [
             {'id':"1", 'firstName':"my_client"},
@@ -224,6 +226,7 @@ class MambuClientsTests(unittest.TestCase):
             self.assertEqual(str(clns.mambuclientclass), "<class 'MambuPy.rest.mambuclient.MambuClient'>")
             for c in clns:
                 self.assertEqual(c.__class__.__name__, 'MambuClient')
+                self.assertEqual(c._MambuStruct__urlfunc, getclienturl)
 
 
 if __name__ == '__main__':

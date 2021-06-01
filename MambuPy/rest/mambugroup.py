@@ -354,4 +354,5 @@ class MambuGroups(MambuStruct):
 
             group = self.mambugroupclass(urlfunc=None, entid=None, *args, **kwargs)
             group.init(c, *args, **kwargs)
+            group._MambuStruct__urlfunc = getgroupurl
             self.attrs[n] = group

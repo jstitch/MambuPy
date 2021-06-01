@@ -128,4 +128,5 @@ class MambuTasks(MambuStruct):
 
             task = self.mambutaskclass(urlfunc=None, entid=None, *args, **kwargs)
             task.init(a, *args, **kwargs)
+            task._MambuStruct__urlfunc = gettasksurl
             self.attrs[n] = task

@@ -132,4 +132,5 @@ class MambuSavingsTransactionSearch(MambuStruct):
             kwargs.update(params)
             transaction_channel = self.itemclass(urlfunc=None, entid=None, *args, **kwargs)
             transaction_channel.init(l, *args, **kwargs)
+            transaction_channel._MambuStruct__urlfunc = getsavingstransactionsurl
             self.attrs[n] = transaction_channel

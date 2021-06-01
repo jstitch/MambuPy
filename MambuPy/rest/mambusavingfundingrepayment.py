@@ -89,4 +89,5 @@ class MambuSavingFundingRepayments(MambuStruct):
             kwargs.update(params)
             repayment = MambuSavingFundingRepayment(urlfunc=None, entid=None, *args, **kwargs)
             repayment.init(r, *args, **kwargs)
+            repayment._MambuStruct__urlfunc = getsavingfundingrepaymentsurl
             self.attrs[n] = repayment

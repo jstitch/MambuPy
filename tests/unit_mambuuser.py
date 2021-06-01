@@ -235,6 +235,8 @@ class MambuUsersTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getuserurl
+
         us = mambuuser.MambuUsers(urlfunc=None)
         us.attrs = [
             {'username':"a_user"},
@@ -246,6 +248,7 @@ class MambuUsersTests(unittest.TestCase):
         self.assertEqual(str(us.mambuuserclass), "<class 'MambuPy.rest.mambuuser.MambuUser'>")
         for u in us:
             self.assertEqual(u.__class__.__name__, 'MambuUser')
+            self.assertEqual(u._MambuStruct__urlfunc, getuserurl)
 
 
 if __name__ == '__main__':

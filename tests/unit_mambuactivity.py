@@ -60,6 +60,8 @@ class MambuActivitiesTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
+        from MambuPy.mambuutil import getactivitiesurl
+
         acs = mambuactivity.MambuActivities(urlfunc=None)
         acs.attrs = [
             {'activity':"my_act"},
@@ -71,6 +73,7 @@ class MambuActivitiesTests(unittest.TestCase):
         self.assertEqual(str(acs.mambuactivityclass), "<class 'MambuPy.rest.mambuactivity.MambuActivity'>")
         for a in acs:
             self.assertEqual(a.__class__.__name__, 'MambuActivity')
+            self.assertEqual(a._MambuStruct__urlfunc, getactivitiesurl)
 
 
 if __name__ == '__main__':
