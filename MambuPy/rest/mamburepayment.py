@@ -17,11 +17,11 @@ Uses mambuutil.getrepaymentsurl as default urlfunc
 """
 
 
-from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getrepaymentsurl
-
+from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getrepaymentsurl
+
 
 class MambuRepayment(MambuStruct):
     """A loan Repayment from Mambu.
@@ -34,19 +34,21 @@ class MambuRepayment(MambuStruct):
     entid = None , so no connection to Mambu will be made, never, for
     any particular MambuRepayment object.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __repr__(self):
         """Instead of the default id given by the parent class, shows
         the duedate of the repayment.
         """
-        return self.__class__.__name__ + " - duedate: %s" % self['dueDate'].strftime("%Y-%m-%d")
+        return self.__class__.__name__ + " - duedate: %s" % self["dueDate"].strftime(
+            "%Y-%m-%d"
+        )
 
 
 class MambuRepayments(MambuStruct):
@@ -58,13 +60,12 @@ class MambuRepayments(MambuStruct):
     Makes no sense to send an empty entid, which throws a
     MambuError.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
+        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
@@ -80,7 +81,7 @@ class MambuRepayments(MambuStruct):
         Mambu, nor each individual repayment is identified by a
         particular ID.
         """
-        for n,r in enumerate(self.attrs):
+        for n, r in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
@@ -92,7 +93,9 @@ class MambuRepayments(MambuStruct):
             except AttributeError:
                 self.mamburepaymentclass = MambuRepayment
 
-            repayment = self.mamburepaymentclass(urlfunc=None, entid=None, *args, **kwargs)
+            repayment = self.mamburepaymentclass(
+                urlfunc=None, entid=None, *args, **kwargs
+            )
             repayment.init(r, *args, **kwargs)
             repayment._MambuStruct__urlfunc = getrepaymentsurl
             self.attrs[n] = repayment

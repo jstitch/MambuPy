@@ -16,16 +16,16 @@ Uses mambuutil.getrolesurl as default urlfunc
 """
 
 
-from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getrolesurl
-
+from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getrolesurl
 
+
 class MambuRole(MambuStruct):
-    """A Role from Mambu.
-    """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+    """A Role from Mambu."""
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
@@ -36,7 +36,7 @@ class MambuRole(MambuStruct):
         """Instead of the default id given by the parent class, shows
         the rolename
         """
-        return self.__class__.__name__ + " - rolename: '%s'" % self['name']
+        return self.__class__.__name__ + " - rolename: '%s'" % self["name"]
 
 
 class MambuRoles(MambuStruct):
@@ -61,17 +61,18 @@ class MambuRoles(MambuStruct):
     Don't forget to submit the change on a pull request when done
     ;-)
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', itemclass=MambuRole, *args, **kwargs):
+
+    def __init__(
+        self, urlfunc=mod_urlfunc, entid="", itemclass=MambuRole, *args, **kwargs
+    ):
         """entid argument is empty. That makes perfect
         sense: you always get serveral roles from Mambu REST API
         """
         self.itemclass = itemclass
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
@@ -82,7 +83,7 @@ class MambuRoles(MambuStruct):
         attribute (which just holds a list of plain dictionaries) with a
         MambuUser (or your own itemclass) just created.
         """
-        for n,u in enumerate(self.attrs):
+        for n, u in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError:

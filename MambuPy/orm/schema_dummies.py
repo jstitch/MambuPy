@@ -11,14 +11,17 @@ Sample dummies are created here. Please DO NOT TRY to persist them to the DB.
 
 from datetime import datetime as dt
 
-def make_dummy(instance,
-               relations        = {},
-               datetime_default = dt.strptime('1901-01-01','%Y-%m-%d'),
-               varchar_default  = "",
-               integer_default  = 0,
-               numeric_default  = 0.0,
-               *args, **kwargs
-              ):
+
+def make_dummy(
+    instance,
+    relations={},
+    datetime_default=dt.strptime("1901-01-01", "%Y-%m-%d"),
+    varchar_default="",
+    integer_default=0,
+    numeric_default=0.0,
+    *args,
+    **kwargs
+):
     """Make an instance to look like an empty dummy.
 
     Every field of the table is set with zeroes/empty strings.
@@ -58,17 +61,16 @@ def make_dummy(instance,
       give an unexistent name on the columns of the table, they are safely
       ignored.
 
-    .. todo:: further field types may be set at the init_data dictionary.
-"""
+    .. todo:: further field types may be set at the init_data dictionary."""
 
     # init_data knows how to put an init value depending on data type
     init_data = {
-        'DATETIME'        : datetime_default,
-        'VARCHAR'         : varchar_default,
-        'INTEGER'         : integer_default,
-        'NUMERIC(50, 10)' : numeric_default,
-        'TEXT'            : varchar_default,
-        }
+        "DATETIME": datetime_default,
+        "VARCHAR": varchar_default,
+        "INTEGER": integer_default,
+        "NUMERIC(50, 10)": numeric_default,
+        "TEXT": varchar_default,
+    }
 
     # the type of the instance is the SQLAlchemy Table
     table = type(instance)
@@ -80,7 +82,7 @@ def make_dummy(instance,
         except KeyError:
             setattr(instance, col.name, init_data[str(col.type)])
 
-    for k,v in relations.items():
+    for k, v in relations.items():
         # set the relationship property with the first element of the tuple
         setattr(instance, k, v[0])
         # try:
@@ -116,77 +118,103 @@ centre = make_dummy(Centre())
 
 # users
 role = make_dummy(Role())
-user = make_dummy(User(),
-                  relations={'branch' : (branch , 'users'),
-                             'role'   : (role   , 'users'),
-                            })
+user = make_dummy(
+    User(),
+    relations={
+        "branch": (branch, "users"),
+        "role": (role, "users"),
+    },
+)
 
 # groups
-group = make_dummy(Group(),
-                   relations={'branch' : (branch , 'groups'),
-                              'centre' : (centre , 'groups'),
-                              'user'   : (user   , 'groups'),
-                             })
+group = make_dummy(
+    Group(),
+    relations={
+        "branch": (branch, "groups"),
+        "centre": (centre, "groups"),
+        "user": (user, "groups"),
+    },
+)
 
 # clients
-iddoc  = make_dummy(IdentificationDocument())
-client = make_dummy(Client(),
-                    relations={'branch'                  : (branch    , 'clients'),
-                               'groups'                  : ([ group ] , 'clients'),
-                               'identificationDocuments' : ([ iddoc ] , 'client'),
-                              })
+iddoc = make_dummy(IdentificationDocument())
+client = make_dummy(
+    Client(),
+    relations={
+        "branch": (branch, "clients"),
+        "groups": ([group], "clients"),
+        "identificationDocuments": ([iddoc], "client"),
+    },
+)
 
 # loan accounts
-loanproduct         = make_dummy(LoanProduct())
+loanproduct = make_dummy(LoanProduct())
 disbursementdetails = make_dummy(DisbursementDetails())
-repayment           = make_dummy(Repayment())
-transactionchannel  = make_dummy(TransactionChannel())
-transactiondetails  = make_dummy(TransactionDetails(),
-                                 relations={'transactionChannel'  : (transactionchannel, None)})
-loantransaction     = make_dummy(LoanTransaction(),
-                                 relations={'transactionDetails'  : (transactiondetails, None)})
-loanaccount         = make_dummy(LoanAccount(),
-                                 relations={'product'             : (loanproduct         , None),
-                                            'disbursementDetails' : (disbursementdetails , None),
-                                            'branch'              : (branch              , None),
-                                            'user'                : (user                , 'loans'),
-                                            'holder_group'        : (group               , 'loans'),
-                                            'holder_client'       : (client              , 'loans'),
-                                            'repayments'          : ([ repayment ]       , 'account'),
-                                            'transactions'        : ([ loantransaction ] , 'account'),
-                                           })
+repayment = make_dummy(Repayment())
+transactionchannel = make_dummy(TransactionChannel())
+transactiondetails = make_dummy(
+    TransactionDetails(), relations={"transactionChannel": (transactionchannel, None)}
+)
+loantransaction = make_dummy(
+    LoanTransaction(), relations={"transactionDetails": (transactiondetails, None)}
+)
+loanaccount = make_dummy(
+    LoanAccount(),
+    relations={
+        "product": (loanproduct, None),
+        "disbursementDetails": (disbursementdetails, None),
+        "branch": (branch, None),
+        "user": (user, "loans"),
+        "holder_group": (group, "loans"),
+        "holder_client": (client, "loans"),
+        "repayments": ([repayment], "account"),
+        "transactions": ([loantransaction], "account"),
+    },
+)
 
 # custom fields
 custominformation = make_dummy(CustomField())
-customfieldvalue  = make_dummy(CustomFieldValue(),
-                               relations={'customField' : (custominformation , 'customFieldValues'),
-                                          'branch'      : (branch            , 'customInformation'),
-                                          'user'        : (user              , 'customInformation'),
-                                          'group'       : (group             , 'customInformation'),
-                                          'client'      : (client            , 'customInformation'),
-                                          'loan'        : (loanaccount       , 'customInformation'),
-                                         })
+customfieldvalue = make_dummy(
+    CustomFieldValue(),
+    relations={
+        "customField": (custominformation, "customFieldValues"),
+        "branch": (branch, "customInformation"),
+        "user": (user, "customInformation"),
+        "group": (group, "customInformation"),
+        "client": (client, "customInformation"),
+        "loan": (loanaccount, "customInformation"),
+    },
+)
 
 # addresses
-address = make_dummy(Address(),
-                     relations={'branch' : (branch , 'addresses'),
-                                'group'  : (group  , 'addresses'),
-                                'client' : (client , 'addresses'),
-                               })
+address = make_dummy(
+    Address(),
+    relations={
+        "branch": (branch, "addresses"),
+        "group": (group, "addresses"),
+        "client": (client, "addresses"),
+    },
+)
 
 # activities
-activity = make_dummy(Activity(),
-                      relations={'loan'         : (loanaccount , 'activities'),
-                                 'branch'       : (branch      , 'activities'),
-                                 'client'       : (client      , 'activities'),
-                                 'group'        : (group       , 'activities'),
-                                 'user'         : (user        , 'activities'),
-                                 'assignedUser' : (user        , 'assignedActivities'),
-                                })
+activity = make_dummy(
+    Activity(),
+    relations={
+        "loan": (loanaccount, "activities"),
+        "branch": (branch, "activities"),
+        "client": (client, "activities"),
+        "group": (group, "activities"),
+        "user": (user, "activities"),
+        "assignedUser": (user, "assignedActivities"),
+    },
+)
 # tasks
-tasks = make_dummy(Task(),
-                      relations={'createdByUser' : (user        , 'createdTasks'),
-                                 'assignedUser'  : (user        , 'assignedTasks'),
-                                 'link_group'    : (group       , 'tasks'),
-                                 'link_loan'     : (loanaccount , 'tasks'),
-                                })
+tasks = make_dummy(
+    Task(),
+    relations={
+        "createdByUser": (user, "createdTasks"),
+        "assignedUser": (user, "assignedTasks"),
+        "link_group": (group, "tasks"),
+        "link_loan": (loanaccount, "tasks"),
+    },
+)

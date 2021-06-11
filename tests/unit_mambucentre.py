@@ -2,27 +2,32 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.insert(0, os.path.abspath("."))
 
 try:
     import mock
 except ModuleNotFoundError:
     import unittest.mock as mock
+
 import unittest
 
 from MambuPy import mambuconfig
-for k,v in mambuconfig.default_configs.items():
+
+for k, v in mambuconfig.default_configs.items():
     setattr(mambuconfig, k, v)
 from MambuPy.rest import mambucentre
 
 try:
-    unittest.TestCase.assertRegexpMatches = unittest.TestCase.assertRegex # python3
+    unittest.TestCase.assertRegexpMatches = unittest.TestCase.assertRegex  # python3
 except Exception as e:
-    pass # DeprecationWarning: Please use assertRegex instead
+    pass  # DeprecationWarning: Please use assertRegex instead
+
 
 class MambuCentreTests(unittest.TestCase):
     def test_mod_urlfunc(self):
         from MambuPy.mambuutil import getcentresurl
+
         self.assertEqual(mambucentre.mod_urlfunc, getcentresurl)
 
     def test_class(self):
@@ -35,11 +40,11 @@ class MambuCentreTests(unittest.TestCase):
 
     def test___repr__(self):
         from datetime import date
+
         from MambuPy.mambuutil import getcentresurl
+
         def build_mock_cen_1(self, *args, **kwargs):
-            self.attrs = {
-                'id' : args[1]
-                }
+            self.attrs = {"id": args[1]}
 
         with mock.patch.object(mambucentre.MambuStruct, "__init__", build_mock_cen_1):
             cn = mambucentre.MambuCentre(urlfunc=getcentresurl, entid="mockcentre")
@@ -53,9 +58,9 @@ class MambuCentresTests(unittest.TestCase):
 
     def test_iterator(self):
         cens = mambucentre.MambuCentres(urlfunc=None)
-        cens.attrs = [{'0':0}, {'1':1}, {'2':2}]
+        cens.attrs = [{"0": 0}, {"1": 1}, {"2": 2}]
         self.assertEqual(len(cens), 3)
-        for n,c in enumerate(cens):
+        for n, c in enumerate(cens):
             self.assertEqual(str(n), [k for k in c][0])
             self.assertEqual(n, c[str(n)])
 
@@ -64,17 +69,21 @@ class MambuCentresTests(unittest.TestCase):
 
         cens = mambucentre.MambuCentres(urlfunc=None)
         cens.attrs = [
-            {'id':"1", 'name':"my_centre"},
-            {'id':"2", 'name':"my_2_centre"},
-            ]
-        with self.assertRaisesRegexp(AttributeError,"'MambuCentres' object has no attribute 'mambucentreclass'"):
+            {"id": "1", "name": "my_centre"},
+            {"id": "2", "name": "my_2_centre"},
+        ]
+        with self.assertRaisesRegexp(
+            AttributeError, "'MambuCentres' object has no attribute 'mambucentreclass'"
+        ):
             cens.mambucentreclass
         cens.convertDict2Attrs()
-        self.assertEqual(str(cens.mambucentreclass), "<class 'MambuPy.rest.mambucentre.MambuCentre'>")
+        self.assertEqual(
+            str(cens.mambucentreclass), "<class 'MambuPy.rest.mambucentre.MambuCentre'>"
+        )
         for c in cens:
-            self.assertEqual(c.__class__.__name__, 'MambuCentre')
+            self.assertEqual(c.__class__.__name__, "MambuCentre")
             self.assertEqual(c._MambuStruct__urlfunc, getcentresurl)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -16,11 +16,12 @@ Uses mambuutil.getgroupurl as default urlfunc
 """
 
 
+from ..mambuutil import getgroupcustominformationurl, getgroupurl
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getgroupurl, getgroupcustominformationurl
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
 mod_urlfunc = getgroupurl
+
 
 class MambuGroup(MambuStruct):
     """A Group from Mambu.
@@ -28,57 +29,59 @@ class MambuGroup(MambuStruct):
     With the default urlfunc, entid argument must be the ID of the
     group you wish to retrieve.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
-        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customInformation', *args, **kwargs)
-
+        MambuStruct.__init__(
+            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+        )
 
     def preprocess(self):
         """Preprocessing.
 
-        Flattens the object. Important data comes on the 'theGroup'
-        dictionary inside of the response. Instead, every element of the
-        'theGroup' dictionary is taken out to the main attrs dictionary.
+                Flattens the object. Important data comes on the 'theGroup'
+                dictionary inside of the response. Instead, every element of the
+                'theGroup' dictionary is taken out to the main attrs dictionary.
 
-        Notes on the group get some html tags removed.
+                Notes on the group get some html tags removed.
 
-.. todo:: use mambuutil.strip_tags() method
+        .. todo:: use mambuutil.strip_tags() method
 
-        A 'name' field is added, equivalent to the 'groupName' field.
-        This is useful on loan accounts. They get a 'holder' field added
-        somewhere, which may be an individual client, or a group. So to
-        get the holder name, you just access the 'holder'['name']. No
-        matter if you have a client loan or a group loan, you get the
-        name of the holder.
+                A 'name' field is added, equivalent to the 'groupName' field.
+                This is useful on loan accounts. They get a 'holder' field added
+                somewhere, which may be an individual client, or a group. So to
+                get the holder name, you just access the 'holder'['name']. No
+                matter if you have a client loan or a group loan, you get the
+                name of the holder.
         """
-        super(MambuGroup,self).preprocess()
+        super(MambuGroup, self).preprocess()
 
         try:
-            for k,v in self['theGroup'].items():
+            for k, v in self["theGroup"].items():
                 self[k] = v
-            del(self.attrs['theGroup'])
+            del self.attrs["theGroup"]
         except Exception:
             pass
 
         try:
-            self['notes'] = self['notes'].replace("<div>", "").replace("</div>", "")
+            self["notes"] = self["notes"].replace("<div>", "").replace("</div>", "")
         except Exception:
-            self['notes'] = ""
+            self["notes"] = ""
 
         try:
-            self['name'] = self['groupName']
+            self["name"] = self["groupName"]
         except KeyError:
             pass
 
-        self['address'] = {}
+        self["address"] = {}
         try:
-            for name,item in self['addresses'][0].items():
+            for name, item in self["addresses"][0].items():
                 try:
-                    self['addresses'][0][name] = item.strip()
-                    self['address'][name] = item.strip()
+                    self["addresses"][0][name] = item.strip()
+                    self["address"][name] = item.strip()
                 except AttributeError:
                     pass
         except (KeyError, IndexError):
@@ -98,57 +101,60 @@ class MambuGroup(MambuStruct):
         """
 
         requests = 0
-        if 'fullDetails' in kwargs:
-            fullDetails = kwargs['fullDetails']
-            kwargs.pop('fullDetails')
+        if "fullDetails" in kwargs:
+            fullDetails = kwargs["fullDetails"]
+            kwargs.pop("fullDetails")
         else:
             fullDetails = True
 
         clients = []
 
-        for m in self['groupMembers']:
+        for m in self["groupMembers"]:
             try:
-                self.mambuclientclass = kwargs.pop('mambuclientclass')
+                self.mambuclientclass = kwargs.pop("mambuclientclass")
             except KeyError:
                 try:
                     self.mambuclientclass
                 except AttributeError:
                     from .mambuclient import MambuClient
+
                     self.mambuclientclass = MambuClient
 
-            client = self.mambuclientclass(entid=m['clientKey'], fullDetails=fullDetails, *args, **kwargs)
+            client = self.mambuclientclass(
+                entid=m["clientKey"], fullDetails=fullDetails, *args, **kwargs
+            )
             requests += 1
             clients.append(client)
 
-        self['clients'] = clients
+        self["clients"] = clients
 
         return requests
 
     def setBranch(self, *args, **kwargs):
-        """Adds the branch to which this groups belongs
-        """
+        """Adds the branch to which this groups belongs"""
         try:
             self.mambubranchclass
         except AttributeError:
             from .mambubranch import MambuBranch
+
             self.mambubranchclass = MambuBranch
 
-        branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
-        self['branch'] = branch
+        branch = self.mambubranchclass(entid=self["assignedBranchKey"], *args, **kwargs)
+        self["branch"] = branch
 
         return 1
 
     def setCentre(self, *args, **kwargs):
-        """Adds the centre to which this groups belongs
-        """
+        """Adds the centre to which this groups belongs"""
         try:
             self.mambucentreclass
         except AttributeError:
             from .mambucentre import MambuCentre
+
             self.mambucentreclass = MambuCentre
 
-        centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
-        self['centre'] = centre
+        centre = self.mambucentreclass(entid=self["assignedCentreKey"], *args, **kwargs)
+        self["centre"] = centre
 
         return 1
 
@@ -161,24 +167,28 @@ class MambuGroup(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
+
         def activityDate(activity):
             """Util function used for sorting activities according to timestamp"""
             try:
-                return activity['activity']['timestamp']
+                return activity["activity"]["timestamp"]
             except KeyError:
                 return None
+
         try:
             self.mambuactivitiesclass
         except AttributeError:
             from .mambuactivity import MambuActivities
+
             self.mambuactivitiesclass = MambuActivities
 
-        activities = self.mambuactivitiesclass(groupId=self['encodedKey'], *args, **kwargs)
+        activities = self.mambuactivitiesclass(
+            groupId=self["encodedKey"], *args, **kwargs
+        )
         activities.attrs = sorted(activities.attrs, key=activityDate)
-        self['activities'] = activities
+        self["activities"] = activities
 
         return 1
-
 
     def create(self, data, *args, **kwargs):
         """Creates a group in Mambu
@@ -187,13 +197,13 @@ class MambuGroup(MambuStruct):
         -data       dictionary with data to send
         """
         super(MambuGroup, self).create(data)
-        if self.get('customInformation'):
-            self['group'][self.customFieldName] = self['customInformation']
-        if self.get('addresses'):
-            self['group']["addresses"] = self['addresses']
-        if self.get('groupMembers'):
-            self['group']["groupMembers"] = self['groupMembers']
-        self.init(attrs=self['group'])
+        if self.get("customInformation"):
+            self["group"][self.customFieldName] = self["customInformation"]
+        if self.get("addresses"):
+            self["group"]["addresses"] = self["addresses"]
+        if self.get("groupMembers"):
+            self["group"]["groupMembers"] = self["groupMembers"]
+        self.init(attrs=self["group"])
         return 1
 
     def update(self, data, *args, **kwargs):
@@ -229,7 +239,7 @@ class MambuGroup(MambuStruct):
 
         # UPDATE customFields
         if data.get("customInformation"):
-            data2update = {"group":{}}
+            data2update = {"group": {}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getgroupcustominformationurl
             cont_requests += self.updatePatch(data2update, *args, **kwargs)
@@ -271,19 +281,19 @@ class MambuGroup(MambuStruct):
         Dictionary with group data copied
         """
         notUpdateFields = [
-            'id',
-            'groupName',
-            'mobilePhone1',
-            'homePhone',
-            'emailAddress',
-            'preferredLanguage',
-            'notes',
-            'assignedUserKey',
-            'assignedCentreKey',
-            'assignedBranchKey',
+            "id",
+            "groupName",
+            "mobilePhone1",
+            "homePhone",
+            "emailAddress",
+            "preferredLanguage",
+            "notes",
+            "assignedUserKey",
+            "assignedCentreKey",
+            "assignedBranchKey",
         ]
-        data = {"group":{}}
-        data["group"] = {f:self.get(f) for f in notUpdateFields if self.get(f)}
+        data = {"group": {}}
+        data["group"] = {f: self.get(f) for f in notUpdateFields if self.get(f)}
 
         return data
 
@@ -296,16 +306,23 @@ class MambuGroup(MambuStruct):
         data2update = {}
         data2update["group"] = {}
         # get actual members
-        groupMembers = [{"clientKey":i["clientKey"]} for i in self.get("groupMembers", [])]
+        groupMembers = [
+            {"clientKey": i["clientKey"]} for i in self.get("groupMembers", [])
+        ]
         data2update["groupMembers"] = groupMembers
         # add new members if not already exists in group
-        newMembers = [{"clientKey":i} for i in newMembers if i not in [c["clientKey"] for c in groupMembers]]
+        newMembers = [
+            {"clientKey": i}
+            for i in newMembers
+            if i not in [c["clientKey"] for c in groupMembers]
+        ]
         data2update["groupMembers"].extend(newMembers)
 
         cont_requests = super(MambuGroup, self).updatePatch(data2update)
         self.connect()
         cont_requests += 1
         return cont_requests
+
 
 class MambuGroups(MambuStruct):
     """A list of Groups from Mambu.
@@ -314,33 +331,32 @@ class MambuGroups(MambuStruct):
     instantiation time to retrieve all the groups according to any
     other filter you send to the urlfunc.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one
         """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
-        You iterate over each element of the responded List from Mambu,
-        and create a Mambu Group object for each one, initializing them
-        one at a time, and changing the attrs attribute (which just
-        holds a list of plain dictionaries) with a MambuGroup just
-        created.
+                You iterate over each element of the responded List from Mambu,
+                and create a Mambu Group object for each one, initializing them
+                one at a time, and changing the attrs attribute (which just
+                holds a list of plain dictionaries) with a MambuGroup just
+                created.
 
-.. todo:: pass a valid (perhaps default) urlfunc, and its
-          corresponding id to entid to each MambuGroup, telling
-          MambuStruct not to connect() by default. It's desirable to
-          connect at any other further moment to refresh some element in
-          the list.
+        .. todo:: pass a valid (perhaps default) urlfunc, and its
+                  corresponding id to entid to each MambuGroup, telling
+                  MambuStruct not to connect() by default. It's desirable to
+                  connect at any other further moment to refresh some element in
+                  the list.
         """
-        for n,c in enumerate(self.attrs):
+        for n, c in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params

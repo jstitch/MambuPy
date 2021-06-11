@@ -19,9 +19,9 @@ Loan ID as the entid argument in the constructor in that case).
 """
 
 
+from ..mambuutil import (MambuError, getloanscustominformationurl, getloansurl,
+                         getpostdocumentsurl, strip_tags)
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getloansurl, getloanscustominformationurl, MambuError, strip_tags, getpostdocumentsurl
-
 
 mod_urlfunc = getloansurl
 
@@ -32,22 +32,22 @@ class MambuLoan(MambuStruct):
     With the default urlfunc, entid argument must be the ID of the
     loan account you wish to retrieve.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
-        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFieldValues', *args, **kwargs)
-
+        MambuStruct.__init__(
+            self, urlfunc, entid, customFieldName="customFieldValues", *args, **kwargs
+        )
 
     def getDebt(self):
-        """Sums up all the balances of the account and returns them.
-        """
-        debt = float(self['principalBalance']) + float(self['interestBalance'])
-        debt += float(self['feesBalance']) + float(self['penaltyBalance'])
+        """Sums up all the balances of the account and returns them."""
+        debt = float(self["principalBalance"]) + float(self["interestBalance"])
+        debt += float(self["feesBalance"]) + float(self["penaltyBalance"])
 
         return debt
-
 
     def preprocess(self):
         """Preprocessing.
@@ -58,67 +58,69 @@ class MambuLoan(MambuStruct):
 
         Notes on the group get some html tags removed.
         """
-        super(MambuLoan,self).preprocess()
+        super(MambuLoan, self).preprocess()
 
         try:
-            self['notes'] = strip_tags(self['notes'])
+            self["notes"] = strip_tags(self["notes"])
         except KeyError:
             pass
-
 
     def setRepayments(self, *args, **kwargs):
         """Adds the repayments for this loan to a 'repayments' field.
 
-        Repayments are MambuRepayment objects.
+                Repayments are MambuRepayment objects.
 
-        Repayments get sorted by due date.
+                Repayments get sorted by due date.
 
-        Returns the number of requests done to Mambu.
+                Returns the number of requests done to Mambu.
 
-.. todo:: since pagination logic was added, is not always true that
-          just 1 request was done. It may be more! But since request
-          counter singleton holds true information about how many requests
-          were done to Mambu, in fact this return value may be obsolete
+        .. todo:: since pagination logic was added, is not always true that
+                  just 1 request was done. It may be more! But since request
+                  counter singleton holds true information about how many requests
+                  were done to Mambu, in fact this return value may be obsolete
         """
+
         def duedate(repayment):
             """Util function used for sorting repayments according to due Date"""
             try:
-                return repayment['dueDate']
+                return repayment["dueDate"]
             except KeyError:
                 from datetime import datetime
+
                 return datetime.now()
 
         try:
             self.mamburepayments
         except AttributeError:
             from .mamburepayment import MambuRepayments
+
             self.mamburepaymentsclass = MambuRepayments
 
-        reps = self.mamburepaymentsclass(entid=self['id'], *args, **kwargs)
+        reps = self.mamburepaymentsclass(entid=self["id"], *args, **kwargs)
         reps.attrs = sorted(reps.attrs, key=duedate)
-        self['repayments'] = reps
+        self["repayments"] = reps
 
         return 1
-
 
     def setTransactions(self, *args, **kwargs):
         """Adds the transactions for this loan to a 'transactions' field.
 
-        Transactions are MambuTransaction objects.
+                Transactions are MambuTransaction objects.
 
-        Transactions get sorted by transaction id.
+                Transactions get sorted by transaction id.
 
-        Returns the number of requests done to Mambu.
+                Returns the number of requests done to Mambu.
 
-.. todo:: since pagination logic was added, is not always true that
-          just 1 request was done. It may be more! But since request
-          counter singleton holds true information about how many requests
-          were done to Mambu, in fact this return value may be obsolete
+        .. todo:: since pagination logic was added, is not always true that
+                  just 1 request was done. It may be more! But since request
+                  counter singleton holds true information about how many requests
+                  were done to Mambu, in fact this return value may be obsolete
         """
+
         def transactionid(transaction):
             """Util function used for sorting transactions according to id"""
             try:
-                return transaction['transactionId']
+                return transaction["transactionId"]
             except KeyError:
                 return None
 
@@ -126,14 +128,14 @@ class MambuLoan(MambuStruct):
             self.mambutransactionsclass
         except AttributeError:
             from .mambutransaction import MambuTransactions
+
             self.mambutransactionsclass = MambuTransactions
 
-        trans = self.mambutransactionsclass(entid=self['id'], *args, **kwargs)
+        trans = self.mambutransactionsclass(entid=self["id"], *args, **kwargs)
         trans.attrs = sorted(trans.attrs, key=transactionid)
-        self['transactions'] = trans
+        self["transactions"] = trans
 
         return 1
-
 
     def setBranch(self, *args, **kwargs):
         """Adds the branch for this loan to a 'assignedBranch' field.
@@ -149,14 +151,14 @@ class MambuLoan(MambuStruct):
             self.mambubranchclass
         except AttributeError:
             from .mambubranch import MambuBranch
+
             self.mambubranchclass = MambuBranch
 
-        branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
-        self['assignedBranchName'] = branch['name']
-        self['assignedBranch'] = branch
+        branch = self.mambubranchclass(entid=self["assignedBranchKey"], *args, **kwargs)
+        self["assignedBranchName"] = branch["name"]
+        self["assignedBranch"] = branch
 
         return 1
-
 
     def setCentre(self, *args, **kwargs):
         """Adds the centre for this loan to a 'assignedCentre' field.
@@ -172,15 +174,15 @@ class MambuLoan(MambuStruct):
             self.mambucentreclass
         except AttributeError:
             from .mambucentre import MambuCentre
+
             self.mambucentreclass = MambuCentre
 
-        centre = self.mambucentreclass(entid=self['assignedCentreKey'], *args, **kwargs)
+        centre = self.mambucentreclass(entid=self["assignedCentreKey"], *args, **kwargs)
 
-        self['assignedCentreName'] = centre['name']
-        self['assignedCentre'] = centre
+        self["assignedCentreName"] = centre["name"]
+        self["assignedCentre"] = centre
 
         return 1
-
 
     def setUser(self, *args, **kwargs):
         """Adds the user for this loan to a 'user' field.
@@ -193,19 +195,19 @@ class MambuLoan(MambuStruct):
             self.mambuuserclass
         except AttributeError:
             from .mambuuser import MambuUser
+
             self.mambuuserclass = MambuUser
 
         try:
-            user = self.mambuuserclass(entid=self['assignedUserKey'], *args, **kwargs)
+            user = self.mambuuserclass(entid=self["assignedUserKey"], *args, **kwargs)
         except KeyError as kerr:
-            err = MambuError("La cuenta %s no tiene asignado un usuario" % self['id'])
+            err = MambuError("La cuenta %s no tiene asignado un usuario" % self["id"])
             err.noUser = True
             raise err
 
-        self['user'] = user
+        self["user"] = user
 
         return 1
-
 
     def setProduct(self, cache=False, *args, **kwargs):
         """Adds the product for this loan to a 'product' field.
@@ -223,12 +225,13 @@ class MambuLoan(MambuStruct):
                 self.allmambuproductsclass
             except AttributeError:
                 from .mambuproduct import AllMambuProducts
+
                 self.allmambuproductsclass = AllMambuProducts
 
             prods = self.allmambuproductsclass(*args, **kwargs)
             for prod in prods:
-                if prod['encodedKey'] == self['productTypeKey']:
-                    self['product'] = prod
+                if prod["encodedKey"] == self["productTypeKey"]:
+                    self["product"] = prod
             try:
                 # asked for cache, but cache was originally empty
                 prods.noinit
@@ -239,181 +242,199 @@ class MambuLoan(MambuStruct):
             self.mambuproductclass
         except AttributeError:
             from .mambuproduct import MambuProduct
+
             self.mambuproductclass = MambuProduct
 
-        product = self.mambuproductclass(entid=self['productTypeKey'], *args, **kwargs)
+        product = self.mambuproductclass(entid=self["productTypeKey"], *args, **kwargs)
 
-        self['product'] = product
+        self["product"] = product
 
         return 1
-
 
     def setHolder(self, getClients=False, getRoles=False, *args, **kwargs):
         """Adds the "holder" of the loan to a 'holder' field.
 
-        Holder may be a MambuClient or a MambuGroup object, depending on
-        the type of loan created at Mambu.
+                Holder may be a MambuClient or a MambuGroup object, depending on
+                the type of loan created at Mambu.
 
-        getRoles argument tells this method to retrive the clients who
-        have specific roles in the group, in case of a group holder.
+                getRoles argument tells this method to retrive the clients who
+                have specific roles in the group, in case of a group holder.
 
-        getClients argument tells this method to retrieve the client
-        members of the group, in case of a group holder. See the
-        definition of the 'clients' field added with this argument
-        below.
+                getClients argument tells this method to retrieve the client
+                members of the group, in case of a group holder. See the
+                definition of the 'clients' field added with this argument
+                below.
 
-        fullDetails argument works for Client Holder and for the client
-        members of the group. But the Group is always retrieved with
-        full details.
+                fullDetails argument works for Client Holder and for the client
+                members of the group. But the Group is always retrieved with
+                full details.
 
-        When using getRoles argument also adds a 'roles' field to the
-        holder, a dictionary with keys:
+                When using getRoles argument also adds a 'roles' field to the
+                holder, a dictionary with keys:
 
-        * 'role' , the rolename
+                * 'role' , the rolename
 
-        * 'client', a MambuClient having that role on the group
+                * 'client', a MambuClient having that role on the group
 
-.. todo:: since the roles field is added to the holder, and it only
-          applies to Groups, perhaps the getRoles functionality should be
-          on MambuGroup code
+        .. todo:: since the roles field is added to the holder, and it only
+                  applies to Groups, perhaps the getRoles functionality should be
+                  on MambuGroup code
 
-        When using getClients argument, also adds a 'clients' field to
-        the loan. By the way it works, when holder is a Group, it calls
-        the setClients method, which adds a 'clients' field to the
-        MambuGroup.
+                When using getClients argument, also adds a 'clients' field to
+                the loan. By the way it works, when holder is a Group, it calls
+                the setClients method, which adds a 'clients' field to the
+                MambuGroup.
 
-        The 'clients' field on the loan is a dictionary with the full
-        name of each client receiving from this loan account as a key
-        (see the 'name' field on MambuClient and MambuGroup). Each key
-        holds another dictionary with the following keys:
+                The 'clients' field on the loan is a dictionary with the full
+                name of each client receiving from this loan account as a key
+                (see the 'name' field on MambuClient and MambuGroup). Each key
+                holds another dictionary with the following keys:
 
-        * 'client' holds a MambuClient. So even if a group is the holder
-          of the account, you can access each individual client object
-          here.
+                * 'client' holds a MambuClient. So even if a group is the holder
+                  of the account, you can access each individual client object
+                  here.
 
-        * 'loan' holds a reference to this loan account (self)
+                * 'loan' holds a reference to this loan account (self)
 
-        * 'amount' defaults to the total loan amount ('loanAmount'
-          field) (see the pydoc for getClientDetails method)
+                * 'amount' defaults to the total loan amount ('loanAmount'
+                  field) (see the pydoc for getClientDetails method)
 
-        * 'montoPago' defaults to the total loan amount divided by the
-          number of repayment installments of the loan account (the
-          'repaymentInstallments' field), that is, how much to pay for
-          each repayment installment (see the pydoc for getClientDetails
-          method)
+                * 'montoPago' defaults to the total loan amount divided by the
+                  number of repayment installments of the loan account (the
+                  'repaymentInstallments' field), that is, how much to pay for
+                  each repayment installment (see the pydoc for getClientDetails
+                  method)
 
-.. todo:: change the name to an english name
+        .. todo:: change the name to an english name
 
-        * 'porcentaje' defaults to a 100%, the total loan amount divided
-          by itself, that is, hoy much in percentage of the debt belongs
-          to this client (see the pydoc for getClientDetails method)
+                * 'porcentaje' defaults to a 100%, the total loan amount divided
+                  by itself, that is, hoy much in percentage of the debt belongs
+                  to this client (see the pydoc for getClientDetails method)
 
-.. todo:: change the name to an english name
+        .. todo:: change the name to an english name
 
-        This three fields are supposed to reflect individual numbers for
-        each client, but Mambu does an awful job indicating this on
-        group loan accounts. So you should indicate how much you
-        assigned to each client in other ways. Using the notes of the
-        loan account perhaps (with a predefined format you parse on the
-        preprocessing of MambuLoan)? with custom fields? Your call that
-        you may define making your own loan account class inheriting
-        from MambuLoan class. See the pydoc for getClientDetails method
-        below, it specifies the way to determine the amount for each
-        client depending on your use of Mambu, and additionally any
-        other fields you wish to add to the 'clients' field on the loan
-        account.
+                This three fields are supposed to reflect individual numbers for
+                each client, but Mambu does an awful job indicating this on
+                group loan accounts. So you should indicate how much you
+                assigned to each client in other ways. Using the notes of the
+                loan account perhaps (with a predefined format you parse on the
+                preprocessing of MambuLoan)? with custom fields? Your call that
+                you may define making your own loan account class inheriting
+                from MambuLoan class. See the pydoc for getClientDetails method
+                below, it specifies the way to determine the amount for each
+                client depending on your use of Mambu, and additionally any
+                other fields you wish to add to the 'clients' field on the loan
+                account.
 
-        Returns the number of requests done to Mambu.
+                Returns the number of requests done to Mambu.
 
-.. todo:: what to do on Hybrid loan accounts?
+        .. todo:: what to do on Hybrid loan accounts?
         """
         requests = 0
-        if 'fullDetails' in kwargs:
-            fullDetails = kwargs['fullDetails']
-            kwargs.pop('fullDetails')
+        if "fullDetails" in kwargs:
+            fullDetails = kwargs["fullDetails"]
+            kwargs.pop("fullDetails")
         else:
             fullDetails = True
 
-        if self['accountHolderType'] == "GROUP":
+        if self["accountHolderType"] == "GROUP":
 
-            self['holderType'] = "Grupo"
+            self["holderType"] = "Grupo"
             try:
                 self.mambugroupclass
             except AttributeError:
                 from .mambugroup import MambuGroup
+
                 self.mambugroupclass = MambuGroup
 
-            holder = self.mambugroupclass(entid=self['accountHolderKey'], fullDetails=True, *args, **kwargs)
-            self['holder'] = holder
+            holder = self.mambugroupclass(
+                entid=self["accountHolderKey"], fullDetails=True, *args, **kwargs
+            )
+            self["holder"] = holder
             requests += 1
 
             if getRoles:
                 roles = []
                 # If holder is group, attach role client data to the group
-                for c in holder['groupRoles']:
+                for c in holder["groupRoles"]:
                     try:
                         self.mambuclientclass
                     except AttributeError:
                         from .mambuclient import MambuClient
+
                         self.mambuclientclass = MambuClient
 
-                    cli = self.mambuclientclass(entid=c['clientKey'],fullDetails=fullDetails, *args, **kwargs)
-                    roles.append({'role'   : c['roleName'],
-                                  'client' : cli
-                                 })
+                    cli = self.mambuclientclass(
+                        entid=c["clientKey"], fullDetails=fullDetails, *args, **kwargs
+                    )
+                    roles.append({"role": c["roleName"], "client": cli})
                     requests += 1
-                holder['roles'] = roles
+                holder["roles"] = roles
 
             if getClients:
                 try:
                     self.mambuclientclass
                 except AttributeError:
                     self.mambuclientclass = None
-                requests += holder.setClients(fullDetails=fullDetails, mambuclientclass=self.mambuclientclass, *args, **kwargs)
+                requests += holder.setClients(
+                    fullDetails=fullDetails,
+                    mambuclientclass=self.mambuclientclass,
+                    *args,
+                    **kwargs
+                )
 
                 loanclients = {}
 
                 loanclientsdata = self.getClientDetails(holder=holder, *args, **kwargs)
 
                 for data in loanclientsdata:
-                    loanclients[data['id']] = {'client'     : data['client'],
-                                               'name'       : data['name'],
-                                               'loan'       : self,
-                                               'amount'     : data['amount'],
-                                               'montoPago'  : data['amount'] / float(self['repaymentInstallments']),
-                                               'porcentaje' : data['amount'] / float(self['loanAmount']),
-                                              }
+                    loanclients[data["id"]] = {
+                        "client": data["client"],
+                        "name": data["name"],
+                        "loan": self,
+                        "amount": data["amount"],
+                        "montoPago": data["amount"]
+                        / float(self["repaymentInstallments"]),
+                        "porcentaje": data["amount"] / float(self["loanAmount"]),
+                    }
                     # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
-                    for k,v in [ (key,val) for (key,val) in data.items() if key not in['amount', 'name'] ]:
-                        loanclients[data['id']][k] = v
+                    for k, v in [
+                        (key, val)
+                        for (key, val) in data.items()
+                        if key not in ["amount", "name"]
+                    ]:
+                        loanclients[data["id"]][k] = v
 
-                self['clients'] = loanclients
+                self["clients"] = loanclients
 
-
-        else: # "CLIENT"
-            self['holderType'] = "Cliente"
+        else:  # "CLIENT"
+            self["holderType"] = "Cliente"
             try:
                 self.mambuclientclass
             except AttributeError:
                 from .mambuclient import MambuClient
+
                 self.mambuclientclass = MambuClient
 
-            holder = self.mambuclientclass(entid=self['accountHolderKey'], fullDetails=fullDetails, *args, **kwargs)
-            self['holder'] = holder
+            holder = self.mambuclientclass(
+                entid=self["accountHolderKey"], fullDetails=fullDetails, *args, **kwargs
+            )
+            self["holder"] = holder
             requests += 1
 
             if getClients:
-                monto = float(self['loanAmount'])
-                self['clients'] = {holder['name']: {'client'     : holder,
-                                                          'loan'       : self,
-                                                          'amount'     : monto,
-                                                          'montoPago'  : monto / float(self['repaymentInstallments']),
-                                                          'porcentaje' : 1.0,
-                                                         }
-                                        }
+                monto = float(self["loanAmount"])
+                self["clients"] = {
+                    holder["name"]: {
+                        "client": holder,
+                        "loan": self,
+                        "amount": monto,
+                        "montoPago": monto / float(self["repaymentInstallments"]),
+                        "porcentaje": 1.0,
+                    }
+                }
 
         return requests
-
 
     def getClientDetails(self, *args, **kwargs):
         """Gets the loan details for every client holder of the account.
@@ -439,16 +460,18 @@ class MambuLoan(MambuStruct):
         """
         loannames = []
 
-        holder = kwargs['holder']
-        for client in holder['clients']:
-            loannames.append({'id'     : client['id'],
-                              'name'   : client['name'],
-                              'client' : client,
-                              'amount' : self['loanAmount']
-                             })
+        holder = kwargs["holder"]
+        for client in holder["clients"]:
+            loannames.append(
+                {
+                    "id": client["id"],
+                    "name": client["name"],
+                    "client": client,
+                    "amount": self["loanAmount"],
+                }
+            )
 
         return loannames
-
 
     def setActivities(self, *args, **kwargs):
         """Adds the activities for this loan to a 'activities' field.
@@ -459,10 +482,11 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
+
         def activityDate(activity):
             """Util function used for sorting activities according to timestamp"""
             try:
-                return activity['activity']['timestamp']
+                return activity["activity"]["timestamp"]
             except KeyError:
                 return None
 
@@ -470,14 +494,16 @@ class MambuLoan(MambuStruct):
             self.mambuactivitiesclass
         except AttributeError:
             from .mambuactivity import MambuActivities
+
             self.mambuactivitiesclass = MambuActivities
 
-        activities = self.mambuactivitiesclass(loanAccountId=self['encodedKey'], *args, **kwargs)
+        activities = self.mambuactivitiesclass(
+            loanAccountId=self["encodedKey"], *args, **kwargs
+        )
         activities.attrs = sorted(activities.attrs, key=activityDate)
-        self['activities'] = activities
+        self["activities"] = activities
 
         return 1
-
 
     def update(self, data, *args, **kwargs):
         """Updates a loan in Mambu
@@ -508,7 +534,6 @@ class MambuLoan(MambuStruct):
 
         return cont_requests
 
-
     def updatePatch(self, data, *args, **kwargs):
         """Updates a Mambu loan using method PATCH
 
@@ -518,7 +543,6 @@ class MambuLoan(MambuStruct):
         https://support.mambu.com/docs/loans-api#patch-loan
         """
         return super(MambuLoan, self).updatePatch(data, *args, **kwargs)
-
 
     def uploadDocument(self, data, *args, **kwargs):
         """Updates a loan in Mambu
@@ -577,33 +601,34 @@ class MambuLoans(MambuStruct):
     Don't forget to submit the change on a pull request when done
     ;-)
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', itemclass=MambuLoan, *args, **kwargs):
+
+    def __init__(
+        self, urlfunc=mod_urlfunc, entid="", itemclass=MambuLoan, *args, **kwargs
+    ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
         self.itemclass = itemclass
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
-        You iterate over each element of the responded List from Mambu,
-        and create a Mambu Loan (or your own itemclass) object for each
-        one, initializing them one at a time, and changing the attrs
-        attribute (which just holds a list of plain dictionaries) with a
-        MambuLoan (or your own itemclass) just created.
+                You iterate over each element of the responded List from Mambu,
+                and create a Mambu Loan (or your own itemclass) object for each
+                one, initializing them one at a time, and changing the attrs
+                attribute (which just holds a list of plain dictionaries) with a
+                MambuLoan (or your own itemclass) just created.
 
-.. todo:: pass a valid (perhaps default) urlfunc, and its
-          corresponding id to entid to each itemclass, telling MambuStruct
-          not to connect() by default. It's desirable to connect at any
-          other further moment to refresh some element in the list.
+        .. todo:: pass a valid (perhaps default) urlfunc, and its
+                  corresponding id to entid to each itemclass, telling MambuStruct
+                  not to connect() by default. It's desirable to connect at any
+                  other further moment to refresh some element in the list.
         """
-        for n,l in enumerate(self.attrs):
+        for n, l in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params

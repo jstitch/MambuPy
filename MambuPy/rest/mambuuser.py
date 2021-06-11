@@ -16,11 +16,11 @@ Uses mambuutil.getuserurl as default urlfunc
 """
 
 
+from ..mambuutil import getusercustominformationurl, getuserurl
 from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getuserurl, getusercustominformationurl
-
 
 mod_urlfunc = getuserurl
+
 
 class MambuUser(MambuStruct):
     """A User from Mambu.
@@ -28,13 +28,15 @@ class MambuUser(MambuStruct):
     With the default urlfunc, entid argument must be the ID of the
     user you wish to retrieve.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
-        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customFields', *args, **kwargs)
-
+        MambuStruct.__init__(
+            self, urlfunc, entid, customFieldName="customFields", *args, **kwargs
+        )
 
     def preprocess(self):
         """Preprocessing.
@@ -43,19 +45,18 @@ class MambuUser(MambuStruct):
 
         Adds a 'name' field joining all names in to one string.
         """
-        super(MambuUser,self).preprocess()
+        super(MambuUser, self).preprocess()
 
         try:
-            self['firstName'] = self['firstName'].strip()
+            self["firstName"] = self["firstName"].strip()
         except Exception as e:
-            self['firstName'] = ""
+            self["firstName"] = ""
         try:
-            self['lastName'] = self['lastName'].strip()
+            self["lastName"] = self["lastName"].strip()
         except Exception as ex:
-            self['lastName'] = ""
+            self["lastName"] = ""
 
-        self['name'] = self['firstName'] + " " + self['lastName']
-
+        self["name"] = self["firstName"] + " " + self["lastName"]
 
     def setGroups(self, *args, **kwargs):
         """Adds the groups assigned to this user to a 'groups' field.
@@ -66,13 +67,15 @@ class MambuUser(MambuStruct):
             self.mambugroupsclass
         except AttributeError as ae:
             from .mambugroup import MambuGroups
+
             self.mambugroupsclass = MambuGroups
 
-        groups = self.mambugroupsclass(creditOfficerUsername=self['username'], *args, **kwargs)
-        self['groups'] = groups
+        groups = self.mambugroupsclass(
+            creditOfficerUsername=self["username"], *args, **kwargs
+        )
+        self["groups"] = groups
 
         return 1
-
 
     def setRoles(self, *args, **kwargs):
         """Adds the role assigned to this user to a 'role' field.
@@ -86,32 +89,35 @@ class MambuUser(MambuStruct):
             self.mamburoleclass
         except AttributeError as ae:
             from .mamburoles import MambuRole
+
             self.mamburoleclass = MambuRole
 
         try:
-            role = self.mamburoleclass(entid=self['role']['encodedKey'], *args, **kwargs)
+            role = self.mamburoleclass(
+                entid=self["role"]["encodedKey"], *args, **kwargs
+            )
         except KeyError:
             return 0
-        self['role']['role'] = role
+        self["role"]["role"] = role
 
         return 1
 
-
     def setBranch(self, *args, **kwargs):
-        """Adds the branch to which this user belongs
-        """
+        """Adds the branch to which this user belongs"""
         try:
             self.mambubranchclass
         except AttributeError as ae:
             from .mambubranch import MambuBranch
+
             self.mambubranchclass = MambuBranch
         try:
-            branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
-            self['branch'] = branch
+            branch = self.mambubranchclass(
+                entid=self["assignedBranchKey"], *args, **kwargs
+            )
+            self["branch"] = branch
         except KeyError:
-            self['branch'] = ""
+            self["branch"] = ""
         return 1
-
 
     def create(self, data, *args, **kwargs):
         """Creates an user in Mambu
@@ -121,8 +127,8 @@ class MambuUser(MambuStruct):
 
         """
         super(MambuUser, self).create(data)
-        self['user'][self.customFieldName] = self['customInformation']
-        self.init(attrs=self['user'])
+        self["user"][self.customFieldName] = self["customInformation"]
+        self.init(attrs=self["user"])
         return 1
 
     def update(self, data, *args, **kwargs):
@@ -141,7 +147,7 @@ class MambuUser(MambuStruct):
 
         # UPDATE customFields
         if data.get("customInformation"):
-            data2update = {"user":{}}
+            data2update = {"user": {}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getusercustominformationurl
             cont_requests += self.updatePatch(data2update, *args, **kwargs)
@@ -149,7 +155,6 @@ class MambuUser(MambuStruct):
 
         cont_requests += super(MambuUser, self).update(data, *args, **kwargs)
         return cont_requests
-
 
     def updatePatch(self, data, *args, **kwargs):
         """Updates a Mambu user using method PATCH
@@ -184,33 +189,34 @@ class MambuUsers(MambuStruct):
     Don't forget to submit the change on a pull request when done
     ;-)
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', itemclass=MambuUser, *args, **kwargs):
+
+    def __init__(
+        self, urlfunc=mod_urlfunc, entid="", itemclass=MambuUser, *args, **kwargs
+    ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several branches, not just one
         """
         self.itemclass = itemclass
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
-        You iterate over each element of the responded List from Mambu,
-        and create a Mambu User (or your own itemclass) object for each
-        one, initializing them one at a time, and changing the attrs
-        attribute (which just holds a list of plain dictionaries) with a
-        MambuUser (or your own itemclass) just created.
+                You iterate over each element of the responded List from Mambu,
+                and create a Mambu User (or your own itemclass) object for each
+                one, initializing them one at a time, and changing the attrs
+                attribute (which just holds a list of plain dictionaries) with a
+                MambuUser (or your own itemclass) just created.
 
-.. todo:: pass a valid (perhaps default) urlfunc, and its
-          corresponding id to entid to each itemclass, telling MambuStruct
-          not to connect() by default. It's desirable to connect at any
-          other further moment to refresh some element in the list.
+        .. todo:: pass a valid (perhaps default) urlfunc, and its
+                  corresponding id to entid to each itemclass, telling MambuStruct
+                  not to connect() by default. It's desirable to connect at any
+                  other further moment to refresh some element in the list.
         """
-        for n,u in enumerate(self.attrs):
+        for n, u in enumerate(self.attrs):
             try:
                 params = self.params
             except AttributeError as aerr:

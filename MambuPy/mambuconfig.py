@@ -73,36 +73,41 @@ your Mambu Database on some server.
 """
 
 default_configs = {
-        # Mambu API configurations
-        'apiurl'  : "domain.mambu.com",
-        'apiuser' : "mambu_api_user",
-        'apipwd'  : "mambu_api_password",
-        # Mambu DB configurations
-        'dbname' : "mambu_db",
-        'dbuser' : "mambu_db_user",
-        'dbpwd'  : "mambu_db_pwd",
-        'dbhost' : "localhost",
-        'dbport' : "3306",
-        'dbeng'  : "mysql",
+    # Mambu API configurations
+    "apiurl": "domain.mambu.com",
+    "apiuser": "mambu_api_user",
+    "apipwd": "mambu_api_password",
+    # Mambu DB configurations
+    "dbname": "mambu_db",
+    "dbuser": "mambu_db_user",
+    "dbpwd": "mambu_db_pwd",
+    "dbhost": "localhost",
+    "dbport": "3306",
+    "dbeng": "mysql",
 }
 """ Defaults dictionary for the options configured here.
 
 You may edit this to your own liking. But beware of pricking eyes!
 """
 
+import os
 # import ConfigParser depending on Python version
-import sys, os
+import sys
+
 if sys.version_info.major < 3:
     import ConfigParser
     from ConfigParser import NoOptionError, NoSectionError
+
     config = ConfigParser.ConfigParser(defaults=default_configs)
 else:
     import configparser
     from configparser import NoOptionError, NoSectionError
+
     config = configparser.ConfigParser(defaults=default_configs)
 
 # argparse for command line arguments overriding
 import argparse
+
 argparser = argparse.ArgumentParser()
 argparser.add_argument("--mambupy_rcfile")
 argparser.add_argument("--mambupy_apiurl")
@@ -116,8 +121,9 @@ argparser.add_argument("--mambupy_dbport")
 argparser.add_argument("--mambupy_dbeng")
 args, unknown = argparser.parse_known_args()
 
+
 def get_conf(conf, sect, opt):
-    """ Gets a config 'opt' from 'conf' file, under section 'sect'.
+    """Gets a config 'opt' from 'conf' file, under section 'sect'.
 
     If no 'opt' exists under 'sect', it looks for option on the default_configs
     dictionary
@@ -139,40 +145,41 @@ def get_conf(conf, sect, opt):
              default_configs dict. If environmental variable exists with name
              MAMBUPY_{upper_case_opt} it overrides anything else
     """
-    argu = getattr(args, "mambupy_"+opt.lower())
+    argu = getattr(args, "mambupy_" + opt.lower())
 
     if not argu:
-        envir = os.environ.get("MAMBUPY_"+opt.upper())
+        envir = os.environ.get("MAMBUPY_" + opt.upper())
         if not envir:
             try:
-                return conf.get(sect,opt)
+                return conf.get(sect, opt)
             except NoSectionError:
                 return default_configs[opt]
         return envir
     return argu
 
+
 # Read config from --mambupy_rcfile, or $HOME/.mambupy.rc if not found, or
 # /etc/mambupy.rc if not found
 if not args.mambupy_rcfile or not config.read(args.mambupy_rcfile):
-    if 'HOME' not in os.environ or not config.read(os.environ['HOME']+"/.mambupy.rc"):
+    if "HOME" not in os.environ or not config.read(os.environ["HOME"] + "/.mambupy.rc"):
         config.read("/etc/mambupy.rc")
 
 # Read configs from config file
-apiurl  = get_conf(config, "API", "apiurl")
+apiurl = get_conf(config, "API", "apiurl")
 """URL to access Mambu API"""
 apiuser = get_conf(config, "API", "apiuser")
 """Username to access Mambu API"""
-apipwd  = get_conf(config, "API", "apipwd")
+apipwd = get_conf(config, "API", "apipwd")
 """Password to access Mambu API"""
-dbname  = get_conf(config, "DB", "dbname")
+dbname = get_conf(config, "DB", "dbname")
 """Name of the DB with a backup of Mambu's DB"""
-dbuser  = get_conf(config, "DB", "dbuser")
+dbuser = get_conf(config, "DB", "dbuser")
 """Username to connect to the Mambu's DB backup"""
-dbpwd   = get_conf(config, "DB", "dbpwd")
+dbpwd = get_conf(config, "DB", "dbpwd")
 """Password to connect to the Mambu's DB backup"""
-dbhost  = get_conf(config, "DB", "dbhost")
+dbhost = get_conf(config, "DB", "dbhost")
 """Host where the Mambu's DB backup lives"""
-dbport  = get_conf(config, "DB", "dbport")
+dbport = get_conf(config, "DB", "dbport")
 """Port to connect to the host of the Mambu's DB backup"""
-dbeng   = get_conf(config, "DB", "dbeng")
+dbeng = get_conf(config, "DB", "dbeng")
 """DB engine for the Mambu's DB backup"""

@@ -1,4 +1,3 @@
-
 """*MambuPy*, an API library to access `Mambu <https://www.mambu.com/>`_ objects.
 
 .. autosummary::

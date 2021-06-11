@@ -17,11 +17,11 @@ Uses mambuutil.getactivitiesurl as default urlfunc
 """
 
 
-from .mambustruct import MambuStruct, MambuStructIterator
 from ..mambuutil import getactivitiesurl
-
+from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getactivitiesurl
+
 
 class MambuActivity(MambuStruct):
     """A loan Activity from Mambu.
@@ -34,35 +34,32 @@ class MambuActivity(MambuStruct):
     it uses urlfunc and entid = None , so no connection to Mambu will be
     made, never, for any particular MambuActivity object.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __repr__(self):
         """Instead of the default id given by the parent class, shows
         the transactionid of the transaction.
         """
         try:
-            return self.__class__.__name__ + " - activityid: %s" % self['activity']
+            return self.__class__.__name__ + " - activityid: %s" % self["activity"]
         except KeyError:
-            return self.__class__.__name__ + " - activityid: %s" % self['activity']
+            return self.__class__.__name__ + " - activityid: %s" % self["activity"]
 
 
 class MambuActivities(MambuStruct):
-    """A list of loan Activities from Mambu.
+    """A list of loan Activities from Mambu."""
 
-    """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
-
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
@@ -74,7 +71,7 @@ class MambuActivities(MambuStruct):
         created.
 
         """
-        for n,a in enumerate(self.attrs):
+        for n, a in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
@@ -86,7 +83,9 @@ class MambuActivities(MambuStruct):
             except AttributeError:
                 self.mambuactivityclass = MambuActivity
 
-            activity = self.mambuactivityclass(urlfunc=None, entid=None, *args, **kwargs)
+            activity = self.mambuactivityclass(
+                urlfunc=None, entid=None, *args, **kwargs
+            )
             activity.init(a, *args, **kwargs)
             activity._MambuStruct__urlfunc = getactivitiesurl
             self.attrs[n] = activity

@@ -35,14 +35,15 @@ Some basic definitions:
   API. It's a more abstract thing in fact. Also may refer to entities on a
   relational database but the term table is preferred in this case.
 """
+import json
 from builtins import str as unicode
 from datetime import datetime
-import json
+
 import requests
 from future.utils import implements_iterator
 
-from ..mambuutil import apiuser, apipwd, MambuCommError, MambuError
-from ..mambuutil import OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, iriToUri, encoded_dict
+from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuCommError,
+                         MambuError, apipwd, apiuser, encoded_dict, iriToUri)
 
 
 class RequestsCounter(object):
@@ -54,20 +55,23 @@ class RequestsCounter(object):
     so you may read it on every Mambu object you have per Python
     session you hold.
     """
+
     __instance = None
+
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
             cls.__instance = super(RequestsCounter, cls).__new__(cls, *args, **kwargs)
             cls.requests = []
             cls.cnt = 0
         return cls.__instance
+
     def add(cls, temp):
         cls.requests.append(temp)
         cls.cnt += 1
+
     def reset(cls):
         cls.cnt = 0
         cls.requests = []
-
 
 
 @implements_iterator
@@ -80,6 +84,7 @@ class MambuStructIterator:
     entitites to Mambu, instead of just one of them. Please refer to
     each MambuObject pydoc for more info.
     """
+
     def __init__(self, wrapped):
         self.wrapped = wrapped
         self.offset = 0
@@ -91,8 +96,10 @@ class MambuStructIterator:
             item = self.wrapped[self.offset]
             self.offset += 1
             return item
+
     def next(self):
         return self.__next__()
+
     def __iter__(self):
         return self
 
@@ -182,7 +189,7 @@ class MambuStruct(object):
             return object.__getattribute__(self, name)
         except AttributeError:
             # try to read the attrs property
-            attrs = object.__getattribute__(self,"attrs")
+            attrs = object.__getattribute__(self, "attrs")
             if type(attrs) == list or name not in attrs:
                 # magic won't happen when not a dict-like MambuStruct or
                 # when attrs has not the 'name' key (this last one means
@@ -203,7 +210,7 @@ class MambuStruct(object):
         try:
             # attrs needs to exist to make the magic happen!
             # ... if not, AttributeError raises
-            attrs = object.__getattribute__(self,"attrs")
+            attrs = object.__getattribute__(self, "attrs")
             if type(attrs) == list:
                 # when not treating with a dict-like MambuStruct...
                 raise AttributeError
@@ -226,11 +233,14 @@ class MambuStruct(object):
         If an iterable, it instead gives its length.
         """
         try:
-            return self.__class__.__name__ + " - id: %s" % self.attrs['id']
+            return self.__class__.__name__ + " - id: %s" % self.attrs["id"]
         except KeyError:
             return self.__class__.__name__ + " (no standard entity)"
         except AttributeError:
-            return self.__class__.__name__ + " - id: '%s' (not synced with Mambu)" % self.entid
+            return (
+                self.__class__.__name__
+                + " - id: '%s' (not synced with Mambu)" % self.entid
+            )
         except TypeError:
             return self.__class__.__name__ + " - len: %s" % len(self.attrs)
 
@@ -252,18 +262,18 @@ class MambuStruct(object):
     def __eq__(self, other):
         """Very basic way to compare to Mambu objects.
 
-        Only looking at their EncodedKey field (its primary key on the
-        Mambu DB).
+                Only looking at their EncodedKey field (its primary key on the
+                Mambu DB).
 
-.. todo:: a lot of improvements may be done here.
+        .. todo:: a lot of improvements may be done here.
         """
         if isinstance(other, MambuStruct):
             try:
-                if 'encodedKey' not in other.attrs or 'encodedKey' not in self.attrs:
+                if "encodedKey" not in other.attrs or "encodedKey" not in self.attrs:
                     raise NotImplementedError
             except AttributeError:
                 raise NotImplementedError
-            return other['encodedKey'] == self['encodedKey']
+            return other["encodedKey"] == self["encodedKey"]
 
     def has_key(self, key):
         """Dict-like behaviour"""
@@ -271,8 +281,8 @@ class MambuStruct(object):
             if type(self.attrs) == dict:
                 return key in self.attrs
             else:
-                raise AttributeError    # if attrs is not a dict
-        except AttributeError:          # if attrs doesnt exist
+                raise AttributeError  # if attrs is not a dict
+        except AttributeError:  # if attrs doesnt exist
             raise NotImplementedError
 
     def __contains__(self, item):
@@ -284,7 +294,7 @@ class MambuStruct(object):
         if type(self.attrs) == dict:
             return self.attrs.get(key, default)
         else:
-            raise NotImplementedError    # if attrs is not a dict
+            raise NotImplementedError  # if attrs is not a dict
 
     def keys(self):
         """Dict-like behaviour"""
@@ -338,8 +348,7 @@ class MambuStruct(object):
         * Iterable Mambu objects (lists) do not initialize here, the
           iterable Mambu object __init__ goes through each of its elements
           and then initializes with this code one by one. Please look at
-          some Mambu iterable object code and pydoc for more details.
-"""
+          some Mambu iterable object code and pydoc for more details."""
         self.attrs = attrs
         self.preprocess()
         self.convertDict2Attrs(*args, **kwargs)
@@ -349,40 +358,40 @@ class MambuStruct(object):
         except (TypeError, AttributeError):
             pass
         try:
-            for meth in kwargs['methods']:
+            for meth in kwargs["methods"]:
                 try:
-                    getattr(self,meth)()
+                    getattr(self, meth)()
                 except Exception:
                     pass
         except Exception:
             pass
         try:
-            for propname,propval in kwargs['properties'].items():
-                setattr(self,propname,propval)
+            for propname, propval in kwargs["properties"].items():
+                setattr(self, propname, propval)
         except Exception:
             pass
 
     def serializeStruct(self):
         """Makes a string from each element on the attrs attribute.
 
-        Read the class attribute MambuStruct.serializeFields pydoc for
-        more info.
+                Read the class attribute MambuStruct.serializeFields pydoc for
+                more info.
 
-        It DOES NOT serializes the class, for persistence or network
-        transmission, just the fields on the attrs attribute.
+                It DOES NOT serializes the class, for persistence or network
+                transmission, just the fields on the attrs attribute.
 
-        Remember that attrs may have any type of elements: numbers,
-        strings, datetimes, Mambu objects, etc. This is a way to convert
-        it to a string in an easy, however ugly, way.
+                Remember that attrs may have any type of elements: numbers,
+                strings, datetimes, Mambu objects, etc. This is a way to convert
+                it to a string in an easy, however ugly, way.
 
-        WARNING: it may fall in a stack overflow
+                WARNING: it may fall in a stack overflow
 
-.. todo:: check recursion levels.
+        .. todo:: check recursion levels.
         """
         serial = MambuStruct.serializeFields(self.attrs)
         return serial
 
-    def __init__(self, urlfunc, entid='', *args, **kwargs):
+    def __init__(self, urlfunc, entid="", *args, **kwargs):
         """Initializes a new Mambu object.
 
         Args:
@@ -424,8 +433,7 @@ class MambuStruct(object):
         * **fullDetails**, accountState and other filtering parameters
           (see mambuutil pydocs)
         * **user**, **password**, **url** to connect to Mambu, to bypass
-          mambuconfig configurations (see mambuutil pydoc)
-"""
+          mambuconfig configurations (see mambuutil pydoc)"""
 
         self.entid = entid
         """ID of the Mambu entity, or empty if not wanting a specific entity to be GETted"""
@@ -434,37 +442,37 @@ class MambuStruct(object):
         """Request Count Singleton"""
 
         try:
-            self.__debug=kwargs['debug']
+            self.__debug = kwargs["debug"]
             """Debug flag.
 
 .. todo:: not currently furtherly implemented
             """
         except KeyError:
-            self.__debug=False
+            self.__debug = False
 
         try:
-            self.__formatoFecha=kwargs['dateFormat']
+            self.__formatoFecha = kwargs["dateFormat"]
             """The default date format to be used for any datettime elements on the attrs attribute.
 
             Remember to use valid Python datetime strftime formats.
             """
         except KeyError:
-            self.__formatoFecha="%Y-%m-%dT%H:%M:%S+0000"
+            self.__formatoFecha = "%Y-%m-%dT%H:%M:%S+0000"
 
         try:
-            self.__data=kwargs['data']
+            self.__data = kwargs["data"]
             """JSON data to be sent to Mambu for POST/PATCH requests."""
         except KeyError:
-            self.__data=None
+            self.__data = None
 
         try:
-            self.__method=kwargs['method']
+            self.__method = kwargs["method"]
             """REST method to use when calling connect"""
         except KeyError:
-            self.__method="GET"
+            self.__method = "GET"
 
         try:
-            self.__limit=kwargs['limit']
+            self.__limit = kwargs["limit"]
             self.__inilimit = self.__limit
             """Limit the number of elements to be retrieved from Mambu on GET requests.
 
@@ -472,30 +480,30 @@ class MambuStruct(object):
             don't care how many elements Mambu has, you wish to retrieve
             them all.
             """
-            kwargs.pop('limit')
+            kwargs.pop("limit")
         except KeyError:
-            self.__limit=0
+            self.__limit = 0
 
         try:
-            self.__offset=kwargs['offset']
+            self.__offset = kwargs["offset"]
             """When retrieving several elements from Mambu on GET
             requests, offset for the first element to be retrieved.
             """
-            kwargs.pop('offset')
+            kwargs.pop("offset")
         except KeyError:
-            self.__offset=0
+            self.__offset = 0
 
         try:
-            self.customFieldName=kwargs['customFieldName']
+            self.customFieldName = kwargs["customFieldName"]
             """customFieldName attribute.
             """
         except KeyError:
             pass
 
-        self.__headers = {'Accept': 'application/vnd.mambu.v1+json'}
+        self.__headers = {"Accept": "application/vnd.mambu.v1+json"}
 
         try:
-            if kwargs.pop('connect'):
+            if kwargs.pop("connect"):
                 connect = True
             else:
                 connect = False
@@ -505,10 +513,11 @@ class MambuStruct(object):
         self.__args = ()
         self.__kwargs = {}
         from copy import deepcopy
+
         if args:
             self.__args = deepcopy(args)
         if kwargs:
-            for k,v in kwargs.items():
+            for k, v in kwargs.items():
                 self.__kwargs[k] = deepcopy(v)
 
         self.__urlfunc = urlfunc
@@ -517,8 +526,10 @@ class MambuStruct(object):
         It's used at the connect() method, when called.
         """
 
-        if self.__urlfunc == None: # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
-            return          # and each element is init without further configs. EDIT 2015-07-11: Really?
+        if (
+            self.__urlfunc == None
+        ):  # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
+            return  # and each element is init without further configs. EDIT 2015-07-11: Really?
 
         if connect:
             self.connect(*args, **kwargs)
@@ -526,64 +537,65 @@ class MambuStruct(object):
     def connect(self, *args, **kwargs):
         """Connect to Mambu, make the request to the REST API.
 
-        If there's no urlfunc to use, nothing is done here.
+                If there's no urlfunc to use, nothing is done here.
 
-        When done, initializes the attrs attribute of the Mambu object
-        by calling the init method. Please refer to that code and pydoc
-        for further information.
+                When done, initializes the attrs attribute of the Mambu object
+                by calling the init method. Please refer to that code and pydoc
+                for further information.
 
-        Uses urllib module to connect. Since all Mambu REST API
-        responses are json, uses json module to translate the response
-        to a valid python object (dictionary or list).
+                Uses urllib module to connect. Since all Mambu REST API
+                responses are json, uses json module to translate the response
+                to a valid python object (dictionary or list).
 
-        When Mambu returns a response with returnCode and returnStatus
-        fields, it means something went wrong with the request, and a
-        MambuError is thrown detailing the error given by Mambu itself.
+                When Mambu returns a response with returnCode and returnStatus
+                fields, it means something went wrong with the request, and a
+                MambuError is thrown detailing the error given by Mambu itself.
 
-        If you need to make a POST request, send a data argument to the
-        new Mambu object.
+                If you need to make a POST request, send a data argument to the
+                new Mambu object.
 
-        Provides to prevent errors due to using special chars on the
-        request URL. See mambuutil.iriToUri() method pydoc for further
-        info.
+                Provides to prevent errors due to using special chars on the
+                request URL. See mambuutil.iriToUri() method pydoc for further
+                info.
 
-        Provides to prevent errors due to using special chars on the
-        parameters of a POST request. See mambuutil.encoded_dict()
-        method pydoc for further info.
+                Provides to prevent errors due to using special chars on the
+                parameters of a POST request. See mambuutil.encoded_dict()
+                method pydoc for further info.
 
-        For every request done, the request counter Singleton is
-        increased.
+                For every request done, the request counter Singleton is
+                increased.
 
-        Includes retry logic, to provide for a max number of connection
-        failures with Mambu. If maximum retries are reached,
-        MambuCommError is thrown.
+                Includes retry logic, to provide for a max number of connection
+                failures with Mambu. If maximum retries are reached,
+                MambuCommError is thrown.
 
-        Includes pagination code. Mambu supports a max of 500 elements
-        per response. Such an ugly detail is wrapped here so further
-        pagination logic is not needed above here. You need a million
-        elements? you got them by making several 500 elements requests
-        later joined together in a sigle list. Just send a limit=0
-        (default) and that's it.
+                Includes pagination code. Mambu supports a max of 500 elements
+                per response. Such an ugly detail is wrapped here so further
+                pagination logic is not needed above here. You need a million
+                elements? you got them by making several 500 elements requests
+                later joined together in a sigle list. Just send a limit=0
+                (default) and that's it.
 
-.. todo:: improve raised exception messages. Sometimes
-          MambuCommErrors are thrown due to reasons not always
-          clear when catched down the road, but that perhaps may
-          be noticed in here and aren't fully reported to the
-          user. Specially serious on retries-MambuCommError
-          situations (the except Exception that increases the
-          retries counter is not saving the exception message,
-          just retrying).
+        .. todo:: improve raised exception messages. Sometimes
+                  MambuCommErrors are thrown due to reasons not always
+                  clear when catched down the road, but that perhaps may
+                  be noticed in here and aren't fully reported to the
+                  user. Specially serious on retries-MambuCommError
+                  situations (the except Exception that increases the
+                  retries counter is not saving the exception message,
+                  just retrying).
 
-.. todo:: what about using decorators for the retry and for the
-          window logic?
-          (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
-          # Reusing impossible-to-reuse code)
+        .. todo:: what about using decorators for the retry and for the
+                  window logic?
+                  (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
+                  # Reusing impossible-to-reuse code)
         """
         from copy import deepcopy
+
         if args:
             self.__args = deepcopy(args)
         if kwargs:
-            for k,v in kwargs.items():
+            for k, v in kwargs.items():
                 self.__kwargs[k] = deepcopy(v)
 
         jsresp = {}
@@ -606,26 +618,42 @@ class MambuStruct(object):
             while retries < MambuStruct.RETRIES:
                 try:
                     # Basic authentication
-                    user = self.__kwargs.get('user', apiuser)
-                    pwd = self.__kwargs.get('pwd', apipwd)
-                    url = iriToUri(self.__urlfunc(str(self.entid), limit=limit, offset=offset, *self.__args, **self.__kwargs))
+                    user = self.__kwargs.get("user", apiuser)
+                    pwd = self.__kwargs.get("pwd", apipwd)
+                    url = iriToUri(
+                        self.__urlfunc(
+                            str(self.entid),
+                            limit=limit,
+                            offset=offset,
+                            *self.__args,
+                            **self.__kwargs
+                        )
+                    )
                     self.__url = url
                     if self.__data:
                         data = json.dumps(encoded_dict(self.__data))
-                        self.__headers['Content-Type'] = 'application/json'
-                    # PATCH
-                        if self.__method=="PATCH":
-                            resp = requests.patch(url, data=data, headers=self.__headers, auth=(user, pwd))
-                    # POST
+                        self.__headers["Content-Type"] = "application/json"
+                        # PATCH
+                        if self.__method == "PATCH":
+                            resp = requests.patch(
+                                url, data=data, headers=self.__headers, auth=(user, pwd)
+                            )
+                        # POST
                         else:
-                            resp = requests.post(url, data=data, headers=self.__headers, auth=(user, pwd))
+                            resp = requests.post(
+                                url, data=data, headers=self.__headers, auth=(user, pwd)
+                            )
                     else:
                         # DELETE
-                        if self.__method=="DELETE":
-                            resp = requests.delete(url, headers=self.__headers, auth=(user, pwd))
+                        if self.__method == "DELETE":
+                            resp = requests.delete(
+                                url, headers=self.__headers, auth=(user, pwd)
+                            )
                         # GET
                         else:
-                            resp = requests.get(url, headers=self.__headers, auth=(user, pwd))
+                            resp = requests.get(
+                                url, headers=self.__headers, auth=(user, pwd)
+                            )
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
@@ -637,7 +665,7 @@ class MambuStruct(object):
                                 jsresp.extend(jsonresp)
                             except AttributeError:
                                 # First window, forget that jsresp was a dict, turn it in to a list
-                                jsresp=jsonresp
+                                jsresp = jsonresp
                             if len(jsonresp) < limit:
                                 window = False
                         # Returns dict: in theory Mambu REST API doesn't takes limit/offset in to account
@@ -670,12 +698,16 @@ class MambuStruct(object):
                     self.__limit = self.__inilimit
 
         try:
-            if u'returnCode' in jsresp and u'returnStatus' in jsresp and jsresp[u'returnCode'] != 0:
-                raise MambuError(jsresp[u'returnStatus'])
+            if (
+                u"returnCode" in jsresp
+                and u"returnStatus" in jsresp
+                and jsresp[u"returnCode"] != 0
+            ):
+                raise MambuError(jsresp[u"returnStatus"])
         except AttributeError:
             pass
 
-        if ("documents" not in url) and self.__method not in ["PATCH","DELETE"]:
+        if ("documents" not in url) and self.__method not in ["PATCH", "DELETE"]:
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
     def _process_fields(self):
@@ -709,27 +741,31 @@ class MambuStruct(object):
         try:
             try:
                 if self.has_key(self.customFieldName):
-                    self[self.customFieldName] = [ c for c in self[self.customFieldName] if c['customField']['state']!="DEACTIVATED" ]
+                    self[self.customFieldName] = [
+                        c
+                        for c in self[self.customFieldName]
+                        if c["customField"]["state"] != "DEACTIVATED"
+                    ]
                     for custom in self[self.customFieldName]:
-                        field_name = custom['customField']['name']
-                        field_id = custom['customField']['id']
-                        if custom['customFieldSetGroupIndex'] != -1:
-                            field_name += '_'+str(custom['customFieldSetGroupIndex'])
-                            field_id += '_'+str(custom['customFieldSetGroupIndex'])
-                        custom['name'] = field_name
-                        custom['id'] = field_id
+                        field_name = custom["customField"]["name"]
+                        field_id = custom["customField"]["id"]
+                        if custom["customFieldSetGroupIndex"] != -1:
+                            field_name += "_" + str(custom["customFieldSetGroupIndex"])
+                            field_id += "_" + str(custom["customFieldSetGroupIndex"])
+                        custom["name"] = field_name
+                        custom["id"] = field_id
                         try:
-                            self[field_name] = custom['value']
-                            self[field_id] = custom['value']
+                            self[field_name] = custom["value"]
+                            self[field_id] = custom["value"]
                         except KeyError:
-                            self[field_name] = custom['linkedEntityKeyValue']
-                            self[field_id] = custom['linkedEntityKeyValue']
-                            custom['value']  = custom['linkedEntityKeyValue']
+                            self[field_name] = custom["linkedEntityKeyValue"]
+                            self[field_id] = custom["linkedEntityKeyValue"]
+                            custom["value"] = custom["linkedEntityKeyValue"]
             # in case you don't have any customFieldName, don't do anything here
             except (AttributeError, TypeError):
                 pass
 
-            for k,v in self.items():
+            for k, v in self.items():
                 try:
                     self[k] = v.strip()
                 except Exception:
@@ -758,7 +794,18 @@ class MambuStruct(object):
         Some default constantFields are left as is (strings), because
         they are better treated as strings.
         """
-        constantFields = ['id', 'groupName', 'name', 'homePhone', 'mobilePhone1', 'phoneNumber', 'postcode', 'emailAddress', 'description']
+        constantFields = [
+            "id",
+            "groupName",
+            "name",
+            "homePhone",
+            "mobilePhone1",
+            "phoneNumber",
+            "postcode",
+            "emailAddress",
+            "description",
+        ]
+
         def convierte(data):
             """Recursively convert the fields on the data given to a python object."""
             # Iterators, lists and dictionaries
@@ -789,7 +836,9 @@ class MambuStruct(object):
             # This are the recursion base cases!
             try:
                 d = int(data)
-                if str(d) != data: # if string has trailing 0's, leave it as string, to not lose them
+                if (
+                    str(d) != data
+                ):  # if string has trailing 0's, leave it as string, to not lose them
                     return data
                 return d
             except (TypeError, ValueError):
@@ -826,7 +875,10 @@ class MambuStruct(object):
                 formato = self.__formatoFecha
             except AttributeError:
                 formato = "%Y-%m-%dT%H:%M:%S+0000"
-        return datetime.strptime(datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato), formato)
+        return datetime.strptime(
+            datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato),
+            formato,
+        )
 
     def create(self, data, *args, **kwargs):
         """Creates an entity in Mambu
@@ -842,15 +894,15 @@ class MambuStruct(object):
         if self.create.__func__.__module__ != self.__module__:
             raise Exception("Child method not implemented")
 
-        self._MambuStruct__method  = "POST"
-        self._MambuStruct__data    = data
+        self._MambuStruct__method = "POST"
+        self._MambuStruct__data = data
         self.connect(*args, **kwargs)
-        self._MambuStruct__method  = "GET"
-        self._MambuStruct__data    = None
+        self._MambuStruct__method = "GET"
+        self._MambuStruct__data = None
         return 1
 
     def update(self, data, *args, **kwargs):
-        """ Downloads an update made to an entity in Mambu.
+        """Downloads an update made to an entity in Mambu.
 
         This method must be implemented in child classes.
 
@@ -880,11 +932,11 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to update")
 
-        self._MambuStruct__method  = "PATCH"
-        self._MambuStruct__data    = data
+        self._MambuStruct__method = "PATCH"
+        self._MambuStruct__data = data
         self.connect(*args, **kwargs)
-        self._MambuStruct__method  = "GET"
-        self._MambuStruct__data    = None
+        self._MambuStruct__method = "GET"
+        self._MambuStruct__data = None
 
         return 1
 
@@ -904,11 +956,11 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to update")
 
-        self._MambuStruct__method  = "POST"
-        self._MambuStruct__data    = data
+        self._MambuStruct__method = "POST"
+        self._MambuStruct__data = data
         self.connect(*args, **kwargs)
-        self._MambuStruct__method  = "GET"
-        self._MambuStruct__data    = None
+        self._MambuStruct__method = "GET"
+        self._MambuStruct__data = None
         return 1
 
     def uploadDocument(self, data, *args, **kwargs):
@@ -937,12 +989,13 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to upload")
 
-        self._MambuStruct__method  = "POST"
-        self._MambuStruct__data    = data
+        self._MambuStruct__method = "POST"
+        self._MambuStruct__data = data
         self.connect(*args, **kwargs)
-        self._MambuStruct__method  = "GET"
-        self._MambuStruct__data    = None
+        self._MambuStruct__method = "GET"
+        self._MambuStruct__data = None
         return 1
+
 
 def setCustomField(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
@@ -957,30 +1010,47 @@ def setCustomField(mambuentity, customfield="", *args, **kwargs):
 
     Returns the number of requests done to Mambu.
     """
-    from . import mambuuser
-    from . import mambuclient
+    from . import mambuclient, mambuuser
+
     try:
         customFieldValue = mambuentity[customfield]
         # find the dataType customfield by name or id
-        datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if (l['name'] == customfield or l['id'] == customfield) ][0]
+        datatype = [
+            l["customField"]["dataType"]
+            for l in mambuentity[mambuentity.customFieldName]
+            if (l["name"] == customfield or l["id"] == customfield)
+        ][0]
     except IndexError:
-    # if no customfield found with the given name, assume it is a
-    # grouped custom field, name must have an index suffix that must
-    # be removed
+        # if no customfield found with the given name, assume it is a
+        # grouped custom field, name must have an index suffix that must
+        # be removed
         try:
             # find the dataType customfield by name or id
-            datatype = [ l['customField']['dataType'] for l in mambuentity[mambuentity.customFieldName] if (l['name'] == customfield.split('_')[0] or l['id'] == customfield.split('_')[0]) ][0]
+            datatype = [
+                l["customField"]["dataType"]
+                for l in mambuentity[mambuentity.customFieldName]
+                if (
+                    l["name"] == customfield.split("_")[0]
+                    or l["id"] == customfield.split("_")[0]
+                )
+            ][0]
         except IndexError:
-            err = MambuError("Object %s has no custom field '%s'" % (mambuentity['id'], customfield))
+            err = MambuError(
+                "Object %s has no custom field '%s'" % (mambuentity["id"], customfield)
+            )
             raise err
     except AttributeError:
         err = MambuError("Object does not have a custom field to set")
         raise err
 
     if datatype == "USER_LINK":
-        mambuentity[customfield] = mambuuser.MambuUser(entid=customFieldValue, *args, **kwargs)
+        mambuentity[customfield] = mambuuser.MambuUser(
+            entid=customFieldValue, *args, **kwargs
+        )
     elif datatype == "CLIENT_LINK":
-        mambuentity[customfield] = mambuclient.MambuClient(entid=customFieldValue, *args, **kwargs)
+        mambuentity[customfield] = mambuclient.MambuClient(
+            entid=customFieldValue, *args, **kwargs
+        )
     else:
         mambuentity[customfield] = customFieldValue
         return 0

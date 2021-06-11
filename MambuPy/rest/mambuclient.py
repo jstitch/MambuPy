@@ -16,13 +16,14 @@ Uses mambuutil.getclienturl as default urlfunc
 """
 
 
-from .mambustruct import MambuStruct, MambuStructIterator
-from ..mambuutil import getclienturl, getclientcustominformationurl, strip_consecutive_repeated_char as scrc
-
 from builtins import str as unicode
 
+from ..mambuutil import getclientcustominformationurl, getclienturl
+from ..mambuutil import strip_consecutive_repeated_char as scrc
+from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getclienturl
+
 
 class MambuClient(MambuStruct):
     """A Client from Mambu.
@@ -30,13 +31,15 @@ class MambuClient(MambuStruct):
     With the default urlfunc, entid argument must be the ID of the
     client you wish to retrieve.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
-        MambuStruct.__init__(self, urlfunc, entid, customFieldName='customInformation', *args, **kwargs)
-
+        MambuStruct.__init__(
+            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+        )
 
     def preprocess(self):
         """Preprocessing.
@@ -67,71 +70,85 @@ class MambuClient(MambuStruct):
         the 'CURP' field, instead of going all the way through the
         idDocuments field.
         """
-        super(MambuClient,self).preprocess()
+        super(MambuClient, self).preprocess()
 
         try:
-            for k,v in self['client'].items():
+            for k, v in self["client"].items():
                 self[k] = v
-            del(self.attrs['client'])
+            del self.attrs["client"]
         except Exception:
             pass
 
         try:
-            self['firstName'] = scrc(self['firstName'], " ").strip()
+            self["firstName"] = scrc(self["firstName"], " ").strip()
         except Exception:
-            self['firstName'] = ""
+            self["firstName"] = ""
         try:
-            self['middleName'] = scrc(self['middleName'], " ").strip()
+            self["middleName"] = scrc(self["middleName"], " ").strip()
         except Exception:
-            self['middleName'] = ""
-        self['givenName']      = scrc(self["firstName"] + ((" " + self["middleName"]) if self["middleName"] != "" else ""), " ").strip()
-        self['lastName']       = scrc(self['lastName'], " ").strip()
-        self['firstLastName']  = " ".join(self['lastName'].split(" ")[:-1]) if len(self['lastName'].split(" ")) > 1 else self['lastName']
-        self['secondLastName'] = " ".join(self['lastName'].split(" ")[-1:]) if len(self['lastName'].split(" ")) > 1 else ""
+            self["middleName"] = ""
+        self["givenName"] = scrc(
+            self["firstName"]
+            + ((" " + self["middleName"]) if self["middleName"] != "" else ""),
+            " ",
+        ).strip()
+        self["lastName"] = scrc(self["lastName"], " ").strip()
+        self["firstLastName"] = (
+            " ".join(self["lastName"].split(" ")[:-1])
+            if len(self["lastName"].split(" ")) > 1
+            else self["lastName"]
+        )
+        self["secondLastName"] = (
+            " ".join(self["lastName"].split(" ")[-1:])
+            if len(self["lastName"].split(" ")) > 1
+            else ""
+        )
 
-        self['name'] = scrc("%s %s" % (self['givenName'], self['lastName']), " ").strip()
+        self["name"] = scrc(
+            "%s %s" % (self["givenName"], self["lastName"]), " "
+        ).strip()
 
-        self['address'] = {}
+        self["address"] = {}
         try:
-            for name,item in self['addresses'][0].items():
+            for name, item in self["addresses"][0].items():
                 try:
-                    self['addresses'][0][name] = item.strip()
-                    self['address'][name] = item.strip()
+                    self["addresses"][0][name] = item.strip()
+                    self["address"][name] = item.strip()
                 except AttributeError:
                     pass
         except (KeyError, IndexError):
             pass
 
         try:
-            for idDoc in self['idDocuments']:
-                self[idDoc['documentType']] = idDoc['documentId']
+            for idDoc in self["idDocuments"]:
+                self[idDoc["documentType"]] = idDoc["documentId"]
         except KeyError:
             pass
-
 
     def postprocess(self):
         """Postprocessing.
 
-        Just in case some elements on the addresses was converted to
-        anything but string, it gets converted back to only string
-        (unicode). Things on addresses are not useful but by what they
-        say, not what they are.
+                Just in case some elements on the addresses was converted to
+                anything but string, it gets converted back to only string
+                (unicode). Things on addresses are not useful but by what they
+                say, not what they are.
 
-.. todo:: do the same thing to the 'address' field created on
-          preprocessing.
+        .. todo:: do the same thing to the 'address' field created on
+                  preprocessing.
         """
         try:
-            for name, item in self['addresses'][0].items():
+            for name, item in self["addresses"][0].items():
                 try:
-                    if name == "indexInList": continue
-                    self['addresses'][0][name] = unicode(self['addresses'][0][name])
-                    self['address'][name] = unicode(self['address'][name])
+                    if name == "indexInList":
+                        continue
+                    self["addresses"][0][name] = unicode(self["addresses"][0][name])
+                    self["address"][name] = unicode(self["address"][name])
                 except AttributeError:
                     pass
         except (KeyError, IndexError):
             pass
 
-        super(MambuClient,self).postprocess()
+        super(MambuClient, self).postprocess()
 
     def setGroups(self, *args, **kwargs):
         """Adds the groups to which this client belongs.
@@ -145,11 +162,12 @@ class MambuClient(MambuStruct):
         requests = 0
         groups = []
         try:
-            for gk in self['groupKeys']:
+            for gk in self["groupKeys"]:
                 try:
                     self.mambugroupclass
                 except AttributeError:
                     from .mambugroup import MambuGroup
+
                     self.mambugroupclass = MambuGroup
 
                 g = self.mambugroupclass(entid=gk, *args, **kwargs)
@@ -158,23 +176,23 @@ class MambuClient(MambuStruct):
         except KeyError:
             pass
 
-        self['groups'] = groups
+        self["groups"] = groups
 
         return requests
 
     def setBranch(self, *args, **kwargs):
-        """Adds the branch to which the client belongs.
-        """
+        """Adds the branch to which the client belongs."""
 
         try:
             self.mambubranchclass
         except AttributeError:
             from .mambubranch import MambuBranch
+
             self.mambubranchclass = MambuBranch
 
-        branch = self.mambubranchclass(entid=self['assignedBranchKey'], *args, **kwargs)
-        self['assignedBranchName'] = branch['name']
-        self['assignedBranch'] = branch
+        branch = self.mambubranchclass(entid=self["assignedBranchKey"], *args, **kwargs)
+        self["assignedBranchName"] = branch["name"]
+        self["assignedBranch"] = branch
 
         return 1
 
@@ -211,7 +229,7 @@ class MambuClient(MambuStruct):
 
         # UPDATE customFields
         if data.get("customInformation"):
-            data2update = {"client":{}}
+            data2update = {"client": {}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getclientcustominformationurl
             cont_requests += self.updatePatch(data2update, *args, **kwargs)
@@ -219,7 +237,7 @@ class MambuClient(MambuStruct):
 
         # UPDATE addresses or idDocuments
         if data.get("addresses") or data.get("idDocuments"):
-            #data2update = self._notUpdateData()
+            # data2update = self._notUpdateData()
             data2update = {}
             # UPDATE addresses
             if data.get("addresses"):
@@ -261,33 +279,32 @@ class MambuClients(MambuStruct):
     instantiation time to retrieve all the clients according to any
     other filter you send to the urlfunc.
     """
-    def __init__(self, urlfunc=mod_urlfunc, entid='', *args, **kwargs):
+
+    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
         """By default, entid argument is empty. That makes perfect
         sense: you want several clients, not just one
         """
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
-
     def __iter__(self):
         return MambuStructIterator(self.attrs)
-
 
     def convertDict2Attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
-        You iterate over each element of the responded List from Mambu,
-        and create a Mambu Client object for each one, initializing them
-        one at a time, and changing the attrs attribute (which just
-        holds a list of plain dictionaries) with a MambuClient just
-        created.
+                You iterate over each element of the responded List from Mambu,
+                and create a Mambu Client object for each one, initializing them
+                one at a time, and changing the attrs attribute (which just
+                holds a list of plain dictionaries) with a MambuClient just
+                created.
 
-.. todo:: pass a valid (perhaps default) urlfunc, and its
-          corresponding id to entid to each MambuClient, telling
-          MambuStruct not to connect() by default. It's desirable to
-          connect at any other further moment to refresh some element in
-          the list.
+        .. todo:: pass a valid (perhaps default) urlfunc, and its
+                  corresponding id to entid to each MambuClient, telling
+                  MambuStruct not to connect() by default. It's desirable to
+                  connect at any other further moment to refresh some element in
+                  the list.
         """
-        for n,c in enumerate(self.attrs):
+        for n, c in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
