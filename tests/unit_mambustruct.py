@@ -1310,6 +1310,19 @@ class MambuStructConnectTests(unittest.TestCase):
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
+        # MambuError
+        requests.get.side_effect = None
+        iriToUri.return_value = ""
+        requests.get().content = """<html>\n<head><title>Oh My</title></head>
+<body>\n<h1>One error</h1>\n<p>Watcha gonna do?</p></body></html>"""
+        json.loads.side_effect = [ValueError("TEST ERROR")]
+        with self.assertRaisesRegexp(
+            mambustruct.MambuError, r"^Oh My: One error. Watcha gonna do?"
+        ) as ex:
+            ms = mambustruct.MambuStruct(
+                entid="12345", urlfunc=lambda entid, limit, offset: ""
+            )
+
         # pagination mechanism
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = (
             1  # simulate as if Mambu could only returns one element per request

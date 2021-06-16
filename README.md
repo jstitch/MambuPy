@@ -190,6 +190,10 @@ TODO comments for hackers are included at:
   May the 4th be with you!
 * v1.8.8 2021-05-18
   - MambuUser update and updatePatch methods
+* v1.8.9 2021-06-16
+  - Add urlfunc to each element obtained during iterable element init
+  - MambuStruct.connect() json.loads ValueError now raises MambuError with body content
+  - Codesmells fixes
 
 ### Author
 

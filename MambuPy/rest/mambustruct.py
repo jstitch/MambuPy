@@ -43,7 +43,8 @@ import requests
 from future.utils import implements_iterator
 
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuCommError,
-                         MambuError, apipwd, apiuser, encoded_dict, iriToUri)
+                         MambuError, apipwd, apiuser, encoded_dict, iriToUri,
+                         strip_tags)
 
 
 class RequestsCounter(object):
@@ -674,7 +675,12 @@ class MambuStruct(object):
                             window = False
                     except ValueError as ex:
                         # json.loads invalid data argument
-                        raise ex
+                        raise MambuError(
+                            strip_tags(
+                                resp.content).strip().replace(
+                                    "\n\n", ": ", 1).replace(
+                                        "\n", ". ", 1).replace(
+                                            "\n", " "))
                     except Exception as ex:
                         # any other json error
                         raise MambuError("JSON Error: %s" % repr(ex))
