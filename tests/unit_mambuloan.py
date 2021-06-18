@@ -79,7 +79,7 @@ class MambuLoanTests(unittest.TestCase):
             mambuloan.MambuStruct, "connect", mock_connect
         ), mock.patch.object(
             mambuloan.MambuStruct, "preprocess", mock_preprocess
-        ) as mpp:
+        ):
             mambuloan.strip_tags = mock.Mock()
             mambuloan.strip_tags.side_effect = mock_loan_preprocess
             l = mambuloan.MambuLoan(urlfunc=lambda x: x)

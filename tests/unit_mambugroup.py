@@ -410,7 +410,7 @@ class MambuGroupsTests(unittest.TestCase):
             grps.mambugroupclass
         with mock.patch(
             "MambuPy.rest.mambugroup.MambuGroup.preprocess"
-        ) as mock_preprocess:
+        ):
             grps.convertDict2Attrs()
             self.assertEqual(
                 str(grps.mambugroupclass),

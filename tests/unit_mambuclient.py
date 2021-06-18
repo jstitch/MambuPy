@@ -252,7 +252,7 @@ class MambuClientsTests(unittest.TestCase):
             clns.mambuclientclass
         with mock.patch(
             "MambuPy.rest.mambuclient.MambuClient.preprocess"
-        ) as mock_preprocess:
+        ):
             clns.convertDict2Attrs()
             self.assertEqual(
                 str(clns.mambuclientclass),

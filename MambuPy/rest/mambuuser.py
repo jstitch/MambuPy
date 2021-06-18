@@ -106,7 +106,7 @@ class MambuUser(MambuStruct):
         """Adds the branch to which this user belongs"""
         try:
             self.mambubranchclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambubranch import MambuBranch
 
             self.mambubranchclass = MambuBranch

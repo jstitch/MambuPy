@@ -205,7 +205,7 @@ class CustomFieldSelection(Base):
     def __repr__(self):
         try:
             return "<CustomFieldSet(id={}, value={})>".format(self.id, self.value)
-        except UnicodeEncodeError as ue:
+        except UnicodeEncodeError:
             return "<CustomFieldSet(id={}, value={})>".format(
                 self.id, self.value.encode("utf8")
             )

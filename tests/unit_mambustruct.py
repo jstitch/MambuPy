@@ -955,7 +955,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.create.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(
             Exception, r"^Child method not implemented$"
-        ) as ex:
+        ):
             ms.create(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1040,7 +1040,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.updatePost.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(
             Exception, r"^Child method not implemented$"
-        ) as ex:
+        ):
             ms.updatePost(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1079,7 +1079,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.uploadDocument.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(
             Exception, r"^Child method not implemented$"
-        ) as ex:
+        ):
             ms.uploadDocument(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1247,7 +1247,7 @@ class MambuStructConnectTests(unittest.TestCase):
         iriToUri.return_value = ""
         requests.get.return_value = mock.Mock()
         json.loads.return_value = {"returnCode": "500", "returnStatus": "TEST ERROR"}
-        with self.assertRaisesRegexp(mambustruct.MambuError, r"^TEST ERROR$") as ex:
+        with self.assertRaisesRegexp(mambustruct.MambuError, r"^TEST ERROR$"):
             ms = mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
@@ -1294,7 +1294,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         with self.assertRaisesRegexp(
             mambustruct.MambuCommError, r"^ERROR I can't communicate with Mambu"
-        ) as ex:
+        ):
             ms = mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
@@ -1305,7 +1305,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.loads.side_effect = [Exception("TEST ERROR")]
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^JSON Error: Exception\('TEST ERROR'"
-        ) as ex:
+        ):
             ms = mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
@@ -1318,7 +1318,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.loads.side_effect = [ValueError("TEST ERROR")]
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^Oh My: One error. Watcha gonna do?"
-        ) as ex:
+        ):
             ms = mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )

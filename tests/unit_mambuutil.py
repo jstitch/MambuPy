@@ -197,7 +197,7 @@ class MambuUtilTests(unittest.TestCase):
 
         with self.assertRaisesRegexp(
             mambuutil.MambuError, r"Tired of waiting, giving up..."
-        ) as e:
+        ):
             d = mambuutil.backup_db(
                 callback="da-callback",
                 bool_func=lambda: False,
@@ -212,7 +212,7 @@ class MambuUtilTests(unittest.TestCase):
         with self.assertRaisesRegexp(
             mambuutil.MambuCommError,
             r"Error posting request for backup: hello world \(not found\)$",
-        ) as e:
+        ):
             d = mambuutil.backup_db(
                 callback="da-callback",
                 bool_func=lambda: True,
@@ -224,7 +224,7 @@ class MambuUtilTests(unittest.TestCase):
         with self.assertRaisesRegexp(
             mambuutil.MambuError,
             r"Error requesting backup: Exception\('something wrong'",
-        ) as e:
+        ):
             d = mambuutil.backup_db(
                 callback="da-callback",
                 bool_func=lambda: True,
@@ -239,7 +239,7 @@ class MambuUtilTests(unittest.TestCase):
         with self.assertRaisesRegexp(
             mambuutil.MambuCommError,
             r"Error getting database backup: hello world \(not found\)$",
-        ) as e:
+        ):
             d = mambuutil.backup_db(
                 callback="da-callback",
                 bool_func=lambda: True,
