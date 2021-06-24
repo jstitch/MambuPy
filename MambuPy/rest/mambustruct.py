@@ -217,7 +217,7 @@ class MambuStruct(object):
                 raise AttributeError
             try:
                 # see if 'name' is currently a property of the object
-                prop = object.__getattribute__(self, name)
+                object.__getattribute__(self, name)
             except AttributeError:
                 # if not, then assign it as a new key in the dict
                 attrs[name] = value
