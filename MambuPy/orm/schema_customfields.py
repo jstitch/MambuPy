@@ -171,17 +171,20 @@ class CustomFieldValue(Base):
             return None
 
     def __repr__(self):
+        if self.value:
+            value = self.value
+        elif self.linkedclient:
+            value = self.linkedclient
+        elif self.linkedgroup:
+            value = self.linkedgroup
+        elif self.linkeduser:
+            value = self.linkeduser
+        else:
+            value = "None"
+
         return "<CustomFieldValue(customField={},value={})>".format(
             self.customField,
-            self.value
-            if self.value
-            else self.linkedclient
-            if self.linkedclient
-            else self.linkedgroup
-            if self.linkedgroup
-            else self.linkeduser
-            if self.linkeduser
-            else "None",
+            value
         )
 
 

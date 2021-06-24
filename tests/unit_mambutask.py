@@ -126,7 +126,7 @@ class MambuTaskTests(unittest.TestCase):
 
         with mock.patch.object(
             mambutask.MambuStruct, "__init__", build_mock_task
-        ) as mock_init, mock.patch.object(
+        ), mock.patch.object(
             mambutask.MambuStruct, "connect", connect_mocked
         ):
             t = mambutask.MambuTask(urlfunc=gettasksurl, entid="1")

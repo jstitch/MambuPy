@@ -91,12 +91,12 @@ class MambuTransactions(MambuStruct):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mambutransactionclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mambutransactionclass = MambuTransaction
 
             trans = self.mambutransactionclass(

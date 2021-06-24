@@ -237,7 +237,6 @@ class MambuClient(MambuStruct):
 
         # UPDATE addresses or idDocuments
         if data.get("addresses") or data.get("idDocuments"):
-            # data2update = self._notUpdateData()
             data2update = {}
             # UPDATE addresses
             if data.get("addresses"):

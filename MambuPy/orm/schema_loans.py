@@ -42,7 +42,7 @@ class LoanProduct(Base):
     loans = relationship("LoanAccount", back_populates="product")
 
     def __repr__(self):
-        return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productname)
+        return "<LoanProduct(id=%s, name=%s)>" % (self.id, self.productName)
 
 
 class DisbursementDetails(Base):

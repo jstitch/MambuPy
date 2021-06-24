@@ -173,7 +173,7 @@ class MambuStruct(object):
         """Hash of the object"""
         try:
             return hash(self.id)
-        except:
+        except Exception:
             return hash(self.__repr__())
 
     def __getattribute__(self, name):
@@ -271,9 +271,9 @@ class MambuStruct(object):
         if isinstance(other, MambuStruct):
             try:
                 if "encodedKey" not in other.attrs or "encodedKey" not in self.attrs:
-                    raise NotImplementedError
+                    return NotImplemented
             except AttributeError:
-                raise NotImplementedError
+                return NotImplemented
             return other["encodedKey"] == self["encodedKey"]
 
     def has_key(self, key):
@@ -691,6 +691,7 @@ class MambuStruct(object):
                 except requests.exceptions.RequestException:
                     retries += 1
                 except Exception as ex:
+                    """ unknown exception """
                     raise ex
             else:
                 raise MambuCommError("ERROR I can't communicate with Mambu")
@@ -834,6 +835,7 @@ class MambuStruct(object):
             except TypeError:
                 pass
             except Exception as ex:
+                """ unknown exception """
                 raise ex
 
             # Python built-in types: ints, floats, or even datetimes. If it

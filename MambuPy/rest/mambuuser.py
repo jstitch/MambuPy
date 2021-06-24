@@ -49,11 +49,11 @@ class MambuUser(MambuStruct):
 
         try:
             self["firstName"] = self["firstName"].strip()
-        except Exception as e:
+        except Exception:
             self["firstName"] = ""
         try:
             self["lastName"] = self["lastName"].strip()
-        except Exception as ex:
+        except Exception:
             self["lastName"] = ""
 
         self["name"] = self["firstName"] + " " + self["lastName"]
@@ -65,7 +65,7 @@ class MambuUser(MambuStruct):
         """
         try:
             self.mambugroupsclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mambugroup import MambuGroups
 
             self.mambugroupsclass = MambuGroups
@@ -87,7 +87,7 @@ class MambuUser(MambuStruct):
         """
         try:
             self.mamburoleclass
-        except AttributeError as ae:
+        except AttributeError:
             from .mamburoles import MambuRole
 
             self.mamburoleclass = MambuRole
@@ -219,12 +219,12 @@ class MambuUsers(MambuStruct):
         for n, u in enumerate(self.attrs):
             try:
                 params = self.params
-            except AttributeError as aerr:
+            except AttributeError:
                 params = {}
             kwargs.update(params)
             try:
                 self.mambuuserclass
-            except AttributeError as ae:
+            except AttributeError:
                 self.mambuuserclass = self.itemclass
 
             user = self.mambuuserclass(urlfunc=None, entid=None, *args, **kwargs)

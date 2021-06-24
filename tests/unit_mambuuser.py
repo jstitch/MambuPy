@@ -212,7 +212,7 @@ class MambuUserTests(unittest.TestCase):
         data = {"dataDummy": "dataDummy"}
         # before init() method is called inside create() the attribute
         # u[u.customFieldName] not exists
-        with self.assertRaisesRegexp(KeyError, r"^'%s'" % (u.customFieldName)) as ex:
+        with self.assertRaisesRegexp(KeyError, r"^'%s'" % (u.customFieldName)):
             self.assertTrue(u[u.customFieldName])
         self.assertEqual(u.create(data), 1)
         mock_super_create.assert_called_with(data)

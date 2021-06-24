@@ -315,7 +315,6 @@ class MambuGroupTests(unittest.TestCase):
             pwd="fakePwd",
         )
         g.attrs = {}
-        gData = {}
         # set groupMembers
         g.attrs["groupMembers"] = [
             {

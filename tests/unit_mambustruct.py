@@ -75,7 +75,7 @@ class MambuStructTests(unittest.TestCase):
         Using dot notation"""
         # with no attrs: get object attributes, if not raise exception
         self.assertEqual(self.ms.RETRIES, 5)
-        with self.assertRaises(AttributeError) as e:
+        with self.assertRaises(AttributeError):
             self.ms.bla
 
         # with attrs, try get object attribute, if not, try to get attrs element, if not raise exception
@@ -85,14 +85,14 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.RETRIES, 5)
         self.assertEqual(ms.hello, "goodbye")
         self.assertEqual(ms.attrs["hello"], "goodbye")
-        with self.assertRaises(AttributeError) as e:
+        with self.assertRaises(AttributeError):
             ms.bla
 
         # with attrs not dict-like, get object attribute, if not raise exception
         json.loads.return_value = []
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual(ms.RETRIES, 5)
-        with self.assertRaises(AttributeError) as e:
+        with self.assertRaises(AttributeError):
             ms.bla
 
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
@@ -246,14 +246,11 @@ class MambuStructTests(unittest.TestCase):
 
         # when any MambuStruct has no 'encodedkey' field, raises NotImplemented
         ms = mambustruct.MambuStruct(urlfunc=None)
-        with self.assertRaises(NotImplementedError) as ex:
-            ms == self.ms
+        self.assertEqual(ms.__eq__(self.ms), NotImplemented)
         json.loads.return_value = {"encodedKey": "abc123"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        with self.assertRaises(NotImplementedError) as ex:
-            ms == self.ms
-        with self.assertRaises(NotImplementedError) as ex:
-            self.ms == ms
+        self.assertEqual(ms.__eq__(self.ms), NotImplemented)
+        self.assertEqual(self.ms.__eq__(ms), NotImplemented)
 
         # when both have an encodedkey, compare both
         json.loads.return_value = {"encodedKey": "abc123"}
@@ -275,12 +272,12 @@ class MambuStructTests(unittest.TestCase):
     def test_has_key(self, requests, json, iriToUri):
         """Dictionary-like has_key method"""
         # when no attrs or not dict-like, raises NotImplementedError
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             self.ms.has_key("bla")
 
         json.loads.return_value = [1, 2, 3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.has_key("bla")
 
         # when attrs dict-like, return what attrs.has_key returns
@@ -295,7 +292,7 @@ class MambuStructTests(unittest.TestCase):
     def test_contains(self, requests, json, iriToUri):
         """__contains__ method"""
         # when no attrs, raises AttributeError
-        with self.assertRaises(AttributeError) as ex:
+        with self.assertRaises(AttributeError):
             "bla" in self.ms
 
         json.loads.return_value = [1, 2, 3]
@@ -317,7 +314,7 @@ class MambuStructTests(unittest.TestCase):
         """Dictionary-like get method"""
         json.loads.return_value = [1, 2, 3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.get("bla")
 
         json.loads.return_value = {"hello": "world"}
@@ -332,12 +329,12 @@ class MambuStructTests(unittest.TestCase):
     def test_keys(self, requests, json, iriToUri):
         """Dictionary-like keys method"""
         # when no attrs or not dict-like, raises NotImplementedError
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             self.ms.keys()
 
         json.loads.return_value = [1, 2, 3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.keys()
 
         # when attrs dict-like, return what attrs.keys returns
@@ -351,12 +348,12 @@ class MambuStructTests(unittest.TestCase):
     def test_items(self, requests, json, iriToUri):
         """Dictionary-like items method"""
         # when no attrs or not dict-like, raises NotImplementedError
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             self.ms.has_key("bla")
 
         json.loads.return_value = [1, 2, 3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.has_key("bla")
 
         # when attrs dict-like, return what attrs.items returns
@@ -411,14 +408,14 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         # 'methods' kwarg makes init call the methods on it
         json.loads.return_value = {"hello": "goodbye"}
-        ms = mambustruct.MambuStruct(
+        mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
             methods=["util_dateFormat", "serializeStruct"],
         )
         mambustruct.MambuStruct.util_dateFormat.assert_called_with()
         mambustruct.MambuStruct.serializeStruct.assert_called_with()
         # non-existent method is just not called, no exception raised
-        ms = mambustruct.MambuStruct(
+        mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
             methods=["blah_method"],
         )
@@ -981,7 +978,7 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         # if the class who call method update is direfent who implemented it
         ms.update.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.update(data)
 
         # ensures that connect() was called to refresh the info in the entity
@@ -1005,11 +1002,11 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
-        with self.assertRaisesRegexp(Exception, r"^Requires data to update$") as ex:
+        with self.assertRaisesRegexp(Exception, r"^Requires data to update$"):
             ms.updatePatch({})
         # if the class who call method update is direfent who implemented it
         ms.updatePatch.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaises(NotImplementedError) as ex:
+        with self.assertRaises(NotImplementedError):
             ms.updatePatch(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1034,7 +1031,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
-        with self.assertRaisesRegexp(Exception, r"^Requires data to update$") as ex:
+        with self.assertRaisesRegexp(Exception, r"^Requires data to update$"):
             ms.updatePost({})
         # if the class who call method update is direfent who implemented it
         ms.updatePost.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
@@ -1073,7 +1070,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
-        with self.assertRaisesRegexp(Exception, r"^Requires data to upload$") as ex:
+        with self.assertRaisesRegexp(Exception, r"^Requires data to upload$"):
             ms.uploadDocument({})
         # if the class who call method update is direfent who implemented it
         ms.uploadDocument.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
@@ -1170,7 +1167,7 @@ class MambuStructConnectTests(unittest.TestCase):
         from MambuPy.mambuutil import apipwd, apiuser
 
         requests.reset_mock()
-        ms = mambustruct.MambuStruct(
+        mambustruct.MambuStruct(
             entid="12345",
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
             data=data,
@@ -1248,7 +1245,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.get.return_value = mock.Mock()
         json.loads.return_value = {"returnCode": "500", "returnStatus": "TEST ERROR"}
         with self.assertRaisesRegexp(mambustruct.MambuError, r"^TEST ERROR$"):
-            ms = mambustruct.MambuStruct(
+            mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
@@ -1289,13 +1286,13 @@ class MambuStructConnectTests(unittest.TestCase):
         iriToUri.return_value = ""
         requests.get.side_effect = [
             reqs.exceptions.RequestException("TESTING RETRIES")
-            for i in range(mambustruct.MambuStruct.RETRIES)
+            for _ in range(mambustruct.MambuStruct.RETRIES)
         ]
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         with self.assertRaisesRegexp(
             mambustruct.MambuCommError, r"^ERROR I can't communicate with Mambu"
         ):
-            ms = mambustruct.MambuStruct(
+            mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
@@ -1306,7 +1303,7 @@ class MambuStructConnectTests(unittest.TestCase):
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^JSON Error: Exception\('TEST ERROR'"
         ):
-            ms = mambustruct.MambuStruct(
+            mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
@@ -1319,7 +1316,7 @@ class MambuStructConnectTests(unittest.TestCase):
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^Oh My: One error. Watcha gonna do?"
         ):
-            ms = mambustruct.MambuStruct(
+            mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
@@ -1512,7 +1509,7 @@ class MambuStructIteratorTests(unittest.TestCase):
         for i, j in zip(it, range(7)):
             self.assertEqual(i, j)
 
-        with self.assertRaises(StopIteration) as ex:
+        with self.assertRaises(StopIteration):
             it.iterator.next()
 
 
