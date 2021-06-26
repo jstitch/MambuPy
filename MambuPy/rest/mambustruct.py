@@ -38,6 +38,7 @@ Some basic definitions:
 import json
 from builtins import str as unicode
 from datetime import datetime
+import time
 
 import requests
 from future.utils import implements_iterator
@@ -675,17 +676,22 @@ class MambuStruct(object):
                             window = False
                     except ValueError as ex:
                         # json.loads invalid data argument
-                        raise MambuError(
-                            strip_tags(
-                                resp.content).strip().replace(
-                                    "\n\n", ": ", 1).replace(
-                                        "\n", ". ", 1).replace(
-                                            "\n", " "))
+                        if "502" in resp.content or "503" in resp.content or "504" in resp.content:
+                            time.sleep(1)
+                            retries += 1
+                        else:
+                            raise MambuError(
+                                strip_tags(
+                                    resp.content).strip().replace(
+                                        "\n\n", ": ", 1).replace(
+                                            "\n", ". ", 1).replace(
+                                                "\n", " "))
                     except Exception as ex:
                         # any other json error
                         raise MambuError("JSON Error: %s" % repr(ex))
-                    # if we reach here, we're done and safe
-                    break
+                    else:
+                        # if we reach here, we're done and safe
+                        break
                 except MambuError as merr:
                     raise merr
                 except requests.exceptions.RequestException:
