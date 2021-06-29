@@ -1310,7 +1310,7 @@ class MambuStructConnectTests(unittest.TestCase):
         # MambuError
         requests.get.side_effect = None
         iriToUri.return_value = ""
-        requests.get().content = """<html>\n<head><title>Oh My</title></head>
+        requests.get().content = b"""<html>\n<head><title>Oh My</title></head>
 <body>\n<h1>One error</h1>\n<p>Watcha gonna do?</p></body></html>"""
         json.loads.side_effect = [ValueError("TEST ERROR")]
         with self.assertRaisesRegexp(
@@ -1319,6 +1319,23 @@ class MambuStructConnectTests(unittest.TestCase):
             mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
+
+        # Mambu 500 Error
+        requests.get.side_effect = None
+        iriToUri.return_value = ""
+        requests.get().content = b"""<html>\n<head><title>502 gateway error</title></head>
+<body>\n<h1>502 gateway error</h1>\n<p>Should retry!</p></body></html>"""
+        json.loads.side_effect = ValueError("TEST ERROR")
+        requests.get.reset_mock()
+        with self.assertRaisesRegexp(
+            mambustruct.MambuError, r"^ERROR I can't communicate with Mambu"
+        ):
+            with mock.patch("MambuPy.rest.mambustruct.time"):
+                mambustruct.MambuStruct(
+                    entid="12345", urlfunc=lambda entid, limit, offset: ""
+                    )
+        self.assertEqual(
+            requests.get.call_count, mambustruct.MambuStruct.RETRIES)
 
         # pagination mechanism
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = (

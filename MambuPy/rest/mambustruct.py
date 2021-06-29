@@ -676,13 +676,17 @@ class MambuStruct(object):
                             window = False
                     except ValueError as ex:
                         # json.loads invalid data argument
-                        if "502" in resp.content or "503" in resp.content or "504" in resp.content:
+                        try:
+                            cont = str(resp.content, "utf-8")
+                        except TypeError:
+                            cont = resp.content
+                        if "502" in cont or "503" in cont or "504" in cont:
                             time.sleep(1)
                             retries += 1
                         else:
                             raise MambuError(
                                 strip_tags(
-                                    resp.content).strip().replace(
+                                    cont).strip().replace(
                                         "\n\n", ": ", 1).replace(
                                             "\n", ". ", 1).replace(
                                                 "\n", " "))
