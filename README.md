@@ -194,6 +194,8 @@ TODO comments for hackers are included at:
   - Add urlfunc to each element obtained during iterable element init
   - MambuStruct.connect() json.loads ValueError now raises MambuError with body content
   - Codesmells fixes
+* v1.8.10 2021-06-29
+  - MambuStruct connect() retries on Mambu 500 errors, throwing MambuCommError on RETRIES limit
 
 ### Author
 
