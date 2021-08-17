@@ -34,7 +34,7 @@ engine = connectDb()
 """Database engine, connecting with default parameters by default.
 """
 
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine, autoflush=False)
 """Sessionmaker object.
 """
 
