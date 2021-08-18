@@ -94,7 +94,8 @@ def connectDb(
     return create_engine(
         "%s://%s:%s@%s:%s/%s%s"
         % (engine, user, password, host, port, database, params),
-        pool_recycle=3600, echo=echoopt
+        pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+        echo=echoopt
     )
 
 

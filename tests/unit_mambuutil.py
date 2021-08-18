@@ -61,37 +61,52 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(en, "test_connectDB")
         mock_create_engine.assert_called_once_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db?charset=utf8&use_unicode=1",
-            echo=False, pool_recycle=3600
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
 
         mambuutil.connectDb(echoopt=True, params="")
         mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db", echo=True, pool_recycle=3600
+            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=True
         )
 
         mambuutil.connectDb(engine="myeng", params="")
         mock_create_engine.assert_called_with(
-            "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db", echo=False, pool_recycle=3600
+            "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
         mambuutil.connectDb(user="myuser", params="")
         mock_create_engine.assert_called_with(
-            "mysql://myuser:mambu_db_pwd@localhost:3306/mambu_db", echo=False, pool_recycle=3600
+            "mysql://myuser:mambu_db_pwd@localhost:3306/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
         mambuutil.connectDb(password="mypass", params="")
         mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mypass@localhost:3306/mambu_db", echo=False, pool_recycle=3600
+            "mysql://mambu_db_user:mypass@localhost:3306/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
         mambuutil.connectDb(host="myhost", params="")
         mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@myhost:3306/mambu_db", echo=False, pool_recycle=3600
+            "mysql://mambu_db_user:mambu_db_pwd@myhost:3306/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
         mambuutil.connectDb(port="myport", params="")
         mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:myport/mambu_db", echo=False, pool_recycle=3600
+            "mysql://mambu_db_user:mambu_db_pwd@localhost:myport/mambu_db",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
         mambuutil.connectDb(database="mydb", params="")
         mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mydb", echo=False, pool_recycle=3600
+            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mydb",
+            pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+            echo=False
         )
 
     def test_strip_tags(self):
