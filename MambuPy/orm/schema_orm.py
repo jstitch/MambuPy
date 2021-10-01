@@ -26,7 +26,7 @@ the sessionmaker for that matter.
 from __future__ import absolute_import
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from ..mambuutil import connectDb, dbname
 
@@ -34,8 +34,12 @@ engine = connectDb()
 """Database engine, connecting with default parameters by default.
 """
 
-Session = sessionmaker(bind=engine, autoflush=False)
-"""Sessionmaker object.
+session_factory = sessionmaker(bind=engine)
+"""Sessionmaker object, create factory sessions.
+"""
+
+Session = scoped_session(session_factory)
+"""Scoped session object.
 """
 
 session = Session()

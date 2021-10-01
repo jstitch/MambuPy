@@ -73,6 +73,7 @@ class MambuCommError(MambuError):
 
 # Connects to DB
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 
 
 def connectDb(
@@ -94,7 +95,8 @@ def connectDb(
     return create_engine(
         "%s://%s:%s@%s:%s/%s%s"
         % (engine, user, password, host, port, database, params),
-        pool_recycle=7200, pool_pre_ping=True, pool_timeout=600,
+        poolclass=NullPool,
+        isolation_level="READ UNCOMMITTED",
         echo=echoopt
     )
 
