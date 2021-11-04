@@ -9,6 +9,13 @@ stages:
     expire_in: 1 day
   before_script:
     - pip install -q --no-cache-dir --upgrade -r requirements.txt
+
+UnitTests-3:
+  extends: ".UnitTests"
+  stage: "UnitTests"
+  variables:
+    PYVERSION: "3"
+  image: "python:3"
   script:
     - rm -f .coverage
     - rm -rf htmlcov
@@ -28,6 +35,11 @@ stages:
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambutransaction.py
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambugroup.py
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambuproduct.py
+
+    - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambuconnector.py
+    - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambustruct.py
+    - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambuloan.py
+
     - coverage html
     - mv htmlcov htmlcov_${CI_PROJECT_NAME}_$PYVERSION
     - tar cjf htmlcov_${CI_PROJECT_NAME}_$PYVERSION.tar.bz2 htmlcov_${CI_PROJECT_NAME}_$PYVERSION
@@ -35,16 +47,35 @@ stages:
     - mv coverage.xml coverage_${CI_PROJECT_NAME}_$PYVERSION.xml
     - coverage report
 
-UnitTests-3:
-  extends: ".UnitTests"
-  stage: "UnitTests"
-  variables:
-    PYVERSION: "3"
-  image: "python:3"
-
 UnitTests-2:
   extends: ".UnitTests"
   stage: "UnitTests"
   variables:
     PYVERSION: "2"
   image: "python:2"
+  script:
+    - rm -f .coverage
+    - rm -rf htmlcov
+    - rm -f coverage.xml
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambustruct.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuconfig.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuutil.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambutask.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mamburoles.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuuser.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuloan.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuactivity.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambubranch.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambucentre.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuclient.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mamburepayment.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambutransaction.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambugroup.py
+    - coverage run --append --rcfile=./.coveragerc tests/unit_mambuproduct.py
+
+    - coverage html
+    - mv htmlcov htmlcov_${CI_PROJECT_NAME}_$PYVERSION
+    - tar cjf htmlcov_${CI_PROJECT_NAME}_$PYVERSION.tar.bz2 htmlcov_${CI_PROJECT_NAME}_$PYVERSION
+    - coverage xml
+    - mv coverage.xml coverage_${CI_PROJECT_NAME}_$PYVERSION.xml
+    - coverage report

@@ -15,3 +15,7 @@ python tests/unit_mambugroup.py
 python tests/unit_mambuclient.py
 python tests/unit_mambuutil.py
 python tests/unit_mambuloan.py
+
+python tests/api/unit_mambuconnector.py
+python tests/api/unit_mambustruct.py
+python tests/api/unit_mambuloan.py
