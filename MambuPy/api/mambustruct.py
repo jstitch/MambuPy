@@ -4,6 +4,8 @@ import json
 
 from .mambuconnector import MambuConnectorREST
 
+from ..mambuutil import dateFormat
+
 
 class MambuJsonObj():
     """"""
@@ -189,3 +191,71 @@ class MambuStruct(MambuJsonObj):
             entid, url_prefix=self._url_prefix)
 
         self._attrs = dict(json.loads(self.resp.decode()))
+
+    def convertDict2Attrs(self, *args, **kwargs):
+        """Each element on the atttrs attribute gest converted to a
+        proper python object, depending on type.
+
+        Some default constantFields are left as is (strings), because
+        they are better treated as strings.
+        """
+        constantFields = [
+            "id",
+            "groupName",
+            "name",
+            "homePhone",
+            "mobilePhone",
+            "mobilePhone2",
+            "postcode",
+            "emailAddress",
+            "description",
+        ]
+
+        def convierte(data):
+            """Recursively convert the fields on the data given to a python object."""
+            # Iterators, lists and dictionaries
+            # Here comes the recursive calls!
+            try:
+                it = iter(data)
+                if type(it) == type(iter({})):
+                    d = {}
+                    for k in it:
+                        if k in constantFields:
+                            d[k] = data[k]
+                        else:
+                            d[k] = convierte(data[k])
+                    data = d
+                if type(it) == type(iter([])):
+                    l = []
+                    for e in it:
+                        l.append(convierte(e))
+                    data = l
+            except TypeError:
+                pass
+            except Exception as ex:
+                """ unknown exception """
+                raise ex
+
+            # Python built-in types: ints, floats, or even datetimes. If it
+            # cannot convert it to a built-in type, leave it as string, or
+            # as-is. There may be nested Mambu objects here!
+            # This are the recursion base cases!
+            try:
+                d = int(data)
+                if (
+                    str(d) != data
+                ):  # if string has trailing 0's, leave it as string, to not lose them
+                    return data
+                return d
+            except (TypeError, ValueError):
+                try:
+                    return float(data)
+                except (TypeError, ValueError):
+                    try:
+                        return dateFormat(data)
+                    except (TypeError, ValueError):
+                        return data
+
+            return data
+
+        self._attrs = convierte(self._attrs)

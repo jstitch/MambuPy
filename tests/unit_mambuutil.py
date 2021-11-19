@@ -166,6 +166,30 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(d2["b"], "yes-utf")
         self.assertEqual(d2["c"], "strange-char-ñ")
 
+    def test_dateFormat(self):
+        """Test dateFormat"""
+        from datetime import datetime
+
+        if sys.version_info < (3, 0):
+            format = "%Y-%m-%dT%H:%M:%S+0000"
+        else:
+            format = "%Y-%m-%dT%H:%M:%S-06:00"
+        today = datetime.now()
+        # default dateFormat
+        self.assertEqual(
+            mambuutil.dateFormat(
+                field=today.strftime(format)
+            ).strftime("%Y%m%d%H%M%S"),
+            today.strftime("%Y%m%d%H%M%S"),
+        )
+        # given format
+        self.assertEqual(
+            mambuutil.dateFormat(
+                field=today.strftime(format), formato="%Y%m%d"
+            ).strftime("%Y%m%d"),
+            today.strftime("%Y%m%d"),
+        )
+
     @mock.patch("MambuPy.mambuutil.requests")
     @mock.patch("MambuPy.mambuutil.sleep")
     def test_backup_db(self, mock_sleep, mock_requests):

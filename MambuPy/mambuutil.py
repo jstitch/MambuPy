@@ -1177,6 +1177,37 @@ def getpostdocumentsurl(identity="", *args, **kwargs):
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
+def dateFormat(field, formato=None):
+    """Converts a datetime field to a datetime using some specified format.
+
+    What this really means is that, if specified format includes only for
+    instance just year and month, day and further info gets ignored and the
+    objects get a datetime with year and month, and day 1, hour 0, minute 0,
+    etc.
+
+    A useful format may be %Y%m%d, then the datetime objects effectively
+    translates into date objects alone, with no relevant time information.
+
+    PLEASE BE AWARE, that this may lose useful information for your datetimes
+    from Mambu. Read this for why this may be a BAD idea:
+    https://julien.danjou.info/blog/2015/python-and-timezones
+    """
+    from datetime import datetime
+
+    if not formato:
+        formato = "%Y-%m-%dT%H:%M:%S"
+    if sys.version_info < (3, 0):
+        return datetime.strptime(
+            datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato),
+            formato,
+        )
+    else:
+        return datetime.strptime(
+            datetime.fromisoformat(field).strftime(formato),
+            formato,
+            )
+
+
 def strip_tags(html):
     """Stripts HTML tags from text.
 

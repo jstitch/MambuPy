@@ -208,6 +208,91 @@ class MambuStruct(unittest.TestCase):
         mock_connector.mambu_get.assert_called_with(
             "12345", url_prefix="un_url_prefix")
 
+    def test_convertDict2Attrs(self):
+        """Test conversion of dictionary elements (strings) in to proper datatypes"""
+        ms = mambustruct.MambuStruct()
+        ms._attrs = {"aStr": "abc123",
+                     "aNum": "123",
+                     "trailZeroes": "00123",
+                     "aFloat": "15.56",
+                     "aDate": "2021-10-23T10:36:00-06:00",
+                     "aList": [
+                         "abc123",
+                         "123",
+                         "00123",
+                         "15.56",
+                         "2021-10-23T10:36:00-06:00",
+                         ["123"],
+                         {"key": "123"}],
+                     "aDict": {
+                         "str": "abc123",
+                         "num": "123",
+                         "trailZeroes": "00123",
+                         "float": "15.56",
+                         "date": "2021-10-23T10:36:00-06:00",
+                         "list": ["123"],
+                         "dict": {"key": "123"}}
+                     }
+
+        ms.convertDict2Attrs()
+
+        # string remains string
+        self.assertEqual(ms.aStr, "abc123")
+
+        # integer transforms in to int
+        self.assertEqual(ms.aNum, 123)
+
+        # integer with trailing 0's remains as string
+        self.assertEqual(ms.trailZeroes, "00123")
+
+        # floating point transforms in to float
+        self.assertEqual(ms.aFloat, 15.56)
+
+        # datetime transforms in to datetime object
+        from datetime import datetime
+        self.assertEqual(ms.aDate, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
+
+        # lists recursively convert each of its elements
+        self.assertEqual(
+            ms.aList,
+            ["abc123", 123, "00123", 15.56, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"), [123], {"key": 123}],
+        )
+
+        # dictonaries recursively convert each of its elements
+        ms.convertDict2Attrs()
+        self.assertEqual(
+            ms.aDict,
+            {
+             "str": "abc123",
+             "num": 123,
+             "trailZeroes": "00123",
+             "float": 15.56,
+             "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+             "list": [123],
+             "dict": {"key": 123},
+            },
+        )
+
+        # certain fields remain as-is with no conversion to anything
+        data = {
+            "id": "12345",
+            "groupName": "3.1415792",
+            "name": "2.78",
+            "homePhone": "2021-10-23T10:36:00-06:00",
+            "mobilePhone": "54321",
+            "mobilePhone2": "-1.256",
+            "postcode": "98765",
+            "emailAddress": "111",
+            "description": "000",
+            }
+        ms._attrs = {}
+        for key, val in data.items():
+            ms._attrs[key] = val
+        ms.convertDict2Attrs()
+
+        for key, val in ms._attrs.items():
+            self.assertEqual(val, data[key])
+
 
 if __name__ == "__main__":
     unittest.main()
