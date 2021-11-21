@@ -18,6 +18,11 @@ class MambuConnectorReader(ABC):
         """"""
         raise NotImplementedError
 
+    @abstractmethod
+    def mambu_get_all(self, url_prefix):
+        """"""
+        raise NotImplementedError
+
 class MambuConnectorREST(MambuConnector, MambuConnectorReader):
     """"""
 
@@ -32,6 +37,14 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
         """"""
         url = "https://{}/api/{}/{}".format(
             self._tenant, url_prefix, entid)
+        resp = requests.request("GET", url, headers=self._headers)
+
+        return resp.content
+
+    def mambu_get_all(self, url_prefix):
+        """"""
+        url = "https://{}/api/{}".format(
+            self._tenant, url_prefix)
         resp = requests.request("GET", url, headers=self._headers)
 
         return resp.content

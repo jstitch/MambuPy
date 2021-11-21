@@ -8,9 +8,9 @@ from MambuPy.api import mambuloan
 
 
 class MambuLoan(unittest.TestCase):
-    def test_has_url_prefix(self):
+    def test_has_prefix(self):
         ml = mambuloan.MambuLoan()
-        self.assertEqual(ml._url_prefix, "loans")
+        self.assertEqual(ml._prefix, "loans")
 
 
 if __name__ == "__main__":

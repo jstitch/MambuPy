@@ -185,12 +185,36 @@ class MambuStruct(MambuJsonObj):
     _connector = MambuConnectorREST()
     """"""
 
-    def connect(self, entid):
-        """"""
-        self.resp = self._connector.mambu_get(
-            entid, url_prefix=self._url_prefix)
+    @classmethod
+    def get(cls, entid):
+        """"""""
+        resp = cls._connector.mambu_get(
+            entid, url_prefix=cls._prefix)
 
-        self._attrs = dict(json.loads(self.resp.decode()))
+        instance = cls.__call__()
+        instance.resp = resp
+        instance._attrs = dict(json.loads(resp.decode()))
+        instance.convertDict2Attrs()
+
+        return instance
+
+    @classmethod
+    def get_all(cls):
+        """"""
+        resp = cls._connector.mambu_get_all(
+            url_prefix=cls._prefix)
+
+        attrs = list(json.loads(resp.decode()))
+
+        elements = []
+        for attr in attrs:
+            elem = cls.__call__()
+            elem.resp = attr
+            elem._attrs = attr
+            elem.convertDict2Attrs()
+            elements.append(elem)
+
+        return elements
 
     def convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
@@ -232,7 +256,7 @@ class MambuStruct(MambuJsonObj):
                     data = l
             except TypeError:
                 pass
-            except Exception as ex:
+            except Exception as ex:  # pragma: no cover
                 """ unknown exception """
                 raise ex
 

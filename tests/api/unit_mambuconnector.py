@@ -18,6 +18,13 @@ class MambuConnectorReader(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorReader.mambu_get(None, "12345", "")
 
+    def test_mambu_get_all(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorReader, "mambu_get_all"),
+            True)
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorReader.mambu_get_all(None, "")
+
 
 class MambuConnectorREST(unittest.TestCase):
     def test_properties(self):
@@ -35,6 +42,15 @@ class MambuConnectorREST(unittest.TestCase):
 
         mock_requests.request.assert_called_with(
             "GET", "https://{}/api/someURL/12345".format(apiurl), headers=mcrest._headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_get_all(self, mock_requests):
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_get_all("someURL")
+
+        mock_requests.request.assert_called_with(
+            "GET", "https://{}/api/someURL".format(apiurl), headers=mcrest._headers)
 
 
 if __name__ == "__main__":

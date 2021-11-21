@@ -75,6 +75,10 @@ class MagicMethodsTests(unittest.TestCase):
         ms2._attrs["encodedKey"] = "ek123"
         self.assertEqual(ms1 == ms2, True)
 
+        ms = {}
+        r = mambustruct.MambuJsonObj.__eq__(ms, ms1)
+        self.assertEqual(r, NotImplemented)
+
     def test___hash__(self):
         ms = mambustruct.MambuJsonObj()
         ms.encodedKey = "abc123"
@@ -195,18 +199,37 @@ class MambuConnector(unittest.TestCase):
 
 
 class MambuStruct(unittest.TestCase):
+    def setUp(self):
+        class hija_class(mambustruct.MambuStruct):
+            _prefix = "un_prefix"
+
+        self.hija_class = hija_class
+
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_connect(self, mock_connector):
+    def test_get(self, mock_connector):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
-        ms = mambustruct.MambuStruct()
-        ms.__dict__["_url_prefix"] = "un_url_prefix"
-        ms._attrs = {}
-        ms.connect("12345")
+        ms = self.hija_class.get("12345")
 
+        self.assertEqual(ms.__class__.__name__, "hija_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
-            "12345", url_prefix="un_url_prefix")
+            "12345", url_prefix="un_prefix")
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
+    def test_get_all(self, mock_connector):
+        mock_connector.mambu_get_all.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"}
+        ]'''
+
+        ms = self.hija_class.get_all()
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "hija_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "hija_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
     def test_convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
