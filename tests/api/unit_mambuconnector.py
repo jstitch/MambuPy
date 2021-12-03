@@ -5,7 +5,12 @@ import sys
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.mambuutil import apiurl
+from MambuPy.mambuutil import (
+    apiurl,
+    MambuPyError,
+    PAGINATIONDETAILS,
+    DETAILSLEVEL,
+    )
 
 from MambuPy.api import mambuconnector
 
@@ -23,7 +28,8 @@ class MambuConnectorReader(unittest.TestCase):
             hasattr(mambuconnector.MambuConnectorReader, "mambu_get_all"),
             True)
         with self.assertRaises(NotImplementedError):
-            mambuconnector.MambuConnectorReader.mambu_get_all(None, "")
+            mambuconnector.MambuConnectorReader.mambu_get_all(
+                None, "", {}, 0, 0, "OFF", "BASIC", "")
 
 
 class MambuConnectorREST(unittest.TestCase):
@@ -50,7 +56,78 @@ class MambuConnectorREST(unittest.TestCase):
         mcrest.mambu_get_all("someURL")
 
         mock_requests.request.assert_called_with(
-            "GET", "https://{}/api/someURL".format(apiurl), headers=mcrest._headers)
+            "GET",
+            "https://{}/api/someURL".format(apiurl),
+            params={"paginationDetails": "OFF",
+                    "detailsLevel": "BASIC"},
+            headers=mcrest._headers)
+
+        mcrest.mambu_get_all(
+            "someURL",
+            filters={"one": "two"},
+            offset=10, limit=100, sortBy="id:ASC")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/someURL".format(apiurl),
+            params={"paginationDetails": "OFF",
+                    "detailsLevel": "BASIC",
+                    "offset": 10,
+                    "limit": 100,
+                    "sortBy": "id:ASC",
+                    "one": "two"},
+            headers=mcrest._headers)
+
+    def test_mambu_get_all_validations(self):
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        with self.assertRaisesRegex(MambuPyError, r"^offset must be integer"):
+            mcrest.mambu_get_all(
+                "someURL",
+                offset="10")
+
+        with self.assertRaisesRegex(MambuPyError, r"^limit must be integer"):
+            mcrest.mambu_get_all(
+                "someURL",
+                limit="100")
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            "paginationDetails must be in \['ON', 'OFF'\]"
+        ):
+            mcrest.mambu_get_all(
+                "someURL",
+                paginationDetails="NO")
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^detailsLevel must be in \['BASIC', 'FULL'\]"):
+            mcrest.mambu_get_all(
+                "someURL",
+                detailsLevel="fullDetails")
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^sortBy must be a string with format 'field1:ASC,field2:DESC'"
+        ):
+            mcrest.mambu_get_all(
+                "someURL",
+                sortBy=12345)
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^sortBy must be a string with format 'field1:ASC,field2:DESC'"
+        ):
+            mcrest.mambu_get_all(
+                "someURL",
+                sortBy="invalidString")
+
+        with self.assertRaisesRegex(
+            MambuPyError, r"^filters must be a dictionary"
+        ):
+            mcrest.mambu_get_all(
+                "someURL",
+                filters=["12345", "ek12345"])
 
 
 if __name__ == "__main__":

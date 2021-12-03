@@ -10,7 +10,7 @@ from MambuPy.api import mambustruct
 
 class MagicMethodsTests(unittest.TestCase):
     def test___getitem__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
         self.assertEqual(ms["hello"], "world")
 
@@ -18,48 +18,48 @@ class MagicMethodsTests(unittest.TestCase):
             ms["goodbye"]
 
     def test___setitem__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {}  # should be automatically created?
         ms["hello"] = "world"
         self.assertEqual(ms._attrs, {"hello": "world"})
 
     def test___delitem__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
         del ms["hello"]
         self.assertEqual(ms._attrs, {})
 
     def test___str__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
 
         ms._attrs = {"id": "12345", "hello": "world"}
-        self.assertEqual(str(ms), "MambuJsonObj - {'id': '12345', 'hello': 'world'}")
+        self.assertEqual(str(ms), "MambuMapObj - {'id': '12345', 'hello': 'world'}")
 
         del ms._attrs
         ms.entid = "12345"
-        self.assertEqual(str(ms), "MambuJsonObj - id: '12345' (not synced with Mambu)")
+        self.assertEqual(str(ms), "MambuMapObj - id: '12345' (not synced with Mambu)")
 
     def test___repr__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"id": "12345"}
-        self.assertEqual(repr(ms), "MambuJsonObj - id: 12345")
+        self.assertEqual(repr(ms), "MambuMapObj - id: 12345")
 
         ms._attrs = {}
-        self.assertEqual(repr(ms), "MambuJsonObj (no standard entity)")
+        self.assertEqual(repr(ms), "MambuMapObj (no standard entity)")
 
         del ms._attrs
         ms.entid = "12345"
-        self.assertEqual(repr(ms), "MambuJsonObj - id: '12345' (not synced with Mambu)")
+        self.assertEqual(repr(ms), "MambuMapObj - id: '12345' (not synced with Mambu)")
 
         ms._attrs = [1, 2, 3, 4, 5]
-        self.assertEqual(repr(ms), "MambuJsonObj - len: 5")
+        self.assertEqual(repr(ms), "MambuMapObj - len: 5")
 
     def test___eq__(self):
-        ms1 = mambustruct.MambuJsonObj()
+        ms1 = mambustruct.MambuMapObj()
         self.assertEqual("123" == ms1, None)
         self.assertEqual(ms1 == "123", None)
 
-        ms2 = mambustruct.MambuJsonObj()
+        ms2 = mambustruct.MambuMapObj()
         self.assertEqual(ms1 == ms2, False)
 
         ms1._attrs = {}
@@ -76,24 +76,24 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms1 == ms2, True)
 
         ms = {}
-        r = mambustruct.MambuJsonObj.__eq__(ms, ms1)
+        r = mambustruct.MambuMapObj.__eq__(ms, ms1)
         self.assertEqual(r, NotImplemented)
 
     def test___hash__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms.encodedKey = "abc123"
         self.assertEqual(hash(ms), hash("abc123"))
 
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms.id = "123"
-        self.assertEqual(hash(ms), hash("MambuJsonObj123"))
+        self.assertEqual(hash(ms), hash("MambuMapObj123"))
 
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {}
-        self.assertEqual(hash(ms), hash("MambuJsonObj (no standard entity)"))
+        self.assertEqual(hash(ms), hash("MambuMapObj (no standard entity)"))
 
     def test___len__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"id": "12345", "hello": "world"}
         self.assertEqual(len(ms), 2)
         ms._attrs = {"id": "12345"}
@@ -102,13 +102,13 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(len(ms), 5)
 
     def test___contains__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
 
         self.assertEqual("hello" in ms, True)
 
     def test_get(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
 
         self.assertEqual(ms.get("hello"), "world")
@@ -118,7 +118,7 @@ class MagicMethodsTests(unittest.TestCase):
             ms.get("hello")
 
     def test_keys(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
 
         self.assertEqual(list(ms.keys()), ["hello"])
@@ -128,7 +128,7 @@ class MagicMethodsTests(unittest.TestCase):
             ms.keys()
 
     def test_items(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
 
         self.assertEqual(list(ms.items()), [("hello", "world")])
@@ -138,7 +138,7 @@ class MagicMethodsTests(unittest.TestCase):
             ms.items()
 
     def test_values(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
 
         self.assertEqual(list(ms.values()), ["world"])
@@ -148,7 +148,7 @@ class MagicMethodsTests(unittest.TestCase):
             ms.values()
 
     def test___getattribute__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
         self.assertEqual(ms._attrs, {"hello": "world"})
         self.assertEqual(ms.hello, "world")
@@ -157,7 +157,7 @@ class MagicMethodsTests(unittest.TestCase):
             ms.some_unexistent_property
 
     def test___setattribute__(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = {}
         ms.hello = "world"
         self.assertEqual(ms._attrs, {"hello": "world"})
@@ -168,13 +168,13 @@ class MagicMethodsTests(unittest.TestCase):
         ms.property = "othervalue"
         self.assertEqual(getattr(ms, "property"), "othervalue")
 
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
         ms._attrs = []
         ms.goodbye = "cruelworld"
         self.assertEqual(getattr(ms, "goodbye"), "cruelworld")
 
     def test_has_key(self):
-        ms = mambustruct.MambuJsonObj()
+        ms = mambustruct.MambuMapObj()
 
         del ms._attrs
         with self.assertRaises(NotImplementedError):
@@ -200,18 +200,18 @@ class MambuConnector(unittest.TestCase):
 
 class MambuStruct(unittest.TestCase):
     def setUp(self):
-        class hija_class(mambustruct.MambuStruct):
+        class child_class(mambustruct.MambuStruct):
             _prefix = "un_prefix"
 
-        self.hija_class = hija_class
+        self.child_class = child_class
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_get(self, mock_connector):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
-        ms = self.hija_class.get("12345")
+        ms = self.child_class.get("12345")
 
-        self.assertEqual(ms.__class__.__name__, "hija_class")
+        self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
             "12345", url_prefix="un_prefix")
@@ -223,12 +223,20 @@ class MambuStruct(unittest.TestCase):
         {"encodedKey":"def456","id":"67890"}
         ]'''
 
-        ms = self.hija_class.get_all()
+        ms = self.child_class.get_all()
 
         self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "hija_class")
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
         self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "hija_class")
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+        ms = self.child_class.get_all(filters={"one": "two"})
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
     def test_convertDict2Attrs(self):

@@ -59,16 +59,24 @@ OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 500
 """Current maximum number of response elements Mambu returns"""
 
 
-class MambuError(Exception):
+PAGINATIONDETAILS = ["ON", "OFF"]
+"""paginationDetails options"""
+
+
+DETAILSLEVEL = ["BASIC", "FULL"]
+"""detailsLevel options"""
+
+
+class MambuPyError(Exception):
     """Default exception"""
 
-    pass
+
+class MambuError(Exception):
+    """Default exception from Mambu"""
 
 
 class MambuCommError(MambuError):
     """Thrown when communication issues with Mambu arise"""
-
-    pass
 
 
 # Connects to DB

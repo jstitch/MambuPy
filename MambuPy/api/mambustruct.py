@@ -1,4 +1,4 @@
-""""""
+"""Basic Struct for Mambu Objects."""
 
 import json
 
@@ -7,8 +7,8 @@ from .mambuconnector import MambuConnectorREST
 from ..mambuutil import dateFormat
 
 
-class MambuJsonObj():
-    """"""
+class MambuMapObj():
+    """An object with dictionary-like behaviour for key-value data"""
 
     def __init__(self):
         self._attrs = {}
@@ -45,25 +45,28 @@ class MambuJsonObj():
         structure, but as a full object-like too (this is the setter
         side).
         """
-        try:
-            # _attrs needs to exist to make the magic happen!
-            # ... if not, AttributeError raises
-            _attrs = object.__getattribute__(self, "_attrs")
-            if type(_attrs) == list:
-                # when not treating with a dict-like MambuStruct...
-                raise AttributeError
-            try:
-                # see if 'name' is currently a property of the object
-                object.__getattribute__(self, name)
-            except AttributeError:
-                # if not, then assign it as a new key in the dict
-                _attrs[name] = value
-            else:
-                raise AttributeError
-
-        # all else, assign it as a property of the object
-        except AttributeError:
+        # if name beginning with _, assign it as a property of the object
+        if name[0] == "_":
             object.__setattr__(self, name, value)
+        else:
+            try:
+                # _attrs needs to exist to make the magic happen!
+                # ... if not, AttributeError raises
+                _attrs = object.__getattribute__(self, "_attrs")
+                if type(_attrs) == list:
+                    # when not treating with a dict-like MambuStruct...
+                    raise AttributeError
+                try:
+                    # see if 'name' is currently a property of the object
+                    object.__getattribute__(self, name)
+                except AttributeError:
+                    # if not, then assign it as a new key in the dict
+                    _attrs[name] = value
+                else:  # pragma: no cover
+                    raise AttributeError
+            except AttributeError:
+                # all else assign it as a property of the object
+                object.__setattr__(self, name, value)
 
     def __getitem__(self, key):
         """Dict-like key query"""
@@ -110,7 +113,7 @@ class MambuJsonObj():
 
         .. todo:: a lot of improvements may be done here.
         """
-        if isinstance(other, MambuJsonObj):
+        if isinstance(other, MambuMapObj):
             try:
                 if "encodedKey" not in other._attrs or "encodedKey" not in self._attrs:
                     return NotImplemented
@@ -179,37 +182,71 @@ class MambuJsonObj():
             raise NotImplementedError
 
 
-class MambuStruct(MambuJsonObj):
-    """"""
+class MambuStruct(MambuMapObj):
+    """Basic Struct for Mambu Objects.
+
+    Dictionary-like objects.
+    """
 
     _connector = MambuConnectorREST()
-    """"""
+    """Default connector (REST)"""
 
     @classmethod
     def get(cls, entid):
-        """"""""
+        """get, a single entity, identified by its entid.
+
+        Args:
+          entid (str) - ID for the entity
+
+        Returns:
+          instance of an entity with data from Mambu
+        """
         resp = cls._connector.mambu_get(
             entid, url_prefix=cls._prefix)
 
         instance = cls.__call__()
-        instance.resp = resp
+        instance._resp = resp
         instance._attrs = dict(json.loads(resp.decode()))
         instance.convertDict2Attrs()
 
         return instance
 
     @classmethod
-    def get_all(cls):
-        """"""
+    def get_all(
+        cls,
+        filters=None,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
+        detailsLevel="BASIC",
+        sortBy=None
+    ):
+        """get_all, several entities, filtering allowed
+
+        Args:
+          filters (dict) - key-value filters (depends on each entity)
+          offset (int) - pagination, index to start searching
+          limit (int) - pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF) - ask for details on pagination
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          sortBy (str field:ASC,field2:DESC) - sorting criteria for results
+
+        Returns:
+          list of instances of an entity with data from Mambu
+        """
         resp = cls._connector.mambu_get_all(
-            url_prefix=cls._prefix)
+            cls._prefix,
+            filters,
+            offset, limit,
+            paginationDetails, detailsLevel,
+            sortBy)
 
         attrs = list(json.loads(resp.decode()))
 
         elements = []
         for attr in attrs:
             elem = cls.__call__()
-            elem.resp = attr
+            elem._resp = json.dumps(attr).encode()
             elem._attrs = attr
             elem.convertDict2Attrs()
             elements.append(elem)

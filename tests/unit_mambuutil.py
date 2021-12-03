@@ -39,6 +39,7 @@ class MambuUtilTests(unittest.TestCase):
             "dbport",
             "dbeng",
             "OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE",
+            "MambuPyError",
             "MambuError",
             "MambuCommError",
         ]:
@@ -51,6 +52,7 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(mambuutil.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, 500)
 
     def test_error_attrs(self):
+        self.assertEqual(mambuutil.MambuPyError.__bases__, (Exception,))
         self.assertEqual(mambuutil.MambuError.__bases__, (Exception,))
         self.assertEqual(mambuutil.MambuCommError.__bases__, (mambuutil.MambuError,))
 
