@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.mambuutil import (
     apiurl,
-    MambuPyError,
+    MambuPyError, MambuError,
     PAGINATIONDETAILS,
     DETAILSLEVEL,
     )
@@ -41,16 +41,46 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mcrest._headers["Authorization"][:6], "Basic ")
 
     @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu___request(self, mock_requests):
+        mock_requests.request().status_code = 400
+
+        mock_requests.request().content = b"""
+{"errors":
+    [{"errorCode": "66",
+      "errorReason": "Kill the Jedi"}]}
+"""
+        mcrest = mambuconnector.MambuConnectorREST()
+        with self.assertRaisesRegex(MambuError, r"66 - Kill the Jedi"):
+            mcrest.__request("GET", "someURL")
+
+        mock_requests.request().content = b"""
+{"errors":
+    [{"errorCode": "66",
+      "errorReason": "Kill the Jedi",
+      "errorSource": "Palpatine"}]}
+"""
+        mcrest = mambuconnector.MambuConnectorREST()
+        with self.assertRaisesRegex(MambuError, r"^66 - Kill the Jedi \(Palpatine\)$"):
+            mcrest.__request("GET", "someURL")
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
     def test_mambu_get(self, mock_requests):
+        mock_requests.request().status_code = 200
+
         mcrest = mambuconnector.MambuConnectorREST()
 
         mcrest.mambu_get("12345", "someURL")
 
         mock_requests.request.assert_called_with(
-            "GET", "https://{}/api/someURL/12345".format(apiurl), headers=mcrest._headers)
+            "GET",
+            "https://{}/api/someURL/12345".format(apiurl),
+            params={},
+            headers=mcrest._headers)
 
     @mock.patch("MambuPy.api.mambuconnector.requests")
     def test_mambu_get_all(self, mock_requests):
+        mock_requests.request().status_code = 200
+
         mcrest = mambuconnector.MambuConnectorREST()
 
         mcrest.mambu_get_all("someURL")

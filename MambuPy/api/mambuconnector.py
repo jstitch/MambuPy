@@ -4,13 +4,14 @@ Currently supports REST and ORM.
 """
 from abc import ABC, abstractmethod
 import base64
+import json
 import re
 
 import requests
 
 from ..mambuutil import (
     apipwd, apiuser, apiurl,
-    MambuPyError,
+    MambuPyError, MambuError,
     PAGINATIONDETAILS,
     DETAILSLEVEL,
     )
@@ -73,6 +74,36 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             base64.b64encode(bytes("{}:{}".format(
                 apiuser, apipwd), "utf-8")).decode())}
 
+    def __request(self, method, url, params={}):
+        """ requests an url.
+
+        Args:
+          method (str)
+          url (str)
+          params (dict)
+
+        Returns:
+          response content (json)
+
+        Raises:
+          MambuError in case of 400 or 500 response codes
+        """
+        resp = requests.request(
+            method, url, params=params, headers=self._headers)
+
+        if resp.status_code >= 400:
+            content = json.loads(resp.content.decode())
+            raise MambuError(
+                "{} - {}{}".format(
+                    content["errors"][0]["errorCode"],
+                    content["errors"][0]["errorReason"],
+                    " ("+content["errors"][0]["errorSource"]+")"
+                    if "errorSource" in content["errors"][0]
+                    else ""
+                    ))
+
+        return resp.content
+
     def mambu_get(self, entid, url_prefix):
         """get, a single entity, identified by its entid.
 
@@ -81,13 +112,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
           prefix (str) - entity's URL prefix
 
         Returns:
-          request content (str json {})
+          response content (str json {})
         """
         url = "https://{}/api/{}/{}".format(
             self._tenant, url_prefix, entid)
-        resp = requests.request("GET", url, headers=self._headers)
 
-        return resp.content
+        return self.__request("GET", url)
 
     def mambu_get_all(
         self,
@@ -111,7 +141,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
           sortBy (str field:ASC,field2:DESC) - sorting criteria for results
 
         Returns:
-          request content (str json [])
+          response content (str json [])
         """
         params = {}
 
@@ -153,7 +183,5 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
 
         url = "https://{}/api/{}".format(
             self._tenant, url_prefix)
-        resp = requests.request(
-            "GET", url, params=params, headers=self._headers)
 
-        return resp.content
+        return self.__request("GET", url, params=params)

@@ -37,6 +37,9 @@ class MambuLoan(unittest.TestCase):
         ml = mambuloan.MambuLoan.get_all(filters={})
         self.assertEqual(ml, "SupGetAllMock")
 
+        ml = mambuloan.MambuLoan.get_all(filters={"branchId": "MyBranch"})
+        self.assertEqual(ml, "SupGetAllMock")
+
         ml = mambuloan.MambuLoan.get_all(sortBy="id:ASC")
         self.assertEqual(ml, "SupGetAllMock")
 

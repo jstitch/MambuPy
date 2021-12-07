@@ -71,7 +71,7 @@ class MambuPyError(Exception):
     """Default exception"""
 
 
-class MambuError(Exception):
+class MambuError(MambuPyError):
     """Default exception from Mambu"""
 
 

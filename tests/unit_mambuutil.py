@@ -53,7 +53,7 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_error_attrs(self):
         self.assertEqual(mambuutil.MambuPyError.__bases__, (Exception,))
-        self.assertEqual(mambuutil.MambuError.__bases__, (Exception,))
+        self.assertEqual(mambuutil.MambuError.__bases__, (mambuutil.MambuPyError,))
         self.assertEqual(mambuutil.MambuCommError.__bases__, (mambuutil.MambuError,))
 
     @mock.patch("MambuPy.mambuutil.create_engine")
