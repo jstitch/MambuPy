@@ -239,6 +239,29 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
+    def test_search(self, mock_connector):
+        mock_connector.mambu_search.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"}
+        ]'''
+
+        ms = self.child_class.search()
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+        ms = self.child_class.search(filterCriteria={"one": "two"})
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
     def test_convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()

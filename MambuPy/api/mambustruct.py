@@ -253,6 +253,52 @@ class MambuStruct(MambuMapObj):
 
         return elements
 
+    # TODO: not all entities are searchable... implement a Searchable interface
+    # prop _searchable obj to get the search method, else: NotImplementedError
+    @classmethod
+    def search(
+        cls,
+        filterCriteria=None,
+        sortingCriteria=None,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
+        detailsLevel="BASIC"
+    ):
+        """search, several entities, filtering criteria allowed
+
+        Args:
+          filterCriteria (list of dicts) - fields according to
+                              LoanAccountFilterCriteria schema
+          sortingCriteria (dict) - fields according to
+                            LoanAccountSortingCriteria
+          offset (int) - pagination, index to start searching
+          limit (int) - pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF) - ask for details on pagination
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
+
+        Returns:
+          list of instances of an entity with data from Mambu
+        """
+        resp = cls._connector.mambu_search(
+            cls._prefix,
+            filterCriteria,
+            sortingCriteria,
+            offset, limit,
+            paginationDetails, detailsLevel)
+
+        attrs = list(json.loads(resp.decode()))
+
+        elements = []
+        for attr in attrs:
+            elem = cls.__call__()
+            elem._resp = json.dumps(attr).encode()
+            elem._attrs = attr
+            elem.convertDict2Attrs()
+            elements.append(elem)
+
+        return elements
+
     def convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.

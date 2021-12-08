@@ -4,6 +4,7 @@ Currently supports REST and ORM.
 """
 from abc import ABC, abstractmethod
 import base64
+import copy
 import json
 import re
 
@@ -14,6 +15,7 @@ from ..mambuutil import (
     MambuPyError, MambuError,
     PAGINATIONDETAILS,
     DETAILSLEVEL,
+    SEARCH_OPERATORS,
     )
 
 
@@ -64,6 +66,30 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def mambu_search(
+        self,
+        filterCriteria=None,
+        sortingCriteria=None,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
+        detailsLevel="BASIC"
+    ):
+        """search, several entities, filtering criteria allowed
+
+        Args:
+          filterCriteria (list of dicts) - fields according to
+                              LoanAccountFilterCriteria schema
+          sortingCriteria (dict) - fields according to
+                            LoanAccountSortingCriteria
+          offset (int) - pagination, index to start searching
+          limit (int) - pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF) - ask for details on pagination
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
+        """
+        raise NotImplementedError
+
 class MambuConnectorREST(MambuConnector, MambuConnectorReader):
     """"""
 
@@ -74,13 +100,14 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             base64.b64encode(bytes("{}:{}".format(
                 apiuser, apipwd), "utf-8")).decode())}
 
-    def __request(self, method, url, params={}):
+    def __request(self, method, url, params={}, data=None):
         """ requests an url.
 
         Args:
-          method (str)
-          url (str)
-          params (dict)
+          method (str) - HTTP method for the request
+          url (str) - URL for the request
+          params (dict) - query parameters
+          data (serializable list of dicts or dict alone) - request body
 
         Returns:
           response content (json)
@@ -88,8 +115,15 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
         Raises:
           MambuError in case of 400 or 500 response codes
         """
+        headers = copy.copy(self._headers)
+
+        if method in ["POST", "PATCH", "PUT"]:
+            headers["Content-Type"] = "application/json"
+        if data != None:
+            data = json.dumps(data)
+
         resp = requests.request(
-            method, url, params=params, headers=self._headers)
+            method, url, params=params, data=data, headers=headers)
 
         if resp.status_code >= 400:
             content = json.loads(resp.content.decode())
@@ -103,6 +137,43 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
                     ))
 
         return resp.content
+
+    def __validate_query_params(self, **kwargs):
+        """Validate query params
+
+        Args:
+          **kwargs (dict) - query params
+
+        Returns:
+          params (dict) - validated params for a query
+        """
+        params = {}
+
+        if "offset" in kwargs and kwargs["offset"] != None:
+            if type(kwargs["offset"]) != int:
+                raise MambuPyError("offset must be integer")
+            params["offset"] = kwargs["offset"]
+
+        if "limit" in kwargs and kwargs["limit"] != None:
+            if type(kwargs["limit"]) != int:
+                raise MambuPyError("limit must be integer")
+            params["limit"] = kwargs["limit"]
+
+        if "paginationDetails" in kwargs:
+            if kwargs["paginationDetails"] not in PAGINATIONDETAILS:
+                raise MambuPyError(
+                    "paginationDetails must be in {}".format(
+                        PAGINATIONDETAILS))
+            params["paginationDetails"] = kwargs["paginationDetails"]
+
+        if "detailsLevel" in kwargs:
+            if kwargs["detailsLevel"] not in DETAILSLEVEL:
+                raise MambuPyError(
+                    "detailsLevel must be in {}".format(
+                        DETAILSLEVEL))
+            params["detailsLevel"] = kwargs["detailsLevel"]
+
+        return params
 
     def mambu_get(self, entid, url_prefix):
         """get, a single entity, identified by its entid.
@@ -143,29 +214,10 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
         Returns:
           response content (str json [])
         """
-        params = {}
-
-        if offset != None:
-            if type(offset) != int:
-                raise MambuPyError("offset must be integer")
-            params["offset"] = offset
-
-        if limit != None:
-            if type(limit) != int:
-                raise MambuPyError("limit must be integer")
-            params["limit"] = limit
-
-        if paginationDetails not in PAGINATIONDETAILS:
-            raise MambuPyError(
-                "paginationDetails must be in {}".format(
-                    PAGINATIONDETAILS))
-        params["paginationDetails"] = paginationDetails
-
-        if detailsLevel not in DETAILSLEVEL:
-            raise MambuPyError(
-                "detailsLevel must be in {}".format(
-                    DETAILSLEVEL))
-        params["detailsLevel"] = detailsLevel
+        params = self.__validate_query_params(
+            offset=offset, limit=limit,
+            paginationDetails=paginationDetails,
+            detailsLevel=detailsLevel)
 
         if sortBy:
             if (type(sortBy) != str
@@ -185,3 +237,71 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             self._tenant, url_prefix)
 
         return self.__request("GET", url, params=params)
+
+    def mambu_search(
+        self,
+        url_prefix,
+        filterCriteria=None,
+        sortingCriteria=None,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
+        detailsLevel="BASIC"
+    ):
+        """search, several entities, filtering criteria allowed
+
+        Args:
+          prefix (str) - entity's URL prefix
+          filterCriteria (list of dicts) - fields according to
+                              LoanAccountFilterCriteria schema
+          sortingCriteria (dict) - fields according to
+                            LoanAccountSortingCriteria
+          offset (int) - pagination, index to start searching
+          limit (int) - pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF) - ask for details on pagination
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
+
+        Returns:
+          response content (str json [])
+        """
+        params = self.__validate_query_params(
+            offset=offset, limit=limit,
+            paginationDetails=paginationDetails,
+            detailsLevel=detailsLevel)
+
+        data = {}
+
+        if filterCriteria != None:
+            if type(filterCriteria) != list:
+                raise MambuPyError("filterCriteria must be a list of dictionaries")
+            data["filterCriteria"] = []
+            for criteria in filterCriteria:
+                if type(criteria) != dict:
+                    raise MambuPyError("each filterCriteria must be a dictionary")
+                if (
+                    "field" not in criteria
+                    or "operator" not in criteria
+                    or criteria["operator"] not in SEARCH_OPERATORS
+                ):
+                    raise MambuPyError(
+                        "a filterCriteria must have a field and an operator, member of {}".format(
+                            SEARCH_OPERATORS))
+                data["filterCriteria"].append(criteria)
+
+        if sortingCriteria != None:
+            if type(sortingCriteria) != dict:
+                raise MambuPyError("sortingCriteria must be a dictionary")
+            if (
+                "field" not in sortingCriteria
+                or "order" not in sortingCriteria
+                or sortingCriteria["order"] not in ["ASC", "DESC"]
+            ):
+                raise MambuPyError(
+                    "sortingCriteria must have a field and an order, member of {}".format(
+                        ["ASC", "DESC"]))
+            data["sortingCriteria"] = sortingCriteria
+
+        url = "https://{}/api/{}:search".format(
+            self._tenant, url_prefix)
+
+        return self.__request("POST", url, params=params, data=data)

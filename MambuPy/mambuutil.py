@@ -67,6 +67,30 @@ DETAILSLEVEL = ["BASIC", "FULL"]
 """detailsLevel options"""
 
 
+SEARCH_OPERATORS = [
+    "EQUALS",
+    "EQUALS_CASE_SENSITIVE",
+    "DIFFERENT_THAN",
+    "MORE_THAN",
+    "LESS_THAN",
+    "BETWEEN",
+    "ON",
+    "AFTER",
+    "BEFORE",
+    "BEFORE_INCLUSIVE",
+    "STARTS_WITH",
+    "STARTS_WITH_CASE_SENSITIVE",
+    "IN",
+    "TODAY",
+    "THIS_WEEK",
+    "THIS_MONTH",
+    "THIS_YEAR",
+    "LAST_DAYS",
+    "EMTPY",
+    "NOT_EMPTY"]
+"""search operators"""
+
+
 class MambuPyError(Exception):
     """Default exception"""
 

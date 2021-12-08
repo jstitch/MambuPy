@@ -47,7 +47,7 @@ class MambuLoan(unittest.TestCase):
             MambuPyError,
             r"^key \w+ not in allowed "
         ):
-            ml = mambuloan.MambuLoan.get_all(
+            mambuloan.MambuLoan.get_all(
                 filters={
                     "branchId": "MyBranch",
                     "Squad": "Red"})
@@ -56,7 +56,7 @@ class MambuLoan(unittest.TestCase):
             MambuPyError,
             r"^field \w+ not in allowed "
         ):
-            ml = mambuloan.MambuLoan.get_all(
+            mambuloan.MambuLoan.get_all(
                 sortBy="field:ASC")
 
 
