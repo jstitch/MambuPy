@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.mambuutil import OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
 from MambuPy.api import mambustruct
 
 
@@ -204,6 +205,55 @@ class MambuStruct(unittest.TestCase):
             _prefix = "un_prefix"
 
         self.child_class = child_class
+
+    def test___get_several(self):
+        mock_func = mock.Mock()
+
+        mock_func.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"},
+        {"encodedKey":"ghi789","id":"54321"},
+        {"encodedKey":"jkl012","id":"09876"}
+        ]'''
+
+        ms = self.child_class.__get_several(mock_func)
+
+        self.assertEqual(len(ms), 4)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[2].__class__.__name__, "child_class")
+        self.assertEqual(ms[2]._attrs, {"encodedKey":"ghi789", "id": "54321"})
+        self.assertEqual(ms[3].__class__.__name__, "child_class")
+        self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
+
+        mock_func.assert_called_with("un_prefix", offset=0, limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE)
+
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
+        ms = self.child_class.__get_several(mock_func)
+        mock_func.assert_called_with("un_prefix", offset=0, limit=5)
+
+        ms = self.child_class.__get_several(mock_func, offset=20, limit=2)
+        mock_func.assert_called_with("un_prefix", offset=20, limit=2)
+
+        mock_func.reset_mock()
+        mock_func.side_effect = [
+            b'''[{"encodedKey":"abc123","id":"12345"}]''',
+            b'''[{"encodedKey":"def456","id":"67890"}]''',
+            b'''[{"encodedKey":"ghi789","id":"54321"}]''',
+            b'''[{"encodedKey":"jkl012","id":"09876"}]''',
+            b'''[]''',
+            ]
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
+        ms = self.child_class.__get_several(mock_func, limit=4)
+        self.assertEqual(mock_func.call_count, 4)
+        mock_func.assert_any_call("un_prefix", offset=0, limit=1)
+        mock_func.assert_any_call("un_prefix", offset=1, limit=1)
+        mock_func.assert_any_call("un_prefix", offset=2, limit=1)
+        mock_func.assert_any_call("un_prefix", offset=3, limit=1)
+
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_get(self, mock_connector):

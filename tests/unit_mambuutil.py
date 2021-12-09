@@ -49,7 +49,7 @@ class MambuUtilTests(unittest.TestCase):
                 self.fail("attribute missing on mambuutil: {}".format(atr))
 
     def test_constants(self):
-        self.assertEqual(mambuutil.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, 500)
+        self.assertEqual(mambuutil.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, 1000)
 
     def test_error_attrs(self):
         self.assertEqual(mambuutil.MambuPyError.__bases__, (Exception,))

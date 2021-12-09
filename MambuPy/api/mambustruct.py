@@ -1,10 +1,14 @@
 """Basic Struct for Mambu Objects."""
 
+import copy
 import json
 
 from .mambuconnector import MambuConnectorREST
 
-from ..mambuutil import dateFormat
+from ..mambuutil import (
+    dateFormat,
+    OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+    )
 
 
 class MambuMapObj():
@@ -212,6 +216,78 @@ class MambuStruct(MambuMapObj):
         return instance
 
     @classmethod
+    def __get_several(cls, get_func, **kwargs):
+        """get several entities.
+
+        Using certain mambu connector function and its particular arguments.
+
+        arg limit has a hard limit imposed by Mambu, that only 1,000 registers
+        can be retrieved, so a pagination must be done to retrieve more
+        registries.
+
+        A pagination algorithm (using the offset and the 1,000 limitation) is
+        applied here so that limit may be higher than 1,000 and __get_several
+        will get a all the registers from Mambu in several requests.
+
+        If limit=0 or None, the algorithm will retrieve EVERYTHING according to
+        the given filters, using several requests to that end.
+
+        Args:
+          get_func (function) - mambu request function that returns several
+                                entities (json [])
+          kwargs (dict) - keyword arguments to pass on to get_func
+
+        Returns:
+          list of instances of an entity with data from Mambu, assembled from
+          possibly several calls to get_func
+        """
+        if "offset" in kwargs and kwargs["offset"] != None:
+            offset = kwargs["offset"]
+        else:
+            offset = 0
+        if "limit" in kwargs and kwargs["limit"] != None:
+            ini_limit = kwargs["limit"]
+        else:
+            ini_limit = 0
+
+        params = copy.copy(kwargs)
+        window = True
+        attrs = []
+        while window:
+            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
+                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+            else:
+                limit = ini_limit
+
+            params["offset"] = offset
+            params["limit"] = limit if limit != 0 else None
+            resp = get_func(
+                cls._prefix,
+                **params)
+
+            jsonresp = list(json.loads(resp.decode()))
+            if len(jsonresp) < limit:
+                window = False
+            attrs.extend(jsonresp)
+
+            # next window, moving offset...
+            offset = offset + limit
+            if ini_limit:
+                ini_limit -= limit
+                if ini_limit <= 0:
+                    window = False
+
+        elements = []
+        for attr in attrs:
+            elem = cls.__call__()
+            elem._resp = json.dumps(attr).encode()
+            elem._attrs = attr
+            elem.convertDict2Attrs()
+            elements.append(elem)
+
+        return elements
+
+    @classmethod
     def get_all(
         cls,
         filters=None,
@@ -234,24 +310,14 @@ class MambuStruct(MambuMapObj):
         Returns:
           list of instances of an entity with data from Mambu
         """
-        resp = cls._connector.mambu_get_all(
-            cls._prefix,
-            filters,
-            offset, limit,
-            paginationDetails, detailsLevel,
-            sortBy)
+        params = {"filters": filters,
+                  "offset": offset,
+                  "limit": limit,
+                  "paginationDetails": paginationDetails,
+                  "detailsLevel": detailsLevel,
+                  "sortBy": sortBy}
 
-        attrs = list(json.loads(resp.decode()))
-
-        elements = []
-        for attr in attrs:
-            elem = cls.__call__()
-            elem._resp = json.dumps(attr).encode()
-            elem._attrs = attr
-            elem.convertDict2Attrs()
-            elements.append(elem)
-
-        return elements
+        return cls.__get_several(cls._connector.mambu_get_all, **params)
 
     # TODO: not all entities are searchable... implement a Searchable interface
     # prop _searchable obj to get the search method, else: NotImplementedError
@@ -280,24 +346,14 @@ class MambuStruct(MambuMapObj):
         Returns:
           list of instances of an entity with data from Mambu
         """
-        resp = cls._connector.mambu_search(
-            cls._prefix,
-            filterCriteria,
-            sortingCriteria,
-            offset, limit,
-            paginationDetails, detailsLevel)
+        params = {"filterCriteria": filterCriteria,
+                  "sortingCriteria": sortingCriteria,
+                  "offset": offset,
+                  "limit": limit,
+                  "paginationDetails": paginationDetails,
+                  "detailsLevel": detailsLevel}
 
-        attrs = list(json.loads(resp.decode()))
-
-        elements = []
-        for attr in attrs:
-            elem = cls.__call__()
-            elem._resp = json.dumps(attr).encode()
-            elem._attrs = attr
-            elem.convertDict2Attrs()
-            elements.append(elem)
-
-        return elements
+        return cls.__get_several(cls._connector.mambu_search, **params)
 
     def convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a

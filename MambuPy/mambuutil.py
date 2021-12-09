@@ -55,7 +55,7 @@ API_RETURN_CODES = {
 """
 
 
-OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 500
+OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 """Current maximum number of response elements Mambu returns"""
 
 
