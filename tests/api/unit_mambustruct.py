@@ -231,10 +231,10 @@ class MambuStruct(unittest.TestCase):
         mock_func.assert_called_with("un_prefix", offset=0, limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE)
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
-        ms = self.child_class.__get_several(mock_func)
+        self.child_class.__get_several(mock_func)
         mock_func.assert_called_with("un_prefix", offset=0, limit=5)
 
-        ms = self.child_class.__get_several(mock_func, offset=20, limit=2)
+        self.child_class.__get_several(mock_func, offset=20, limit=2)
         mock_func.assert_called_with("un_prefix", offset=20, limit=2)
 
         mock_func.reset_mock()
@@ -246,7 +246,7 @@ class MambuStruct(unittest.TestCase):
             b'''[]''',
             ]
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
-        ms = self.child_class.__get_several(mock_func, limit=4)
+        self.child_class.__get_several(mock_func, limit=4)
         self.assertEqual(mock_func.call_count, 4)
         mock_func.assert_any_call("un_prefix", offset=0, limit=1)
         mock_func.assert_any_call("un_prefix", offset=1, limit=1)
