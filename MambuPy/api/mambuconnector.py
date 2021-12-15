@@ -7,12 +7,16 @@ import base64
 import copy
 import json
 import re
+import time
+import uuid
+
+from json import JSONDecodeError
 
 import requests
 
 from ..mambuutil import (
     apipwd, apiuser, apiurl,
-    MambuPyError, MambuError,
+    MambuPyError, MambuError, MambuCommError,
     PAGINATIONDETAILS,
     DETAILSLEVEL,
     SEARCH_OPERATORS,
@@ -93,6 +97,7 @@ class MambuConnectorReader(ABC):
 class MambuConnectorREST(MambuConnector, MambuConnectorReader):
     """"""
 
+    _RETRIES = 5
     _tenant = apiurl
     _headers = {
         "Accept": "application/vnd.mambu.v2+json",
@@ -119,22 +124,61 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
 
         if method in ["POST", "PATCH", "PUT"]:
             headers["Content-Type"] = "application/json"
+            headers["Idempotency-Key"] = str(uuid.uuid4())
         if data != None:
             data = json.dumps(data)
 
-        resp = requests.request(
-            method, url, params=params, data=data, headers=headers)
+        self.retries = 0
+        while self.retries <= self._RETRIES:
+            time.sleep(self.retries)
+            try:
+                resp = requests.request(
+                    method, url, params=params, data=data, headers=headers)
+            except requests.exceptions.RequestException as req_ex:
+                """ possible comm error with Mambu, retrying... """
+                if self.retries < self._RETRIES:
+                    self.retries += 1
+                    continue
+                else:
+                    raise MambuCommError(
+                        "Comm error with Mambu: {}".format(req_ex))
+            except Exception as ex:
+                """ unknown exception """
+                if self.retries < self._RETRIES:
+                    self.retries += 1
+                    continue
+                else:
+                    raise MambuCommError(
+                        "Unknown error with Mambu: {}".format(ex))
 
-        if resp.status_code >= 400:
-            content = json.loads(resp.content.decode())
-            raise MambuError(
-                "{} - {}{}".format(
-                    content["errors"][0]["errorCode"],
-                    content["errors"][0]["errorReason"],
-                    " ("+content["errors"][0]["errorSource"]+")"
-                    if "errorSource" in content["errors"][0]
-                    else ""
-                    ))
+            if resp.status_code >= 400:
+                """ 500 errors retry. 400 errors raise exception immediatly """
+                if resp.status_code >= 500 and self.retries < self._RETRIES:
+                    self.retries += 1
+                    continue
+                else:
+                    try:
+                        content = json.loads(resp.content.decode())
+                    except (JSONDecodeError, ValueError):
+                        """ in case resp.content doesn't conforms to json """
+                        content = {"errors": [
+                            {"errorCode": "UNKNOWN",
+                             "errorReason": resp.content.decode(),},
+                            ]}
+                    raise MambuError(
+                        "{} ({}) - {}{}".format(
+                            content["errors"][0]["errorCode"],
+                            resp.status_code,
+                            content["errors"][0]["errorReason"],
+                            " ("+content["errors"][0]["errorSource"]+")"
+                            if "errorSource" in content["errors"][0]
+                            else ""
+                            ))
+            # succesful request done!
+            break  # pragma: no cover
+        else:  # pragma: no cover
+            """ reached _RETRIES limit with no successful request """
+            raise MambuCommError("COMM Error: I cannot communicate with Mambu")
 
         return resp.content
 

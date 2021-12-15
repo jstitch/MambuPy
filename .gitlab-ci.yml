@@ -45,7 +45,7 @@ UnitTests-3:
     - tar cjf htmlcov_${CI_PROJECT_NAME}_$PYVERSION.tar.bz2 htmlcov_${CI_PROJECT_NAME}_$PYVERSION
     - coverage xml
     - mv coverage.xml coverage_${CI_PROJECT_NAME}_$PYVERSION.xml
-    - coverage report
+    - coverage report --precision=2
 
 UnitTests-2:
   extends: ".UnitTests"
@@ -73,4 +73,4 @@ UnitTests-2:
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambugroup.py
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambuproduct.py
 
-    - coverage report
+    - coverage report --precision=2
