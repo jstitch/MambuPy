@@ -244,7 +244,16 @@ class MambuConnectorREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "GET",
             "https://{}/api/someURL/12345".format(apiurl),
-            params={},
+            params={"detailsLevel": "BASIC"},
+            data=None,
+            headers=mcrest._headers)
+
+        mcrest.mambu_get("12345", "someURL", "FULL")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/someURL/12345".format(apiurl),
+            params={"detailsLevel": "FULL"},
             data=None,
             headers=mcrest._headers)
 

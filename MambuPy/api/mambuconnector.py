@@ -219,20 +219,28 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
 
         return params
 
-    def mambu_get(self, entid, url_prefix):
+    def mambu_get(
+        self,
+        entid,
+        url_prefix,
+        detailsLevel="BASIC"
+    ):
         """get, a single entity, identified by its entid.
 
         Args:
           entid (str) - ID for the entity
           prefix (str) - entity's URL prefix
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
 
         Returns:
           response content (str json {})
         """
+        params = self.__validate_query_params(detailsLevel=detailsLevel)
+
         url = "https://{}/api/{}/{}".format(
             self._tenant, url_prefix, entid)
 
-        return self.__request("GET", url)
+        return self.__request("GET", url, params=params)
 
     def mambu_get_all(
         self,
