@@ -264,7 +264,14 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
-            "12345", url_prefix="un_prefix")
+            "12345", url_prefix="un_prefix", detailsLevel="BASIC")
+
+        ms = self.child_class.get("12345", "FULL")
+
+        self.assertEqual(ms.__class__.__name__, "child_class")
+        self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
+        mock_connector.mambu_get.assert_called_with(
+            "12345", url_prefix="un_prefix", detailsLevel="FULL")
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_get_all(self, mock_connector):

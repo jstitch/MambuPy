@@ -196,17 +196,18 @@ class MambuStruct(MambuMapObj):
     """Default connector (REST)"""
 
     @classmethod
-    def get(cls, entid):
+    def get(cls, entid, detailsLevel="BASIC"):
         """get, a single entity, identified by its entid.
 
         Args:
           entid (str) - ID for the entity
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
 
         Returns:
           instance of an entity with data from Mambu
         """
         resp = cls._connector.mambu_get(
-            entid, url_prefix=cls._prefix)
+            entid, url_prefix=cls._prefix, detailsLevel=detailsLevel)
 
         instance = cls.__call__()
         instance._resp = resp
