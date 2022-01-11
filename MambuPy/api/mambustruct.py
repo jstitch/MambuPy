@@ -360,8 +360,9 @@ class MambuStruct(MambuMapObj):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
 
-        Some default constantFields are left as is (strings), because
-        they are better treated as strings.
+        Some default constantFields are left as is (strings), because they are
+        better treated as strings. This includes any field whose name ends with
+        'Key'.
         """
         constantFields = [
             "id",
@@ -374,6 +375,7 @@ class MambuStruct(MambuMapObj):
             "emailAddress",
             "description",
         ]
+        # and any field whose name ends with "Key"
 
         def convierte(data):
             """Recursively convert the fields on the data given to a python object."""
@@ -384,7 +386,7 @@ class MambuStruct(MambuMapObj):
                 if type(it) == type(iter({})):
                     d = {}
                     for k in it:
-                        if k in constantFields:
+                        if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
                             d[k] = data[k]
                         else:
                             d[k] = convierte(data[k])

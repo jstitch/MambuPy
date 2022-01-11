@@ -395,6 +395,7 @@ class MambuStruct(unittest.TestCase):
             "postcode": "98765",
             "emailAddress": "111",
             "description": "000",
+            "someKey": "0123",
             }
         ms._attrs = {}
         for key, val in data.items():
