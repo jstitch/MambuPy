@@ -1,6 +1,7 @@
 """Basic Struct for Mambu Objects."""
 
 import copy
+from datetime import datetime
 import json
 
 from .mambuconnector import MambuConnectorREST
@@ -190,7 +191,34 @@ class MambuStruct(MambuMapObj):
     """Basic Struct for Mambu Objects.
 
     Dictionary-like objects.
+
+    TimeZones info:
+    convertDict2Attrs loses TZ info on datetime fields.
+
+    We will save it on _timezone field. Prefering this method since this allows
+    comparison with datetimes on your code without needing TZ initialized.
+
+    For example:
+
+`today = datetime.now()`
+`loan.creationDate < today`
+
+    That code works since now() doesn't have any TZ info.
+
+    If cretionDate has TZ info in it, you could not make the comparison.
+
+    So, we need to preserve the TZ info somewhere else. Since TZ info is the
+    same for ALL the Mambu instance, you can extract it from any datetime
+    object. creationDate works almost all the time. You can change it on your
+    own implementation of any MambuEntity. And you can set it as None if you
+    really (really?) wish to lose TZ info.
     """
+
+    _field_for_timezone = "creationDate"
+    """Field from which to extract the TZ info, None if theres none"""
+
+    _timezone = "UTC+00:00"
+    """TimeZone for the datetimes in this entity"""
 
     _connector = MambuConnectorREST()
     """Default connector (REST)"""
@@ -424,4 +452,10 @@ class MambuStruct(MambuMapObj):
 
             return data
 
+        if self._field_for_timezone:
+            if type(self._attrs[self._field_for_timezone]) == str:
+                self._timezone = datetime.fromisoformat(
+                    self._attrs[self._field_for_timezone]).tzname()
+
+        self._attrs = convierte(self._attrs)
         self._attrs = convierte(self._attrs)

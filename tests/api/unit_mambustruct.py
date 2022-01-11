@@ -203,6 +203,7 @@ class MambuStruct(unittest.TestCase):
     def setUp(self):
         class child_class(mambustruct.MambuStruct):
             _prefix = "un_prefix"
+            _field_for_timezone = None
 
         self.child_class = child_class
 
@@ -322,6 +323,7 @@ class MambuStruct(unittest.TestCase):
     def test_convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
+        ms._field_for_timezone = "aDate"
         ms._attrs = {"aStr": "abc123",
                      "aNum": "123",
                      "trailZeroes": "00123",
@@ -346,6 +348,9 @@ class MambuStruct(unittest.TestCase):
                      }
 
         ms.convertDict2Attrs()
+
+        # extracts timezone info from aDate field
+        self.assertEqual(ms._timezone, "UTC-06:00")
 
         # string remains string
         self.assertEqual(ms.aStr, "abc123")
@@ -397,6 +402,7 @@ class MambuStruct(unittest.TestCase):
             "description": "000",
             "someKey": "0123",
             }
+        ms._field_for_timezone = None
         ms._attrs = {}
         for key, val in data.items():
             ms._attrs[key] = val
