@@ -405,7 +405,7 @@ class MambuStruct(MambuMapObj):
         ]
         # and any field whose name ends with "Key"
 
-        def convierte(data):
+        def convert(data):
             """Recursively convert the fields on the data given to a python object."""
             # Iterators, lists and dictionaries
             # Here comes the recursive calls!
@@ -417,12 +417,12 @@ class MambuStruct(MambuMapObj):
                         if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
                             d[k] = data[k]
                         else:
-                            d[k] = convierte(data[k])
+                            d[k] = convert(data[k])
                     data = d
                 if type(it) == type(iter([])):
                     l = []
                     for e in it:
-                        l.append(convierte(e))
+                        l.append(convert(e))
                     data = l
             except TypeError:
                 pass
@@ -452,10 +452,52 @@ class MambuStruct(MambuMapObj):
 
             return data
 
-        if self._field_for_timezone:
-            if type(self._attrs[self._field_for_timezone]) == str:
-                self._timezone = datetime.fromisoformat(
-                    self._attrs[self._field_for_timezone]).tzname()
+        if (
+            self._field_for_timezone and
+            type(self._attrs[self._field_for_timezone]) == str
+        ):
+            self._timezone = datetime.fromisoformat(
+                self._attrs[self._field_for_timezone]).tzname()
 
-        self._attrs = convierte(self._attrs)
-        self._attrs = convierte(self._attrs)
+        self._attrs = convert(self._attrs)
+
+    def serializeFields(self, *args, **kwargs):
+        """Every attribute of the Mambu object is turned in to a string
+        representation.
+
+        If the object is an iterable one, it goes down to each of its
+        elements and turns its attributes too, recursively.
+
+        The base case is when it's a MambuStruct class (this one) so it
+        just 'serializes' the attr atribute.
+
+        All datetimes are converted using timezone information stored in the
+        object.
+
+        Skips every MambuEntity owned by this entity.
+        """
+        def convert(data):
+            """Recursively convert the fields on the data given to a python object."""
+            if isinstance(data, MambuStruct):
+                return data
+            try:
+                it = iter(data)
+            except TypeError:
+                if type(data) == datetime:
+                    return data.isoformat() + self._timezone[-6:]
+                return str(data)
+
+            if type(it) == type(iter([])):
+                l = []
+                for e in it:
+                    l.append(convert(e))
+                return l
+            elif type(it) == type(iter({})):
+                d = {}
+                for k in it:
+                    d[k] = convert(data[k])
+                return d
+            # elif ... tuples? sets?
+            return data
+
+        self._attrs = convert(self._attrs)

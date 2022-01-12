@@ -1,7 +1,8 @@
-import unittest
+from datetime import datetime
 import mock
 import os
 import sys
+import unittest
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -365,8 +366,9 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms.aFloat, 15.56)
 
         # datetime transforms in to datetime object
-        from datetime import datetime
-        self.assertEqual(ms.aDate, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
+        self.assertEqual(
+            ms.aDate,
+            datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
 
         # lists recursively convert each of its elements
         self.assertEqual(
@@ -410,6 +412,81 @@ class MambuStruct(unittest.TestCase):
 
         for key, val in ms._attrs.items():
             self.assertEqual(val, data[key])
+
+    def test_serializeFields(self):
+        """Test revert of conversion from dictionary elements (native datatype)
+        to strings"""
+        someDate = datetime.strptime(
+            "2021-10-23T10:36:00", "%Y-%m-%dT%H:%M:%S")
+        someMambuStructObj = self.child_class()
+        ms = mambustruct.MambuStruct()
+        ms._field_for_timezone = "aDate"
+        ms._timezone = "UTC-06:00"
+        ms._attrs = {"aStr": "abc123",
+                     "aNum": 123,
+                     "trailZeroes": "00123",
+                     "aFloat": 15.56,
+                     "aDate": someDate,
+                     "aList": [
+                         "abc123",
+                         123,
+                         "00123",
+                         15.56,
+                         someDate,
+                         [123],
+                         {"key": 123}],
+                     "aDict": {
+                         "str": "abc123",
+                         "num": 123,
+                         "trailZeroes": "00123",
+                         "float": 15.56,
+                         "date": someDate,
+                         "list": [123],
+                         "dict": {"key": 123}},
+                     "aMambuStruct": someMambuStructObj,
+                     }
+
+        ms.serializeFields()
+
+        # string remains string
+        self.assertEqual(ms.aStr, "abc123")
+
+        # integer transformation to str
+        self.assertEqual(ms.aNum, "123")
+
+        # integer with trailing 0's remains as string
+        self.assertEqual(ms.trailZeroes, "00123")
+
+        # floating point transformation to str
+        self.assertEqual(ms.aFloat, "15.56")
+
+        # datetime transformation to str using timezone
+        self.assertEqual(
+            ms.aDate,
+            someDate.isoformat() + "-06:00")
+
+        # lists recursively convert each of its elements
+        self.assertEqual(
+            ms.aList,
+            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-06:00", ["123"], {"key": "123"}],
+        )
+
+        # dictonaries recursively convert each of its elements
+        self.assertEqual(
+            ms.aDict,
+            {
+             "str": "abc123",
+             "num": "123",
+             "trailZeroes": "00123",
+             "float": "15.56",
+             "date": someDate.isoformat() + "-06:00",
+             "list": ["123"],
+             "dict": {"key": "123"},
+            },
+        )
+
+        # MambuStruct objects are kept as is
+        self.assertEqual(ms.aMambuStruct, someMambuStructObj)
 
 
 if __name__ == "__main__":
