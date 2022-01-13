@@ -8,6 +8,7 @@ from .mambuconnector import MambuConnectorREST
 
 from ..mambuutil import (
     dateFormat,
+    MambuPyError,
     OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
     )
 
@@ -15,14 +16,17 @@ from ..mambuutil import (
 class MambuMapObj():
     """An object with dictionary-like behaviour for key-value data"""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._attrs = {}
+        if kwargs:
+            for key, val in kwargs.items():
+                self._attrs[key] = val
 
     def __getattribute__(self, name):
         """Object-like get attribute
 
         When accessing an attribute, tries to find it in the _attrs
-        dictionary, so now MambuStruct may act not only as a dict-like
+        dictionary, so now MambuMapObj may act not only as a dict-like
         structure, but as a full object-like too (this is the getter
         side).
         """
@@ -34,7 +38,7 @@ class MambuMapObj():
             # try to read the _attrs property
             _attrs = object.__getattribute__(self, "_attrs")
             if type(_attrs) == list or name not in _attrs:
-                # magic won't happen when not a dict-like MambuStruct or
+                # magic won't happen when not a dict-like MambuMapObj or
                 # when _attrs has not the 'name' key (this last one means
                 # that if 'name' is not a property of the object too,
                 # AttributeError will raise by default)
@@ -46,7 +50,7 @@ class MambuMapObj():
         """Object-like set attribute
 
         When setting an attribute, tries to set it in the _attrs
-        dictionary, so now MambuStruct acts not only as a dict-like
+        dictionary, so now MambuMapObj acts not only as a dict-like
         structure, but as a full object-like too (this is the setter
         side).
         """
@@ -59,7 +63,7 @@ class MambuMapObj():
                 # ... if not, AttributeError raises
                 _attrs = object.__getattribute__(self, "_attrs")
                 if type(_attrs) == list:
-                    # when not treating with a dict-like MambuStruct...
+                    # when not treating with a dict-like MambuMapObj...
                     raise AttributeError
                 try:
                     # see if 'name' is currently a property of the object
@@ -235,12 +239,13 @@ class MambuStruct(MambuMapObj):
           instance of an entity with data from Mambu
         """
         resp = cls._connector.mambu_get(
-            entid, url_prefix=cls._prefix, detailsLevel=detailsLevel)
+            entid, prefix=cls._prefix, detailsLevel=detailsLevel)
 
         instance = cls.__call__()
         instance._resp = resp
         instance._attrs = dict(json.loads(resp.decode()))
-        instance.convertDict2Attrs()
+        instance._convertDict2Attrs()
+        instance._extractCustomFields()
 
         return instance
 
@@ -311,7 +316,8 @@ class MambuStruct(MambuMapObj):
             elem = cls.__call__()
             elem._resp = json.dumps(attr).encode()
             elem._attrs = attr
-            elem.convertDict2Attrs()
+            elem._convertDict2Attrs()
+            elem._extractCustomFields()
             elements.append(elem)
 
         return elements
@@ -384,7 +390,7 @@ class MambuStruct(MambuMapObj):
 
         return cls.__get_several(cls._connector.mambu_search, **params)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
 
@@ -434,6 +440,8 @@ class MambuStruct(MambuMapObj):
             # cannot convert it to a built-in type, leave it as string, or
             # as-is. There may be nested Mambu objects here!
             # This are the recursion base cases!
+            if data in ["TRUE", "FALSE"]:
+                return True if data == "TRUE" else False
             try:
                 d = int(data)
                 if (
@@ -461,30 +469,32 @@ class MambuStruct(MambuMapObj):
 
         self._attrs = convert(self._attrs)
 
-    def serializeFields(self, *args, **kwargs):
+    def _serializeFields(self, *args, **kwargs):
         """Every attribute of the Mambu object is turned in to a string
         representation.
 
         If the object is an iterable one, it goes down to each of its
         elements and turns its attributes too, recursively.
 
-        The base case is when it's a MambuStruct class (this one) so it
+        The base case is when it's a MambuMapObj class (this one) so it
         just 'serializes' the attr atribute.
 
         All datetimes are converted using timezone information stored in the
         object.
 
-        Skips every MambuEntity owned by this entity.
+        Skips every MambuMapObj owned by this entity.
         """
         def convert(data):
             """Recursively convert the fields on the data given to a python object."""
-            if isinstance(data, MambuStruct):
+            if isinstance(data, MambuMapObj):
                 return data
             try:
                 it = iter(data)
             except TypeError:
                 if type(data) == datetime:
                     return data.isoformat() + self._timezone[-6:]
+                if data in [True, False]:
+                    return str(data).upper()
                 return str(data)
 
             if type(it) == type(iter([])):
@@ -501,3 +511,25 @@ class MambuStruct(MambuMapObj):
             return data
 
         self._attrs = convert(self._attrs)
+
+    def _extractCustomFields(self):
+        """Loops through every custom field set and extracts custom field values
+        on the root of the _attrs property."""
+
+        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+            if type(iter(val)) == type(iter({})):
+                for key, value in val.items():
+                    # self[key] = MambuCustomField(key=value)
+                    self[key] = value
+            elif type(iter(val)) == type(iter([])):
+                self[attr[1:]] = val
+            else:
+                raise MambuPyError(
+                    "CustomFieldSet {} is not a dictionary!".format(attr))
+
+
+class MambuEntity(MambuStruct):
+    """"""
+
+    _prefix = ""
+    """prefix constant for connections to Mambu"""

@@ -223,7 +223,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
     def mambu_get(
         self,
         entid,
-        url_prefix,
+        prefix,
         detailsLevel="BASIC"
     ):
         """get, a single entity, identified by its entid.
@@ -239,13 +239,13 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
         params = self.__validate_query_params(detailsLevel=detailsLevel)
 
         url = "https://{}/api/{}/{}".format(
-            self._tenant, url_prefix, entid)
+            self._tenant, prefix, entid)
 
         return self.__request("GET", url, params=params)
 
     def mambu_get_all(
         self,
-        url_prefix,
+        prefix,
         filters=None,
         offset=None,
         limit=None,
@@ -287,13 +287,13 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             params.update(filters)
 
         url = "https://{}/api/{}".format(
-            self._tenant, url_prefix)
+            self._tenant, prefix)
 
         return self.__request("GET", url, params=params)
 
     def mambu_search(
         self,
-        url_prefix,
+        prefix,
         filterCriteria=None,
         sortingCriteria=None,
         offset=None,
@@ -355,6 +355,6 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             data["sortingCriteria"] = sortingCriteria
 
         url = "https://{}/api/{}:search".format(
-            self._tenant, url_prefix)
+            self._tenant, prefix)
 
         return self.__request("POST", url, params=params, data=data)

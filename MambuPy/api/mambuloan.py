@@ -1,10 +1,10 @@
-"""MambuLoan entity: a MambuStruct for credit Loans"""
+"""MambuLoan entity: a MambuEntity struct for credit Loans"""
 
 from MambuPy.mambuutil import MambuPyError
-from .mambustruct import MambuStruct
+from .mambustruct import MambuEntity
 
 
-class MambuLoan(MambuStruct):
+class MambuLoan(MambuEntity):
     """MambuLoan entity"""
 
     _prefix = "loans"

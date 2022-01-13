@@ -27,7 +27,7 @@ class MambuLoan(unittest.TestCase):
                 "id",
                 "loanName"])
 
-    @mock.patch("MambuPy.api.mambuloan.MambuStruct.get_all")
+    @mock.patch("MambuPy.api.mambuloan.MambuEntity.get_all")
     def test_get_all(self, sup_get_all_mock):
         sup_get_all_mock.return_value = "SupGetAllMock"
 

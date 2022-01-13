@@ -6,11 +6,18 @@ import unittest
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.mambuutil import OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+from MambuPy.mambuutil import (
+    MambuPyError,
+    OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+    )
 from MambuPy.api import mambustruct
 
 
 class MagicMethodsTests(unittest.TestCase):
+    def test___init__(self):
+        ms = mambustruct.MambuMapObj(some="value")
+        self.assertEqual(ms._attrs, {"some": "value"})
+
     def test___getitem__(self):
         ms = mambustruct.MambuMapObj()
         ms._attrs = {"hello": "world"}
@@ -208,7 +215,13 @@ class MambuStruct(unittest.TestCase):
 
         self.child_class = child_class
 
-    def test___get_several(self):
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    def test___get_several(
+        self,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
         mock_func = mock.Mock()
 
         mock_func.return_value = b'''[
@@ -231,6 +244,10 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
 
         mock_func.assert_called_with("un_prefix", offset=0, limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE)
+        self.assertEqual(mock_convertDict2Attrs.call_count, 4)
+        mock_convertDict2Attrs.assert_called_with()
+        self.assertEqual(mock_extractCustomFields.call_count, 4)
+        mock_extractCustomFields.assert_called_with()
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class.__get_several(mock_func)
@@ -257,8 +274,15 @@ class MambuStruct(unittest.TestCase):
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_get(self, mock_connector):
+    def test_get(
+        self,
+        mock_connector,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
         ms = self.child_class.get("12345")
@@ -266,14 +290,16 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
-            "12345", url_prefix="un_prefix", detailsLevel="BASIC")
+            "12345", prefix="un_prefix", detailsLevel="BASIC")
+        mock_convertDict2Attrs.assert_called_once_with()
+        mock_extractCustomFields.assert_called_once_with()
 
         ms = self.child_class.get("12345", "FULL")
 
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
-            "12345", url_prefix="un_prefix", detailsLevel="FULL")
+            "12345", prefix="un_prefix", detailsLevel="FULL")
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_get_all(self, mock_connector):
@@ -321,7 +347,7 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
-    def test_convertDict2Attrs(self):
+    def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
         ms._field_for_timezone = "aDate"
@@ -329,6 +355,8 @@ class MambuStruct(unittest.TestCase):
                      "aNum": "123",
                      "trailZeroes": "00123",
                      "aFloat": "15.56",
+                     "aBool": "TRUE",
+                     "otherBool": "FALSE",
                      "aDate": "2021-10-23T10:36:00-06:00",
                      "aList": [
                          "abc123",
@@ -348,7 +376,7 @@ class MambuStruct(unittest.TestCase):
                          "dict": {"key": "123"}}
                      }
 
-        ms.convertDict2Attrs()
+        ms._convertDict2Attrs()
 
         # extracts timezone info from aDate field
         self.assertEqual(ms._timezone, "UTC-06:00")
@@ -365,6 +393,12 @@ class MambuStruct(unittest.TestCase):
         # floating point transforms in to float
         self.assertEqual(ms.aFloat, 15.56)
 
+        # "TRUE" transforms in to boolean True
+        self.assertEqual(ms.aBool, True)
+
+        # "FALSE" transforms in to boolean False
+        self.assertEqual(ms.otherBool, False)
+
         # datetime transforms in to datetime object
         self.assertEqual(
             ms.aDate,
@@ -377,7 +411,35 @@ class MambuStruct(unittest.TestCase):
         )
 
         # dictonaries recursively convert each of its elements
-        ms.convertDict2Attrs()
+        self.assertEqual(
+            ms.aDict,
+            {
+             "str": "abc123",
+             "num": 123,
+             "trailZeroes": "00123",
+             "float": 15.56,
+             "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+             "list": [123],
+             "dict": {"key": 123},
+            },
+        )
+
+        # idempotency
+        ms._convertDict2Attrs()
+        self.assertEqual(ms._timezone, "UTC-06:00")
+        self.assertEqual(ms.aStr, "abc123")
+        self.assertEqual(ms.aNum, 123)
+        self.assertEqual(ms.trailZeroes, "00123")
+        self.assertEqual(ms.aFloat, 15.56)
+        self.assertEqual(ms.aBool, True)
+        self.assertEqual(ms.otherBool, False)
+        self.assertEqual(
+            ms.aDate,
+            datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
+        self.assertEqual(
+            ms.aList,
+            ["abc123", 123, "00123", 15.56, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"), [123], {"key": 123}],
+        )
         self.assertEqual(
             ms.aDict,
             {
@@ -400,20 +462,20 @@ class MambuStruct(unittest.TestCase):
             "mobilePhone": "54321",
             "mobilePhone2": "-1.256",
             "postcode": "98765",
-            "emailAddress": "111",
-            "description": "000",
+            "emailAddress": "TRUE",
+            "description": "FALSE",
             "someKey": "0123",
             }
         ms._field_for_timezone = None
         ms._attrs = {}
         for key, val in data.items():
             ms._attrs[key] = val
-        ms.convertDict2Attrs()
+        ms._convertDict2Attrs()
 
         for key, val in ms._attrs.items():
             self.assertEqual(val, data[key])
 
-    def test_serializeFields(self):
+    def test__serializeFields(self):
         """Test revert of conversion from dictionary elements (native datatype)
         to strings"""
         someDate = datetime.strptime(
@@ -426,6 +488,8 @@ class MambuStruct(unittest.TestCase):
                      "aNum": 123,
                      "trailZeroes": "00123",
                      "aFloat": 15.56,
+                     "aBool": True,
+                     "otherBool": False,
                      "aDate": someDate,
                      "aList": [
                          "abc123",
@@ -446,7 +510,7 @@ class MambuStruct(unittest.TestCase):
                      "aMambuStruct": someMambuStructObj,
                      }
 
-        ms.serializeFields()
+        ms._serializeFields()
 
         # string remains string
         self.assertEqual(ms.aStr, "abc123")
@@ -459,6 +523,12 @@ class MambuStruct(unittest.TestCase):
 
         # floating point transformation to str
         self.assertEqual(ms.aFloat, "15.56")
+
+        # boolean True transforms in to "TRUE"
+        self.assertEqual(ms.aBool, "TRUE")
+
+        # boolean False transforms in to "FALSE"
+        self.assertEqual(ms.otherBool, "FALSE")
 
         # datetime transformation to str using timezone
         self.assertEqual(
@@ -487,6 +557,69 @@ class MambuStruct(unittest.TestCase):
 
         # MambuStruct objects are kept as is
         self.assertEqual(ms.aMambuStruct, someMambuStructObj)
+
+        # idempotency
+        ms._serializeFields()
+        self.assertEqual(ms.aStr, "abc123")
+        self.assertEqual(ms.aNum, "123")
+        self.assertEqual(ms.trailZeroes, "00123")
+        self.assertEqual(ms.aFloat, "15.56")
+        self.assertEqual(ms.aBool, "TRUE")
+        self.assertEqual(ms.otherBool, "FALSE")
+        self.assertEqual(
+            ms.aDate,
+            someDate.isoformat() + "-06:00")
+        self.assertEqual(
+            ms.aList,
+            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-06:00", ["123"], {"key": "123"}],
+        )
+        self.assertEqual(
+            ms.aDict,
+            {
+             "str": "abc123",
+             "num": "123",
+             "trailZeroes": "00123",
+             "float": "15.56",
+             "date": someDate.isoformat() + "-06:00",
+             "list": ["123"],
+             "dict": {"key": "123"},
+            },
+        )
+        self.assertEqual(ms.aMambuStruct, someMambuStructObj)
+
+    def test__extractCustomFields(self):
+        ms = mambustruct.MambuStruct()
+        ms._attrs = {"aField": "abc123",
+                     "_customFieldList": [
+                         "abc123",
+                         123,
+                         15.56],
+                     "_customFieldDict": {
+                         "str": "abc123",
+                         "num": 123,
+                         "float": 15.56}
+                     }
+
+        ms._extractCustomFields()
+
+        self.assertEqual(ms.aField, "abc123")
+        self.assertEqual(ms.customFieldList, ms._customFieldList)
+        self.assertEqual(ms.str, ms._customFieldDict["str"])
+        self.assertEqual(ms.num, ms._customFieldDict["num"])
+        self.assertEqual(ms.float, ms._customFieldDict["float"])
+
+        ms._attrs["_invalidFieldSet"] = "someVal"
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"CustomFieldSet _invalidFieldSet is not a dictionary"
+        ):
+            ms._extractCustomFields()
+
+
+class MambuEntity(unittest.TestCase):
+    def test_has_properties(self):
+        me = mambustruct.MambuEntity()
+        self.assertEqual(me._prefix, "")
 
 
 if __name__ == "__main__":
