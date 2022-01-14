@@ -10,8 +10,6 @@ import re
 import time
 import uuid
 
-from json import JSONDecodeError
-
 import requests
 
 from ..mambuutil import (
@@ -160,7 +158,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
                 else:
                     try:
                         content = json.loads(resp.content.decode())
-                    except (JSONDecodeError, ValueError):
+                    except ValueError:
                         """ in case resp.content doesn't conforms to json """
                         content = {"errors": [
                             {"errorCode": "UNKNOWN",

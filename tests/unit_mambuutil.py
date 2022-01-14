@@ -410,6 +410,23 @@ class UrlFuncTests(unittest.TestCase):
             self.prefix + "/api/" + "loans//repayments",
         )
 
+        self.assertEqual(
+            mambuutil.getrepaymentsurl(idcred="12345", fullDetails=True),
+            self.prefix + "/api/" + "loans/12345/repayments?fullDetails=true",
+        )
+        self.assertEqual(
+            mambuutil.getrepaymentsurl(idcred="12345", fullDetails=False),
+            self.prefix + "/api/" + "loans/12345/repayments?fullDetails=false",
+        )
+        self.assertEqual(
+            mambuutil.getrepaymentsurl(idcred="12345", offset=10),
+            self.prefix + "/api/" + "loans/12345/repayments?offset=10",
+        )
+        self.assertEqual(
+            mambuutil.getrepaymentsurl(idcred="12345", limit=10),
+            self.prefix + "/api/" + "loans/12345/repayments?limit=10",
+        )
+
     def test_getloansurl(self):
         self.assertEqual(
             mambuutil.getloansurl(idcred="12345"), self.prefix + "/api/" + "loans/12345"

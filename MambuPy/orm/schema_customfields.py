@@ -124,7 +124,7 @@ class CustomFieldValue(Base):
 
     @property
     def linkedclient(self):
-        from schema_clients import Client
+        from .schema_clients import Client
 
         try:
             if self.customField.dataType == "CLIENT_LINK":
@@ -140,7 +140,7 @@ class CustomFieldValue(Base):
 
     @property
     def linkedgroup(self):
-        from schema_groups import Group
+        from .schema_groups import Group
 
         try:
             if self.customField.dataType == "GROUP_LINK":
@@ -156,7 +156,7 @@ class CustomFieldValue(Base):
 
     @property
     def linkeduser(self):
-        from schema_users import User
+        from .schema_users import User
 
         try:
             if self.customField.dataType == "USER_LINK":
