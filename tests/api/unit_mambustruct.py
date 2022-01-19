@@ -615,6 +615,38 @@ class MambuStruct(unittest.TestCase):
         ):
             ms._extractCustomFields()
 
+    def test__updateCustomFields(self):
+        ms = mambustruct.MambuStruct()
+        ms._attrs = {"aField": "abc123",
+                     "_customFieldList": [
+                         "abc123",
+                         123,
+                         15.56],
+                     "_customFieldDict": {
+                         "num": 123},
+                     "num": 123,
+                     "customFieldList": [
+                         "abc123",
+                         123,
+                         15.56],
+                     }
+
+        ms._attrs["num"] = 321
+        ms._attrs["customFieldList"][1] = 321
+        ms._updateCustomFields()
+
+        self.assertEqual(ms._customFieldList, ["abc123", 321, 15.56])
+        self.assertEqual(ms._customFieldDict["num"], 321)
+        self.assertEqual(hasattr(ms, "num"), False)
+        self.assertEqual(hasattr(ms, "customFieldList"), False)
+
+        ms._attrs["_invalidFieldSet"] = "someVal"
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"CustomFieldSet _invalidFieldSet is not a dictionary"
+        ):
+            ms._updateCustomFields()
+
 
 class MambuEntity(unittest.TestCase):
     def test_has_properties(self):

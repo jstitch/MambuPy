@@ -522,10 +522,37 @@ class MambuStruct(MambuMapObj):
                     # self[key] = MambuCustomField(key=value)
                     self[key] = value
             elif type(iter(val)) == type(iter([])):
-                self[attr[1:]] = val
+                self[attr[1:]] = copy.deepcopy(val)
             else:
                 raise MambuPyError(
                     "CustomFieldSet {} is not a dictionary!".format(attr))
+
+    def _updateCustomFields(self):
+        """Loops through every custom field set and update custom field values
+        with the corresponding property at the root of the _attrs dict, then
+        deletes the property at root"""
+        cfs = []
+        # updates customfieldsets
+        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+            if type(iter(val)) == type(iter({})):
+                for key in val.keys():
+                    try:
+                        self._attrs[attr][key] = self[key]
+                        cfs.append(key)
+                    except KeyError:
+                        pass
+            elif type(iter(val)) == type(iter([])):
+                try:
+                    self._attrs[attr] = copy.deepcopy(self[attr[1:]])
+                    cfs.append(attr[1:])
+                except KeyError:
+                    pass
+            else:
+                raise MambuPyError(
+                    "CustomFieldSet {} is not a dictionary!".format(attr))
+        # deletes _attrs root keys of custom fields
+        for field in cfs:
+            del self._attrs[field]
 
 
 class MambuEntity(MambuStruct):
