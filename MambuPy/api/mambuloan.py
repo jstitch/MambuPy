@@ -26,6 +26,9 @@ class MambuLoan(MambuEntity):
         ]
     """allowed fields for get_all sorting"""
 
+    _ownerType = "LOAN_ACCOUNT"
+    """owner type of this entity"""
+
     @classmethod
     def get_all(
         cls,

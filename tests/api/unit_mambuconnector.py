@@ -50,6 +50,18 @@ class MambuConnectorReader(unittest.TestCase):
                 [{}], {}, 0, 0, "OFF", "BASIC", "")
 
 
+
+class MambuConnectorWriter(unittest.TestCase):
+    def test_mambu_upload_document(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_upload_document"),
+            True)
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_upload_document(
+                None, "OWNER", "id", "path/filename", "title", "notes")
+
+
+
 class MambuConnectorREST(unittest.TestCase):
     def test_properties(self):
         mcrest = mambuconnector.MambuConnectorREST()
@@ -71,6 +83,48 @@ class MambuConnectorREST(unittest.TestCase):
             params={"limit": 0},
             data=None,
             headers=mambuconnector.MambuConnectorREST._headers)
+        self.assertEqual(resp, b"Execute order 66")
+
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu___request_POST_nojsondump(self, mock_requests, mock_uuid):
+        mock_requests.request().status_code = 200
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO"
+
+        mock_requests.request().content = b"""Execute order 66"""
+        headers = app_json_headers()
+        headers["Idempotency-Key"] = "r2d2-n-c3pO"
+        data = mock.Mock("non-jsonable")
+
+        mcrest = mambuconnector.MambuConnectorREST()
+        resp = mcrest.__request("POST", "someURL", data=data)
+
+        mock_requests.request.assert_called_with(
+            "POST",
+            "someURL",
+            params={},
+            data=data,
+            headers=headers)
+        self.assertEqual(resp, b"Execute order 66")
+
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu___request_content_type(self, mock_requests):
+        mock_requests.request().status_code = 200
+
+        headers = copy.deepcopy(mambuconnector.MambuConnectorREST._headers)
+        headers["Content-Type"] = "application/light-saber"
+        mock_requests.request().content = b"""Execute order 66"""
+
+        mcrest = mambuconnector.MambuConnectorREST()
+        resp = mcrest.__request("GET", "someURL", content_type="application/light-saber")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "someURL",
+            params={},
+            data=None,
+            headers=headers)
         self.assertEqual(resp, b"Execute order 66")
 
     @mock.patch("MambuPy.api.mambuconnector.uuid")
@@ -423,6 +477,50 @@ class MambuConnectorREST(unittest.TestCase):
             mcrest.mambu_search(
                 "someURL",
             sortingCriteria={})
+
+    @mock.patch("MambuPy.api.mambuconnector.open")
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    @mock.patch("MambuPy.api.mambuconnector.MultipartEncoder")
+    def test_mambu_upload_document(
+        self, mock_multipartencoder, mock_requests, mock_uuid, mock_open
+    ):
+        with open("/tmp/selfie.png", "w") as f:
+            f.write("yoda yo yo")
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO"
+        mock_requests.request().status_code = 200
+        encoder = lambda: None; encoder.content_type = 'multipart/form-data; boundary=outer_rim'
+        mock_multipartencoder.return_value = encoder
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_upload_document(
+            "JEDI_ORDER",
+            "Yoda",
+            "/tmp/selfie.png",
+            "my_selfie.png",
+            "Some selfie")
+
+        headers = app_json_headers()
+        headers["Idempotency-Key"] = "r2d2-n-c3pO"
+        headers["Content-Type"] = "multipart/form-data; boundary=outer_rim"
+        mock_requests.request.assert_called_with(
+            "POST",
+            "https://{}/api/documents".format(apiurl),
+            params={},
+            data=encoder,
+            headers=headers)
+        mock_multipartencoder.assert_called_with(
+            fields={
+                'ownerType': "JEDI_ORDER",
+                'id': "Yoda",
+                'name': "my_selfie.png",
+                'notes': "Some selfie",
+                'file': ("selfie.png",
+                         mock_open("/tmp/selfie.png", "rb"),
+                         "image/png")})
+
+        os.remove("/tmp/selfie.png")
 
 
 if __name__ == "__main__":

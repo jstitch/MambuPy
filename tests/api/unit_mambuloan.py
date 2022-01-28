@@ -26,6 +26,8 @@ class MambuLoan(unittest.TestCase):
                 "lastModifiedDate",
                 "id",
                 "loanName"])
+        self.assertEqual(
+            ml._ownerType, "LOAN_ACCOUNT")
 
     @mock.patch("MambuPy.api.mambuloan.MambuEntity.get_all")
     def test_get_all(self, sup_get_all_mock):

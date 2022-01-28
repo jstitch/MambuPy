@@ -6,11 +6,14 @@ from abc import ABC, abstractmethod
 import base64
 import copy
 import json
+import mimetypes
+import os
 import re
 import time
 import uuid
 
 import requests
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from ..mambuutil import (
     apipwd, apiuser, apiurl,
@@ -23,6 +26,7 @@ from ..mambuutil import (
 
 class MambuConnector(ABC):
     """ Interface for Connectors"""
+
 
 class MambuConnectorReader(ABC):
     """ Interface for Readers.
@@ -93,7 +97,33 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
-class MambuConnectorREST(MambuConnector, MambuConnectorReader):
+
+
+class MambuConnectorWriter(ABC):
+    """ Interface for Writers.
+
+    A Reader supports the followint operations:
+
+    - upload_document (gets a single entity)
+    - delete_document (gets several entities, filtering allowed)
+    """
+
+    @abstractmethod
+    def mambu_upload_document(
+        self, owner_type, id, filename, name, notes):
+        """uploads an attachment to this entity
+
+        Args:
+          owner_type (str) - the type of the owner of the document
+          id (str) - the id or encoded key of the entity owning the document
+          filename (str) - path and filename of file to upload as attachment
+          name (str) - name to assign to the attached file in Mambu
+          notes (str) - notes to associate to the attached file in Mambu
+        """
+        raise NotImplementedError
+
+
+class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
     """"""
 
     _RETRIES = 5
@@ -104,7 +134,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             base64.b64encode(bytes("{}:{}".format(
                 apiuser, apipwd), "utf-8")).decode())}
 
-    def __request(self, method, url, params={}, data=None):
+    def __request(self, method, url, params={}, data=None, content_type=None):
         """ requests an url.
 
         Args:
@@ -112,6 +142,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
           url (str) - URL for the request
           params (dict) - query parameters
           data (serializable list of dicts or dict alone) - request body
+          content_type (str) - an alternative Content-Type to send in headers
 
         Returns:
           response content (json)
@@ -124,8 +155,14 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
         if method in ["POST", "PATCH", "PUT"]:
             headers["Content-Type"] = "application/json"
             headers["Idempotency-Key"] = str(uuid.uuid4())
+        if content_type:
+            headers["Content-Type"] = content_type
+
         if data != None:
-            data = json.dumps(data)
+            try:
+                data = json.dumps(data)
+            except TypeError:
+                data = data
 
         self.retries = 0
         while self.retries <= self._RETRIES:
@@ -356,3 +393,36 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader):
             self._tenant, prefix)
 
         return self.__request("POST", url, params=params, data=data)
+
+    def mambu_upload_document(
+        self, owner_type, id, filename, name, notes):
+        """uploads an attachment to this entity
+
+        Args:
+          owner_type (str) - the type of the owner of the document
+          id (str) - the id or encoded key of the entity owning the document
+          filename (str) - path and filename of file to upload as attachment
+          name (str) - name to assign to the attached file in Mambu
+          notes (str) - notes to associate to the attached file in Mambu
+
+        Returns:
+          Mambu's response with metadata of the attached document
+        """
+        data = {"ownerType": owner_type,
+                "id": id,
+                "name": name,
+                "notes": notes,
+                "file": (
+                    os.path.basename(filename),
+                    open(filename, "rb"),
+                    mimetypes.guess_type(filename)[0])}
+
+        encoder = MultipartEncoder(fields=data)
+
+        url = "https://{}/api/documents".format(self._tenant)
+
+        return self.__request(
+            "POST",
+            url,
+            data=encoder,
+            content_type=encoder.content_type)

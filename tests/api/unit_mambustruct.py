@@ -212,6 +212,8 @@ class MambuStruct(unittest.TestCase):
         class child_class(mambustruct.MambuStruct):
             _prefix = "un_prefix"
             _field_for_timezone = None
+            _ownerType = "MY_ENTITY"
+            id = "12345"
 
         self.child_class = child_class
 
@@ -346,6 +348,25 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
+    def test_attach_document(self, mock_connector):
+        mock_connector.mambu_upload_document.return_value = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
+        "type":"png","fileName":"someImage.png"
+        }'''
+        upl = self.child_class().attach_document(
+            "/tmp/someImage.png",
+            "MyImage",
+            "this is a test")
+
+        self.assertEqual(upl, mock_connector.mambu_upload_document.return_value)
+        mock_connector.mambu_upload_document.assert_called_with(
+            owner_type="MY_ENTITY",
+            id="12345",
+            filename="/tmp/someImage.png",
+            name="MyImage",
+            notes="this is a test")
 
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""

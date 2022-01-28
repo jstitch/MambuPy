@@ -390,6 +390,24 @@ class MambuStruct(MambuMapObj):
 
         return cls.__get_several(cls._connector.mambu_search, **params)
 
+    def attach_document(self, filename, title="", notes=""):
+        """uploads an attachment to this entity
+
+        Args:
+          filename (str) - path and filename of file to upload as attachment
+          title (str) - name to assign to the attached file in Mambu
+          notes (str) - notes to associate to the attached file in Mambu
+
+        Returns:
+          Mambu's response with metadata of the attached document
+        """
+        return self._connector.mambu_upload_document(
+            owner_type=self._ownerType,
+            id=self.id,
+            filename=filename,
+            name=title,
+            notes=notes)
+
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
