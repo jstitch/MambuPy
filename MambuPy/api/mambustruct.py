@@ -401,6 +401,10 @@ class MambuStruct(MambuMapObj):
         Returns:
           Mambu's response with metadata of the attached document
         """
+        if not hasattr(self, "_ownerType"):
+            raise MambuPyError(
+                "{} entity does not supports attachments!".format(
+                    self.__class__.__name__))
         return self._connector.mambu_upload_document(
             owner_type=self._ownerType,
             id=self.id,

@@ -368,6 +368,17 @@ class MambuStruct(unittest.TestCase):
             name="MyImage",
             notes="this is a test")
 
+        del self.child_class._ownerType
+        child = self.child_class()
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"child_class entity does not supports attachments!"
+        ):
+            child.attach_document(
+                "/tmp/someImage.png",
+                "MyImage",
+                "this is a test")
+
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()

@@ -21,6 +21,9 @@ from ..mambuutil import (
     PAGINATIONDETAILS,
     DETAILSLEVEL,
     SEARCH_OPERATORS,
+    MAX_UPLOAD_SIZE,
+    ALLOWED_UPLOAD_MIMETYPES,
+    UPLOAD_FILENAME_INVALID_CHARS,
     )
 
 
@@ -408,6 +411,19 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         Returns:
           Mambu's response with metadata of the attached document
         """
+        for char in UPLOAD_FILENAME_INVALID_CHARS:
+            if char in os.path.basename(filename):
+                raise MambuError("{} name not allowed".format(filename))
+        if os.path.basename(filename).count(".") != 1:
+            raise MambuError("{} invalid name".format(filename))
+        if (not mimetypes.guess_type(filename)[0] or
+            mimetypes.guess_type(filename)[0].split("/")[1].upper(
+                ) not in ALLOWED_UPLOAD_MIMETYPES
+        ):
+            raise MambuError("{} mimetype not supported".format(filename))
+        if os.path.getsize(filename) > MAX_UPLOAD_SIZE:
+            raise MambuError("{} exceeds {} bytes".format(
+                filename, MAX_UPLOAD_SIZE))
         data = {"ownerType": owner_type,
                 "id": id,
                 "name": name,

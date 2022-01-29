@@ -66,6 +66,60 @@ PAGINATIONDETAILS = ["ON", "OFF"]
 DETAILSLEVEL = ["BASIC", "FULL"]
 """detailsLevel options"""
 
+MAX_UPLOAD_SIZE = 52428800 # 50Mb
+"""upload files maximum size"""
+
+UPLOAD_FILENAME_INVALID_CHARS = "/><|:&?*[]#\*`"
+"""invalid characters for an uploaded filename"""
+
+ALLOWED_UPLOAD_MIMETYPES = [
+    "JPEG",
+    "PNG",
+    "GIF",
+    "BMP",
+    "TIFF",
+    "PDF",
+    "XML",
+    "DOC",
+    "DOCX",
+    "DOCM",
+    "DOT",
+    "DOTX",
+    "DOTM",
+    "XLS",
+    "XLSX",
+    "XLSB",
+    "PPT",
+    "PPTX",
+    "ODT",
+    "OTT",
+    "FODT",
+    "PDF",
+    "XML",
+    "TXT",
+    "CSV",
+    "PROPERTIES",
+    "MSG",
+    "TIF",
+    "ZIP",
+    "RTF",
+    "XLSM",
+    "ODS",
+    "ODP",
+    "EML",
+    "EMLX",
+    "HTML",
+    "MHT",
+    "MHTML",
+    "XPS",
+    "NUMBERS",
+    "KEY",
+    "PAGES",
+    "YAML",
+    "JSON",
+    "JASPER",
+    "JRXML"]
+"""allowed file types for uploads"""
 
 SEARCH_OPERATORS = [
     "EQUALS",

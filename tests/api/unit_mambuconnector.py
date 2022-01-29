@@ -14,6 +14,7 @@ from MambuPy.mambuutil import (
     MambuPyError, MambuError, MambuCommError,
     PAGINATIONDETAILS,
     DETAILSLEVEL,
+    MAX_UPLOAD_SIZE,
     )
 
 from MambuPy.api import mambuconnector
@@ -519,6 +520,56 @@ class MambuConnectorREST(unittest.TestCase):
                 'file': ("selfie.png",
                          mock_open("/tmp/selfie.png", "rb"),
                          "image/png")})
+
+
+    def test_mambu_upload_document_mambu_restrictions(self):
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        # invalid chars in filename
+        with self.assertRaisesRegex(
+            MambuError, r"/tmp/selfie<>.png name not allowed"
+        ):
+            mcrest.mambu_upload_document(
+                "JEDI_ORDER",
+                "Yoda",
+                "/tmp/selfie<>.png",
+                "my_selfie.png",
+                "Some selfie")
+
+        # filename should have one and just one extension
+        with self.assertRaisesRegex(
+            MambuError, r"/tmp/sel.fie.png invalid name"
+        ):
+            mcrest.mambu_upload_document(
+                "JEDI_ORDER",
+                "Yoda",
+                "/tmp/sel.fie.png",
+                "my_selfie.png",
+                "Some selfie")
+
+        # mimetype not allowed
+        with self.assertRaisesRegex(
+            MambuError, r"/tmp/selfie.exe mimetype not supported"
+        ):
+            mcrest.mambu_upload_document(
+                "JEDI_ORDER",
+                "Yoda",
+                "/tmp/selfie.exe",
+                "my_selfie.png",
+                "Some selfie")
+
+        # max size
+        mambuconnector.MAX_UPLOAD_SIZE = 1
+        with self.assertRaisesRegex(
+            MambuError, r"/tmp/selfie.png exceeds 1 bytes"
+        ):
+            mcrest.mambu_upload_document(
+                "JEDI_ORDER",
+                "Yoda",
+                "/tmp/selfie.png",
+                "my_selfie.png",
+                "Some selfie")
+        mambuconnector.MAX_UPLOAD_SIZE = MAX_UPLOAD_SIZE
 
         os.remove("/tmp/selfie.png")
 
