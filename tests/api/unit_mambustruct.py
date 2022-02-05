@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 import mock
 import os
@@ -211,7 +212,6 @@ class MambuStruct(unittest.TestCase):
     def setUp(self):
         class child_class(mambustruct.MambuStruct):
             _prefix = "un_prefix"
-            _field_for_timezone = None
             _ownerType = "MY_ENTITY"
             id = "12345"
 
@@ -382,7 +382,6 @@ class MambuStruct(unittest.TestCase):
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
-        ms._field_for_timezone = "aDate"
         ms._attrs = {"aStr": "abc123",
                      "aNum": "123",
                      "trailZeroes": "00123",
@@ -390,6 +389,7 @@ class MambuStruct(unittest.TestCase):
                      "aBool": "TRUE",
                      "otherBool": "FALSE",
                      "aDate": "2021-10-23T10:36:00-06:00",
+                     "anotherDate": "2021-10-23T10:36:00",
                      "aList": [
                          "abc123",
                          "123",
@@ -407,11 +407,26 @@ class MambuStruct(unittest.TestCase):
                          "list": ["123"],
                          "dict": {"key": "123"}}
                      }
+        ms._tzattrs = copy.deepcopy(ms._attrs)
 
         ms._convertDict2Attrs()
 
         # extracts timezone info from aDate field
-        self.assertEqual(ms._timezone, "UTC-06:00")
+        self.assertEqual(ms._tzattrs, {"aDate": "UTC-06:00",
+                                       "anotherDate": None,
+                                       "aList": [
+                                           None,
+                                           None,
+                                           None,
+                                           None,
+                                           "UTC-06:00",
+                                           [None],
+                                           {}],
+                                       "aDict": {
+                                           "date": "UTC-06:00",
+                                           "list": [None],
+                                           "dict": {}}
+                                           })
 
         # string remains string
         self.assertEqual(ms.aStr, "abc123")
@@ -458,7 +473,21 @@ class MambuStruct(unittest.TestCase):
 
         # idempotency
         ms._convertDict2Attrs()
-        self.assertEqual(ms._timezone, "UTC-06:00")
+        self.assertEqual(ms._tzattrs, {"aDate": "UTC-06:00",
+                                       "anotherDate": None,
+                                       "aList": [
+                                           None,
+                                           None,
+                                           None,
+                                           None,
+                                           "UTC-06:00",
+                                           [None],
+                                           {}],
+                                       "aDict": {
+                                           "date": "UTC-06:00",
+                                           "list": [None],
+                                           "dict": {}}
+                                           })
         self.assertEqual(ms.aStr, "abc123")
         self.assertEqual(ms.aNum, 123)
         self.assertEqual(ms.trailZeroes, "00123")
@@ -498,12 +527,17 @@ class MambuStruct(unittest.TestCase):
             "description": "FALSE",
             "someKey": "0123",
             }
-        ms._field_for_timezone = None
         ms._attrs = {}
         for key, val in data.items():
             ms._attrs[key] = val
-        ms._convertDict2Attrs()
+        ms._tzattrs = copy.deepcopy(ms._attrs)
 
+        ms._convertDict2Attrs()
+        for key, val in ms._attrs.items():
+            self.assertEqual(val, data[key])
+
+        # idempotency
+        ms._convertDict2Attrs()
         for key, val in ms._attrs.items():
             self.assertEqual(val, data[key])
 
@@ -514,8 +548,6 @@ class MambuStruct(unittest.TestCase):
             "2021-10-23T10:36:00", "%Y-%m-%dT%H:%M:%S")
         someMambuStructObj = self.child_class()
         ms = mambustruct.MambuStruct()
-        ms._field_for_timezone = "aDate"
-        ms._timezone = "UTC-06:00"
         ms._attrs = {"aStr": "abc123",
                      "aNum": 123,
                      "trailZeroes": "00123",
@@ -541,6 +573,14 @@ class MambuStruct(unittest.TestCase):
                          "dict": {"key": 123}},
                      "aMambuStruct": someMambuStructObj,
                      }
+        ms._tzattrs = {"aDate": "UTC-06:00",
+                       "aList": [
+                           None, None, None, None,
+                           "UTC-05:00",
+                           [None],
+                           {}],
+                        "aDict": {
+                            "date": None}}
 
         ms._serializeFields()
 
@@ -557,10 +597,10 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms.aFloat, "15.56")
 
         # boolean True transforms in to "TRUE"
-        self.assertEqual(ms.aBool, "TRUE")
+        self.assertEqual(ms.aBool, "true")
 
         # boolean False transforms in to "FALSE"
-        self.assertEqual(ms.otherBool, "FALSE")
+        self.assertEqual(ms.otherBool, "false")
 
         # datetime transformation to str using timezone
         self.assertEqual(
@@ -570,7 +610,7 @@ class MambuStruct(unittest.TestCase):
         # lists recursively convert each of its elements
         self.assertEqual(
             ms.aList,
-            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-06:00", ["123"], {"key": "123"}],
+            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-05:00", ["123"], {"key": "123"}],
         )
 
         # dictonaries recursively convert each of its elements
@@ -581,7 +621,7 @@ class MambuStruct(unittest.TestCase):
              "num": "123",
              "trailZeroes": "00123",
              "float": "15.56",
-             "date": someDate.isoformat() + "-06:00",
+             "date": someDate.isoformat(),
              "list": ["123"],
              "dict": {"key": "123"},
             },
@@ -596,14 +636,14 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms.aNum, "123")
         self.assertEqual(ms.trailZeroes, "00123")
         self.assertEqual(ms.aFloat, "15.56")
-        self.assertEqual(ms.aBool, "TRUE")
-        self.assertEqual(ms.otherBool, "FALSE")
+        self.assertEqual(ms.aBool, "true")
+        self.assertEqual(ms.otherBool, "false")
         self.assertEqual(
             ms.aDate,
             someDate.isoformat() + "-06:00")
         self.assertEqual(
             ms.aList,
-            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-06:00", ["123"], {"key": "123"}],
+            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-05:00", ["123"], {"key": "123"}],
         )
         self.assertEqual(
             ms.aDict,
@@ -612,7 +652,7 @@ class MambuStruct(unittest.TestCase):
              "num": "123",
              "trailZeroes": "00123",
              "float": "15.56",
-             "date": someDate.isoformat() + "-06:00",
+             "date": someDate.isoformat(),
              "list": ["123"],
              "dict": {"key": "123"},
             },

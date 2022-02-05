@@ -199,7 +199,7 @@ class MambuStruct(MambuMapObj):
     TimeZones info:
     convertDict2Attrs loses TZ info on datetime fields.
 
-    We will save it on _timezone field. Prefering this method since this allows
+    We will save them on _tzattrs field. Prefering this method since this allows
     comparison with datetimes on your code without needing TZ initialized.
 
     For example:
@@ -218,11 +218,7 @@ class MambuStruct(MambuMapObj):
     really (really?) wish to lose TZ info.
     """
 
-    _field_for_timezone = "creationDate"
-    """Field from which to extract the TZ info, None if theres none"""
-
-    _timezone = "UTC+00:00"
-    """TimeZone for the datetimes in this entity"""
+    _tzattrs = {}
 
     _connector = MambuConnectorREST()
     """Default connector (REST)"""
@@ -244,6 +240,7 @@ class MambuStruct(MambuMapObj):
         instance = cls.__call__()
         instance._resp = resp
         instance._attrs = dict(json.loads(resp.decode()))
+        instance._tzattrs = dict(json.loads(resp.decode()))
         instance._convertDict2Attrs()
         instance._extractCustomFields()
 
@@ -433,7 +430,7 @@ class MambuStruct(MambuMapObj):
         ]
         # and any field whose name ends with "Key"
 
-        def convert(data):
+        def convert(data, tzdata=None):
             """Recursively convert the fields on the data given to a python object."""
             # Iterators, lists and dictionaries
             # Here comes the recursive calls!
@@ -444,13 +441,27 @@ class MambuStruct(MambuMapObj):
                     for k in it:
                         if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
                             d[k] = data[k]
+                            if tzdata and k in tzdata:
+                                del tzdata[k]
                         else:
-                            d[k] = convert(data[k])
+                            try:
+                                d[k] = convert(data[k], tzdata[k])
+                                if type(d[k]) not in [dict, list, datetime]:
+                                    del tzdata[k]
+                                elif type(d[k]) == datetime:
+                                    tzdata[k] = datetime.fromisoformat(tzdata[k]).tzname()
+                            except (KeyError, ValueError, TypeError):
+                                d[k] = convert(data[k])
                     data = d
                 if type(it) == type(iter([])):
                     l = []
-                    for e in it:
-                        l.append(convert(e))
+                    for num, (e, te) in enumerate(zip(it, tzdata)):
+                        d = convert(e, te)
+                        if type(d) not in [dict, list, datetime]:
+                            tzdata[num] = None
+                        elif type(d) == datetime:
+                            tzdata[num] = datetime.fromisoformat(tzdata[num]).tzname()
+                        l.append(d)
                     data = l
             except TypeError:
                 pass
@@ -462,8 +473,8 @@ class MambuStruct(MambuMapObj):
             # cannot convert it to a built-in type, leave it as string, or
             # as-is. There may be nested Mambu objects here!
             # This are the recursion base cases!
-            if data in ["TRUE", "FALSE"]:
-                return True if data == "TRUE" else False
+            if data in ["TRUE", "FALSE", "true", "false"]:
+                return True if data in ["TRUE", "true"] else False
             try:
                 d = int(data)
                 if (
@@ -473,7 +484,8 @@ class MambuStruct(MambuMapObj):
                 return d
             except (TypeError, ValueError):
                 try:
-                    return float(data)
+                    f_data = float(data)
+                    return f_data
                 except (TypeError, ValueError):
                     try:
                         return dateFormat(data)
@@ -482,14 +494,7 @@ class MambuStruct(MambuMapObj):
 
             return data
 
-        if (
-            self._field_for_timezone and
-            type(self._attrs[self._field_for_timezone]) == str
-        ):
-            self._timezone = datetime.fromisoformat(
-                self._attrs[self._field_for_timezone]).tzname()
-
-        self._attrs = convert(self._attrs)
+        self._attrs = convert(self._attrs, self._tzattrs)
 
     def _serializeFields(self, *args, **kwargs):
         """Every attribute of the Mambu object is turned in to a string
@@ -506,7 +511,7 @@ class MambuStruct(MambuMapObj):
 
         Skips every MambuMapObj owned by this entity.
         """
-        def convert(data):
+        def convert(data, tzdata=None):
             """Recursively convert the fields on the data given to a python object."""
             if isinstance(data, MambuMapObj):
                 return data
@@ -514,25 +519,35 @@ class MambuStruct(MambuMapObj):
                 it = iter(data)
             except TypeError:
                 if type(data) == datetime:
-                    return data.isoformat() + self._timezone[-6:]
+                    data_asdate = data.isoformat()
+                    if tzdata:
+                        data_asdate += tzdata[-6:]
+                    return data_asdate
                 if data in [True, False]:
-                    return str(data).upper()
+                    return str(data).lower()
                 return str(data)
 
             if type(it) == type(iter([])):
                 l = []
-                for e in it:
-                    l.append(convert(e))
+                if tzdata:
+                    for num, (e, te) in enumerate(zip(it, tzdata)):
+                        l.append(convert(e, te))
+                else:
+                    for num, e in enumerate(it):
+                        l.append(convert(e))
                 return l
             elif type(it) == type(iter({})):
                 d = {}
                 for k in it:
-                    d[k] = convert(data[k])
+                    if tzdata and k in tzdata:
+                        d[k] = convert(data[k], tzdata[k])
+                    else:
+                        d[k] = convert(data[k])
                 return d
             # elif ... tuples? sets?
             return data
 
-        self._attrs = convert(self._attrs)
+        self._attrs = convert(self._attrs, self._tzattrs)
 
     def _extractCustomFields(self):
         """Loops through every custom field set and extracts custom field values
