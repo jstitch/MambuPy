@@ -8,6 +8,7 @@ import unittest
 sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.mambuutil import (
+    MambuError,
     MambuPyError,
     OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
     )
@@ -350,6 +351,23 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
+    def test_update(self, mock_connector):
+        mock_connector.mambu_update.return_value = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }'''
+        child = self.child_class()
+        child._attrs["myProp"] = "myVal"
+
+        child.update()
+
+        mock_connector.mambu_update.assert_called_with(
+            "12345", "un_prefix", {"myProp": "myVal"})
+
+        mock_connector.mambu_update.side_effect = MambuError("Un Err")
+        with self.assertRaisesRegex(MambuError, r"Un Err"):
+            child.update()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_attach_document(self, mock_connector):
         mock_connector.mambu_upload_document.return_value = b'''{
         "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
@@ -363,7 +381,7 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(upl, mock_connector.mambu_upload_document.return_value)
         mock_connector.mambu_upload_document.assert_called_with(
             owner_type="MY_ENTITY",
-            id="12345",
+            entid="12345",
             filename="/tmp/someImage.png",
             name="MyImage",
             notes="this is a test")
@@ -695,8 +713,10 @@ class MambuStruct(unittest.TestCase):
                          123,
                          15.56],
                      "_customFieldDict": {
-                         "num": 123},
+                         "num": 123,
+                         "bool": True},
                      "num": 123,
+                     "bool": True,
                      "customFieldList": [
                          "abc123",
                          123,
@@ -709,7 +729,9 @@ class MambuStruct(unittest.TestCase):
 
         self.assertEqual(ms._customFieldList, ["abc123", 321, 15.56])
         self.assertEqual(ms._customFieldDict["num"], 321)
+        self.assertEqual(ms._customFieldDict["bool"], "TRUE")
         self.assertEqual(hasattr(ms, "num"), False)
+        self.assertEqual(hasattr(ms, "bool"), False)
         self.assertEqual(hasattr(ms, "customFieldList"), False)
 
         ms._attrs["_invalidFieldSet"] = "someVal"

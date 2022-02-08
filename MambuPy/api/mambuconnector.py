@@ -112,13 +112,24 @@ class MambuConnectorWriter(ABC):
     """
 
     @abstractmethod
+    def mambu_update(self, entid, prefix, attrs):
+        """ updates a mambu entity
+
+        Args:
+          entid (str) - the id or encoded key of the entity owning the document
+          prefix (str) - entity's URL prefix
+          attrs (dict) - entity to be updated, complying with Mambu's schemas
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_upload_document(
-        self, owner_type, id, filename, name, notes):
+        self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 
         Args:
           owner_type (str) - the type of the owner of the document
-          id (str) - the id or encoded key of the entity owning the document
+          entid (str) - the id or encoded key of the entity owning the document
           filename (str) - path and filename of file to upload as attachment
           name (str) - name to assign to the attached file in Mambu
           notes (str) - notes to associate to the attached file in Mambu
@@ -397,13 +408,26 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         return self.__request("POST", url, params=params, data=data)
 
+    def mambu_update(self, entid, prefix, attrs):
+        """ updates a mambu entity
+
+        Args:
+          entid (str) - the id or encoded key of the entity owning the document
+          prefix (str) - entity's URL prefix
+          attrs (dict) - entity to be updated, complying with Mambu's schemas
+        """
+        url = "https://{}/api/{}/{}".format(
+            self._tenant, prefix, entid)
+
+        return self.__request("PUT", url, data=attrs)
+
     def mambu_upload_document(
-        self, owner_type, id, filename, name, notes):
+        self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 
         Args:
           owner_type (str) - the type of the owner of the document
-          id (str) - the id or encoded key of the entity owning the document
+          entid (str) - the id or encoded key of the entity owning the document
           filename (str) - path and filename of file to upload as attachment
           name (str) - name to assign to the attached file in Mambu
           notes (str) - notes to associate to the attached file in Mambu
@@ -425,7 +449,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             raise MambuError("{} exceeds {} bytes".format(
                 filename, MAX_UPLOAD_SIZE))
         data = {"ownerType": owner_type,
-                "id": id,
+                "id": entid,
                 "name": name,
                 "notes": notes,
                 "file": (

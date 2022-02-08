@@ -8,6 +8,7 @@ from .mambuconnector import MambuConnectorREST
 
 from ..mambuutil import (
     dateFormat,
+    MambuError,
     MambuPyError,
     OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
     )
@@ -404,10 +405,27 @@ class MambuStruct(MambuMapObj):
                     self.__class__.__name__))
         return self._connector.mambu_upload_document(
             owner_type=self._ownerType,
-            id=self.id,
+            entid=self.id,
             filename=filename,
             name=title,
             notes=notes)
+
+    def update(self, *args, **kwargs):
+        """ updates a mambu entity
+
+        Uses the current values of the _attrs to send to Mambu.
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+        """
+        self._updateCustomFields()
+        self._serializeFields()
+        try:
+            self._connector.mambu_update(self.id, self._prefix, self._attrs)
+        except MambuError as merr:
+            raise merr
+        finally:
+            self._convertDict2Attrs()
+            self._extractCustomFields()
 
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
@@ -574,6 +592,8 @@ class MambuStruct(MambuMapObj):
             if type(iter(val)) == type(iter({})):
                 for key in val.keys():
                     try:
+                        if self[key] in [True, False]:
+                            self[key] = str(self[key]).upper()
                         self._attrs[attr][key] = self[key]
                         cfs.append(key)
                     except KeyError:

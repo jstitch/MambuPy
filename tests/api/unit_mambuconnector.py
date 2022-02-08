@@ -53,13 +53,21 @@ class MambuConnectorReader(unittest.TestCase):
 
 
 class MambuConnectorWriter(unittest.TestCase):
+    def test_mambu_update(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_update"),
+            True)
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_update(
+                None, "id", "", {})
+
     def test_mambu_upload_document(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorWriter, "mambu_upload_document"),
             True)
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorWriter.mambu_upload_document(
-                None, "OWNER", "id", "path/filename", "title", "notes")
+                None, "OWNER", "entid", "path/filename", "title", "notes")
 
 
 
@@ -478,6 +486,25 @@ class MambuConnectorREST(unittest.TestCase):
             mcrest.mambu_search(
                 "someURL",
             sortingCriteria={})
+
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_update(self, mock_requests, mock_uuid):
+        mock_uuid.uuid4.return_value = "An UUID"
+        mock_requests.request().status_code = 200
+        headers = app_json_headers()
+        headers["Idempotency-Key"] = "An UUID"
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_update("entid", "prefix", {"oneattr": "123"})
+
+        mock_requests.request.assert_called_with(
+            "PUT",
+            "https://{}/api/prefix/entid".format(apiurl),
+            params={},
+            data='{"oneattr": "123"}',
+            headers=headers)
 
     @mock.patch("MambuPy.api.mambuconnector.open")
     @mock.patch("MambuPy.api.mambuconnector.uuid")
