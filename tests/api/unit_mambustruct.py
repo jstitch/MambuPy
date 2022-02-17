@@ -713,9 +713,14 @@ class MambuStruct(unittest.TestCase):
         ms = mambustruct.MambuStruct()
         ms._attrs = {"aField": "abc123",
                      "_customFieldList": [
-                         "abc123",
-                         123,
-                         15.56],
+                         {"str": "abc123",
+                          "num": 123,
+                          "float": 15.56,
+                          "_index": 0},
+                         {"str": "def456",
+                          "num": 456,
+                          "float": 23.34,
+                          "_index": 1}],
                      "_customFieldDict": {
                          "str": "abc123",
                          "num": 123,
@@ -737,35 +742,70 @@ class MambuStruct(unittest.TestCase):
         ):
             ms._extractCustomFields()
 
+        del ms._attrs["_invalidFieldSet"]
+        ms._attrs["_invalidListField"] = ["somfield", "another"]
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"CustomFieldSet _invalidListField is not a list of dictionaries"
+        ):
+            ms._extractCustomFields()
+
     def test__updateCustomFields(self):
-        ms = mambustruct.MambuStruct()
-        ms._attrs = {"aField": "abc123",
+        extracted_fields = {"aField": "abc123",
                      "_customFieldList": [
-                         "abc123",
-                         123,
-                         15.56],
+                         {"str": "abc123",
+                          "num": 123,
+                          "float": 15.56,
+                          "bool": True,
+                          "_index": 0},
+                         {"str": "def456",
+                          "num": 456,
+                          "float": 23.34,
+                          "bool": False,
+                          "_index": 1},
+                         "invalidElement"],
                      "_customFieldDict": {
                          "num": 123,
-                         "bool": True},
+                         "bool": True,
+                         "not_converted": "?"},
+                     "_notConvertedList": [],
                      "num": 123,
                      "bool": True,
                      "customFieldList": [
-                         "abc123",
-                         123,
-                         15.56],
+                         {"str": "abc123",
+                          "num": 123,
+                          "float": 15.56,
+                          "_index": 0},
+                         {"str": "def456",
+                          "num": 456,
+                          "float": 23.34,
+                          "_index": 1}],
+                     "str_0": "abc123",
+                     "num_0": 123,
+                     "float_0": 15.56,
+                     "bool_0": True,
+                     "str_1": "def456",
+                     "num_1": 456,
+                     "float_1": 23.34,
+                     "bool_1": False,
                      }
+        ms = mambustruct.MambuStruct()
+        ms._attrs = copy.deepcopy(extracted_fields)
 
         ms._attrs["num"] = 321
-        ms._attrs["customFieldList"][1] = 321
+        ms._attrs["customFieldList"][0]["num"] = 321
         ms._updateCustomFields()
 
-        self.assertEqual(ms._customFieldList, ["abc123", 321, 15.56])
+        self.assertEqual(ms._customFieldList, [
+            {"str": "abc123", "num": 321, "float": 15.56, "bool": "TRUE", "_index": 0},
+            {"str": "def456", "num": 456, "float": 23.34, "bool": "FALSE", "_index": 1}])
         self.assertEqual(ms._customFieldDict["num"], 321)
         self.assertEqual(ms._customFieldDict["bool"], "TRUE")
         self.assertEqual(hasattr(ms, "num"), False)
         self.assertEqual(hasattr(ms, "bool"), False)
         self.assertEqual(hasattr(ms, "customFieldList"), False)
 
+        ms._attrs = copy.deepcopy(extracted_fields)
         ms._attrs["_invalidFieldSet"] = "someVal"
         with self.assertRaisesRegex(
             MambuPyError,

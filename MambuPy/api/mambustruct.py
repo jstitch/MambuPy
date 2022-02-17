@@ -590,10 +590,19 @@ class MambuStruct(MambuMapObj):
         for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
             if type(iter(val)) == type(iter({})):
                 for key, value in val.items():
-                    # self[key] = MambuCustomField(key=value)
-                    self[key] = value
+                    self[key] = MambuEntityCF(value)
             elif type(iter(val)) == type(iter([])):
-                self[attr[1:]] = copy.deepcopy(val)
+                self[attr[1:]] = MambuEntityCF(copy.deepcopy(val))
+                for ind, value in enumerate(val):
+                    if type(iter(value)) == type(iter({})):
+                        for key, subvalue in value.items():
+                            if key[0] != "_":
+                                mecf = MambuEntityCF(subvalue)
+                                self[key+"_"+str(ind)] = mecf
+                                # self[attr[1:]][ind][key] = mecf
+                    else:
+                        raise MambuPyError(
+                            "CustomFieldSet {} is not a list of dictionaries!".format(attr))
             else:
                 raise MambuPyError(
                     "CustomFieldSet {} is not a dictionary!".format(attr))
@@ -615,6 +624,16 @@ class MambuStruct(MambuMapObj):
                     except KeyError:
                         pass
             elif type(iter(val)) == type(iter([])):
+                for ind, value in enumerate(val):
+                    if type(iter(value)) == type(iter({})):
+                        for key, subvalue in value.items():
+                            if key[0] != "_":
+                                if self[key+"_"+str(ind)] in [True, False]:
+                                    self[key+"_"+str(ind)] = str(
+                                        self[key+"_"+str(ind)]).upper()
+                                if self[attr][ind][key] != self[key+"_"+str(ind)]:
+                                    self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
+                                cfs.append(key+"_"+str(ind))
                 try:
                     self._attrs[attr] = copy.deepcopy(self[attr[1:]])
                     cfs.append(attr[1:])
@@ -622,7 +641,7 @@ class MambuStruct(MambuMapObj):
                     pass
             else:
                 raise MambuPyError(
-                    "CustomFieldSet {} is not a dictionary!".format(attr))
+                    "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(attr))
         # deletes _attrs root keys of custom fields
         for field in cfs:
             del self._attrs[field]
