@@ -107,8 +107,8 @@ class MambuConnectorWriter(ABC):
 
     A Reader supports the followint operations:
 
+    - update (updates an entity)
     - upload_document (gets a single entity)
-    - delete_document (gets several entities, filtering allowed)
     """
 
     @abstractmethod

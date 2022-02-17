@@ -25,6 +25,14 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": "world"}
         self.assertEqual(ms["hello"], "world")
 
+    def test___getitem__CF(self):
+        ms = mambustruct.MambuMapObj()
+        cf = mambustruct.MambuEntityCF("world")
+        ms._attrs = {"hello": cf}
+        self.assertEqual(ms["hello"], "world")
+        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "world"})
+        self.assertEqual(ms["hello"], "world")
+
         with self.assertRaises(KeyError):
             ms["goodbye"]
 
@@ -33,6 +41,14 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {}  # should be automatically created?
         ms["hello"] = "world"
         self.assertEqual(ms._attrs, {"hello": "world"})
+
+    def test___setitem__CF(self):
+        ms = mambustruct.MambuMapObj()
+        cf = mambustruct.MambuEntityCF("world")
+        ms._attrs = {"hello": cf}
+
+        ms["hello"] = "goodbye"
+        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "goodbye"})
 
     def test___delitem__(self):
         ms = mambustruct.MambuMapObj()
@@ -55,8 +71,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"id": "12345"}
         self.assertEqual(repr(ms), "MambuMapObj - id: 12345")
 
-        ms._attrs = {}
-        self.assertEqual(repr(ms), "MambuMapObj (no standard entity)")
+        ms._attrs = {"what": "th?"}
+        self.assertEqual(repr(ms), "MambuMapObj - {'what': 'th?'}")
 
         del ms._attrs
         ms.entid = "12345"
@@ -100,8 +116,8 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(hash(ms), hash("MambuMapObj123"))
 
         ms = mambustruct.MambuMapObj()
-        ms._attrs = {}
-        self.assertEqual(hash(ms), hash("MambuMapObj (no standard entity)"))
+        ms._attrs = {"what": "th?"}
+        self.assertEqual(hash(ms), hash("MambuMapObj - {'what': 'th?'}"))
 
     def test___len__(self):
         ms = mambustruct.MambuMapObj()
@@ -167,6 +183,14 @@ class MagicMethodsTests(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ms.some_unexistent_property
 
+    def test___getattribute__CF(self):
+        cf = mambustruct.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj()
+        ms._attrs = {"hello": cf}
+        self.assertEqual(ms["hello"], "world")
+        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "world"})
+        self.assertEqual(ms.hello, "world")
+
     def test___setattribute__(self):
         ms = mambustruct.MambuMapObj()
         ms._attrs = {}
@@ -183,6 +207,14 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = []
         ms.goodbye = "cruelworld"
         self.assertEqual(getattr(ms, "goodbye"), "cruelworld")
+
+    def test___setattribute__CF(self):
+        cf = mambustruct.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj()
+        ms._attrs = {"hello": cf}
+
+        ms.hello = "goodbye"
+        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "goodbye"})
 
     def test_has_key(self):
         ms = mambustruct.MambuMapObj()
@@ -746,6 +778,12 @@ class MambuEntity(unittest.TestCase):
     def test_has_properties(self):
         me = mambustruct.MambuEntity()
         self.assertEqual(me._prefix, "")
+
+
+class MambuEntityCF(unittest.TestCase):
+    def test___init__(self):
+        ms = mambustruct.MambuEntityCF("_VALUE_")
+        self.assertEqual(ms._attrs, {"value": "_VALUE_"})
 
 
 if __name__ == "__main__":

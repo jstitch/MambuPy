@@ -1,21 +1,27 @@
 #!/bin/bash
 
-python tests/unit_mambuconfig.py
-python tests/unit_mambutask.py
-python tests/unit_mamburoles.py
-python tests/unit_mamburepayment.py
-python tests/unit_mambuproduct.py
-python tests/unit_mambucentre.py
-python tests/unit_mambubranch.py
-python tests/unit_mambuactivity.py
-python tests/unit_mambutransaction.py
-python tests/unit_mambuuser.py
-python tests/unit_mambustruct.py
-python tests/unit_mambugroup.py
-python tests/unit_mambuclient.py
-python tests/unit_mambuutil.py
-python tests/unit_mambuloan.py
-
-python tests/api/unit_mambuconnector.py
-python tests/api/unit_mambustruct.py
-python tests/api/unit_mambuloan.py
+tests=("unit_mambuconfig.py" \
+           "unit_mambutask.py" \
+           "unit_mamburoles.py" \
+           "unit_mamburepayment.py" \
+           "unit_mambuproduct.py" \
+           "unit_mambucentre.py" \
+           "unit_mambubranch.py" \
+           "unit_mambuactivity.py" \
+           "unit_mambutransaction.py" \
+           "unit_mambuuser.py" \
+           "unit_mambustruct.py" \
+           "unit_mambugroup.py" \
+           "unit_mambuclient.py" \
+           "unit_mambuutil.py" \
+           "unit_mambuloan.py" \
+           "api/unit_mambuconnector.py" \
+           "api/unit_mambustruct.py" \
+           "api/unit_mambuloan.py" \
+      )
+for test in ${tests[@]}
+do
+    echo $test
+    python tests/$test
+    echo ""
+done

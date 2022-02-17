@@ -45,6 +45,9 @@ class MambuMapObj():
                 # AttributeError will raise by default)
                 return object.__getattribute__(self, name)
             # all else, read the property from the _attrs dict, but with a . syntax
+            # if a MambuEntityCF, just return its value
+            if _attrs[name].__class__.__name__ == "MambuEntityCF":
+                return _attrs[name]["value"]
             return _attrs[name]
 
     def __setattr__(self, name, value):
@@ -71,7 +74,12 @@ class MambuMapObj():
                     object.__getattribute__(self, name)
                 except AttributeError:
                     # if not, then assign it as a new key in the dict
-                    _attrs[name] = value
+                    if (name in _attrs and
+                        _attrs[name].__class__.__name__ == "MambuEntityCF"
+                    ):
+                        _attrs[name] = MambuEntityCF(value)
+                    else:
+                        _attrs[name] = value
                 else:  # pragma: no cover
                     raise AttributeError
             except AttributeError:
@@ -80,12 +88,20 @@ class MambuMapObj():
 
     def __getitem__(self, key):
         """Dict-like key query"""
+        # if a MambuEntityCF, just return its value
+        if self._attrs[key].__class__.__name__ == "MambuEntityCF":
+            return self._attrs[key]["value"]
         return self._attrs[key]
 
     def __setitem__(self, key, value):
         """Dict-like set"""
         # if no _attrs attribute, should be automatically created?
-        self._attrs[key] = value
+        if (key in self._attrs and
+            self._attrs[key].__class__.__name__ == "MambuEntityCF"
+            ):
+            self._attrs[key] = MambuEntityCF(value)
+        else:
+            self._attrs[key] = value
 
     def __delitem__(self, key):
         """Dict-like del key"""
@@ -106,7 +122,7 @@ class MambuMapObj():
         try:
             return self.__class__.__name__ + " - id: %s" % self._attrs["id"]
         except KeyError:
-            return self.__class__.__name__ + " (no standard entity)"
+            return self.__class__.__name__ + " - " + str(self._attrs)
         except AttributeError:
             return (
                 self.__class__.__name__
@@ -613,7 +629,26 @@ class MambuStruct(MambuMapObj):
 
 
 class MambuEntity(MambuStruct):
-    """"""
+    """A Mambu object that you may work with directly on Mambu web too."""
 
     _prefix = ""
     """prefix constant for connections to Mambu"""
+
+
+class MambuValueObject(MambuMapObj):
+    """A Mambu object with some schema but that you won't interact directly
+    with in Mambu web, but through some entity."""
+
+
+class MambuEntityCF(MambuValueObject):
+    """A Mambu CustomField obtained via an Entity.
+
+    This is NOT a CustomField obtained through it's own endpoint, those go in
+    another separate class.
+
+    Here you just have a class to manage custom field values living inside some
+    Mambu entity.
+    """
+
+    def __init__(self, value):
+        self._attrs = {"value": value}
