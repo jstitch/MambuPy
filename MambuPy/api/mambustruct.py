@@ -4,6 +4,9 @@ import copy
 from datetime import datetime
 import json
 
+from .classes import GenericClass, MambuMapObj
+from .vos import MambuValueObject, MambuDocument
+
 from .mambuconnector import MambuConnectorREST
 
 from ..mambuutil import (
@@ -12,200 +15,6 @@ from ..mambuutil import (
     MambuPyError,
     OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
     )
-
-
-class MambuMapObj():
-    """An object with dictionary-like behaviour for key-value data"""
-
-    def __init__(self, **kwargs):
-        self._attrs = {}
-        if kwargs:
-            for key, val in kwargs.items():
-                self._attrs[key] = val
-
-    def __getattribute__(self, name):
-        """Object-like get attribute
-
-        When accessing an attribute, tries to find it in the _attrs
-        dictionary, so now MambuMapObj may act not only as a dict-like
-        structure, but as a full object-like too (this is the getter
-        side).
-        """
-        try:
-            # first, try to read 'name' as if it's a property of the object
-            # if it doesn't exists as property, AttributeError raises
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            # try to read the _attrs property
-            _attrs = object.__getattribute__(self, "_attrs")
-            if type(_attrs) == list or name not in _attrs:
-                # magic won't happen when not a dict-like MambuMapObj or
-                # when _attrs has not the 'name' key (this last one means
-                # that if 'name' is not a property of the object too,
-                # AttributeError will raise by default)
-                return object.__getattribute__(self, name)
-            # all else, read the property from the _attrs dict, but with a . syntax
-            # if a MambuEntityCF, just return its value
-            if _attrs[name].__class__.__name__ == "MambuEntityCF":
-                return _attrs[name]["value"]
-            return _attrs[name]
-
-    def __setattr__(self, name, value):
-        """Object-like set attribute
-
-        When setting an attribute, tries to set it in the _attrs
-        dictionary, so now MambuMapObj acts not only as a dict-like
-        structure, but as a full object-like too (this is the setter
-        side).
-        """
-        # if name beginning with _, assign it as a property of the object
-        if name[0] == "_":
-            object.__setattr__(self, name, value)
-        else:
-            try:
-                # _attrs needs to exist to make the magic happen!
-                # ... if not, AttributeError raises
-                _attrs = object.__getattribute__(self, "_attrs")
-                if type(_attrs) == list:
-                    # when not treating with a dict-like MambuMapObj...
-                    raise AttributeError
-                try:
-                    # see if 'name' is currently a property of the object
-                    object.__getattribute__(self, name)
-                except AttributeError:
-                    # if not, then assign it as a new key in the dict
-                    if (name in _attrs and
-                        _attrs[name].__class__.__name__ == "MambuEntityCF"
-                    ):
-                        _attrs[name] = MambuEntityCF(value)
-                    else:
-                        _attrs[name] = value
-                else:  # pragma: no cover
-                    raise AttributeError
-            except AttributeError:
-                # all else assign it as a property of the object
-                object.__setattr__(self, name, value)
-
-    def __getitem__(self, key):
-        """Dict-like key query"""
-        # if a MambuEntityCF, just return its value
-        if self._attrs[key].__class__.__name__ == "MambuEntityCF":
-            return self._attrs[key]["value"]
-        return self._attrs[key]
-
-    def __setitem__(self, key, value):
-        """Dict-like set"""
-        # if no _attrs attribute, should be automatically created?
-        if (key in self._attrs and
-            self._attrs[key].__class__.__name__ == "MambuEntityCF"
-            ):
-            self._attrs[key] = MambuEntityCF(value)
-        else:
-            self._attrs[key] = value
-
-    def __delitem__(self, key):
-        """Dict-like del key"""
-        del self._attrs[key]
-
-    def __str__(self):
-        """Mambu object str gives a string representation of the _attrs attribute."""
-        try:
-            return self.__class__.__name__ + " - " + str(self._attrs)
-        except AttributeError:
-            return repr(self)
-
-    def __repr__(self):
-        """Mambu object repr tells the class name and the usual 'id' for it.
-
-        If an iterable, it instead gives its length.
-        """
-        try:
-            return self.__class__.__name__ + " - id: %s" % self._attrs["id"]
-        except KeyError:
-            return self.__class__.__name__ + " - " + str(self._attrs)
-        except AttributeError:
-            return (
-                self.__class__.__name__
-                + " - id: '%s' (not synced with Mambu)" % self.entid
-            )
-        except TypeError:
-            return self.__class__.__name__ + " - len: %s" % len(self._attrs)
-
-    def __eq__(self, other):
-        """Very basic way to compare to Mambu objects.
-
-                Only looking at their EncodedKey field (its primary key on the
-                Mambu DB).
-
-        .. todo:: a lot of improvements may be done here.
-        """
-        if isinstance(other, MambuMapObj):
-            try:
-                if "encodedKey" not in other._attrs or "encodedKey" not in self._attrs:
-                    return NotImplemented
-            except AttributeError:
-                return NotImplemented
-            return other["encodedKey"] == self["encodedKey"]
-
-    def __hash__(self):
-        """Hash of the object"""
-        try:
-            return hash(self.encodedKey)
-        except AttributeError:
-            try:
-                return hash(self.__class__.__name__ + self.id)
-            except Exception:
-                return hash(self.__repr__())
-
-    def __len__(self):
-        """Length of the _attrs attribute.
-
-        If dict-like (not iterable), it's the number of keys holded on the _attrs dictionary.
-        If list-like (iterable), it's the number of elements of the _attrs list.
-        """
-        return len(self._attrs)
-
-    def __contains__(self, item):
-        """Dict-like and List-like behaviour"""
-        return item in self._attrs
-
-    def get(self, key, default=None):
-        """Dict-like behaviour"""
-        if type(self._attrs) == dict:
-            return self._attrs.get(key, default)
-        else:
-            raise NotImplementedError  # if _attrs is not a dict
-
-    def keys(self):
-        """Dict-like behaviour"""
-        try:
-            return self._attrs.keys()
-        except AttributeError:
-            raise NotImplementedError
-
-    def items(self):
-        """Dict-like behaviour"""
-        try:
-            return self._attrs.items()
-        except AttributeError:
-            raise NotImplementedError
-
-    def values(self):
-        """Dict-like behaviour"""
-        try:
-            return self._attrs.values()
-        except AttributeError:
-            raise NotImplementedError
-
-    def has_key(self, key):
-        """Dict-like behaviour"""
-        try:
-            if type(self._attrs) == dict:
-                return key in self._attrs
-            else:
-                raise AttributeError  # if _attrs is not a dict
-        except AttributeError:  # if _attrs doesnt exist
-            raise NotImplementedError
 
 
 class MambuStruct(MambuMapObj):
@@ -236,6 +45,219 @@ class MambuStruct(MambuMapObj):
     """
 
     _tzattrs = {}
+
+    def __init__(self, **kwargs):
+        super().__init__(cf_class=MambuEntityCF, **kwargs)
+
+    def _convertDict2Attrs(self, *args, **kwargs):
+        """Each element on the atttrs attribute gest converted to a
+        proper python object, depending on type.
+
+        Some default constantFields are left as is (strings), because they are
+        better treated as strings. This includes any field whose name ends with
+        'Key'.
+        """
+        constantFields = [
+            "id",
+            "groupName",
+            "name",
+            "homePhone",
+            "mobilePhone",
+            "mobilePhone2",
+            "postcode",
+            "emailAddress",
+            "description",
+        ]
+        # and any field whose name ends with "Key"
+
+        def convert(data, tzdata=None):
+            """Recursively convert the fields on the data given to a python object."""
+            # Iterators, lists and dictionaries
+            # Here comes the recursive calls!
+            try:
+                it = iter(data)
+                if type(it) == type(iter({})):
+                    d = {}
+                    for k in it:
+                        if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
+                            d[k] = data[k]
+                            if tzdata and k in tzdata:
+                                del tzdata[k]
+                        else:
+                            try:
+                                d[k] = convert(data[k], tzdata[k])
+                                if type(d[k]) not in [dict, list, datetime]:
+                                    del tzdata[k]
+                                elif isinstance(d[k], datetime):
+                                    tzdata[k] = datetime.fromisoformat(tzdata[k]).tzname()
+                            except (KeyError, ValueError, TypeError):
+                                d[k] = convert(data[k])
+                    data = d
+                if type(it) == type(iter([])):
+                    l = []
+                    for num, (e, te) in enumerate(zip(it, tzdata)):
+                        d = convert(e, te)
+                        if type(d) not in [dict, list, datetime]:
+                            tzdata[num] = None
+                        elif isinstance(d, datetime):
+                            tzdata[num] = datetime.fromisoformat(tzdata[num]).tzname()
+                        l.append(d)
+                    data = l
+            except TypeError:
+                pass
+            except Exception as ex:  # pragma: no cover
+                # unknown exception
+                raise ex
+
+            # Python built-in types: ints, floats, or even datetimes. If it
+            # cannot convert it to a built-in type, leave it as string, or
+            # as-is. There may be nested Mambu objects here!
+            # This are the recursion base cases!
+            if data in ["TRUE", "true", "FALSE", "false"]:
+                return data.lower() == "true"
+            try:
+                d = int(data)
+                if (
+                    str(d) != data
+                ):  # if string has trailing 0's, leave it as string, to not lose them
+                    return data
+                return d
+            except (TypeError, ValueError):
+                try:
+                    f_data = float(data)
+                    return f_data
+                except (TypeError, ValueError):
+                    try:
+                        return dateFormat(data)
+                    except (TypeError, ValueError):
+                        return data
+
+            return data
+
+        self._attrs = convert(self._attrs, self._tzattrs)
+
+    def _serializeFields(self, *args, **kwargs):
+        """Every attribute of the Mambu object is turned in to a string
+        representation.
+
+        If the object is an iterable one, it goes down to each of its
+        elements and turns its attributes too, recursively.
+
+        The base case is when it's a MambuMapObj class (this one) so it
+        just 'serializes' the attr atribute.
+
+        All datetimes are converted using timezone information stored in the
+        object.
+
+        Skips every MambuMapObj owned by this entity.
+        """
+        def convert(data, tzdata=None):
+            """Recursively convert the fields on the data given to a python object."""
+            if isinstance(data, MambuMapObj):
+                return data
+            try:
+                it = iter(data)
+            except TypeError:
+                if isinstance(data, datetime):
+                    data_asdate = data.isoformat()
+                    if tzdata:
+                        data_asdate += tzdata[-6:]
+                    return data_asdate
+                if data in [True, False]:
+                    return str(data).lower()
+                return str(data)
+
+            if type(it) == type(iter([])):
+                l = []
+                if tzdata:
+                    for (e, te) in zip(it, tzdata):
+                        l.append(convert(e, te))
+                else:
+                    for e in it:
+                        l.append(convert(e))
+                return l
+            elif type(it) == type(iter({})):
+                d = {}
+                for k in it:
+                    if tzdata and k in tzdata:
+                        d[k] = convert(data[k], tzdata[k])
+                    else:
+                        d[k] = convert(data[k])
+                return d
+            # elif ... tuples? sets?
+            return data
+
+        self._attrs = convert(self._attrs, self._tzattrs)
+
+    def _extractCustomFields(self):
+        """Loops through every custom field set and extracts custom field values
+        on the root of the _attrs property."""
+
+        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+            if type(iter(val)) == type(iter({})):
+                for key, value in val.items():
+                    self[key] = self._cf_class(value)
+            elif type(iter(val)) == type(iter([])):
+                self[attr[1:]] = self._cf_class(copy.deepcopy(val))
+                for ind, value in enumerate(val):
+                    if type(iter(value)) == type(iter({})):
+                        for key, subvalue in value.items():
+                            if key[0] != "_":
+                                mecf = self._cf_class(subvalue)
+                                self[key+"_"+str(ind)] = mecf
+                                # self[attr[1:]][ind][key] = mecf
+                    else:
+                        raise MambuPyError(
+                            "CustomFieldSet {} is not a list of dictionaries!".format(attr))
+            else:
+                raise MambuPyError(
+                    "CustomFieldSet {} is not a dictionary!".format(attr))
+
+    def _updateCustomFields(self):
+        """Loops through every custom field set and update custom field values
+        with the corresponding property at the root of the _attrs dict, then
+        deletes the property at root"""
+        cfs = []
+        # updates customfieldsets
+        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+            if type(iter(val)) == type(iter({})):
+                for key in val.keys():
+                    try:
+                        if self[key] in [True, False]:
+                            self[key] = str(self[key]).upper()
+                        self._attrs[attr][key] = self[key]
+                        cfs.append(key)
+                    except KeyError:
+                        pass
+            elif type(iter(val)) == type(iter([])):
+                for ind, value in enumerate(val):
+                    if type(iter(value)) == type(iter({})):
+                        for key in value.keys():
+                            if key[0] != "_":
+                                if self[key+"_"+str(ind)] in [True, False]:
+                                    self[key+"_"+str(ind)] = str(
+                                        self[key+"_"+str(ind)]).upper()
+                                if self[attr][ind][key] != self[key+"_"+str(ind)]:
+                                    self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
+                                cfs.append(key+"_"+str(ind))
+                try:
+                    self._attrs[attr] = copy.deepcopy(self[attr[1:]])
+                    cfs.append(attr[1:])
+                except KeyError:
+                    pass
+            else:
+                raise MambuPyError(
+                    "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(attr))
+        # deletes _attrs root keys of custom fields
+        for field in cfs:
+            del self._attrs[field]
+
+
+class MambuEntity(MambuStruct):
+    """A Mambu object that you may work with directly on Mambu web too."""
+
+    _prefix = ""
+    """prefix constant for connections to Mambu"""
 
     _connector = MambuConnectorREST()
     """Default connector (REST)"""
@@ -311,11 +333,11 @@ class MambuStruct(MambuMapObj):
           list of instances of an entity with data from Mambu, assembled from
           possibly several calls to get_func
         """
-        if "offset" in kwargs and kwargs["offset"] != None:
+        if "offset" in kwargs and kwargs["offset"] is not None:
             offset = kwargs["offset"]
         else:
             offset = 0
-        if "limit" in kwargs and kwargs["limit"] != None:
+        if "limit" in kwargs and kwargs["limit"] is not None:
             ini_limit = kwargs["limit"]
         else:
             ini_limit = 0
@@ -440,18 +462,24 @@ class MambuStruct(MambuMapObj):
         Returns:
           Mambu's response with metadata of the attached document
         """
-        if not hasattr(self, "_ownerType"):
+        if not hasattr(self, "_ownerType") or not hasattr(self, "_attachments"):
             raise MambuPyError(
                 "{} entity does not supports attachments!".format(
                     self.__class__.__name__))
-        return self._connector.mambu_upload_document(
+
+        response = self._connector.mambu_upload_document(
             owner_type=self._ownerType,
             entid=self.id,
             filename=filename,
             name=title,
             notes=notes)
 
-    def update(self, *args, **kwargs):
+        doc = MambuDocument(**dict(json.loads(response.decode())))
+        self._attachments[str(doc["id"])] = doc
+
+        return response
+
+    def update(self):
         """ updates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
@@ -468,220 +496,8 @@ class MambuStruct(MambuMapObj):
             self._convertDict2Attrs()
             self._extractCustomFields()
 
-    def _convertDict2Attrs(self, *args, **kwargs):
-        """Each element on the atttrs attribute gest converted to a
-        proper python object, depending on type.
-
-        Some default constantFields are left as is (strings), because they are
-        better treated as strings. This includes any field whose name ends with
-        'Key'.
-        """
-        constantFields = [
-            "id",
-            "groupName",
-            "name",
-            "homePhone",
-            "mobilePhone",
-            "mobilePhone2",
-            "postcode",
-            "emailAddress",
-            "description",
-        ]
-        # and any field whose name ends with "Key"
-
-        def convert(data, tzdata=None):
-            """Recursively convert the fields on the data given to a python object."""
-            # Iterators, lists and dictionaries
-            # Here comes the recursive calls!
-            try:
-                it = iter(data)
-                if type(it) == type(iter({})):
-                    d = {}
-                    for k in it:
-                        if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
-                            d[k] = data[k]
-                            if tzdata and k in tzdata:
-                                del tzdata[k]
-                        else:
-                            try:
-                                d[k] = convert(data[k], tzdata[k])
-                                if type(d[k]) not in [dict, list, datetime]:
-                                    del tzdata[k]
-                                elif type(d[k]) == datetime:
-                                    tzdata[k] = datetime.fromisoformat(tzdata[k]).tzname()
-                            except (KeyError, ValueError, TypeError):
-                                d[k] = convert(data[k])
-                    data = d
-                if type(it) == type(iter([])):
-                    l = []
-                    for num, (e, te) in enumerate(zip(it, tzdata)):
-                        d = convert(e, te)
-                        if type(d) not in [dict, list, datetime]:
-                            tzdata[num] = None
-                        elif type(d) == datetime:
-                            tzdata[num] = datetime.fromisoformat(tzdata[num]).tzname()
-                        l.append(d)
-                    data = l
-            except TypeError:
-                pass
-            except Exception as ex:  # pragma: no cover
-                """ unknown exception """
-                raise ex
-
-            # Python built-in types: ints, floats, or even datetimes. If it
-            # cannot convert it to a built-in type, leave it as string, or
-            # as-is. There may be nested Mambu objects here!
-            # This are the recursion base cases!
-            if data in ["TRUE", "FALSE", "true", "false"]:
-                return True if data in ["TRUE", "true"] else False
-            try:
-                d = int(data)
-                if (
-                    str(d) != data
-                ):  # if string has trailing 0's, leave it as string, to not lose them
-                    return data
-                return d
-            except (TypeError, ValueError):
-                try:
-                    f_data = float(data)
-                    return f_data
-                except (TypeError, ValueError):
-                    try:
-                        return dateFormat(data)
-                    except (TypeError, ValueError):
-                        return data
-
-            return data
-
-        self._attrs = convert(self._attrs, self._tzattrs)
-
-    def _serializeFields(self, *args, **kwargs):
-        """Every attribute of the Mambu object is turned in to a string
-        representation.
-
-        If the object is an iterable one, it goes down to each of its
-        elements and turns its attributes too, recursively.
-
-        The base case is when it's a MambuMapObj class (this one) so it
-        just 'serializes' the attr atribute.
-
-        All datetimes are converted using timezone information stored in the
-        object.
-
-        Skips every MambuMapObj owned by this entity.
-        """
-        def convert(data, tzdata=None):
-            """Recursively convert the fields on the data given to a python object."""
-            if isinstance(data, MambuMapObj):
-                return data
-            try:
-                it = iter(data)
-            except TypeError:
-                if type(data) == datetime:
-                    data_asdate = data.isoformat()
-                    if tzdata:
-                        data_asdate += tzdata[-6:]
-                    return data_asdate
-                if data in [True, False]:
-                    return str(data).lower()
-                return str(data)
-
-            if type(it) == type(iter([])):
-                l = []
-                if tzdata:
-                    for num, (e, te) in enumerate(zip(it, tzdata)):
-                        l.append(convert(e, te))
-                else:
-                    for num, e in enumerate(it):
-                        l.append(convert(e))
-                return l
-            elif type(it) == type(iter({})):
-                d = {}
-                for k in it:
-                    if tzdata and k in tzdata:
-                        d[k] = convert(data[k], tzdata[k])
-                    else:
-                        d[k] = convert(data[k])
-                return d
-            # elif ... tuples? sets?
-            return data
-
-        self._attrs = convert(self._attrs, self._tzattrs)
-
-    def _extractCustomFields(self):
-        """Loops through every custom field set and extracts custom field values
-        on the root of the _attrs property."""
-
-        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
-            if type(iter(val)) == type(iter({})):
-                for key, value in val.items():
-                    self[key] = MambuEntityCF(value)
-            elif type(iter(val)) == type(iter([])):
-                self[attr[1:]] = MambuEntityCF(copy.deepcopy(val))
-                for ind, value in enumerate(val):
-                    if type(iter(value)) == type(iter({})):
-                        for key, subvalue in value.items():
-                            if key[0] != "_":
-                                mecf = MambuEntityCF(subvalue)
-                                self[key+"_"+str(ind)] = mecf
-                                # self[attr[1:]][ind][key] = mecf
-                    else:
-                        raise MambuPyError(
-                            "CustomFieldSet {} is not a list of dictionaries!".format(attr))
-            else:
-                raise MambuPyError(
-                    "CustomFieldSet {} is not a dictionary!".format(attr))
-
-    def _updateCustomFields(self):
-        """Loops through every custom field set and update custom field values
-        with the corresponding property at the root of the _attrs dict, then
-        deletes the property at root"""
-        cfs = []
-        # updates customfieldsets
-        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
-            if type(iter(val)) == type(iter({})):
-                for key in val.keys():
-                    try:
-                        if self[key] in [True, False]:
-                            self[key] = str(self[key]).upper()
-                        self._attrs[attr][key] = self[key]
-                        cfs.append(key)
-                    except KeyError:
-                        pass
-            elif type(iter(val)) == type(iter([])):
-                for ind, value in enumerate(val):
-                    if type(iter(value)) == type(iter({})):
-                        for key, subvalue in value.items():
-                            if key[0] != "_":
-                                if self[key+"_"+str(ind)] in [True, False]:
-                                    self[key+"_"+str(ind)] = str(
-                                        self[key+"_"+str(ind)]).upper()
-                                if self[attr][ind][key] != self[key+"_"+str(ind)]:
-                                    self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
-                                cfs.append(key+"_"+str(ind))
-                try:
-                    self._attrs[attr] = copy.deepcopy(self[attr[1:]])
-                    cfs.append(attr[1:])
-                except KeyError:
-                    pass
-            else:
-                raise MambuPyError(
-                    "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(attr))
-        # deletes _attrs root keys of custom fields
-        for field in cfs:
-            del self._attrs[field]
 
 
-class MambuEntity(MambuStruct):
-    """A Mambu object that you may work with directly on Mambu web too."""
-
-    _prefix = ""
-    """prefix constant for connections to Mambu"""
-
-
-class MambuValueObject(MambuMapObj):
-    """A Mambu object with some schema but that you won't interact directly
-    with in Mambu web, but through some entity."""
 
 
 class MambuEntityCF(MambuValueObject):
@@ -696,3 +512,4 @@ class MambuEntityCF(MambuValueObject):
 
     def __init__(self, value):
         self._attrs = {"value": value}
+        self._cf_class = GenericClass

@@ -79,6 +79,7 @@ class MambuConnectorReader(ABC):
     @abstractmethod
     def mambu_search(
         self,
+        prefix,
         filterCriteria=None,
         sortingCriteria=None,
         offset=None,
@@ -138,7 +139,7 @@ class MambuConnectorWriter(ABC):
 
 
 class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
-    """"""
+    """A connector for Mambu REST API"""
 
     _RETRIES = 5
     _tenant = apiurl
@@ -148,7 +149,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             base64.b64encode(bytes("{}:{}".format(
                 apiuser, apipwd), "utf-8")).decode())}
 
-    def __request(self, method, url, params={}, data=None, content_type=None):
+    def __request(self, method, url, params=None, data=None, content_type=None):
         """ requests an url.
 
         Args:
@@ -164,6 +165,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         Raises:
           MambuError in case of 400 or 500 response codes
         """
+        if not params:
+            params = {}
+
         headers = copy.copy(self._headers)
 
         if method in ["POST", "PATCH", "PUT"]:
@@ -172,7 +176,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         if content_type:
             headers["Content-Type"] = content_type
 
-        if data != None:
+        if data is not None:
             try:
                 data = json.dumps(data)
             except TypeError:
@@ -185,49 +189,46 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                 resp = requests.request(
                     method, url, params=params, data=data, headers=headers)
             except requests.exceptions.RequestException as req_ex:
-                """ possible comm error with Mambu, retrying... """
+                # possible comm error with Mambu, retrying...
                 if self.retries < self._RETRIES:
                     self.retries += 1
                     continue
-                else:
-                    raise MambuCommError(
-                        "Comm error with Mambu: {}".format(req_ex))
+                raise MambuCommError(
+                    "Comm error with Mambu: {}".format(req_ex))
             except Exception as ex:
-                """ unknown exception """
+                # unknown exception
                 if self.retries < self._RETRIES:
                     self.retries += 1
                     continue
-                else:
-                    raise MambuCommError(
-                        "Unknown error with Mambu: {}".format(ex))
+                raise MambuCommError(
+                    "Unknown error with Mambu: {}".format(ex))
 
             if resp.status_code >= 400:
-                """ 500 errors retry. 400 errors raise exception immediatly """
+                # 500 errors retry. 400 errors raise exception immediatly
                 if resp.status_code >= 500 and self.retries < self._RETRIES:
                     self.retries += 1
                     continue
-                else:
-                    try:
-                        content = json.loads(resp.content.decode())
-                    except ValueError:
-                        """ in case resp.content doesn't conforms to json """
-                        content = {"errors": [
-                            {"errorCode": "UNKNOWN",
-                             "errorReason": resp.content.decode(),},
-                            ]}
-                    raise MambuError(
-                        "{} ({}) - {}{}".format(
-                            content["errors"][0]["errorCode"],
-                            resp.status_code,
-                            content["errors"][0]["errorReason"],
-                            " ("+content["errors"][0]["errorSource"]+")"
-                            if "errorSource" in content["errors"][0]
-                            else ""
-                            ))
+                try:
+                    content = json.loads(resp.content.decode())
+                except ValueError:
+                    # in case resp.content doesn't conforms to json
+                    content = {"errors": [
+                        {"errorCode": "UNKNOWN",
+                         "errorReason": resp.content.decode(),},
+                         ]}
+                raise MambuError(
+                    "{} ({}) - {}{}".format(
+                        content["errors"][0]["errorCode"],
+                        resp.status_code,
+                        content["errors"][0]["errorReason"],
+                        " ("+content["errors"][0]["errorSource"]+")"
+                        if "errorSource" in content["errors"][0]
+                        else ""
+                        ))
             # succesful request done!
             break  # pragma: no cover
         else:  # pragma: no cover
-            """ reached _RETRIES limit with no successful request """
+            # reached _RETRIES limit with no successful request
             raise MambuCommError("COMM Error: I cannot communicate with Mambu")
 
         return resp.content
@@ -243,13 +244,13 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """
         params = {}
 
-        if "offset" in kwargs and kwargs["offset"] != None:
-            if type(kwargs["offset"]) != int:
+        if "offset" in kwargs and kwargs["offset"] is not None:
+            if not isinstance(kwargs["offset"], int):
                 raise MambuPyError("offset must be integer")
             params["offset"] = kwargs["offset"]
 
-        if "limit" in kwargs and kwargs["limit"] != None:
-            if type(kwargs["limit"]) != int:
+        if "limit" in kwargs and kwargs["limit"] is not None:
+            if not isinstance(kwargs["limit"], int):
                 raise MambuPyError("limit must be integer")
             params["limit"] = kwargs["limit"]
 
@@ -322,7 +323,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             detailsLevel=detailsLevel)
 
         if sortBy:
-            if (type(sortBy) != str
+            if (not isinstance(sortBy, str)
                 or not re.search(
                     r"^(\w+:(ASC|DESC),)*(\w+:(ASC|DESC))$", sortBy)
             ):
@@ -331,7 +332,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             params["sortBy"] = sortBy
 
         if filters:
-            if type(filters) != dict:
+            if not isinstance(filters, dict):
                 raise MambuPyError("filters must be a dictionary")
             params.update(filters)
 
@@ -373,12 +374,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         data = {}
 
-        if filterCriteria != None:
-            if type(filterCriteria) != list:
+        if filterCriteria is not None:
+            if not isinstance(filterCriteria, list):
                 raise MambuPyError("filterCriteria must be a list of dictionaries")
             data["filterCriteria"] = []
             for criteria in filterCriteria:
-                if type(criteria) != dict:
+                if not isinstance(criteria, dict):
                     raise MambuPyError("each filterCriteria must be a dictionary")
                 if (
                     "field" not in criteria
@@ -390,8 +391,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                             SEARCH_OPERATORS))
                 data["filterCriteria"].append(criteria)
 
-        if sortingCriteria != None:
-            if type(sortingCriteria) != dict:
+        if sortingCriteria is not None:
+            if not isinstance(sortingCriteria, dict):
                 raise MambuPyError("sortingCriteria must be a dictionary")
             if (
                 "field" not in sortingCriteria

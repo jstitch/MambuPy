@@ -1,10 +1,11 @@
 """MambuLoan entity: a MambuEntity struct for credit Loans"""
 
 from MambuPy.mambuutil import MambuPyError
+from .interfaces import MambuAttachable
 from .mambustruct import MambuEntity
 
 
-class MambuLoan(MambuEntity):
+class MambuLoan(MambuEntity, MambuAttachable):
     """MambuLoan entity"""
 
     _prefix = "loans"
@@ -27,7 +28,10 @@ class MambuLoan(MambuEntity):
     """allowed fields for get_all sorting"""
 
     _ownerType = "LOAN_ACCOUNT"
-    """attachments owner type of this entity"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._attachments = {}
 
     @classmethod
     def get_all(
@@ -57,14 +61,14 @@ class MambuLoan(MambuEntity):
         Returns:
           list of instances of a MambuLoan with data from Mambu
         """
-        if filters and type(filters) == dict:
+        if filters and isinstance(filters, dict):
             for filter_k in filters.keys():
                 if filter_k not in cls._filter_keys:
                     raise MambuPyError(
                         "key {} not in allowed _filterkeys: {}".format(
                             filter_k, cls._filter_keys))
 
-        if sortBy and type(sortBy) == str:
+        if sortBy and isinstance(sortBy, str):
             for sort in sortBy.split(","):
                 for num, part in enumerate(sort.split(":")):
                     if num == 0 and part not in cls._sortBy_fields:

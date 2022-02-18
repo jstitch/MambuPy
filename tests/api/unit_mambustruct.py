@@ -26,7 +26,7 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms["hello"], "world")
 
     def test___getitem__CF(self):
-        ms = mambustruct.MambuMapObj()
+        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         cf = mambustruct.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
@@ -43,7 +43,7 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms._attrs, {"hello": "world"})
 
     def test___setitem__CF(self):
-        ms = mambustruct.MambuMapObj()
+        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         cf = mambustruct.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
 
@@ -185,7 +185,7 @@ class MagicMethodsTests(unittest.TestCase):
 
     def test___getattribute__CF(self):
         cf = mambustruct.MambuEntityCF("world")
-        ms = mambustruct.MambuMapObj()
+        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
         self.assertEqual(ms._attrs["hello"]._attrs, {"value": "world"})
@@ -210,7 +210,7 @@ class MagicMethodsTests(unittest.TestCase):
 
     def test___setattribute__CF(self):
         cf = mambustruct.MambuEntityCF("world")
-        ms = mambustruct.MambuMapObj()
+        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         ms._attrs = {"hello": cf}
 
         ms.hello = "goodbye"
@@ -237,238 +237,11 @@ class MagicMethodsTests(unittest.TestCase):
 
 class MambuConnector(unittest.TestCase):
     def test_has_mambuconnector(self):
-        ms = mambustruct.MambuStruct()
+        ms = mambustruct.MambuEntity()
         self.assertEqual(ms._connector.__class__.__name__, "MambuConnectorREST")
 
 
 class MambuStruct(unittest.TestCase):
-    def setUp(self):
-        class child_class(mambustruct.MambuStruct):
-            _prefix = "un_prefix"
-            _ownerType = "MY_ENTITY"
-            id = "12345"
-
-        self.child_class = child_class
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    def test___get_several(
-        self,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
-    ):
-        mock_func = mock.Mock()
-
-        mock_func.return_value = b'''[
-        {"encodedKey":"abc123","id":"12345"},
-        {"encodedKey":"def456","id":"67890"},
-        {"encodedKey":"ghi789","id":"54321"},
-        {"encodedKey":"jkl012","id":"09876"}
-        ]'''
-
-        ms = self.child_class.__get_several(mock_func)
-
-        self.assertEqual(len(ms), 4)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
-        self.assertEqual(ms[2].__class__.__name__, "child_class")
-        self.assertEqual(ms[2]._attrs, {"encodedKey":"ghi789", "id": "54321"})
-        self.assertEqual(ms[3].__class__.__name__, "child_class")
-        self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
-
-        mock_func.assert_called_with(
-            "un_prefix",
-            offset=0,
-            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-            detailsLevel="BASIC")
-        self.assertEqual(mock_convertDict2Attrs.call_count, 4)
-        mock_convertDict2Attrs.assert_called_with()
-        self.assertEqual(mock_extractCustomFields.call_count, 4)
-        mock_extractCustomFields.assert_called_with()
-
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
-        self.child_class.__get_several(mock_func, detailsLevel="FULL")
-        mock_func.assert_called_with(
-            "un_prefix",
-            offset=0,
-            limit=5,
-            detailsLevel="FULL")
-
-        self.child_class.__get_several(mock_func, offset=20, limit=2)
-        mock_func.assert_called_with(
-            "un_prefix",
-            offset=20,
-            limit=2,
-            detailsLevel="BASIC")
-
-        mock_func.reset_mock()
-        mock_func.side_effect = [
-            b'''[{"encodedKey":"abc123","id":"12345"}]''',
-            b'''[{"encodedKey":"def456","id":"67890"}]''',
-            b'''[{"encodedKey":"ghi789","id":"54321"}]''',
-            b'''[{"encodedKey":"jkl012","id":"09876"}]''',
-            b'''[]''',
-            ]
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
-        self.child_class.__get_several(mock_func, limit=4)
-        self.assertEqual(mock_func.call_count, 4)
-        mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=1, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=2, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=3, limit=1, detailsLevel="BASIC")
-
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_get(
-        self,
-        mock_connector,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
-    ):
-        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
-
-        ms = self.child_class.get("12345")
-
-        self.assertEqual(ms.__class__.__name__, "child_class")
-        self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
-        self.assertEqual(ms.__detailsLevel, "BASIC")
-        mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="BASIC")
-        mock_convertDict2Attrs.assert_called_once_with()
-        mock_extractCustomFields.assert_called_once_with()
-
-        ms = self.child_class.get("12345", "FULL")
-
-        self.assertEqual(ms.__class__.__name__, "child_class")
-        self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
-        mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="FULL")
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_connect(
-        self,
-        mock_connector,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
-    ):
-        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
-        ms = self.child_class.get("12345", detailsLevel="FULL")
-        ms.test_prop = "testing"
-        ms.someAttribute = "anotherValue"
-
-        mock_connector.reset_mock()
-        ms.connect()
-
-        mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="FULL")
-        self.assertEqual(ms.test_prop, "testing")
-        self.assertEqual(ms.someAttribute, "someValue")
-
-        mock_connector.reset_mock()
-        ms.connect(detailsLevel="BASIC")
-        mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="BASIC")
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_get_all(self, mock_connector):
-        mock_connector.mambu_get_all.return_value = b'''[
-        {"encodedKey":"abc123","id":"12345"},
-        {"encodedKey":"def456","id":"67890"}
-        ]'''
-
-        ms = self.child_class.get_all()
-
-        self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
-
-        ms = self.child_class.get_all(filters={"one": "two"})
-
-        self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_search(self, mock_connector):
-        mock_connector.mambu_search.return_value = b'''[
-        {"encodedKey":"abc123","id":"12345"},
-        {"encodedKey":"def456","id":"67890"}
-        ]'''
-
-        ms = self.child_class.search()
-
-        self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
-
-        ms = self.child_class.search(filterCriteria={"one": "two"})
-
-        self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_update(self, mock_connector):
-        mock_connector.mambu_update.return_value = b'''{
-        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
-        child = self.child_class()
-        child._attrs["myProp"] = "myVal"
-
-        child.update()
-
-        mock_connector.mambu_update.assert_called_with(
-            "12345", "un_prefix", {"myProp": "myVal"})
-
-        mock_connector.mambu_update.side_effect = MambuError("Un Err")
-        with self.assertRaisesRegex(MambuError, r"Un Err"):
-            child.update()
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
-    def test_attach_document(self, mock_connector):
-        mock_connector.mambu_upload_document.return_value = b'''{
-        "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
-        "type":"png","fileName":"someImage.png"
-        }'''
-        upl = self.child_class().attach_document(
-            "/tmp/someImage.png",
-            "MyImage",
-            "this is a test")
-
-        self.assertEqual(upl, mock_connector.mambu_upload_document.return_value)
-        mock_connector.mambu_upload_document.assert_called_with(
-            owner_type="MY_ENTITY",
-            entid="12345",
-            filename="/tmp/someImage.png",
-            name="MyImage",
-            notes="this is a test")
-
-        del self.child_class._ownerType
-        child = self.child_class()
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"child_class entity does not supports attachments!"
-        ):
-            child.attach_document(
-                "/tmp/someImage.png",
-                "MyImage",
-                "this is a test")
-
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
@@ -636,7 +409,7 @@ class MambuStruct(unittest.TestCase):
         to strings"""
         someDate = datetime.strptime(
             "2021-10-23T10:36:00", "%Y-%m-%dT%H:%M:%S")
-        someMambuStructObj = self.child_class()
+        someMambuStructObj = mambustruct.MambuStruct()
         ms = mambustruct.MambuStruct()
         ms._attrs = {"aStr": "abc123",
                      "aNum": 123,
@@ -855,9 +628,258 @@ class MambuStruct(unittest.TestCase):
 
 
 class MambuEntity(unittest.TestCase):
+    def setUp(self):
+        class child_class(mambustruct.MambuEntity):
+            _prefix = "un_prefix"
+            _ownerType = "MY_ENTITY"
+            _attachments = {}
+            id = "12345"
+
+        self.child_class = child_class
+
     def test_has_properties(self):
         me = mambustruct.MambuEntity()
         self.assertEqual(me._prefix, "")
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    def test___get_several(
+        self,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
+        mock_func = mock.Mock()
+
+        mock_func.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"},
+        {"encodedKey":"ghi789","id":"54321"},
+        {"encodedKey":"jkl012","id":"09876"}
+        ]'''
+
+        ms = self.child_class.__get_several(mock_func)
+
+        self.assertEqual(len(ms), 4)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[2].__class__.__name__, "child_class")
+        self.assertEqual(ms[2]._attrs, {"encodedKey":"ghi789", "id": "54321"})
+        self.assertEqual(ms[3].__class__.__name__, "child_class")
+        self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
+
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=0,
+            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+            detailsLevel="BASIC")
+        self.assertEqual(mock_convertDict2Attrs.call_count, 4)
+        mock_convertDict2Attrs.assert_called_with()
+        self.assertEqual(mock_extractCustomFields.call_count, 4)
+        mock_extractCustomFields.assert_called_with()
+
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
+        self.child_class.__get_several(mock_func, detailsLevel="FULL")
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=0,
+            limit=5,
+            detailsLevel="FULL")
+
+        self.child_class.__get_several(mock_func, offset=20, limit=2)
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=20,
+            limit=2,
+            detailsLevel="BASIC")
+
+        mock_func.reset_mock()
+        mock_func.side_effect = [
+            b'''[{"encodedKey":"abc123","id":"12345"}]''',
+            b'''[{"encodedKey":"def456","id":"67890"}]''',
+            b'''[{"encodedKey":"ghi789","id":"54321"}]''',
+            b'''[{"encodedKey":"jkl012","id":"09876"}]''',
+            b'''[]''',
+            ]
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
+        self.child_class.__get_several(mock_func, limit=4)
+        self.assertEqual(mock_func.call_count, 4)
+        mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=1, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=2, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=3, limit=1, detailsLevel="BASIC")
+
+        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_get(
+        self,
+        mock_connector,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
+        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
+
+        ms = self.child_class.get("12345")
+
+        self.assertEqual(ms.__class__.__name__, "child_class")
+        self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
+        self.assertEqual(ms.__detailsLevel, "BASIC")
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="BASIC")
+        mock_convertDict2Attrs.assert_called_once_with()
+        mock_extractCustomFields.assert_called_once_with()
+
+        ms = self.child_class.get("12345", "FULL")
+
+        self.assertEqual(ms.__class__.__name__, "child_class")
+        self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="FULL")
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_connect(
+        self,
+        mock_connector,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
+        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
+        ms = self.child_class.get("12345", detailsLevel="FULL")
+        ms.test_prop = "testing"
+        ms.someAttribute = "anotherValue"
+
+        mock_connector.reset_mock()
+        ms.connect()
+
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="FULL")
+        self.assertEqual(ms.test_prop, "testing")
+        self.assertEqual(ms.someAttribute, "someValue")
+
+        mock_connector.reset_mock()
+        ms.connect(detailsLevel="BASIC")
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="BASIC")
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_get_all(self, mock_connector):
+        mock_connector.mambu_get_all.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"}
+        ]'''
+
+        ms = self.child_class.get_all()
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+        ms = self.child_class.get_all(filters={"one": "two"})
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_search(self, mock_connector):
+        mock_connector.mambu_search.return_value = b'''[
+        {"encodedKey":"abc123","id":"12345"},
+        {"encodedKey":"def456","id":"67890"}
+        ]'''
+
+        ms = self.child_class.search()
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+        ms = self.child_class.search(filterCriteria={"one": "two"})
+
+        self.assertEqual(len(ms), 2)
+        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_update(self, mock_connector):
+        mock_connector.mambu_update.return_value = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }'''
+        child = self.child_class()
+        child._attrs["myProp"] = "myVal"
+
+        child.update()
+
+        mock_connector.mambu_update.assert_called_with(
+            "12345", "un_prefix", {"myProp": "myVal"})
+
+        mock_connector.mambu_update.side_effect = MambuError("Un Err")
+        with self.assertRaisesRegex(MambuError, r"Un Err"):
+            child.update()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_attach_document(self, mock_connector):
+        mock_connector.mambu_upload_document.return_value = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
+        "type":"png","fileName":"someImage.png"
+        }'''
+        child = self.child_class()
+        upl = child.attach_document(
+            "/tmp/someImage.png",
+            "MyImage",
+            "this is a test")
+
+        self.assertEqual(list(child._attachments.keys()), ["12345"])
+        self.assertEqual(
+            child._attachments["12345"]._attrs,
+            {"encodedKey": "0123456789abcdef",
+             "id": "12345",
+             "ownerType": "MY_ENTITY",
+             "type": "png",
+             "fileName": "someImage.png"})
+        self.assertEqual(upl, mock_connector.mambu_upload_document.return_value)
+        mock_connector.mambu_upload_document.assert_called_with(
+            owner_type="MY_ENTITY",
+            entid="12345",
+            filename="/tmp/someImage.png",
+            name="MyImage",
+            notes="this is a test")
+
+        del self.child_class._ownerType
+        child = self.child_class()
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"child_class entity does not supports attachments!"
+        ):
+            child.attach_document(
+                "/tmp/someImage.png",
+                "MyImage",
+                "this is a test")
+
+        self.child_class._ownerType = ""
+        del self.child_class._attachments
+        child = self.child_class()
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"child_class entity does not supports attachments!"
+        ):
+            child.attach_document(
+                "/tmp/someImage.png",
+                "MyImage",
+                "this is a test")
 
 
 class MambuEntityCF(unittest.TestCase):
