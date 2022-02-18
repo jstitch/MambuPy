@@ -260,8 +260,30 @@ class MambuStruct(MambuMapObj):
         instance._tzattrs = dict(json.loads(resp.decode()))
         instance._convertDict2Attrs()
         instance._extractCustomFields()
+        instance.__detailsLevel = detailsLevel
 
         return instance
+
+    def connect(self, detailsLevel=""):
+        """get again this single entity, identified by its entid.
+
+        Updates _attrs with responded data. Loses any change on _attrs that
+        overlaps with anything from Mambu. Leaves alone any other properties
+        that don't come in the response.
+
+        Args:
+          detailsLevel (str BASIC/FULL) - ask for extra details or not
+        """
+        if not detailsLevel:
+            detailsLevel = self.__detailsLevel
+        self._resp = self._connector.mambu_get(
+            self.id, prefix=self._prefix, detailsLevel=detailsLevel)
+
+        self._attrs.update(dict(json.loads(self._resp.decode())))
+        self._tzattrs = dict(json.loads(self._resp.decode()))
+        self._convertDict2Attrs()
+        self._extractCustomFields()
+        self.__detailsLevel = detailsLevel
 
     @classmethod
     def __get_several(cls, get_func, **kwargs):
@@ -299,6 +321,8 @@ class MambuStruct(MambuMapObj):
             ini_limit = 0
 
         params = copy.copy(kwargs)
+        if "detailsLevel" not in params:
+            params["detailsLevel"]="BASIC"
         window = True
         attrs = []
         while window:
@@ -332,6 +356,7 @@ class MambuStruct(MambuMapObj):
             elem._attrs = attr
             elem._convertDict2Attrs()
             elem._extractCustomFields()
+            elem.__detailsLevel = params["detailsLevel"]
             elements.append(elem)
 
         return elements

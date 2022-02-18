@@ -278,18 +278,30 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms[3].__class__.__name__, "child_class")
         self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
 
-        mock_func.assert_called_with("un_prefix", offset=0, limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE)
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=0,
+            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+            detailsLevel="BASIC")
         self.assertEqual(mock_convertDict2Attrs.call_count, 4)
         mock_convertDict2Attrs.assert_called_with()
         self.assertEqual(mock_extractCustomFields.call_count, 4)
         mock_extractCustomFields.assert_called_with()
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
-        self.child_class.__get_several(mock_func)
-        mock_func.assert_called_with("un_prefix", offset=0, limit=5)
+        self.child_class.__get_several(mock_func, detailsLevel="FULL")
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=0,
+            limit=5,
+            detailsLevel="FULL")
 
         self.child_class.__get_several(mock_func, offset=20, limit=2)
-        mock_func.assert_called_with("un_prefix", offset=20, limit=2)
+        mock_func.assert_called_with(
+            "un_prefix",
+            offset=20,
+            limit=2,
+            detailsLevel="BASIC")
 
         mock_func.reset_mock()
         mock_func.side_effect = [
@@ -302,10 +314,10 @@ class MambuStruct(unittest.TestCase):
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
         self.child_class.__get_several(mock_func, limit=4)
         self.assertEqual(mock_func.call_count, 4)
-        mock_func.assert_any_call("un_prefix", offset=0, limit=1)
-        mock_func.assert_any_call("un_prefix", offset=1, limit=1)
-        mock_func.assert_any_call("un_prefix", offset=2, limit=1)
-        mock_func.assert_any_call("un_prefix", offset=3, limit=1)
+        mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=1, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=2, limit=1, detailsLevel="BASIC")
+        mock_func.assert_any_call("un_prefix", offset=3, limit=1, detailsLevel="BASIC")
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
@@ -324,6 +336,7 @@ class MambuStruct(unittest.TestCase):
 
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
+        self.assertEqual(ms.__detailsLevel, "BASIC")
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="BASIC")
         mock_convertDict2Attrs.assert_called_once_with()
@@ -335,6 +348,33 @@ class MambuStruct(unittest.TestCase):
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="FULL")
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
+    def test_connect(
+        self,
+        mock_connector,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs
+    ):
+        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
+        ms = self.child_class.get("12345", detailsLevel="FULL")
+        ms.test_prop = "testing"
+        ms.someAttribute = "anotherValue"
+
+        mock_connector.reset_mock()
+        ms.connect()
+
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="FULL")
+        self.assertEqual(ms.test_prop, "testing")
+        self.assertEqual(ms.someAttribute, "someValue")
+
+        mock_connector.reset_mock()
+        ms.connect(detailsLevel="BASIC")
+        mock_connector.mambu_get.assert_called_with(
+            "12345", prefix="un_prefix", detailsLevel="BASIC")
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._connector")
     def test_get_all(self, mock_connector):
