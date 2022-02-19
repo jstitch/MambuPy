@@ -196,7 +196,7 @@ TODO comments for hackers are included at:
   - Codesmells fixes
 * v1.8.10 2021-06-29
   - MambuStruct connect() retries on Mambu 500 errors, throwing MambuCommError on RETRIES limit
-* v2.0.0alfa1 2022-02-18
+* v2.0.0a1 2022-02-18
   - support for Mambu API REST v2, work in progress... check api directory
 
 ### Author

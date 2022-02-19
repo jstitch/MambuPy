@@ -14,10 +14,10 @@ from MambuPy import __version__
 
 def readme():
     """print long description"""
-    import m2r
+    import m2r2
 
     with open("README.md") as f:
-        return m2r.convert(f.read())
+        return m2r2.convert(f.read())
 
 
 class VerifyVersionCommand:
