@@ -1,5 +1,16 @@
 stages:
+  - "lint"
   - "UnitTests"
+  - "quality"
+  - "deploys"
+
+Linter:
+  stage: lint
+  image: "python:3"
+  script:
+    - pip install -q --no-cache-dir pylint
+    - find ./MambuPy -iname "*.py" | xargs pylint --disable=all --enable=trailing-whitespace,trailing-newlines,missing-final-newline --output-format=parseable
+    - find ./tests -iname "*.py" | xargs pylint --disable=all --enable=trailing-whitespace,trailing-newlines,missing-final-newline --output-format=parseable
 
 .UnitTests:
   artifacts:
@@ -74,3 +85,18 @@ UnitTests-2:
     - coverage run --append --rcfile=./.coveragerc tests/unit_mambuproduct.py
 
     - coverage report --precision=2
+
+
+# gitlab users forking this project: you should create a group named
+# mambupy with a project named mambupy, with a file named
+# .gitlab-ci_deploy.yml
+
+# without this, your pipelines will fail
+
+# there you can put your own deploy rules, or if you don't have any,
+# you can add a job for some of the "quality" or "deploys" stages
+# doing an echo to console
+
+include:
+  - project: 'mambupy/mambupy-deploy'
+    file: '.gitlab-ci_deploy.yml'
