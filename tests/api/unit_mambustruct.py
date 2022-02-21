@@ -235,13 +235,13 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms.has_key("hello"), True)
 
 
-class MambuConnector(unittest.TestCase):
+class MambuConnectorTests(unittest.TestCase):
     def test_has_mambuconnector(self):
         ms = mambustruct.MambuEntity()
         self.assertEqual(ms._connector.__class__.__name__, "MambuConnectorREST")
 
 
-class MambuStruct(unittest.TestCase):
+class MambuStructTests(unittest.TestCase):
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
@@ -627,15 +627,35 @@ class MambuStruct(unittest.TestCase):
             ms._updateCustomFields()
 
 
-class MambuEntity(unittest.TestCase):
+class MambuEntityTests(unittest.TestCase):
     def setUp(self):
-        class child_class(mambustruct.MambuEntity):
+        class child_class(
+            mambustruct.MambuEntity
+        ):
             _prefix = "un_prefix"
-            _ownerType = "MY_ENTITY"
-            _attachments = {}
             id = "12345"
 
+        class child_class_attachable(
+            mambustruct.MambuEntity,
+            mambustruct.MambuEntityAttachable
+        ):
+            _prefix = "un_prefix"
+            _ownerType = "MY_ENTITY"
+            id = "12345"
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self._attachments = {}
+
+        class child_class_searchable(
+            mambustruct.MambuEntity,
+            mambustruct.MambuEntitySearchable
+        ):
+            """"""
+
         self.child_class = child_class
+        self.child_class_attachable = child_class_attachable
+        self.child_class_searchable = child_class_searchable
 
     def test_has_properties(self):
         me = mambustruct.MambuEntity()
@@ -643,7 +663,7 @@ class MambuEntity(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    def test___get_several(
+    def test__get_several(
         self,
         mock_extractCustomFields,
         mock_convertDict2Attrs
@@ -657,7 +677,7 @@ class MambuEntity(unittest.TestCase):
         {"encodedKey":"jkl012","id":"09876"}
         ]'''
 
-        ms = self.child_class.__get_several(mock_func)
+        ms = self.child_class._get_several(mock_func)
 
         self.assertEqual(len(ms), 4)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
@@ -680,14 +700,14 @@ class MambuEntity(unittest.TestCase):
         mock_extractCustomFields.assert_called_with()
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
-        self.child_class.__get_several(mock_func, detailsLevel="FULL")
+        self.child_class._get_several(mock_func, detailsLevel="FULL")
         mock_func.assert_called_with(
             "un_prefix",
             offset=0,
             limit=5,
             detailsLevel="FULL")
 
-        self.child_class.__get_several(mock_func, offset=20, limit=2)
+        self.child_class._get_several(mock_func, offset=20, limit=2)
         mock_func.assert_called_with(
             "un_prefix",
             offset=20,
@@ -703,7 +723,7 @@ class MambuEntity(unittest.TestCase):
             b'''[]''',
             ]
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
-        self.child_class.__get_several(mock_func, limit=4)
+        self.child_class._get_several(mock_func, limit=4)
         self.assertEqual(mock_func.call_count, 4)
         mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
         mock_func.assert_any_call("un_prefix", offset=1, limit=1, detailsLevel="BASIC")
@@ -727,7 +747,7 @@ class MambuEntity(unittest.TestCase):
 
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
-        self.assertEqual(ms.__detailsLevel, "BASIC")
+        self.assertEqual(ms._detailsLevel, "BASIC")
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="BASIC")
         mock_convertDict2Attrs.assert_called_once_with()
@@ -743,7 +763,7 @@ class MambuEntity(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
-    def test_connect(
+    def test_refresh(
         self,
         mock_connector,
         mock_extractCustomFields,
@@ -755,7 +775,7 @@ class MambuEntity(unittest.TestCase):
         ms.someAttribute = "anotherValue"
 
         mock_connector.reset_mock()
-        ms.connect()
+        ms.refresh()
 
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="FULL")
@@ -763,7 +783,7 @@ class MambuEntity(unittest.TestCase):
         self.assertEqual(ms.someAttribute, "someValue")
 
         mock_connector.reset_mock()
-        ms.connect(detailsLevel="BASIC")
+        ms.refresh(detailsLevel="BASIC")
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="BASIC")
 
@@ -797,20 +817,20 @@ class MambuEntity(unittest.TestCase):
         {"encodedKey":"def456","id":"67890"}
         ]'''
 
-        ms = self.child_class.search()
+        ms = self.child_class_searchable.search()
 
         self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
-        ms = self.child_class.search(filterCriteria={"one": "two"})
+        ms = self.child_class_searchable.search(filterCriteria={"one": "two"})
 
         self.assertEqual(len(ms), 2)
-        self.assertEqual(ms[0].__class__.__name__, "child_class")
+        self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
-        self.assertEqual(ms[1].__class__.__name__, "child_class")
+        self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
 
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
@@ -836,7 +856,7 @@ class MambuEntity(unittest.TestCase):
         "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
         "type":"png","fileName":"someImage.png"
         }'''
-        child = self.child_class()
+        child = self.child_class_attachable()
         upl = child.attach_document(
             "/tmp/someImage.png",
             "MyImage",
@@ -858,31 +878,8 @@ class MambuEntity(unittest.TestCase):
             name="MyImage",
             notes="this is a test")
 
-        del self.child_class._ownerType
-        child = self.child_class()
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"child_class entity does not supports attachments!"
-        ):
-            child.attach_document(
-                "/tmp/someImage.png",
-                "MyImage",
-                "this is a test")
 
-        self.child_class._ownerType = ""
-        del self.child_class._attachments
-        child = self.child_class()
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"child_class entity does not supports attachments!"
-        ):
-            child.attach_document(
-                "/tmp/someImage.png",
-                "MyImage",
-                "this is a test")
-
-
-class MambuEntityCF(unittest.TestCase):
+class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
         ms = mambustruct.MambuEntityCF("_VALUE_")
         self.assertEqual(ms._attrs, {"value": "_VALUE_"})
