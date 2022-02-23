@@ -88,7 +88,7 @@ UnitTests-2:
 
 
 # gitlab users forking this project: you should create a group named
-# mambupy with a project named mambupy, with a file named
+# mambupy with a project named mambupy-deploy, with a file named
 # .gitlab-ci_deploy.yml
 
 # without this, your pipelines will fail
