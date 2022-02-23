@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 
 from .classes import GenericClass, MambuMapObj
+from .interfaces import MambuAttachable, MambuSearchable
 from .vos import MambuValueObject, MambuDocument
 
 from .mambuconnector import MambuConnectorREST
@@ -48,6 +49,82 @@ class MambuStruct(MambuMapObj):
 
     def __init__(self, **kwargs):
         super().__init__(cf_class=MambuEntityCF, **kwargs)
+
+    @classmethod
+    def _get_several(cls, get_func, **kwargs):
+        """get several entities.
+
+        Using certain mambu connector function and its particular arguments.
+
+        arg limit has a hard limit imposed by Mambu, that only 1,000 registers
+        can be retrieved, so a pagination must be done to retrieve more
+        registries.
+
+        A pagination algorithm (using the offset and the 1,000 limitation) is
+        applied here so that limit may be higher than 1,000 and _get_several
+        will get a all the registers from Mambu in several requests.
+
+        If limit=0 or None, the algorithm will retrieve EVERYTHING according to
+        the given filters, using several requests to that end.
+
+        Args:
+          get_func (function) - mambu request function that returns several
+                                entities (json [])
+          kwargs (dict) - keyword arguments to pass on to get_func
+
+        Returns:
+          list of instances of an entity with data from Mambu, assembled from
+          possibly several calls to get_func
+        """
+        if "offset" in kwargs and kwargs["offset"] is not None:
+            offset = kwargs["offset"]
+        else:
+            offset = 0
+        if "limit" in kwargs and kwargs["limit"] is not None:
+            ini_limit = kwargs["limit"]
+        else:
+            ini_limit = 0
+
+        params = copy.copy(kwargs)
+        if "detailsLevel" not in params:
+            params["detailsLevel"]="BASIC"
+        window = True
+        attrs = []
+        while window:
+            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
+                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+            else:
+                limit = ini_limit
+
+            params["offset"] = offset
+            params["limit"] = limit if limit != 0 else None
+            resp = get_func(
+                cls._prefix,
+                **params)
+
+            jsonresp = list(json.loads(resp.decode()))
+            if len(jsonresp) < limit:
+                window = False
+            attrs.extend(jsonresp)
+
+            # next window, moving offset...
+            offset = offset + limit
+            if ini_limit:
+                ini_limit -= limit
+                if ini_limit <= 0:
+                    window = False
+
+        elements = []
+        for attr in attrs:
+            elem = cls.__call__()
+            elem._resp = json.dumps(attr).encode()
+            elem._attrs = attr
+            elem._convertDict2Attrs()
+            elem._extractCustomFields()
+            elem._detailsLevel = params["detailsLevel"]
+            elements.append(elem)
+
+        return elements
 
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
@@ -282,11 +359,11 @@ class MambuEntity(MambuStruct):
         instance._tzattrs = dict(json.loads(resp.decode()))
         instance._convertDict2Attrs()
         instance._extractCustomFields()
-        instance.__detailsLevel = detailsLevel
+        instance._detailsLevel = detailsLevel
 
         return instance
 
-    def connect(self, detailsLevel=""):
+    def refresh(self, detailsLevel=""):
         """get again this single entity, identified by its entid.
 
         Updates _attrs with responded data. Loses any change on _attrs that
@@ -297,7 +374,7 @@ class MambuEntity(MambuStruct):
           detailsLevel (str BASIC/FULL) - ask for extra details or not
         """
         if not detailsLevel:
-            detailsLevel = self.__detailsLevel
+            detailsLevel = self._detailsLevel
         self._resp = self._connector.mambu_get(
             self.id, prefix=self._prefix, detailsLevel=detailsLevel)
 
@@ -305,83 +382,7 @@ class MambuEntity(MambuStruct):
         self._tzattrs = dict(json.loads(self._resp.decode()))
         self._convertDict2Attrs()
         self._extractCustomFields()
-        self.__detailsLevel = detailsLevel
-
-    @classmethod
-    def __get_several(cls, get_func, **kwargs):
-        """get several entities.
-
-        Using certain mambu connector function and its particular arguments.
-
-        arg limit has a hard limit imposed by Mambu, that only 1,000 registers
-        can be retrieved, so a pagination must be done to retrieve more
-        registries.
-
-        A pagination algorithm (using the offset and the 1,000 limitation) is
-        applied here so that limit may be higher than 1,000 and __get_several
-        will get a all the registers from Mambu in several requests.
-
-        If limit=0 or None, the algorithm will retrieve EVERYTHING according to
-        the given filters, using several requests to that end.
-
-        Args:
-          get_func (function) - mambu request function that returns several
-                                entities (json [])
-          kwargs (dict) - keyword arguments to pass on to get_func
-
-        Returns:
-          list of instances of an entity with data from Mambu, assembled from
-          possibly several calls to get_func
-        """
-        if "offset" in kwargs and kwargs["offset"] is not None:
-            offset = kwargs["offset"]
-        else:
-            offset = 0
-        if "limit" in kwargs and kwargs["limit"] is not None:
-            ini_limit = kwargs["limit"]
-        else:
-            ini_limit = 0
-
-        params = copy.copy(kwargs)
-        if "detailsLevel" not in params:
-            params["detailsLevel"]="BASIC"
-        window = True
-        attrs = []
-        while window:
-            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
-                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
-            else:
-                limit = ini_limit
-
-            params["offset"] = offset
-            params["limit"] = limit if limit != 0 else None
-            resp = get_func(
-                cls._prefix,
-                **params)
-
-            jsonresp = list(json.loads(resp.decode()))
-            if len(jsonresp) < limit:
-                window = False
-            attrs.extend(jsonresp)
-
-            # next window, moving offset...
-            offset = offset + limit
-            if ini_limit:
-                ini_limit -= limit
-                if ini_limit <= 0:
-                    window = False
-
-        elements = []
-        for attr in attrs:
-            elem = cls.__call__()
-            elem._resp = json.dumps(attr).encode()
-            elem._attrs = attr
-            elem._convertDict2Attrs()
-            elem._extractCustomFields()
-            elem.__detailsLevel = params["detailsLevel"]
-            elements.append(elem)
-
-        return elements
+        self._detailsLevel = detailsLevel
 
     @classmethod
     def get_all(
@@ -413,10 +414,30 @@ class MambuEntity(MambuStruct):
                   "detailsLevel": detailsLevel,
                   "sortBy": sortBy}
 
-        return cls.__get_several(cls._connector.mambu_get_all, **params)
+        return cls._get_several(cls._connector.mambu_get_all, **params)
 
-    # TODO: not all entities are searchable... implement a Searchable interface
-    # prop _searchable obj to get the search method, else: NotImplementedError
+    def update(self):
+        """ updates a mambu entity
+
+        Uses the current values of the _attrs to send to Mambu.
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+        """
+        self._updateCustomFields()
+        self._serializeFields()
+        try:
+            self._connector.mambu_update(self.id, self._prefix, self._attrs)
+        except MambuError as merr:
+            raise merr
+        finally:
+            self._convertDict2Attrs()
+            self._extractCustomFields()
+
+
+
+class MambuEntitySearchable(MambuStruct, MambuSearchable):
+    """A Mambu object with seraching capabilities."""
+
     @classmethod
     def search(
         cls,
@@ -449,7 +470,17 @@ class MambuEntity(MambuStruct):
                   "paginationDetails": paginationDetails,
                   "detailsLevel": detailsLevel}
 
-        return cls.__get_several(cls._connector.mambu_search, **params)
+        return cls._get_several(cls._connector.mambu_search, **params)
+
+
+class MambuEntityAttachable(MambuStruct, MambuAttachable):
+    """A Mambu object with attaching capabilities."""
+
+    _ownerType = ""
+    """attachments owner type of this entity"""
+
+    _attachments = {}
+    """dict of attachments of an entity, key is the id"""
 
     def attach_document(self, filename, title="", notes=""):
         """uploads an attachment to this entity
@@ -462,11 +493,6 @@ class MambuEntity(MambuStruct):
         Returns:
           Mambu's response with metadata of the attached document
         """
-        if not hasattr(self, "_ownerType") or not hasattr(self, "_attachments"):
-            raise MambuPyError(
-                "{} entity does not supports attachments!".format(
-                    self.__class__.__name__))
-
         response = self._connector.mambu_upload_document(
             owner_type=self._ownerType,
             entid=self.id,
@@ -478,26 +504,6 @@ class MambuEntity(MambuStruct):
         self._attachments[str(doc["id"])] = doc
 
         return response
-
-    def update(self):
-        """ updates a mambu entity
-
-        Uses the current values of the _attrs to send to Mambu.
-        Pre-requires that CustomFields are updated previously.
-        Post-requires that CustomFields are extracted again.
-        """
-        self._updateCustomFields()
-        self._serializeFields()
-        try:
-            self._connector.mambu_update(self.id, self._prefix, self._attrs)
-        except MambuError as merr:
-            raise merr
-        finally:
-            self._convertDict2Attrs()
-            self._extractCustomFields()
-
-
-
 
 
 class MambuEntityCF(MambuValueObject):

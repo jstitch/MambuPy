@@ -1,11 +1,18 @@
 """MambuLoan entity: a MambuEntity struct for credit Loans"""
 
 from MambuPy.mambuutil import MambuPyError
-from .interfaces import MambuAttachable
-from .mambustruct import MambuEntity
+from .mambustruct import (
+    MambuEntity,
+    MambuEntityAttachable,
+    MambuEntitySearchable,
+    )
 
 
-class MambuLoan(MambuEntity, MambuAttachable):
+class MambuLoan(
+    MambuEntity,
+    MambuEntityAttachable,
+    MambuEntitySearchable
+    ):
     """MambuLoan entity"""
 
     _prefix = "loans"
@@ -28,6 +35,7 @@ class MambuLoan(MambuEntity, MambuAttachable):
     """allowed fields for get_all sorting"""
 
     _ownerType = "LOAN_ACCOUNT"
+    """attachments owner type of this entity"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
