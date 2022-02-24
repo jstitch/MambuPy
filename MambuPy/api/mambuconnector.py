@@ -124,6 +124,16 @@ class MambuConnectorWriter(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def mambu_create(self, prefix, attrs):
+        """ creates a mambu entity
+
+        Args:
+          prefix (str) - entity's URL prefix
+          attrs (dict) - entity to be created, complying with Mambu's schemas
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_upload_document(
         self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
@@ -416,11 +426,28 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           entid (str) - the id or encoded key of the entity owning the document
           prefix (str) - entity's URL prefix
           attrs (dict) - entity to be updated, complying with Mambu's schemas
+
+        Returns:
+          response content (str json {})
         """
         url = "https://{}/api/{}/{}".format(
             self._tenant, prefix, entid)
 
         return self.__request("PUT", url, data=attrs)
+
+    def mambu_create(self, prefix, attrs):
+        """ creates a mambu entity
+
+        Args:
+          prefix (str) - entity's URL prefix
+          attrs (dict) - entity to be created, complying with Mambu's schemas
+
+        Returns:
+          response content (str json {})
+        """
+        url = "https://{}/api/{}".format(self._tenant, prefix)
+
+        return self.__request("POST", url, data=attrs)
 
     def mambu_upload_document(
         self, owner_type, entid, filename, name, notes):
@@ -434,7 +461,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           notes (str) - notes to associate to the attached file in Mambu
 
         Returns:
-          Mambu's response with metadata of the attached document
+          response content (str json {}) metadata of the attached document
         """
         for char in UPLOAD_FILENAME_INVALID_CHARS:
             if char in os.path.basename(filename):
