@@ -198,6 +198,15 @@ TODO comments for hackers are included at:
   - MambuStruct connect() retries on Mambu 500 errors, throwing MambuCommError on RETRIES limit
 * v2.0.0a1 2022-02-18
   - support for Mambu API REST v2, work in progress... check api directory
+  - using a loan account as a sample for all development...
+  - support for instancing (get and get_all endpoints)
+  - support for instancing through search
+  - custom fields in entities
+  - upload attachments
+  - update of entities
+* v2.0.0a2 2022-02-23
+  - Mambu API REST v2, support for
+  - creation of entities
 
 ### Author
 
