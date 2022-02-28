@@ -1,6 +1,15 @@
 """Connectors to Mambu.
 
-Currently supports REST and ORM.
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuConnector
+   MambuConnectorReader
+   MambuConnectorWriter
+   MambuConnectorREST
+
+Currently supports REST.
 """
 from abc import ABC, abstractmethod
 import base64

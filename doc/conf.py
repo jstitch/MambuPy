@@ -15,7 +15,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../"))
 
 
 # -- Project information -----------------------------------------------------
@@ -197,7 +197,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/2", None),
+    "python": ("https://docs.python.org/3.8", None),
     "sqlalchemy": ("https://sqlalchemy.org/docs/latest", None),
 }
 

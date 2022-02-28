@@ -1,4 +1,11 @@
-"""Base and utility Classes for Mambu Objects."""
+"""Base and utility Classes for Mambu Objects.
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuMapObj
+"""
 
 class GenericClass():  # pragma: no coverage
     """Generic class for init of MambuMapObj"""

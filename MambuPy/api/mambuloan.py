@@ -1,4 +1,11 @@
-"""MambuLoan entity: a MambuEntity struct for credit Loans"""
+"""MambuLoan entity: a MambuEntity struct for credit Loans.
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuLoan
+"""
 
 from MambuPy.mambuutil import MambuPyError
 from .mambustruct import (

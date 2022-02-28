@@ -1,4 +1,13 @@
-"""Interfaces for Mambu Objects."""
+"""Interfaces for Mambu Objects.
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuAttachable
+   MambuSearchable
+"""
+
 from abc import ABC, abstractmethod
 
 class MambuAttachable(ABC):

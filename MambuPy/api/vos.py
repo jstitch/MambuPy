@@ -1,4 +1,12 @@
-"""Mambu Value Objects"""
+"""Mambu Value Objects
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuValueObject
+   MambuDocument
+"""
 
 from .classes import MambuMapObj
 

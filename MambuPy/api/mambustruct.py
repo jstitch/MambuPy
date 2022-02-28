@@ -1,4 +1,15 @@
-"""Basic Struct for Mambu Objects."""
+"""Basic Struct for Mambu Objects.
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+
+   MambuStruct
+   MambuEntity
+   MambuEntitySearchable
+   MambuEntityAttachable
+   MambuEntityCF
+"""
 
 import copy
 from datetime import datetime
