@@ -118,6 +118,8 @@ class MambuConnectorWriter(ABC):
     A Reader supports the followint operations:
 
     - update (updates an entity)
+    - create (creates an entity)
+    - patch (patches an entity)
     - upload_document (gets a single entity)
     """
 
@@ -140,6 +142,11 @@ class MambuConnectorWriter(ABC):
           prefix (str) - entity's URL prefix
           attrs (dict) - entity to be created, complying with Mambu's schemas
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def mambu_patch(self, entid, prefix, fields):
+        """ patches certain parts of a mambu entity"""
         raise NotImplementedError
 
     @abstractmethod
@@ -457,6 +464,38 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         url = "https://{}/api/{}".format(self._tenant, prefix)
 
         return self.__request("POST", url, data=attrs)
+
+    def mambu_patch(self, entid, prefix, fields_ops=None):
+        """ patches certain parts of a mambu entity
+
+        https://api.mambu.com/?python#tocspatchoperation
+
+        Supported: add, remove, replace (move not yet supported)
+
+        Args:
+          entid (str) - the id or encoded key of the entity
+          prefix (str) - entity's URL prefix
+          fields_ops (list of tuples) - each tuple has:
+            OP (str) - operation ("ADD", "REPLACE", "REMOVE")
+            PATH (str) - json pointer referencing the location in the target entity
+            VALUE (obj, opc) - the value of the field (not for REMOVE op)
+        """
+        if not fields_ops:
+            fields_ops = []
+
+        url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
+
+        # build data from fields_ops param
+        patch_data = []
+        for field in fields_ops:
+            patch_item = {"op": field[0].strip().lower(),
+                          "path": field[1].strip()}
+            if field[0] != "REMOVE":
+                patch_item["value"] = field[2]
+            patch_data.append(patch_item)
+
+        if patch_data:
+            return self.__request("PATCH", url, data=patch_data)
 
     def mambu_upload_document(
         self, owner_type, entid, filename, name, notes):

@@ -201,23 +201,31 @@ class MambuStruct(MambuMapObj):
 
         self._attrs = convert(self._attrs, self._tzattrs)
 
-    def _extractCustomFields(self):
+    def _extractCustomFields(self, attrs=None):
         """Loops through every custom field set and extracts custom field values
         on the root of the _attrs property."""
 
-        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+        if not attrs:
+            attrs = self._attrs
+
+        for attr, val in [atr for atr in attrs.items() if atr[0][0]=="_"]:
             if type(iter(val)) == type(iter({})):
                 for key, value in val.items():
-                    self[key] = self._cf_class(value)
+                    attrs[key] = self._cf_class(
+                        value, "/{}/{}".format(attr, key), "STANDARD")
             elif type(iter(val)) == type(iter([])):
-                self[attr[1:]] = self._cf_class(copy.deepcopy(val))
+                attrs[attr[1:]] = self._cf_class(
+                    copy.deepcopy(val), "/{}".format(attr), "GROUPED")
                 for ind, value in enumerate(val):
                     if type(iter(value)) == type(iter({})):
                         for key, subvalue in value.items():
                             if key[0] != "_":
-                                mecf = self._cf_class(subvalue)
-                                self[key+"_"+str(ind)] = mecf
-                                # self[attr[1:]][ind][key] = mecf
+                                mecf = self._cf_class(
+                                    subvalue,
+                                    "/{}/{}/{}".format(attr, ind, key),
+                                    "GROUPED")
+                                attrs[key+"_"+str(ind)] = mecf
+                                # attrs[attr[1:]][ind][key] = mecf
                     else:
                         raise MambuPyError(
                             "CustomFieldSet {} is not a list of dictionaries!".format(attr))
@@ -246,12 +254,15 @@ class MambuStruct(MambuMapObj):
                     if type(iter(value)) == type(iter({})):
                         for key in value.keys():
                             if key[0] != "_":
-                                if self[key+"_"+str(ind)] in [True, False]:
-                                    self[key+"_"+str(ind)] = str(
-                                        self[key+"_"+str(ind)]).upper()
-                                if self[attr][ind][key] != self[key+"_"+str(ind)]:
-                                    self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
-                                cfs.append(key+"_"+str(ind))
+                                try:
+                                    if self[key+"_"+str(ind)] in [True, False]:
+                                        self[key+"_"+str(ind)] = str(
+                                            self[key+"_"+str(ind)]).upper()
+                                    if self[attr][ind][key] != self[key+"_"+str(ind)]:
+                                        self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
+                                    cfs.append(key+"_"+str(ind))
+                                except KeyError:
+                                    pass
                 try:
                     self._attrs[attr] = copy.deepcopy(self[attr[1:]])
                     cfs.append(attr[1:])
@@ -439,7 +450,7 @@ class MambuEntity(MambuStruct):
         try:
             self._connector.mambu_update(
                 self.id, self._prefix, copy.deepcopy(self._attrs))
-            # should I refresh _attrs? (either from Mambu or using the response)
+            # should I refresh _attrs? (either get request from Mambu or using the response)
         except MambuError as merr:
             raise merr
         finally:
@@ -467,6 +478,102 @@ class MambuEntity(MambuStruct):
             self._convertDict2Attrs()
             self._extractCustomFields()
 
+    def patch(self, fields=None, autodetect_remove=False):
+        """ patches a mambu entity
+
+        Allows patching of parts of the entity up to Mambu.
+
+        fields is a list of the values in the _attrs that will be sent to Mambu
+
+        autodetect automatically searches for deleted fields and patches a
+        remove in Mambu.
+
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+
+        Args:
+          fields (list of str) - list of ids of fields to explicitly patch
+          autodetect_remove (bool) - False: if deleted fields, don't remove them
+                                     True: if delete field, remove them
+
+        Autodetect operation, for any field
+        (every field if fields param is None):
+          ADD: in attrs, but not in resp
+          REPLACE: in attrs, and in resp
+          REMOVE: not in attrs, but in resp
+          MOVE is not yet implemented (how to autodetect?
+                                       request needs 'from' element)
+
+        Raises:
+          MambuPyError if field not in attrrs, and not in resp
+        """
+        # customfields:
+        # standard, as other fields (path includes CFset)
+        #   REPLACE and REMOVE includes CF in path after CFset
+        # grouped:
+        #  ADD value is a list of CFs (they queue at end of group)
+        #  REPLACE and REMOVE need index in path after CFset,
+        #    CF at last replaces/removes just some field in the CFset at the index
+        #  remove may have just index in path (removes entire CF)
+        #    just CFset in path (removes entire group)
+        #  you cannot add or replace entire CF (like by using just the index)
+
+        def extract_path(attrs_dict, field, cf_class):
+            if (attrs_dict[field].__class__.__name__ == cf_class.__name__):
+                return attrs_dict[field]["path"]
+            else:
+                return "/" + field
+
+        if not fields:
+            fields = []
+        try:
+            # build fields_ops param with what detected using previous rules
+            # strings: (OP, PATH) (remove) or (OP, PATH, VALUE) (all else)
+            fields_ops = []
+            original_attrs = dict(json.loads(self._resp.decode()))
+            self._extractCustomFields(original_attrs)
+            for field in fields:
+                if (field in self._attrs.keys() and
+                    field not in original_attrs.keys()
+                ):
+                    path = extract_path(self._attrs, field, self._cf_class)
+                    try:
+                        val = self._attrs[field]["value"]
+                    except TypeError:
+                        val = self._attrs[field]
+                    fields_ops.append(("ADD", path, val))
+
+                elif (field in self._attrs.keys() and
+                      field in original_attrs.keys()
+                ):
+                    path = extract_path(self._attrs, field, self._cf_class)
+                    try:
+                        val = self._attrs[field]["value"]
+                    except TypeError:
+                        val = self._attrs[field]
+                    fields_ops.append(("REPLACE", path, val))
+                else:
+                    raise MambuPyError(
+                        "Unrecognizable field {} for patching".format(
+                            field
+                            ))
+
+            if autodetect_remove:
+                for attr in original_attrs.keys():
+                    if attr not in self._attrs.keys():
+                        path = extract_path(
+                            original_attrs, attr, self._cf_class)
+                        fields_ops.append(("REMOVE", path))
+
+            self._updateCustomFields()
+            self._serializeFields()
+            self._connector.mambu_patch(self.id, self._prefix, fields_ops)
+            # should I refresh _attrs? (needs get request from Mambu)
+        except MambuError as merr:
+            raise merr
+        finally:
+            self._convertDict2Attrs()
+            self._extractCustomFields()
 
 
 class MambuEntitySearchable(MambuStruct, MambuSearchable):
@@ -550,6 +657,10 @@ class MambuEntityCF(MambuValueObject):
     Mambu entity.
     """
 
-    def __init__(self, value):
-        self._attrs = {"value": value}
+    def __init__(self, value, path="", typecf="STANDARD"):
+        if typecf not in ["STANDARD", "GROUPED"]:
+            raise MambuPyError("invalid CustomField type!")
+        self._attrs = {"value": value,
+                       "path": path,
+                       "type": typecf}
         self._cf_class = GenericClass

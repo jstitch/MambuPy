@@ -61,6 +61,14 @@ class MambuConnectorWriter(unittest.TestCase):
             mambuconnector.MambuConnectorWriter.mambu_update(
                 None, "id", "", {})
 
+    def test_mambu_patch(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_patch"),
+            True)
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_patch(
+                None, "id", "", [])
+
     def test_mambu_create(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorWriter, "mambu_create"),
@@ -532,6 +540,37 @@ class MambuConnectorREST(unittest.TestCase):
             params={},
             data='{"oneattr": "123"}',
             headers=headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_patch(self, mock_requests, mock_uuid):
+        mock_uuid.uuid4.return_value = "An UUID"
+        mock_requests.request().status_code = 200
+        headers = app_json_headers()
+        headers["Idempotency-Key"] = "An UUID"
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_patch(
+            "entid",
+            "prefix",
+            [("ADD", "/onepath", "12345"),
+             ("REPLACE", "/otherpath/asubpath", "54321"),
+             ("REMOVE", "/somepath")])
+
+        mock_requests.request.assert_called_with(
+            "PATCH",
+            "https://{}/api/prefix/entid".format(apiurl),
+            params={},
+            data='[{"op": "add", "path": "/onepath", "value": "12345"}, {"op": "replace", "path": "/otherpath/asubpath", "value": "54321"}, {"op": "remove", "path": "/somepath"}]',
+            headers=headers)
+
+        mock_requests.reset_mock()
+        mcrest.mambu_patch(
+            "entid",
+            "prefix",
+            [])
+        self.assertEqual(mock_requests.request.call_count, 0)
 
     @mock.patch("MambuPy.api.mambuconnector.open")
     @mock.patch("MambuPy.api.mambuconnector.uuid")

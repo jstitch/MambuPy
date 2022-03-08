@@ -1,5 +1,6 @@
 import copy
 from datetime import datetime
+import json
 import mock
 import os
 import sys
@@ -30,7 +31,8 @@ class MagicMethodsTests(unittest.TestCase):
         cf = mambustruct.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
-        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "world"})
+        self.assertEqual(ms._attrs["hello"]._attrs,
+                         {"value": "world", "path": "", "type": "STANDARD"})
         self.assertEqual(ms["hello"], "world")
 
         with self.assertRaises(KeyError):
@@ -48,7 +50,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
 
         ms["hello"] = "goodbye"
-        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "goodbye"})
+        self.assertEqual(ms._attrs["hello"]._attrs,
+                         {"value": "goodbye", "path": "", "type": "STANDARD"})
 
     def test___delitem__(self):
         ms = mambustruct.MambuMapObj()
@@ -188,7 +191,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
-        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "world"})
+        self.assertEqual(ms._attrs["hello"]._attrs,
+                         {"value": "world", "path": "", "type": "STANDARD"})
         self.assertEqual(ms.hello, "world")
 
     def test___setattribute__(self):
@@ -214,7 +218,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
 
         ms.hello = "goodbye"
-        self.assertEqual(ms._attrs["hello"]._attrs, {"value": "goodbye"})
+        self.assertEqual(ms._attrs["hello"]._attrs,
+                         {"value": "goodbye", "path": "", "type": "STANDARD"})
 
     def test_has_key(self):
         ms = mambustruct.MambuMapObj()
@@ -563,6 +568,12 @@ class MambuStructTests(unittest.TestCase):
         ):
             ms._extractCustomFields()
 
+        some_external_attr = {"_mycf": {"hello": "world"}}
+        ms._extractCustomFields(some_external_attr)
+        self.assertEqual(some_external_attr["hello"]["value"], "world")
+        self.assertEqual(some_external_attr["hello"]["path"], "/_mycf/hello")
+        self.assertEqual(some_external_attr["hello"]["type"], "STANDARD")
+
     def test__updateCustomFields(self):
         extracted_fields = {"aField": "abc123",
                      "_customFieldList": [
@@ -570,11 +581,13 @@ class MambuStructTests(unittest.TestCase):
                           "num": 123,
                           "float": 15.56,
                           "bool": True,
+                          "not_converted": "?",
                           "_index": 0},
                          {"str": "def456",
                           "num": 456,
                           "float": 23.34,
                           "bool": False,
+                          "not_converted": "?",
                           "_index": 1},
                          "invalidElement"],
                      "_customFieldDict": {
@@ -841,7 +854,7 @@ class MambuEntityTests(unittest.TestCase):
     def test_update(
         self, mock_connector,
         mock_updateCustomFields, mock_serializeFields,
-        mock_extractCustomFields, mock_convertDict2Attrs
+        mock_convertDict2Attrs, mock_extractCustomFields
     ):
         mock_connector.mambu_update.return_value = b'''{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
@@ -880,7 +893,7 @@ class MambuEntityTests(unittest.TestCase):
         self,
         mock_connector,
         mock_updateCustomFields, mock_serializeFields,
-        mock_extractCustomFields, mock_convertDict2Attrs
+        mock_convertDict2Attrs, mock_extractCustomFields
     ):
         mock_connector.mambu_create.return_value = b'''{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
@@ -924,6 +937,269 @@ class MambuEntityTests(unittest.TestCase):
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_add(
+        self, mock_connector,
+
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["myProp"] = "myVal"
+
+        child.patch(["myProp"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("ADD", "/myProp", "myVal")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_replace(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["myProp"] = "myVal2"
+
+        child.patch(["myProp"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REPLACE", "/myProp", "myVal2")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_remove(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        del child._attrs["myProp"]
+
+        child.patch(autodetect_remove=True)
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REMOVE", "/myProp")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_add_cf_standard(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = {}
+        child._attrs["myProp"] = mambustruct.MambuEntityCF(
+            "myVal", "/_myCFSet/myProp")
+
+        child.patch(["myProp"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("ADD", "/_myCFSet/myProp", "myVal")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_replace_cf_standard(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = {"myProp": "myVal"}
+        child._attrs["myProp"] = mambustruct.MambuEntityCF(
+            "myVal2", "/_myCFSet/myProp")
+
+        child.patch(["myProp"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REPLACE", "/_myCFSet/myProp", "myVal2")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_remove_cf_standard(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = {"myProp": "myVal"}
+        child._attrs["myProp"] = mambustruct.MambuEntityCF(
+            "myVal", "/_myCFSet/myProp")
+
+        del child._attrs["myProp"]
+        child.patch(autodetect_remove=True)
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REMOVE", "/_myCFSet/myProp")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_add_cf_grouped(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = []
+        child._attrs["myCFSet"] = []
+        child._attrs["myProp"] = mambustruct.MambuEntityCF(
+            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+
+        child.patch(["myProp"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("ADD", "/_myCFSet/0/myProp", "myVal")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_replace_cf_grouped(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
+        child._attrs["myCFSet"] = [{}, {}]
+        child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
+            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+            "myVal2", "/_myCFSet/1/myProp", "GROUPED")
+
+        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+            "myVal3", "/_myCFSet/1/myProp", "GROUPED")
+        child.patch(["myProp_1"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REPLACE", "/_myCFSet/1/myProp", "myVal3")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_remove_cf_grouped(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
+        child._attrs["myCFSet"] = [{}, {}]
+        child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
+            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+            "myVal2", "/_myCFSet/1/myProp", "GROUPED")
+
+        del child._attrs["myProp_0"]
+        child.patch(autodetect_remove=True)
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REMOVE", "/_myCFSet/0/myProp")])
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_patch_exceptions(
+        self, mock_connector,
+        mock_updateCustomFields, mock_serializeFields,
+        mock_convertDict2Attrs
+    ):
+        child = self.child_class()
+        child._resp = b'''{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }'''
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["myProp"] = "myVal2"
+
+        with self.assertRaisesRegex(MambuPyError, r"Unrecognizable field \w+ for patching"):
+            child.patch(["myProperty"])
+
+        mock_connector.mambu_patch.side_effect = MambuError("A Mambu Error")
+        with self.assertRaisesRegex(MambuError, r"A Mambu Error"):
+            child.patch(["myProp"])
+
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_attach_document(self, mock_connector):
         mock_connector.mambu_upload_document.return_value = b'''{
@@ -956,7 +1232,29 @@ class MambuEntityTests(unittest.TestCase):
 class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
         ms = mambustruct.MambuEntityCF("_VALUE_")
-        self.assertEqual(ms._attrs, {"value": "_VALUE_"})
+        self.assertEqual(ms._attrs,
+                         {"value": "_VALUE_", "path": "", "type": "STANDARD"})
+
+        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_")
+        self.assertEqual(ms._attrs,
+                         {"value": "_VALUE_",
+                          "path": "_PATH_",
+                          "type": "STANDARD"})
+
+        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "STANDARD")
+        self.assertEqual(ms._attrs,
+                         {"value": "_VALUE_",
+                          "path": "_PATH_",
+                          "type": "STANDARD"})
+
+        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "GROUPED")
+        self.assertEqual(ms._attrs,
+                         {"value": "_VALUE_",
+                          "path": "_PATH_",
+                          "type": "GROUPED"})
+
+        with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):
+            ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
 
 
 if __name__ == "__main__":

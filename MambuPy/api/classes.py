@@ -77,7 +77,9 @@ class MambuMapObj():
                     if (name in _attrs and
                         _attrs[name].__class__.__name__ == self._cf_class.__name__
                     ):
-                        _attrs[name] = self._cf_class(value)
+                        path = _attrs[name]["path"]
+                        typecf = _attrs[name]["type"]
+                        _attrs[name] = self._cf_class(value, path, typecf)
                     else:
                         _attrs[name] = value
                 else:  # pragma: no cover
@@ -99,7 +101,9 @@ class MambuMapObj():
         if (key in self._attrs and
             self._attrs[key].__class__.__name__ == self._cf_class.__name__
             ):
-            self._attrs[key] = self._cf_class(value)
+            path = self._attrs[key]["path"]
+            typecf = self._attrs[key]["type"]
+            self._attrs[key] = self._cf_class(value, path, typecf)
         else:
             self._attrs[key] = value
 
