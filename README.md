@@ -1,7 +1,10 @@
-[![Build Status](https://travis-ci.org/jstitch/MambuPy.svg?branch=master)](https://travis-ci.org/jstitch/MambuPy)
-# MambuPy
+MambuPy
+=======
 
-## A python API for using Mambu.
+[![Build Status](https://travis-ci.org/jstitch/MambuPy.svg?branch=master)](https://travis-ci.org/jstitch/MambuPy)
+
+A python API for using Mambu.
+-----------------------------
 
 Allows accessing Mambu via its REST API. Also includes SQLAlchemy
 mappings to a backup of its DataBase.
@@ -11,7 +14,8 @@ launch and service any lending portfolio into any market
 (https://www.mambu.com).
 
 
-### Mambu REST API
+Mambu REST API
+--------------
 
 Mambu allows communicating via a RESTful API (documented at
 https://developer.mambu.com/).
@@ -26,7 +30,8 @@ For more information, look at the MambuStruct class and all the
 classes inheriting from it. MambuPy implements this at all the scripts
 named ``mambu*.py``
 
-### Mambu Database Backup
+Mambu Database Backup
+---------------------
 
 Mambu also allows their users to download a dump of its database. It
 is a MySQL schema, documented at https://developer.mambu.com.
@@ -40,7 +45,8 @@ functionality to work.
 
 For more information, look at the scripts named ``schema*.py``
 
-### Installation
+Installation
+------------
 
 Currently MambuPy works on Python 2.7 and Python 3.6
 
@@ -50,14 +56,16 @@ environment and making it available anywhere on your ``PYTHONPATH``.
 You may also use ``pip install mambupy`` but please consider that you
 must configure your installation before using it.
 
-### Configuration
+Configuration
+-------------
 
 You must configure your local MambuPy environment first so you can
 correctly use this module.
 
 Look at ``mambuconfig.py`` for more information.
 
-### Work in progress
+Work in progress
+----------------
 
 MambuPy is a work in progress, on a very early stage of its
 development.
@@ -78,7 +86,8 @@ is one of the main objectives of the MambuPy project.
 Please consider supporting the project by forking, improving and
 pull-requesting it.
 
-#### TODOs
+TODOs
+-----
 
 TODO comments for hackers are included at:
 
@@ -86,7 +95,8 @@ TODO comments for hackers are included at:
 * pydoc string at ``__init__.py``
 * pydoc strings all around the code
 
-#### Release Notes
+Release Notes
+-------------
 * v0.8 first release notes 2018-04-20
   - implementation of PATCH request method on MambuStruct
   - implementation of MambuTask entity and MambuTasks iterable
@@ -208,7 +218,8 @@ TODO comments for hackers are included at:
   - Mambu API REST v2, support for
   - creation of entities
 
-### Author
+Author
+------
 
 JNC
 jstitch@gmail.com

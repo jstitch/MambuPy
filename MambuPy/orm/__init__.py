@@ -43,7 +43,7 @@ You can think of the schema modules structured as follows:
            \           \          |           /
     schema_mambu (utility module to import *everything*)
 
-.. image:: /static/schemas_mambupy_diagram.png
+.. image:: /_static/schemas_mambupy_diagram.png
 
 .. todo:: Implement a lot of lacking fields on the currently available tables.
 .. todo:: Implement a lot of lacking tables from the Mambu DB schema.

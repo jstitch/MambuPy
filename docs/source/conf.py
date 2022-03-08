@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-#
 # Configuration file for the Sphinx documentation builder.
 #
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+# This file only contains a selection of the most common options. For a full
+# list see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
 
@@ -14,18 +12,16 @@
 #
 import os
 import sys
-
-sys.path.insert(0, os.path.abspath("../"))
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = u"MambuPy"
-copyright = u"2018, JNC"
-author = u"JNC"
+project = 'MambuPy'
+copyright = '2022, Javier Novoa C.'
+author = 'Javier Novoa C.'
 
 from MambuPy import __version__
-
 # The short X.Y version
 version = ".".join(__version__.split(".")[0:3])
 # The full version, including alpha/beta/rc tags
@@ -49,10 +45,6 @@ napoleon_include_init_with_doc = True
 napoleon_include_special_with_doc = True
 napoleon_include_private_with_doc = True
 
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
-
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -69,7 +61,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["templates"]
+templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -91,7 +83,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path .
+# This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [u"_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -107,10 +99,6 @@ import sphinx_rtd_theme
 
 html_theme = "sphinx_rtd_theme"
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
 html_theme_options = {
     "logo_only": False,
 }
@@ -118,17 +106,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["static"]
-
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
+html_static_path = ['_static']
 
 
 # -- Options for HTMLHelp output ---------------------------------------------
@@ -138,7 +116,7 @@ htmlhelp_basename = "MambuPydoc"
 
 html_title = "MambuPy Docs"
 html_short_title = "MambuPy Docs"
-html_logo = "static/green_MambuPy_200pxw.png"
+html_logo = "_static/green_MambuPy_200pxw.png"
 html_style = "podemos.css"
 
 # -- Options for LaTeX output ------------------------------------------------

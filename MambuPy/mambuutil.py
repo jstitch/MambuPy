@@ -50,8 +50,8 @@ API_RETURN_CODES = {
 }
 """
 .. deprecated:: 0.8
-   It's probably not useful. Besides, :any:`mambustruct.MambuStruct.connect()`
-   method returns the code when an error occurs by default.
+  It's probably not useful. Besides, :any:`mambustruct.MambuStruct.connect()`
+  method returns the code when an error occurs by default.
 """
 
 
