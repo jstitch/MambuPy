@@ -50,6 +50,8 @@ UnitTests-3:
     - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambuconnector.py
     - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambustruct.py
     - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambuloan.py
+    - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambugroup.py
+    - coverage run --append --rcfile=./.coveragerc tests/api/unit_mambuclient.py
 
     - coverage html
     - mv htmlcov htmlcov_${CI_PROJECT_NAME}_$PYVERSION

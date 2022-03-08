@@ -575,7 +575,6 @@ class MambuEntity(MambuStruct):
             self._convertDict2Attrs()
             self._extractCustomFields()
 
-
 class MambuEntitySearchable(MambuStruct, MambuSearchable):
     """A Mambu object with seraching capabilities."""
 

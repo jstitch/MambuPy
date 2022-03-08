@@ -18,6 +18,8 @@ tests=("unit_mambuconfig.py" \
            "api/unit_mambuconnector.py" \
            "api/unit_mambustruct.py" \
            "api/unit_mambuloan.py" \
+           "api/unit_mambugroup.py" \
+           "api/unit_mambuclient.py" \
       )
 for test in ${tests[@]}
 do

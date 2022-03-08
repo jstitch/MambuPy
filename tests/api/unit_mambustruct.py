@@ -1254,7 +1254,7 @@ class MambuEntityCFTests(unittest.TestCase):
                           "type": "GROUPED"})
 
         with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):
-            ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
+            mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
 
 
 if __name__ == "__main__":

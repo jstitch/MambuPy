@@ -12,4 +12,5 @@ Objects using `Mambu REST API <https://api.mambu.com/?python>`_
     MambuPy.api.mambustruct
     MambuPy.api.mambuloan
     MambuPy.api.mambugroup
+    MambuPy.api.mambuclient
 """
