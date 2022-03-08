@@ -215,8 +215,11 @@ Release Notes
   - upload attachments
   - update of entities
 * v2.0.0a2 2022-02-23
-  - Mambu API REST v2, support for
-  - creation of entities
+  - Mambu API REST v2, support for creation of entities
+* v2.0.0a3 2022-03-08
+  - Mambu API REST v2, support for patching entitites
+  - MambuAPI REST v2, MambuGroup entity
+  - MambuAPI REST v2, MambuClient entity
 
 Author
 ------
