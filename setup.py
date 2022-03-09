@@ -52,4 +52,11 @@ setuptools.setup(
     ],
     python_requires=">=2.7",
     cmdclass={"verify": VerifyVersionCommand},
+    install_requires=[
+        'future',
+        'requests',
+        'requests_toolbelt',
+        'SQLAlchemy',
+        'mysqlclient',
+    ],
 )
