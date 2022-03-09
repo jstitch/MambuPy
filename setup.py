@@ -49,7 +49,21 @@ setuptools.setup(
     ],
     packages=[
         "MambuPy",
+        "MambuPy/api",
+        "MambuPy/rest",
+        "MambuPy/orm",
+        "mambupy",
+        "mambupy/api",
+        "mambupy/rest",
+        "mambupy/orm",
     ],
     python_requires=">=2.7",
     cmdclass={"verify": VerifyVersionCommand},
+    install_requires=[
+        'future',
+        'requests',
+        'requests_toolbelt',
+        'SQLAlchemy',
+        'mysqlclient',
+    ],
 )
