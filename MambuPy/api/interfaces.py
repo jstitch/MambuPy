@@ -10,6 +10,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class MambuAttachable(ABC):
     """An entity which can attach documents"""
 
@@ -40,7 +41,7 @@ class MambuSearchable(ABC):
         offset=None,
         limit=None,
         paginationDetails="OFF",
-        detailsLevel="BASIC"
+        detailsLevel="BASIC",
     ):
         """search, several entities, filtering criteria allowed
 

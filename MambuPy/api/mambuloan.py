@@ -8,18 +8,12 @@
 """
 
 from MambuPy.mambuutil import MambuPyError
-from .mambustruct import (
-    MambuEntity,
-    MambuEntityAttachable,
-    MambuEntitySearchable,
-    )
+
+from .mambustruct import (MambuEntity, MambuEntityAttachable,
+                          MambuEntitySearchable)
 
 
-class MambuLoan(
-    MambuEntity,
-    MambuEntityAttachable,
-    MambuEntitySearchable
-    ):
+class MambuLoan(MambuEntity, MambuEntityAttachable, MambuEntitySearchable):
     """MambuLoan entity"""
 
     _prefix = "loans"
@@ -30,7 +24,8 @@ class MambuLoan(
         "centreId",
         "accountState",
         "accountHolderType",
-        "accountHolderId"]
+        "accountHolderId",
+    ]
     """allowed filters for get_all filtering"""
 
     _sortBy_fields = [
@@ -38,7 +33,7 @@ class MambuLoan(
         "lastModifiedDate",
         "id",
         "loanName",
-        ]
+    ]
     """allowed fields for get_all sorting"""
 
     _ownerType = "LOAN_ACCOUNT"
@@ -56,7 +51,7 @@ class MambuLoan(
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
-        sortBy=None
+        sortBy=None,
     ):
         """get_all, several MambuLoans, filtering allowed
 
@@ -81,7 +76,9 @@ class MambuLoan(
                 if filter_k not in cls._filter_keys:
                     raise MambuPyError(
                         "key {} not in allowed _filterkeys: {}".format(
-                            filter_k, cls._filter_keys))
+                            filter_k, cls._filter_keys
+                        )
+                    )
 
         if sortBy and isinstance(sortBy, str):
             for sort in sortBy.split(","):
@@ -89,7 +86,10 @@ class MambuLoan(
                     if num == 0 and part not in cls._sortBy_fields:
                         raise MambuPyError(
                             "field {} not in allowed _sortBy_fields: {}".format(
-                                part, cls._sortBy_fields))
+                                part, cls._sortBy_fields
+                            )
+                        )
 
         return super().get_all(
-            filters, offset, limit, paginationDetails, detailsLevel, sortBy)
+            filters, offset, limit, paginationDetails, detailsLevel, sortBy
+        )

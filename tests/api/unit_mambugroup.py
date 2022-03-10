@@ -1,12 +1,13 @@
-import unittest
-import mock
 import os
 import sys
+import unittest
+
+import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.mambuutil import MambuPyError
 from MambuPy.api import mambugroup
+from MambuPy.mambuutil import MambuPyError
 
 
 class MambuGroup(unittest.TestCase):
@@ -14,17 +15,12 @@ class MambuGroup(unittest.TestCase):
         mg = mambugroup.MambuGroup()
         self.assertEqual(mg._prefix, "groups")
         self.assertEqual(
-            mg._filter_keys, [
-                "branchId",
-                "centreId",
-                "creditOfficerUsername"])
+            mg._filter_keys, ["branchId", "centreId", "creditOfficerUsername"]
+        )
         self.assertEqual(
-            mg._sortBy_fields, [
-                "creationDate",
-                "lastModifiedDate",
-                "groupName"])
-        self.assertEqual(
-            mg._ownerType, "GROUP")
+            mg._sortBy_fields, ["creationDate", "lastModifiedDate", "groupName"]
+        )
+        self.assertEqual(mg._ownerType, "GROUP")
 
     @mock.patch("MambuPy.api.mambugroup.MambuEntity.get_all")
     def test_get_all(self, sup_get_all_mock):
@@ -42,21 +38,13 @@ class MambuGroup(unittest.TestCase):
         mg = mambugroup.MambuGroup.get_all(sortBy="groupName:ASC")
         self.assertEqual(mg, "SupGetAllMock")
 
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"^key \w+ not in allowed "
-        ):
+        with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambugroup.MambuGroup.get_all(
-                filters={
-                    "branchId": "MyBranch",
-                    "Squad": "Red"})
+                filters={"branchId": "MyBranch", "Squad": "Red"}
+            )
 
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"^field \w+ not in allowed "
-        ):
-            mambugroup.MambuGroup.get_all(
-                sortBy="field:ASC")
+        with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
+            mambugroup.MambuGroup.get_all(sortBy="field:ASC")
 
 
 if __name__ == "__main__":

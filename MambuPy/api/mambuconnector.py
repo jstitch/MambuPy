@@ -11,7 +11,6 @@
 
 Currently supports REST.
 """
-from abc import ABC, abstractmethod
 import base64
 import copy
 import json
@@ -20,28 +19,23 @@ import os
 import re
 import time
 import uuid
+from abc import ABC, abstractmethod
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from ..mambuutil import (
-    apipwd, apiuser, apiurl,
-    MambuPyError, MambuError, MambuCommError,
-    PAGINATIONDETAILS,
-    DETAILSLEVEL,
-    SEARCH_OPERATORS,
-    MAX_UPLOAD_SIZE,
-    ALLOWED_UPLOAD_MIMETYPES,
-    UPLOAD_FILENAME_INVALID_CHARS,
-    )
+from ..mambuutil import (ALLOWED_UPLOAD_MIMETYPES, DETAILSLEVEL,
+                         MAX_UPLOAD_SIZE, PAGINATIONDETAILS, SEARCH_OPERATORS,
+                         UPLOAD_FILENAME_INVALID_CHARS, MambuCommError,
+                         MambuError, MambuPyError, apipwd, apiurl, apiuser)
 
 
 class MambuConnector(ABC):
-    """ Interface for Connectors"""
+    """Interface for Connectors"""
 
 
 class MambuConnectorReader(ABC):
-    """ Interface for Readers.
+    """Interface for Readers.
 
     A Reader supports the followint operations:
 
@@ -70,7 +64,7 @@ class MambuConnectorReader(ABC):
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
-        sortBy=None
+        sortBy=None,
     ):
         """get_all, several entities, filtering allowed
 
@@ -94,7 +88,7 @@ class MambuConnectorReader(ABC):
         offset=None,
         limit=None,
         paginationDetails="OFF",
-        detailsLevel="BASIC"
+        detailsLevel="BASIC",
     ):
         """search, several entities, filtering criteria allowed
 
@@ -113,7 +107,7 @@ class MambuConnectorReader(ABC):
 
 
 class MambuConnectorWriter(ABC):
-    """ Interface for Writers.
+    """Interface for Writers.
 
     A Reader supports the followint operations:
 
@@ -125,7 +119,7 @@ class MambuConnectorWriter(ABC):
 
     @abstractmethod
     def mambu_update(self, entid, prefix, attrs):
-        """ updates a mambu entity
+        """updates a mambu entity
 
         Args:
           entid (str) - the id or encoded key of the entity owning the document
@@ -136,7 +130,7 @@ class MambuConnectorWriter(ABC):
 
     @abstractmethod
     def mambu_create(self, prefix, attrs):
-        """ creates a mambu entity
+        """creates a mambu entity
 
         Args:
           prefix (str) - entity's URL prefix
@@ -146,12 +140,11 @@ class MambuConnectorWriter(ABC):
 
     @abstractmethod
     def mambu_patch(self, entid, prefix, fields):
-        """ patches certain parts of a mambu entity"""
+        """patches certain parts of a mambu entity"""
         raise NotImplementedError
 
     @abstractmethod
-    def mambu_upload_document(
-        self, owner_type, entid, filename, name, notes):
+    def mambu_upload_document(self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 
         Args:
@@ -172,11 +165,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
     _headers = {
         "Accept": "application/vnd.mambu.v2+json",
         "Authorization": "Basic {}".format(
-            base64.b64encode(bytes("{}:{}".format(
-                apiuser, apipwd), "utf-8")).decode())}
+            base64.b64encode(bytes("{}:{}".format(apiuser, apipwd), "utf-8")).decode()
+        ),
+    }
 
     def __request(self, method, url, params=None, data=None, content_type=None):
-        """ requests an url.
+        """requests an url.
 
         Args:
           method (str) - HTTP method for the request
@@ -213,21 +207,20 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             time.sleep(self.retries)
             try:
                 resp = requests.request(
-                    method, url, params=params, data=data, headers=headers)
+                    method, url, params=params, data=data, headers=headers
+                )
             except requests.exceptions.RequestException as req_ex:
                 # possible comm error with Mambu, retrying...
                 if self.retries < self._RETRIES:
                     self.retries += 1
                     continue
-                raise MambuCommError(
-                    "Comm error with Mambu: {}".format(req_ex))
+                raise MambuCommError("Comm error with Mambu: {}".format(req_ex))
             except Exception as ex:
                 # unknown exception
                 if self.retries < self._RETRIES:
                     self.retries += 1
                     continue
-                raise MambuCommError(
-                    "Unknown error with Mambu: {}".format(ex))
+                raise MambuCommError("Unknown error with Mambu: {}".format(ex))
 
             if resp.status_code >= 400:
                 # 500 errors retry. 400 errors raise exception immediatly
@@ -238,19 +231,24 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                     content = json.loads(resp.content.decode())
                 except ValueError:
                     # in case resp.content doesn't conforms to json
-                    content = {"errors": [
-                        {"errorCode": "UNKNOWN",
-                         "errorReason": resp.content.decode(),},
-                         ]}
+                    content = {
+                        "errors": [
+                            {
+                                "errorCode": "UNKNOWN",
+                                "errorReason": resp.content.decode(),
+                            },
+                        ]
+                    }
                 raise MambuError(
                     "{} ({}) - {}{}".format(
                         content["errors"][0]["errorCode"],
                         resp.status_code,
                         content["errors"][0]["errorReason"],
-                        " ("+content["errors"][0]["errorSource"]+")"
+                        " (" + content["errors"][0]["errorSource"] + ")"
                         if "errorSource" in content["errors"][0]
-                        else ""
-                        ))
+                        else "",
+                    )
+                )
             # succesful request done!
             break  # pragma: no cover
         else:  # pragma: no cover
@@ -283,25 +281,18 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         if "paginationDetails" in kwargs:
             if kwargs["paginationDetails"] not in PAGINATIONDETAILS:
                 raise MambuPyError(
-                    "paginationDetails must be in {}".format(
-                        PAGINATIONDETAILS))
+                    "paginationDetails must be in {}".format(PAGINATIONDETAILS)
+                )
             params["paginationDetails"] = kwargs["paginationDetails"]
 
         if "detailsLevel" in kwargs:
             if kwargs["detailsLevel"] not in DETAILSLEVEL:
-                raise MambuPyError(
-                    "detailsLevel must be in {}".format(
-                        DETAILSLEVEL))
+                raise MambuPyError("detailsLevel must be in {}".format(DETAILSLEVEL))
             params["detailsLevel"] = kwargs["detailsLevel"]
 
         return params
 
-    def mambu_get(
-        self,
-        entid,
-        prefix,
-        detailsLevel="BASIC"
-    ):
+    def mambu_get(self, entid, prefix, detailsLevel="BASIC"):
         """get, a single entity, identified by its entid.
 
         Args:
@@ -314,8 +305,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """
         params = self.__validate_query_params(detailsLevel=detailsLevel)
 
-        url = "https://{}/api/{}/{}".format(
-            self._tenant, prefix, entid)
+        url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
 
         return self.__request("GET", url, params=params)
 
@@ -327,7 +317,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
-        sortBy=None
+        sortBy=None,
     ):
         """get_all, several entities, filtering allowed
 
@@ -344,17 +334,19 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           response content (str json [])
         """
         params = self.__validate_query_params(
-            offset=offset, limit=limit,
+            offset=offset,
+            limit=limit,
             paginationDetails=paginationDetails,
-            detailsLevel=detailsLevel)
+            detailsLevel=detailsLevel,
+        )
 
         if sortBy:
-            if (not isinstance(sortBy, str)
-                or not re.search(
-                    r"^(\w+:(ASC|DESC),)*(\w+:(ASC|DESC))$", sortBy)
+            if not isinstance(sortBy, str) or not re.search(
+                r"^(\w+:(ASC|DESC),)*(\w+:(ASC|DESC))$", sortBy
             ):
                 raise MambuPyError(
-                    "sortBy must be a string with format 'field1:ASC,field2:DESC'")
+                    "sortBy must be a string with format 'field1:ASC,field2:DESC'"
+                )
             params["sortBy"] = sortBy
 
         if filters:
@@ -362,8 +354,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                 raise MambuPyError("filters must be a dictionary")
             params.update(filters)
 
-        url = "https://{}/api/{}".format(
-            self._tenant, prefix)
+        url = "https://{}/api/{}".format(self._tenant, prefix)
 
         return self.__request("GET", url, params=params)
 
@@ -375,7 +366,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         offset=None,
         limit=None,
         paginationDetails="OFF",
-        detailsLevel="BASIC"
+        detailsLevel="BASIC",
     ):
         """search, several entities, filtering criteria allowed
 
@@ -394,9 +385,11 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           response content (str json [])
         """
         params = self.__validate_query_params(
-            offset=offset, limit=limit,
+            offset=offset,
+            limit=limit,
             paginationDetails=paginationDetails,
-            detailsLevel=detailsLevel)
+            detailsLevel=detailsLevel,
+        )
 
         data = {}
 
@@ -414,7 +407,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                 ):
                     raise MambuPyError(
                         "a filterCriteria must have a field and an operator, member of {}".format(
-                            SEARCH_OPERATORS))
+                            SEARCH_OPERATORS
+                        )
+                    )
                 data["filterCriteria"].append(criteria)
 
         if sortingCriteria is not None:
@@ -427,16 +422,17 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             ):
                 raise MambuPyError(
                     "sortingCriteria must have a field and an order, member of {}".format(
-                        ["ASC", "DESC"]))
+                        ["ASC", "DESC"]
+                    )
+                )
             data["sortingCriteria"] = sortingCriteria
 
-        url = "https://{}/api/{}:search".format(
-            self._tenant, prefix)
+        url = "https://{}/api/{}:search".format(self._tenant, prefix)
 
         return self.__request("POST", url, params=params, data=data)
 
     def mambu_update(self, entid, prefix, attrs):
-        """ updates a mambu entity
+        """updates a mambu entity
 
         Args:
           entid (str) - the id or encoded key of the entity owning the document
@@ -446,13 +442,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         Returns:
           response content (str json {})
         """
-        url = "https://{}/api/{}/{}".format(
-            self._tenant, prefix, entid)
+        url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
 
         return self.__request("PUT", url, data=attrs)
 
     def mambu_create(self, prefix, attrs):
-        """ creates a mambu entity
+        """creates a mambu entity
 
         Args:
           prefix (str) - entity's URL prefix
@@ -466,7 +461,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return self.__request("POST", url, data=attrs)
 
     def mambu_patch(self, entid, prefix, fields_ops=None):
-        """ patches certain parts of a mambu entity
+        """patches certain parts of a mambu entity
 
         https://api.mambu.com/?python#tocspatchoperation
 
@@ -488,8 +483,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         # build data from fields_ops param
         patch_data = []
         for field in fields_ops:
-            patch_item = {"op": field[0].strip().lower(),
-                          "path": field[1].strip()}
+            patch_item = {"op": field[0].strip().lower(), "path": field[1].strip()}
             if field[0] != "REMOVE":
                 patch_item["value"] = field[2]
             patch_data.append(patch_item)
@@ -497,8 +491,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         if patch_data:
             return self.__request("PATCH", url, data=patch_data)
 
-    def mambu_upload_document(
-        self, owner_type, entid, filename, name, notes):
+    def mambu_upload_document(self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 
         Args:
@@ -516,29 +509,31 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                 raise MambuError("{} name not allowed".format(filename))
         if os.path.basename(filename).count(".") != 1:
             raise MambuError("{} invalid name".format(filename))
-        if (not mimetypes.guess_type(filename)[0] or
-            mimetypes.guess_type(filename)[0].split("/")[1].upper(
-                ) not in ALLOWED_UPLOAD_MIMETYPES
+        if (
+            not mimetypes.guess_type(filename)[0]
+            or mimetypes.guess_type(filename)[0].split("/")[1].upper()
+            not in ALLOWED_UPLOAD_MIMETYPES
         ):
             raise MambuError("{} mimetype not supported".format(filename))
         if os.path.getsize(filename) > MAX_UPLOAD_SIZE:
-            raise MambuError("{} exceeds {} bytes".format(
-                filename, MAX_UPLOAD_SIZE))
-        data = {"ownerType": owner_type,
-                "id": entid,
-                "name": name,
-                "notes": notes,
-                "file": (
-                    os.path.basename(filename),
-                    open(filename, "rb"),
-                    mimetypes.guess_type(filename)[0])}
+            raise MambuError("{} exceeds {} bytes".format(filename, MAX_UPLOAD_SIZE))
+        data = {
+            "ownerType": owner_type,
+            "id": entid,
+            "name": name,
+            "notes": notes,
+            "file": (
+                os.path.basename(filename),
+                open(filename, "rb"),
+                mimetypes.guess_type(filename)[0],
+            ),
+        }
 
         encoder = MultipartEncoder(fields=data)
 
         url = "https://{}/api/documents".format(self._tenant)
 
         return self.__request(
-            "POST",
-            url,
-            data=encoder,
-            content_type=encoder.content_type)
+            "POST", url, data=encoder, content_type=encoder.content_type
+        )
+

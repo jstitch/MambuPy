@@ -12,48 +12,42 @@
 """
 
 import copy
-from datetime import datetime
 import json
+from datetime import datetime
 
+from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuError,
+                         MambuPyError, dateFormat)
 from .classes import GenericClass, MambuMapObj
 from .interfaces import MambuAttachable, MambuSearchable
-from .vos import MambuValueObject, MambuDocument
-
 from .mambuconnector import MambuConnectorREST
-
-from ..mambuutil import (
-    dateFormat,
-    MambuError,
-    MambuPyError,
-    OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-    )
+from .vos import MambuDocument, MambuValueObject
 
 
 class MambuStruct(MambuMapObj):
     """Basic Struct for Mambu Objects.
 
-    Dictionary-like objects.
+        Dictionary-like objects.
 
-    TimeZones info:
-    convertDict2Attrs loses TZ info on datetime fields.
+        TimeZones info:
+        convertDict2Attrs loses TZ info on datetime fields.
 
-    We will save them on _tzattrs field. Prefering this method since this allows
-    comparison with datetimes on your code without needing TZ initialized.
+        We will save them on _tzattrs field. Prefering this method since this allows
+        comparison with datetimes on your code without needing TZ initialized.
 
-    For example:
+        For example:
 
-`today = datetime.now()`
-`loan.creationDate < today`
+    `today = datetime.now()`
+    `loan.creationDate < today`
 
-    That code works since now() doesn't have any TZ info.
+        That code works since now() doesn't have any TZ info.
 
-    If cretionDate has TZ info in it, you could not make the comparison.
+        If cretionDate has TZ info in it, you could not make the comparison.
 
-    So, we need to preserve the TZ info somewhere else. Since TZ info is the
-    same for ALL the Mambu instance, you can extract it from any datetime
-    object. creationDate works almost all the time. You can change it on your
-    own implementation of any MambuEntity. And you can set it as None if you
-    really (really?) wish to lose TZ info.
+        So, we need to preserve the TZ info somewhere else. Since TZ info is the
+        same for ALL the Mambu instance, you can extract it from any datetime
+        object. creationDate works almost all the time. You can change it on your
+        own implementation of any MambuEntity. And you can set it as None if you
+        really (really?) wish to lose TZ info.
     """
 
     _tzattrs = {}
@@ -91,7 +85,7 @@ class MambuStruct(MambuMapObj):
                 if type(it) == type(iter({})):
                     d = {}
                     for k in it:
-                        if k in constantFields or (len(k)>2 and k[-3:]=="Key"):
+                        if k in constantFields or (len(k) > 2 and k[-3:] == "Key"):
                             d[k] = data[k]
                             if tzdata and k in tzdata:
                                 del tzdata[k]
@@ -163,6 +157,7 @@ class MambuStruct(MambuMapObj):
 
         Skips every MambuMapObj owned by this entity.
         """
+
         def convert(data, tzdata=None):
             """Recursively convert the fields on the data given to a python object."""
             if isinstance(data, MambuMapObj):
@@ -208,14 +203,16 @@ class MambuStruct(MambuMapObj):
         if not attrs:
             attrs = self._attrs
 
-        for attr, val in [atr for atr in attrs.items() if atr[0][0]=="_"]:
+        for attr, val in [atr for atr in attrs.items() if atr[0][0] == "_"]:
             if type(iter(val)) == type(iter({})):
                 for key, value in val.items():
                     attrs[key] = self._cf_class(
-                        value, "/{}/{}".format(attr, key), "STANDARD")
+                        value, "/{}/{}".format(attr, key), "STANDARD"
+                    )
             elif type(iter(val)) == type(iter([])):
                 attrs[attr[1:]] = self._cf_class(
-                    copy.deepcopy(val), "/{}".format(attr), "GROUPED")
+                    copy.deepcopy(val), "/{}".format(attr), "GROUPED"
+                )
                 for ind, value in enumerate(val):
                     if type(iter(value)) == type(iter({})):
                         for key, subvalue in value.items():
@@ -223,15 +220,18 @@ class MambuStruct(MambuMapObj):
                                 mecf = self._cf_class(
                                     subvalue,
                                     "/{}/{}/{}".format(attr, ind, key),
-                                    "GROUPED")
-                                attrs[key+"_"+str(ind)] = mecf
+                                    "GROUPED",
+                                )
+                                attrs[key + "_" + str(ind)] = mecf
                                 # attrs[attr[1:]][ind][key] = mecf
                     else:
                         raise MambuPyError(
-                            "CustomFieldSet {} is not a list of dictionaries!".format(attr))
+                            "CustomFieldSet {} is not a list of dictionaries!".format(
+                                attr
+                            )
+                        )
             else:
-                raise MambuPyError(
-                    "CustomFieldSet {} is not a dictionary!".format(attr))
+                raise MambuPyError("CustomFieldSet {} is not a dictionary!".format(attr))
 
     def _updateCustomFields(self):
         """Loops through every custom field set and update custom field values
@@ -239,7 +239,7 @@ class MambuStruct(MambuMapObj):
         deletes the property at root"""
         cfs = []
         # updates customfieldsets
-        for attr, val in [atr for atr in self._attrs.items() if atr[0][0]=="_"]:
+        for attr, val in [atr for atr in self._attrs.items() if atr[0][0] == "_"]:
             if type(iter(val)) == type(iter({})):
                 for key in val.keys():
                     try:
@@ -255,12 +255,15 @@ class MambuStruct(MambuMapObj):
                         for key in value.keys():
                             if key[0] != "_":
                                 try:
-                                    if self[key+"_"+str(ind)] in [True, False]:
-                                        self[key+"_"+str(ind)] = str(
-                                            self[key+"_"+str(ind)]).upper()
-                                    if self[attr][ind][key] != self[key+"_"+str(ind)]:
-                                        self[attr[1:]][ind][key] = self[key+"_"+str(ind)]
-                                    cfs.append(key+"_"+str(ind))
+                                    if self[key + "_" + str(ind)] in [True, False]:
+                                        self[key + "_" + str(ind)] = str(
+                                            self[key + "_" + str(ind)]
+                                        ).upper()
+                                    if self[attr][ind][key] != self[key + "_" + str(ind)]:
+                                        self[attr[1:]][ind][key] = self[
+                                            key + "_" + str(ind)
+                                        ]
+                                    cfs.append(key + "_" + str(ind))
                                 except KeyError:
                                     pass
                 try:
@@ -270,7 +273,10 @@ class MambuStruct(MambuMapObj):
                     pass
             else:
                 raise MambuPyError(
-                    "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(attr))
+                    "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(
+                        attr
+                    )
+                )
         # deletes _attrs root keys of custom fields
         for field in cfs:
             del self._attrs[field]
@@ -322,7 +328,7 @@ class MambuEntity(MambuStruct):
 
         params = copy.copy(kwargs)
         if "detailsLevel" not in params:
-            params["detailsLevel"]="BASIC"
+            params["detailsLevel"] = "BASIC"
         window = True
         attrs = []
         while window:
@@ -333,9 +339,7 @@ class MambuEntity(MambuStruct):
 
             params["offset"] = offset
             params["limit"] = limit if limit != 0 else None
-            resp = get_func(
-                cls._prefix,
-                **params)
+            resp = get_func(cls._prefix, **params)
 
             jsonresp = list(json.loads(resp.decode()))
             if len(jsonresp) < limit:
@@ -373,7 +377,8 @@ class MambuEntity(MambuStruct):
           instance of an entity with data from Mambu
         """
         resp = cls._connector.mambu_get(
-            entid, prefix=cls._prefix, detailsLevel=detailsLevel)
+            entid, prefix=cls._prefix, detailsLevel=detailsLevel
+        )
 
         instance = cls.__call__()
         instance._resp = resp
@@ -398,7 +403,8 @@ class MambuEntity(MambuStruct):
         if not detailsLevel:
             detailsLevel = self._detailsLevel
         self._resp = self._connector.mambu_get(
-            self.id, prefix=self._prefix, detailsLevel=detailsLevel)
+            self.id, prefix=self._prefix, detailsLevel=detailsLevel
+        )
 
         self._attrs.update(dict(json.loads(self._resp.decode())))
         self._tzattrs = dict(json.loads(self._resp.decode()))
@@ -414,7 +420,7 @@ class MambuEntity(MambuStruct):
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
-        sortBy=None
+        sortBy=None,
     ):
         """get_all, several entities, filtering allowed
 
@@ -429,17 +435,19 @@ class MambuEntity(MambuStruct):
         Returns:
           list of instances of an entity with data from Mambu
         """
-        params = {"filters": filters,
-                  "offset": offset,
-                  "limit": limit,
-                  "paginationDetails": paginationDetails,
-                  "detailsLevel": detailsLevel,
-                  "sortBy": sortBy}
+        params = {
+            "filters": filters,
+            "offset": offset,
+            "limit": limit,
+            "paginationDetails": paginationDetails,
+            "detailsLevel": detailsLevel,
+            "sortBy": sortBy,
+        }
 
         return cls._get_several(cls._connector.mambu_get_all, **params)
 
     def update(self):
-        """ updates a mambu entity
+        """updates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
         Pre-requires that CustomFields are updated previously.
@@ -449,7 +457,8 @@ class MambuEntity(MambuStruct):
         self._serializeFields()
         try:
             self._connector.mambu_update(
-                self.id, self._prefix, copy.deepcopy(self._attrs))
+                self.id, self._prefix, copy.deepcopy(self._attrs)
+            )
             # should I refresh _attrs? (either get request from Mambu or using the response)
         except MambuError as merr:
             raise merr
@@ -458,7 +467,7 @@ class MambuEntity(MambuStruct):
             self._extractCustomFields()
 
     def create(self):
-        """ creates a mambu entity
+        """creates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
         Pre-requires that CustomFields are updated previously.
@@ -468,7 +477,8 @@ class MambuEntity(MambuStruct):
         self._serializeFields()
         try:
             self._resp = self._connector.mambu_create(
-                self._prefix, copy.deepcopy(self._attrs))
+                self._prefix, copy.deepcopy(self._attrs)
+            )
             self._attrs.update(dict(json.loads(self._resp.decode())))
             self._tzattrs = dict(json.loads(self._resp.decode()))
             self._detailsLevel = "FULL"
@@ -479,7 +489,7 @@ class MambuEntity(MambuStruct):
             self._extractCustomFields()
 
     def patch(self, fields=None, autodetect_remove=False):
-        """ patches a mambu entity
+        """patches a mambu entity
 
         Allows patching of parts of the entity up to Mambu.
 
@@ -519,7 +529,7 @@ class MambuEntity(MambuStruct):
         #  you cannot add or replace entire CF (like by using just the index)
 
         def extract_path(attrs_dict, field, cf_class):
-            if (attrs_dict[field].__class__.__name__ == cf_class.__name__):
+            if attrs_dict[field].__class__.__name__ == cf_class.__name__:
                 return attrs_dict[field]["path"]
             else:
                 return "/" + field
@@ -533,9 +543,7 @@ class MambuEntity(MambuStruct):
             original_attrs = dict(json.loads(self._resp.decode()))
             self._extractCustomFields(original_attrs)
             for field in fields:
-                if (field in self._attrs.keys() and
-                    field not in original_attrs.keys()
-                ):
+                if field in self._attrs.keys() and field not in original_attrs.keys():
                     path = extract_path(self._attrs, field, self._cf_class)
                     try:
                         val = self._attrs[field]["value"]
@@ -543,9 +551,7 @@ class MambuEntity(MambuStruct):
                         val = self._attrs[field]
                     fields_ops.append(("ADD", path, val))
 
-                elif (field in self._attrs.keys() and
-                      field in original_attrs.keys()
-                ):
+                elif field in self._attrs.keys() and field in original_attrs.keys():
                     path = extract_path(self._attrs, field, self._cf_class)
                     try:
                         val = self._attrs[field]["value"]
@@ -554,15 +560,13 @@ class MambuEntity(MambuStruct):
                     fields_ops.append(("REPLACE", path, val))
                 else:
                     raise MambuPyError(
-                        "Unrecognizable field {} for patching".format(
-                            field
-                            ))
+                        "Unrecognizable field {} for patching".format(field)
+                    )
 
             if autodetect_remove:
                 for attr in original_attrs.keys():
                     if attr not in self._attrs.keys():
-                        path = extract_path(
-                            original_attrs, attr, self._cf_class)
+                        path = extract_path(original_attrs, attr, self._cf_class)
                         fields_ops.append(("REMOVE", path))
 
             self._updateCustomFields()
@@ -586,7 +590,7 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
         offset=None,
         limit=None,
         paginationDetails="OFF",
-        detailsLevel="BASIC"
+        detailsLevel="BASIC",
     ):
         """search, several entities, filtering criteria allowed
 
@@ -603,12 +607,14 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
         Returns:
           list of instances of an entity with data from Mambu
         """
-        params = {"filterCriteria": filterCriteria,
-                  "sortingCriteria": sortingCriteria,
-                  "offset": offset,
-                  "limit": limit,
-                  "paginationDetails": paginationDetails,
-                  "detailsLevel": detailsLevel}
+        params = {
+            "filterCriteria": filterCriteria,
+            "sortingCriteria": sortingCriteria,
+            "offset": offset,
+            "limit": limit,
+            "paginationDetails": paginationDetails,
+            "detailsLevel": detailsLevel,
+        }
 
         return cls._get_several(cls._connector.mambu_search, **params)
 
@@ -638,7 +644,8 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
             entid=self.id,
             filename=filename,
             name=title,
-            notes=notes)
+            notes=notes,
+        )
 
         doc = MambuDocument(**dict(json.loads(response.decode())))
         self._attachments[str(doc["id"])] = doc
@@ -659,7 +666,5 @@ class MambuEntityCF(MambuValueObject):
     def __init__(self, value, path="", typecf="STANDARD"):
         if typecf not in ["STANDARD", "GROUPED"]:
             raise MambuPyError("invalid CustomField type!")
-        self._attrs = {"value": value,
-                       "path": path,
-                       "type": typecf}
+        self._attrs = {"value": value, "path": path, "type": typecf}
         self._cf_class = GenericClass

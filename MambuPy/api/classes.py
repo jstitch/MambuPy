@@ -7,13 +7,15 @@
    MambuMapObj
 """
 
-class GenericClass():  # pragma: no coverage
+
+class GenericClass:  # pragma: no coverage
     """Generic class for init of MambuMapObj"""
+
     def __init__(self, *args, **kwargs):
         pass
 
 
-class MambuMapObj():
+class MambuMapObj:
     """An object with dictionary-like behaviour for key-value data"""
 
     def __init__(self, cf_class=GenericClass, **kwargs):
@@ -74,8 +76,9 @@ class MambuMapObj():
                     object.__getattribute__(self, name)
                 except AttributeError:
                     # if not, then assign it as a new key in the dict
-                    if (name in _attrs and
-                        _attrs[name].__class__.__name__ == self._cf_class.__name__
+                    if (
+                        name in _attrs
+                        and _attrs[name].__class__.__name__ == self._cf_class.__name__
                     ):
                         path = _attrs[name]["path"]
                         typecf = _attrs[name]["type"]
@@ -98,9 +101,10 @@ class MambuMapObj():
     def __setitem__(self, key, value):
         """Dict-like set"""
         # if no _attrs attribute, should be automatically created?
-        if (key in self._attrs and
-            self._attrs[key].__class__.__name__ == self._cf_class.__name__
-            ):
+        if (
+            key in self._attrs
+            and self._attrs[key].__class__.__name__ == self._cf_class.__name__
+        ):
             path = self._attrs[key]["path"]
             typecf = self._attrs[key]["type"]
             self._attrs[key] = self._cf_class(value, path, typecf)

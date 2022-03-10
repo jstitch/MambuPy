@@ -181,16 +181,14 @@ class MambuUtilTests(unittest.TestCase):
         today = datetime.now()
         # default dateFormat
         self.assertEqual(
-            mambuutil.dateFormat(
-                field=today.strftime(format)
-            ).strftime("%Y%m%d%H%M%S"),
+            mambuutil.dateFormat(field=today.strftime(format)).strftime("%Y%m%d%H%M%S"),
             today.strftime("%Y%m%d%H%M%S"),
         )
         # given format
         self.assertEqual(
-            mambuutil.dateFormat(
-                field=today.strftime(format), formato="%Y%m%d"
-            ).strftime("%Y%m%d"),
+            mambuutil.dateFormat(field=today.strftime(format), formato="%Y%m%d").strftime(
+                "%Y%m%d"
+            ),
             today.strftime("%Y%m%d"),
         )
 

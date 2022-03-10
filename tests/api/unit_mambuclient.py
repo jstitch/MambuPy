@@ -1,12 +1,13 @@
-import unittest
-import mock
 import os
 import sys
+import unittest
+
+import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.mambuutil import MambuPyError
 from MambuPy.api import mambuclient
+from MambuPy.mambuutil import MambuPyError
 
 
 class MambuClient(unittest.TestCase):
@@ -14,7 +15,8 @@ class MambuClient(unittest.TestCase):
         mc = mambuclient.MambuClient()
         self.assertEqual(mc._prefix, "clients")
         self.assertEqual(
-            mc._filter_keys, [
+            mc._filter_keys,
+            [
                 "branchId",
                 "centreId",
                 "creditOfficerUsername",
@@ -22,15 +24,14 @@ class MambuClient(unittest.TestCase):
                 "lastName",
                 "idNumber",
                 "state",
-                "birthDate"])
+                "birthDate",
+            ],
+        )
         self.assertEqual(
-            mc._sortBy_fields, [
-                "creationDate",
-                "lastModifiedDate",
-                "firstName",
-                "lastName"])
-        self.assertEqual(
-            mc._ownerType, "CLIENT")
+            mc._sortBy_fields,
+            ["creationDate", "lastModifiedDate", "firstName", "lastName"],
+        )
+        self.assertEqual(mc._ownerType, "CLIENT")
 
     @mock.patch("MambuPy.api.mambuclient.MambuEntity.get_all")
     def test_get_all(self, sup_get_all_mock):
@@ -48,21 +49,13 @@ class MambuClient(unittest.TestCase):
         mc = mambuclient.MambuClient.get_all(sortBy="firstName:ASC")
         self.assertEqual(mc, "SupGetAllMock")
 
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"^key \w+ not in allowed "
-        ):
+        with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambuclient.MambuClient.get_all(
-                filters={
-                    "branchId": "MyBranch",
-                    "Squad": "Red"})
+                filters={"branchId": "MyBranch", "Squad": "Red"}
+            )
 
-        with self.assertRaisesRegex(
-            MambuPyError,
-            r"^field \w+ not in allowed "
-        ):
-            mambuclient.MambuClient.get_all(
-                sortBy="field:ASC")
+        with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
+            mambuclient.MambuClient.get_all(sortBy="field:ASC")
 
 
 if __name__ == "__main__":

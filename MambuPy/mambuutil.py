@@ -118,7 +118,8 @@ ALLOWED_UPLOAD_MIMETYPES = [
     "YAML",
     "JSON",
     "JASPER",
-    "JRXML"]
+    "JRXML",
+]
 """allowed file types for uploads"""
 
 SEARCH_OPERATORS = [
@@ -141,7 +142,8 @@ SEARCH_OPERATORS = [
     "THIS_YEAR",
     "LAST_DAYS",
     "EMTPY",
-    "NOT_EMPTY"]
+    "NOT_EMPTY",
+]
 """search operators"""
 
 

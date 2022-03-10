@@ -1,19 +1,17 @@
 import copy
-from datetime import datetime
 import json
-import mock
 import os
 import sys
 import unittest
+from datetime import datetime
+
+import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.mambuutil import (
-    MambuError,
-    MambuPyError,
-    OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-    )
 from MambuPy.api import mambustruct
+from MambuPy.mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+                               MambuError, MambuPyError)
 
 
 class MagicMethodsTests(unittest.TestCase):
@@ -31,8 +29,9 @@ class MagicMethodsTests(unittest.TestCase):
         cf = mambustruct.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
-        self.assertEqual(ms._attrs["hello"]._attrs,
-                         {"value": "world", "path": "", "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs["hello"]._attrs, {"value": "world", "path": "", "type": "STANDARD"}
+        )
         self.assertEqual(ms["hello"], "world")
 
         with self.assertRaises(KeyError):
@@ -50,8 +49,10 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
 
         ms["hello"] = "goodbye"
-        self.assertEqual(ms._attrs["hello"]._attrs,
-                         {"value": "goodbye", "path": "", "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs["hello"]._attrs,
+            {"value": "goodbye", "path": "", "type": "STANDARD"},
+        )
 
     def test___delitem__(self):
         ms = mambustruct.MambuMapObj()
@@ -191,8 +192,9 @@ class MagicMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
-        self.assertEqual(ms._attrs["hello"]._attrs,
-                         {"value": "world", "path": "", "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs["hello"]._attrs, {"value": "world", "path": "", "type": "STANDARD"}
+        )
         self.assertEqual(ms.hello, "world")
 
     def test___setattribute__(self):
@@ -218,8 +220,10 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
 
         ms.hello = "goodbye"
-        self.assertEqual(ms._attrs["hello"]._attrs,
-                         {"value": "goodbye", "path": "", "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs["hello"]._attrs,
+            {"value": "goodbye", "path": "", "type": "STANDARD"},
+        )
 
     def test_has_key(self):
         ms = mambustruct.MambuMapObj()
@@ -250,51 +254,48 @@ class MambuStructTests(unittest.TestCase):
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
-        ms._attrs = {"aStr": "abc123",
-                     "aNum": "123",
-                     "trailZeroes": "00123",
-                     "aFloat": "15.56",
-                     "aBool": "TRUE",
-                     "otherBool": "FALSE",
-                     "aDate": "2021-10-23T10:36:00-06:00",
-                     "anotherDate": "2021-10-23T10:36:00",
-                     "aList": [
-                         "abc123",
-                         "123",
-                         "00123",
-                         "15.56",
-                         "2021-10-23T10:36:00-06:00",
-                         ["123"],
-                         {"key": "123"}],
-                     "aDict": {
-                         "str": "abc123",
-                         "num": "123",
-                         "trailZeroes": "00123",
-                         "float": "15.56",
-                         "date": "2021-10-23T10:36:00-06:00",
-                         "list": ["123"],
-                         "dict": {"key": "123"}}
-                     }
+        ms._attrs = {
+            "aStr": "abc123",
+            "aNum": "123",
+            "trailZeroes": "00123",
+            "aFloat": "15.56",
+            "aBool": "TRUE",
+            "otherBool": "FALSE",
+            "aDate": "2021-10-23T10:36:00-06:00",
+            "anotherDate": "2021-10-23T10:36:00",
+            "aList": [
+                "abc123",
+                "123",
+                "00123",
+                "15.56",
+                "2021-10-23T10:36:00-06:00",
+                ["123"],
+                {"key": "123"},
+            ],
+            "aDict": {
+                "str": "abc123",
+                "num": "123",
+                "trailZeroes": "00123",
+                "float": "15.56",
+                "date": "2021-10-23T10:36:00-06:00",
+                "list": ["123"],
+                "dict": {"key": "123"},
+            },
+        }
         ms._tzattrs = copy.deepcopy(ms._attrs)
 
         ms._convertDict2Attrs()
 
         # extracts timezone info from aDate field
-        self.assertEqual(ms._tzattrs, {"aDate": "UTC-06:00",
-                                       "anotherDate": None,
-                                       "aList": [
-                                           None,
-                                           None,
-                                           None,
-                                           None,
-                                           "UTC-06:00",
-                                           [None],
-                                           {}],
-                                       "aDict": {
-                                           "date": "UTC-06:00",
-                                           "list": [None],
-                                           "dict": {}}
-                                           })
+        self.assertEqual(
+            ms._tzattrs,
+            {
+                "aDate": "UTC-06:00",
+                "anotherDate": None,
+                "aList": [None, None, None, None, "UTC-06:00", [None], {}],
+                "aDict": {"date": "UTC-06:00", "list": [None], "dict": {}},
+            },
+        )
 
         # string remains string
         self.assertEqual(ms.aStr, "abc123")
@@ -316,46 +317,48 @@ class MambuStructTests(unittest.TestCase):
 
         # datetime transforms in to datetime object
         self.assertEqual(
-            ms.aDate,
-            datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
+            ms.aDate, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S")
+        )
 
         # lists recursively convert each of its elements
         self.assertEqual(
             ms.aList,
-            ["abc123", 123, "00123", 15.56, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"), [123], {"key": 123}],
+            [
+                "abc123",
+                123,
+                "00123",
+                15.56,
+                datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+                [123],
+                {"key": 123},
+            ],
         )
 
         # dictonaries recursively convert each of its elements
         self.assertEqual(
             ms.aDict,
             {
-             "str": "abc123",
-             "num": 123,
-             "trailZeroes": "00123",
-             "float": 15.56,
-             "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
-             "list": [123],
-             "dict": {"key": 123},
+                "str": "abc123",
+                "num": 123,
+                "trailZeroes": "00123",
+                "float": 15.56,
+                "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+                "list": [123],
+                "dict": {"key": 123},
             },
         )
 
         # idempotency
         ms._convertDict2Attrs()
-        self.assertEqual(ms._tzattrs, {"aDate": "UTC-06:00",
-                                       "anotherDate": None,
-                                       "aList": [
-                                           None,
-                                           None,
-                                           None,
-                                           None,
-                                           "UTC-06:00",
-                                           [None],
-                                           {}],
-                                       "aDict": {
-                                           "date": "UTC-06:00",
-                                           "list": [None],
-                                           "dict": {}}
-                                           })
+        self.assertEqual(
+            ms._tzattrs,
+            {
+                "aDate": "UTC-06:00",
+                "anotherDate": None,
+                "aList": [None, None, None, None, "UTC-06:00", [None], {}],
+                "aDict": {"date": "UTC-06:00", "list": [None], "dict": {}},
+            },
+        )
         self.assertEqual(ms.aStr, "abc123")
         self.assertEqual(ms.aNum, 123)
         self.assertEqual(ms.trailZeroes, "00123")
@@ -363,22 +366,30 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.aBool, True)
         self.assertEqual(ms.otherBool, False)
         self.assertEqual(
-            ms.aDate,
-            datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"))
+            ms.aDate, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S")
+        )
         self.assertEqual(
             ms.aList,
-            ["abc123", 123, "00123", 15.56, datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"), [123], {"key": 123}],
+            [
+                "abc123",
+                123,
+                "00123",
+                15.56,
+                datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+                [123],
+                {"key": 123},
+            ],
         )
         self.assertEqual(
             ms.aDict,
             {
-             "str": "abc123",
-             "num": 123,
-             "trailZeroes": "00123",
-             "float": 15.56,
-             "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
-             "list": [123],
-             "dict": {"key": 123},
+                "str": "abc123",
+                "num": 123,
+                "trailZeroes": "00123",
+                "float": 15.56,
+                "date": datetime.strptime("2021-10-23 10:36:00", "%Y-%m-%d %H:%M:%S"),
+                "list": [123],
+                "dict": {"key": 123},
             },
         )
 
@@ -394,7 +405,7 @@ class MambuStructTests(unittest.TestCase):
             "emailAddress": "TRUE",
             "description": "FALSE",
             "someKey": "0123",
-            }
+        }
         ms._attrs = {}
         for key, val in data.items():
             ms._attrs[key] = val
@@ -412,43 +423,34 @@ class MambuStructTests(unittest.TestCase):
     def test__serializeFields(self):
         """Test revert of conversion from dictionary elements (native datatype)
         to strings"""
-        someDate = datetime.strptime(
-            "2021-10-23T10:36:00", "%Y-%m-%dT%H:%M:%S")
+        someDate = datetime.strptime("2021-10-23T10:36:00", "%Y-%m-%dT%H:%M:%S")
         someMambuStructObj = mambustruct.MambuStruct()
         ms = mambustruct.MambuStruct()
-        ms._attrs = {"aStr": "abc123",
-                     "aNum": 123,
-                     "trailZeroes": "00123",
-                     "aFloat": 15.56,
-                     "aBool": True,
-                     "otherBool": False,
-                     "aDate": someDate,
-                     "aList": [
-                         "abc123",
-                         123,
-                         "00123",
-                         15.56,
-                         someDate,
-                         [123],
-                         {"key": 123}],
-                     "aDict": {
-                         "str": "abc123",
-                         "num": 123,
-                         "trailZeroes": "00123",
-                         "float": 15.56,
-                         "date": someDate,
-                         "list": [123],
-                         "dict": {"key": 123}},
-                     "aMambuStruct": someMambuStructObj,
-                     }
-        ms._tzattrs = {"aDate": "UTC-06:00",
-                       "aList": [
-                           None, None, None, None,
-                           "UTC-05:00",
-                           [None],
-                           {}],
-                        "aDict": {
-                            "date": None}}
+        ms._attrs = {
+            "aStr": "abc123",
+            "aNum": 123,
+            "trailZeroes": "00123",
+            "aFloat": 15.56,
+            "aBool": True,
+            "otherBool": False,
+            "aDate": someDate,
+            "aList": ["abc123", 123, "00123", 15.56, someDate, [123], {"key": 123}],
+            "aDict": {
+                "str": "abc123",
+                "num": 123,
+                "trailZeroes": "00123",
+                "float": 15.56,
+                "date": someDate,
+                "list": [123],
+                "dict": {"key": 123},
+            },
+            "aMambuStruct": someMambuStructObj,
+        }
+        ms._tzattrs = {
+            "aDate": "UTC-06:00",
+            "aList": [None, None, None, None, "UTC-05:00", [None], {}],
+            "aDict": {"date": None},
+        }
 
         ms._serializeFields()
 
@@ -471,27 +473,33 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.otherBool, "false")
 
         # datetime transformation to str using timezone
-        self.assertEqual(
-            ms.aDate,
-            someDate.isoformat() + "-06:00")
+        self.assertEqual(ms.aDate, someDate.isoformat() + "-06:00")
 
         # lists recursively convert each of its elements
         self.assertEqual(
             ms.aList,
-            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-05:00", ["123"], {"key": "123"}],
+            [
+                "abc123",
+                "123",
+                "00123",
+                "15.56",
+                someDate.isoformat() + "-05:00",
+                ["123"],
+                {"key": "123"},
+            ],
         )
 
         # dictonaries recursively convert each of its elements
         self.assertEqual(
             ms.aDict,
             {
-             "str": "abc123",
-             "num": "123",
-             "trailZeroes": "00123",
-             "float": "15.56",
-             "date": someDate.isoformat(),
-             "list": ["123"],
-             "dict": {"key": "123"},
+                "str": "abc123",
+                "num": "123",
+                "trailZeroes": "00123",
+                "float": "15.56",
+                "date": someDate.isoformat(),
+                "list": ["123"],
+                "dict": {"key": "123"},
             },
         )
 
@@ -506,44 +514,43 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.aFloat, "15.56")
         self.assertEqual(ms.aBool, "true")
         self.assertEqual(ms.otherBool, "false")
-        self.assertEqual(
-            ms.aDate,
-            someDate.isoformat() + "-06:00")
+        self.assertEqual(ms.aDate, someDate.isoformat() + "-06:00")
         self.assertEqual(
             ms.aList,
-            ["abc123", "123", "00123", "15.56", someDate.isoformat() + "-05:00", ["123"], {"key": "123"}],
+            [
+                "abc123",
+                "123",
+                "00123",
+                "15.56",
+                someDate.isoformat() + "-05:00",
+                ["123"],
+                {"key": "123"},
+            ],
         )
         self.assertEqual(
             ms.aDict,
             {
-             "str": "abc123",
-             "num": "123",
-             "trailZeroes": "00123",
-             "float": "15.56",
-             "date": someDate.isoformat(),
-             "list": ["123"],
-             "dict": {"key": "123"},
+                "str": "abc123",
+                "num": "123",
+                "trailZeroes": "00123",
+                "float": "15.56",
+                "date": someDate.isoformat(),
+                "list": ["123"],
+                "dict": {"key": "123"},
             },
         )
         self.assertEqual(ms.aMambuStruct, someMambuStructObj)
 
     def test__extractCustomFields(self):
         ms = mambustruct.MambuStruct()
-        ms._attrs = {"aField": "abc123",
-                     "_customFieldList": [
-                         {"str": "abc123",
-                          "num": 123,
-                          "float": 15.56,
-                          "_index": 0},
-                         {"str": "def456",
-                          "num": 456,
-                          "float": 23.34,
-                          "_index": 1}],
-                     "_customFieldDict": {
-                         "str": "abc123",
-                         "num": 123,
-                         "float": 15.56}
-                     }
+        ms._attrs = {
+            "aField": "abc123",
+            "_customFieldList": [
+                {"str": "abc123", "num": 123, "float": 15.56, "_index": 0},
+                {"str": "def456", "num": 456, "float": 23.34, "_index": 1},
+            ],
+            "_customFieldDict": {"str": "abc123", "num": 123, "float": 15.56},
+        }
 
         ms._extractCustomFields()
 
@@ -555,8 +562,7 @@ class MambuStructTests(unittest.TestCase):
 
         ms._attrs["_invalidFieldSet"] = "someVal"
         with self.assertRaisesRegex(
-            MambuPyError,
-            r"CustomFieldSet _invalidFieldSet is not a dictionary"
+            MambuPyError, r"CustomFieldSet _invalidFieldSet is not a dictionary"
         ):
             ms._extractCustomFields()
 
@@ -564,7 +570,7 @@ class MambuStructTests(unittest.TestCase):
         ms._attrs["_invalidListField"] = ["somfield", "another"]
         with self.assertRaisesRegex(
             MambuPyError,
-            r"CustomFieldSet _invalidListField is not a list of dictionaries"
+            r"CustomFieldSet _invalidListField is not a list of dictionaries",
         ):
             ms._extractCustomFields()
 
@@ -575,46 +581,44 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(some_external_attr["hello"]["type"], "STANDARD")
 
     def test__updateCustomFields(self):
-        extracted_fields = {"aField": "abc123",
-                     "_customFieldList": [
-                         {"str": "abc123",
-                          "num": 123,
-                          "float": 15.56,
-                          "bool": True,
-                          "not_converted": "?",
-                          "_index": 0},
-                         {"str": "def456",
-                          "num": 456,
-                          "float": 23.34,
-                          "bool": False,
-                          "not_converted": "?",
-                          "_index": 1},
-                         "invalidElement"],
-                     "_customFieldDict": {
-                         "num": 123,
-                         "bool": True,
-                         "not_converted": "?"},
-                     "_notConvertedList": [],
-                     "num": 123,
-                     "bool": True,
-                     "customFieldList": [
-                         {"str": "abc123",
-                          "num": 123,
-                          "float": 15.56,
-                          "_index": 0},
-                         {"str": "def456",
-                          "num": 456,
-                          "float": 23.34,
-                          "_index": 1}],
-                     "str_0": "abc123",
-                     "num_0": 123,
-                     "float_0": 15.56,
-                     "bool_0": True,
-                     "str_1": "def456",
-                     "num_1": 456,
-                     "float_1": 23.34,
-                     "bool_1": False,
-                     }
+        extracted_fields = {
+            "aField": "abc123",
+            "_customFieldList": [
+                {
+                    "str": "abc123",
+                    "num": 123,
+                    "float": 15.56,
+                    "bool": True,
+                    "not_converted": "?",
+                    "_index": 0,
+                },
+                {
+                    "str": "def456",
+                    "num": 456,
+                    "float": 23.34,
+                    "bool": False,
+                    "not_converted": "?",
+                    "_index": 1,
+                },
+                "invalidElement",
+            ],
+            "_customFieldDict": {"num": 123, "bool": True, "not_converted": "?"},
+            "_notConvertedList": [],
+            "num": 123,
+            "bool": True,
+            "customFieldList": [
+                {"str": "abc123", "num": 123, "float": 15.56, "_index": 0},
+                {"str": "def456", "num": 456, "float": 23.34, "_index": 1},
+            ],
+            "str_0": "abc123",
+            "num_0": 123,
+            "float_0": 15.56,
+            "bool_0": True,
+            "str_1": "def456",
+            "num_1": 456,
+            "float_1": 23.34,
+            "bool_1": False,
+        }
         ms = mambustruct.MambuStruct()
         ms._attrs = copy.deepcopy(extracted_fields)
 
@@ -622,9 +626,25 @@ class MambuStructTests(unittest.TestCase):
         ms._attrs["customFieldList"][0]["num"] = 321
         ms._updateCustomFields()
 
-        self.assertEqual(ms._customFieldList, [
-            {"str": "abc123", "num": 321, "float": 15.56, "bool": "TRUE", "_index": 0},
-            {"str": "def456", "num": 456, "float": 23.34, "bool": "FALSE", "_index": 1}])
+        self.assertEqual(
+            ms._customFieldList,
+            [
+                {
+                    "str": "abc123",
+                    "num": 321,
+                    "float": 15.56,
+                    "bool": "TRUE",
+                    "_index": 0,
+                },
+                {
+                    "str": "def456",
+                    "num": 456,
+                    "float": 23.34,
+                    "bool": "FALSE",
+                    "_index": 1,
+                },
+            ],
+        )
         self.assertEqual(ms._customFieldDict["num"], 321)
         self.assertEqual(ms._customFieldDict["bool"], "TRUE")
         self.assertEqual(hasattr(ms, "num"), False)
@@ -634,23 +654,19 @@ class MambuStructTests(unittest.TestCase):
         ms._attrs = copy.deepcopy(extracted_fields)
         ms._attrs["_invalidFieldSet"] = "someVal"
         with self.assertRaisesRegex(
-            MambuPyError,
-            r"CustomFieldSet _invalidFieldSet is not a dictionary"
+            MambuPyError, r"CustomFieldSet _invalidFieldSet is not a dictionary"
         ):
             ms._updateCustomFields()
 
 
 class MambuEntityTests(unittest.TestCase):
     def setUp(self):
-        class child_class(
-            mambustruct.MambuEntity
-        ):
+        class child_class(mambustruct.MambuEntity):
             _prefix = "un_prefix"
             id = "12345"
 
         class child_class_attachable(
-            mambustruct.MambuEntity,
-            mambustruct.MambuEntityAttachable
+            mambustruct.MambuEntity, mambustruct.MambuEntityAttachable
         ):
             _prefix = "un_prefix"
             _ownerType = "MY_ENTITY"
@@ -661,8 +677,7 @@ class MambuEntityTests(unittest.TestCase):
                 self._attachments = {}
 
         class child_class_searchable(
-            mambustruct.MambuEntity,
-            mambustruct.MambuEntitySearchable
+            mambustruct.MambuEntity, mambustruct.MambuEntitySearchable
         ):
             """"""
 
@@ -676,37 +691,34 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    def test__get_several(
-        self,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
-    ):
+    def test__get_several(self, mock_extractCustomFields, mock_convertDict2Attrs):
         mock_func = mock.Mock()
 
-        mock_func.return_value = b'''[
+        mock_func.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
         {"encodedKey":"def456","id":"67890"},
         {"encodedKey":"ghi789","id":"54321"},
         {"encodedKey":"jkl012","id":"09876"}
-        ]'''
+        ]"""
 
         ms = self.child_class._get_several(mock_func)
 
         self.assertEqual(len(ms), 4)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
         self.assertEqual(ms[2].__class__.__name__, "child_class")
-        self.assertEqual(ms[2]._attrs, {"encodedKey":"ghi789", "id": "54321"})
+        self.assertEqual(ms[2]._attrs, {"encodedKey": "ghi789", "id": "54321"})
         self.assertEqual(ms[3].__class__.__name__, "child_class")
-        self.assertEqual(ms[3]._attrs, {"encodedKey":"jkl012", "id": "09876"})
+        self.assertEqual(ms[3]._attrs, {"encodedKey": "jkl012", "id": "09876"})
 
         mock_func.assert_called_with(
             "un_prefix",
             offset=0,
             limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-            detailsLevel="BASIC")
+            detailsLevel="BASIC",
+        )
         self.assertEqual(mock_convertDict2Attrs.call_count, 4)
         mock_convertDict2Attrs.assert_called_with()
         self.assertEqual(mock_extractCustomFields.call_count, 4)
@@ -714,27 +726,21 @@ class MambuEntityTests(unittest.TestCase):
 
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class._get_several(mock_func, detailsLevel="FULL")
-        mock_func.assert_called_with(
-            "un_prefix",
-            offset=0,
-            limit=5,
-            detailsLevel="FULL")
+        mock_func.assert_called_with("un_prefix", offset=0, limit=5, detailsLevel="FULL")
 
         self.child_class._get_several(mock_func, offset=20, limit=2)
         mock_func.assert_called_with(
-            "un_prefix",
-            offset=20,
-            limit=2,
-            detailsLevel="BASIC")
+            "un_prefix", offset=20, limit=2, detailsLevel="BASIC"
+        )
 
         mock_func.reset_mock()
         mock_func.side_effect = [
-            b'''[{"encodedKey":"abc123","id":"12345"}]''',
-            b'''[{"encodedKey":"def456","id":"67890"}]''',
-            b'''[{"encodedKey":"ghi789","id":"54321"}]''',
-            b'''[{"encodedKey":"jkl012","id":"09876"}]''',
-            b'''[]''',
-            ]
+            b"""[{"encodedKey":"abc123","id":"12345"}]""",
+            b"""[{"encodedKey":"def456","id":"67890"}]""",
+            b"""[{"encodedKey":"ghi789","id":"54321"}]""",
+            b"""[{"encodedKey":"jkl012","id":"09876"}]""",
+            b"""[]""",
+        ]
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
         self.child_class._get_several(mock_func, limit=4)
         self.assertEqual(mock_func.call_count, 4)
@@ -748,12 +754,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
-    def test_get(
-        self,
-        mock_connector,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
-    ):
+    def test_get(self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
         ms = self.child_class.get("12345")
@@ -762,7 +763,8 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms._detailsLevel, "BASIC")
         mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="BASIC")
+            "12345", prefix="un_prefix", detailsLevel="BASIC"
+        )
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
 
@@ -771,18 +773,18 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="FULL")
+            "12345", prefix="un_prefix", detailsLevel="FULL"
+        )
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_refresh(
-        self,
-        mock_connector,
-        mock_extractCustomFields,
-        mock_convertDict2Attrs
+        self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs
     ):
-        mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
+        mock_connector.mambu_get.return_value = (
+            b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
+        )
         ms = self.child_class.get("12345", detailsLevel="FULL")
         ms.test_prop = "testing"
         ms.someAttribute = "anotherValue"
@@ -791,60 +793,62 @@ class MambuEntityTests(unittest.TestCase):
         ms.refresh()
 
         mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="FULL")
+            "12345", prefix="un_prefix", detailsLevel="FULL"
+        )
         self.assertEqual(ms.test_prop, "testing")
         self.assertEqual(ms.someAttribute, "someValue")
 
         mock_connector.reset_mock()
         ms.refresh(detailsLevel="BASIC")
         mock_connector.mambu_get.assert_called_with(
-            "12345", prefix="un_prefix", detailsLevel="BASIC")
+            "12345", prefix="un_prefix", detailsLevel="BASIC"
+        )
 
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_get_all(self, mock_connector):
-        mock_connector.mambu_get_all.return_value = b'''[
+        mock_connector.mambu_get_all.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
         {"encodedKey":"def456","id":"67890"}
-        ]'''
+        ]"""
 
         ms = self.child_class.get_all()
 
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
         ms = self.child_class.get_all(filters={"one": "two"})
 
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_search(self, mock_connector):
-        mock_connector.mambu_search.return_value = b'''[
+        mock_connector.mambu_search.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
         {"encodedKey":"def456","id":"67890"}
-        ]'''
+        ]"""
 
         ms = self.child_class_searchable.search()
 
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
         ms = self.child_class_searchable.search(filterCriteria={"one": "two"})
 
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
-        self.assertEqual(ms[0]._attrs, {"encodedKey":"abc123", "id": "12345"})
+        self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
-        self.assertEqual(ms[1]._attrs, {"encodedKey":"def456", "id": "67890"})
+        self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
@@ -852,20 +856,24 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_update(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs, mock_extractCustomFields
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+        mock_extractCustomFields,
     ):
-        mock_connector.mambu_update.return_value = b'''{
+        mock_connector.mambu_update.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
+        }"""
         child = self.child_class()
         child._attrs["myProp"] = "myVal"
 
         child.update()
 
         mock_connector.mambu_update.assert_called_with(
-            "12345", "un_prefix", {"myProp": "myVal"})
+            "12345", "un_prefix", {"myProp": "myVal"}
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -892,12 +900,14 @@ class MambuEntityTests(unittest.TestCase):
     def test_create(
         self,
         mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs, mock_extractCustomFields
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+        mock_extractCustomFields,
     ):
-        mock_connector.mambu_create.return_value = b'''{
+        mock_connector.mambu_create.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
+        }"""
         child = self.child_class()
         child._attrs = {}
         child._attrs["myProp"] = "myVal"
@@ -905,15 +915,18 @@ class MambuEntityTests(unittest.TestCase):
 
         child.create()
 
-        self.assertEqual(child._resp, b'''{
+        self.assertEqual(
+            child._resp,
+            b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }''')
-        self.assertEqual(child._attrs, {"encodedKey": "0123456789abcdef",
-                                        "id": "12345",
-                                        "myProp": "myVal"})
+        }""",
+        )
+        self.assertEqual(
+            child._attrs,
+            {"encodedKey": "0123456789abcdef", "id": "12345", "myProp": "myVal"},
+        )
         self.assertEqual(child._detailsLevel, "FULL")
-        mock_connector.mambu_create.assert_called_with(
-            "un_prefix", {"myProp": "myVal"})
+        mock_connector.mambu_create.assert_called_with("un_prefix", {"myProp": "myVal"})
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -942,22 +955,24 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_add(
-        self, mock_connector,
-
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["myProp"] = "myVal"
 
         child.patch(["myProp"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("ADD", "/myProp", "myVal")])
+            "12345", "un_prefix", [("ADD", "/myProp", "myVal")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -967,21 +982,24 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_replace(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["myProp"] = "myVal2"
 
         child.patch(["myProp"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REPLACE", "/myProp", "myVal2")])
+            "12345", "un_prefix", [("REPLACE", "/myProp", "myVal2")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -991,21 +1009,24 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_remove(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         del child._attrs["myProp"]
 
         child.patch(autodetect_remove=True)
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REMOVE", "/myProp")])
+            "12345", "un_prefix", [("REMOVE", "/myProp")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1015,23 +1036,25 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_add_cf_standard(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF(
-            "myVal", "/_myCFSet/myProp")
+        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal", "/_myCFSet/myProp")
 
         child.patch(["myProp"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("ADD", "/_myCFSet/myProp", "myVal")])
+            "12345", "un_prefix", [("ADD", "/_myCFSet/myProp", "myVal")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1041,23 +1064,25 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_replace_cf_standard(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {"myProp": "myVal"}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF(
-            "myVal2", "/_myCFSet/myProp")
+        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal2", "/_myCFSet/myProp")
 
         child.patch(["myProp"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REPLACE", "/_myCFSet/myProp", "myVal2")])
+            "12345", "un_prefix", [("REPLACE", "/_myCFSet/myProp", "myVal2")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1067,24 +1092,26 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_remove_cf_standard(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {"myProp": "myVal"}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF(
-            "myVal", "/_myCFSet/myProp")
+        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal", "/_myCFSet/myProp")
 
         del child._attrs["myProp"]
         child.patch(autodetect_remove=True)
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REMOVE", "/_myCFSet/myProp")])
+            "12345", "un_prefix", [("REMOVE", "/_myCFSet/myProp")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1094,24 +1121,28 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_add_cf_grouped(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = []
         child._attrs["myCFSet"] = []
         child._attrs["myProp"] = mambustruct.MambuEntityCF(
-            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+            "myVal", "/_myCFSet/0/myProp", "GROUPED"
+        )
 
         child.patch(["myProp"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("ADD", "/_myCFSet/0/myProp", "myVal")])
+            "12345", "un_prefix", [("ADD", "/_myCFSet/0/myProp", "myVal")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1121,28 +1152,34 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_replace_cf_grouped(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
         child._attrs["myCFSet"] = [{}, {}]
         child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
-            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+            "myVal", "/_myCFSet/0/myProp", "GROUPED"
+        )
         child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
-            "myVal2", "/_myCFSet/1/myProp", "GROUPED")
+            "myVal2", "/_myCFSet/1/myProp", "GROUPED"
+        )
 
         child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
-            "myVal3", "/_myCFSet/1/myProp", "GROUPED")
+            "myVal3", "/_myCFSet/1/myProp", "GROUPED"
+        )
         child.patch(["myProp_1"])
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REPLACE", "/_myCFSet/1/myProp", "myVal3")])
+            "12345", "un_prefix", [("REPLACE", "/_myCFSet/1/myProp", "myVal3")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1152,27 +1189,32 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_remove_cf_grouped(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
         child._attrs["myCFSet"] = [{}, {}]
         child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
-            "myVal", "/_myCFSet/0/myProp", "GROUPED")
+            "myVal", "/_myCFSet/0/myProp", "GROUPED"
+        )
         child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
-            "myVal2", "/_myCFSet/1/myProp", "GROUPED")
+            "myVal2", "/_myCFSet/1/myProp", "GROUPED"
+        )
 
         del child._attrs["myProp_0"]
         child.patch(autodetect_remove=True)
 
         mock_connector.mambu_patch.assert_called_once_with(
-            "12345", "un_prefix", [("REMOVE", "/_myCFSet/0/myProp")])
+            "12345", "un_prefix", [("REMOVE", "/_myCFSet/0/myProp")]
+        )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1182,18 +1224,22 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_patch_exceptions(
-        self, mock_connector,
-        mock_updateCustomFields, mock_serializeFields,
-        mock_convertDict2Attrs
+        self,
+        mock_connector,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
     ):
         child = self.child_class()
-        child._resp = b'''{
+        child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
-        }'''
+        }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["myProp"] = "myVal2"
 
-        with self.assertRaisesRegex(MambuPyError, r"Unrecognizable field \w+ for patching"):
+        with self.assertRaisesRegex(
+            MambuPyError, r"Unrecognizable field \w+ for patching"
+        ):
             child.patch(["myProperty"])
 
         mock_connector.mambu_patch.side_effect = MambuError("A Mambu Error")
@@ -1202,56 +1248,53 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_attach_document(self, mock_connector):
-        mock_connector.mambu_upload_document.return_value = b'''{
+        mock_connector.mambu_upload_document.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
         "type":"png","fileName":"someImage.png"
-        }'''
+        }"""
         child = self.child_class_attachable()
-        upl = child.attach_document(
-            "/tmp/someImage.png",
-            "MyImage",
-            "this is a test")
+        upl = child.attach_document("/tmp/someImage.png", "MyImage", "this is a test")
 
         self.assertEqual(list(child._attachments.keys()), ["12345"])
         self.assertEqual(
             child._attachments["12345"]._attrs,
-            {"encodedKey": "0123456789abcdef",
-             "id": "12345",
-             "ownerType": "MY_ENTITY",
-             "type": "png",
-             "fileName": "someImage.png"})
+            {
+                "encodedKey": "0123456789abcdef",
+                "id": "12345",
+                "ownerType": "MY_ENTITY",
+                "type": "png",
+                "fileName": "someImage.png",
+            },
+        )
         self.assertEqual(upl, mock_connector.mambu_upload_document.return_value)
         mock_connector.mambu_upload_document.assert_called_with(
             owner_type="MY_ENTITY",
             entid="12345",
             filename="/tmp/someImage.png",
             name="MyImage",
-            notes="this is a test")
+            notes="this is a test",
+        )
 
 
 class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
         ms = mambustruct.MambuEntityCF("_VALUE_")
-        self.assertEqual(ms._attrs,
-                         {"value": "_VALUE_", "path": "", "type": "STANDARD"})
+        self.assertEqual(ms._attrs, {"value": "_VALUE_", "path": "", "type": "STANDARD"})
 
         ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_")
-        self.assertEqual(ms._attrs,
-                         {"value": "_VALUE_",
-                          "path": "_PATH_",
-                          "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
+        )
 
         ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "STANDARD")
-        self.assertEqual(ms._attrs,
-                         {"value": "_VALUE_",
-                          "path": "_PATH_",
-                          "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
+        )
 
         ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "GROUPED")
-        self.assertEqual(ms._attrs,
-                         {"value": "_VALUE_",
-                          "path": "_PATH_",
-                          "type": "GROUPED"})
+        self.assertEqual(
+            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "GROUPED"}
+        )
 
         with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):
             mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
