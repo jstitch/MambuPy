@@ -46,8 +46,6 @@ class MambuGroupTests(unittest.TestCase):
         self.assertEqual(gr.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getgroupurl
 
         def build_mock_grp_1(self, *args, **kwargs):
@@ -120,9 +118,7 @@ class MambuGroupTests(unittest.TestCase):
             self.assertTrue(grp.has_key("clients"))
             mock_mambuclient.assert_any_call(entid="dummyClientId1", fullDetails=True)
             mock_mambuclient.assert_any_call(entid="dummyClientId2", fullDetails=True)
-            self.assertEqual(
-                grp["clients"], [my_client_instance_1, my_client_instance_2]
-            )
+            self.assertEqual(grp["clients"], [my_client_instance_1, my_client_instance_2])
 
             # already with mambuclientclass
             mock_mambuclient.reset_mock()
@@ -318,25 +314,25 @@ class MambuGroupTests(unittest.TestCase):
         # set groupMembers
         g.attrs["groupMembers"] = [
             {
-                u"clientKey": u"8a818fc56e65226e016e65fcd66c64ca",
+                "clientKey": "8a818fc56e65226e016e65fcd66c64ca",
                 # u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
-                u"encodedKey": u"8a818fc56e65226e016e660b08f567b5",
-                u"groupKey": u"8a818fc56e65226e016e66065da26736",
-                u"indexInList": 1,
+                "encodedKey": "8a818fc56e65226e016e660b08f567b5",
+                "groupKey": "8a818fc56e65226e016e66065da26736",
+                "indexInList": 1,
             },
             {
-                u"clientKey": u"8a818fc56e65226e016e656582853e9d",
+                "clientKey": "8a818fc56e65226e016e656582853e9d",
                 # u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
-                u"encodedKey": u"8a818fc56e65226e016e660b08f567b6",
-                u"groupKey": u"8a818fc56e65226e016e66065da26736",
-                u"indexInList": 2,
+                "encodedKey": "8a818fc56e65226e016e660b08f567b6",
+                "groupKey": "8a818fc56e65226e016e66065da26736",
+                "indexInList": 2,
             },
             {
-                u"clientKey": u"8a818e5b61de14e70161de42a3fc21a5",
+                "clientKey": "8a818e5b61de14e70161de42a3fc21a5",
                 # u'creationDate': datetime.datetime(2019, 11, 13, 18, 33, 49),
-                u"encodedKey": u"8a818fc56e65226e016e660b08f567b7",
-                u"groupKey": u"8a818fc56e65226e016e66065da26736",
-                u"indexInList": 3,
+                "encodedKey": "8a818fc56e65226e016e660b08f567b7",
+                "groupKey": "8a818fc56e65226e016e66065da26736",
+                "indexInList": 3,
             },
         ]
         # call method
@@ -407,9 +403,7 @@ class MambuGroupsTests(unittest.TestCase):
             AttributeError, "'MambuGroups' object has no attribute 'mambugroupclass'"
         ):
             grps.mambugroupclass
-        with mock.patch(
-            "MambuPy.rest.mambugroup.MambuGroup.preprocess"
-        ):
+        with mock.patch("MambuPy.rest.mambugroup.MambuGroup.preprocess"):
             grps.convertDict2Attrs()
             self.assertEqual(
                 str(grps.mambugroupclass),

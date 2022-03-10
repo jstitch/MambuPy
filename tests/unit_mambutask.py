@@ -126,9 +126,7 @@ class MambuTaskTests(unittest.TestCase):
 
         with mock.patch.object(
             mambutask.MambuStruct, "__init__", build_mock_task
-        ), mock.patch.object(
-            mambutask.MambuStruct, "connect", connect_mocked
-        ):
+        ), mock.patch.object(mambutask.MambuStruct, "connect", connect_mocked):
             t = mambutask.MambuTask(urlfunc=gettasksurl, entid="1")
             self.assertRegexpMatches(repr(t), r"^MambuTask - taskid: '1'")
             t.close()

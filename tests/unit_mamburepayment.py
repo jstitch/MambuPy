@@ -19,9 +19,7 @@ for k, v in mambuconfig.default_configs.items():
 from MambuPy.rest import mamburepayment
 
 try:
-    unittest.TestCase.assertRaisesRegexp = (
-        unittest.TestCase.assertRaisesRegex
-    )  # python3
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 
@@ -51,9 +49,7 @@ class MambuRepaymentTests(unittest.TestCase):
                 "dueDate": date.today(),
             }
 
-        with mock.patch.object(
-            mamburepayment.MambuStruct, "__init__", build_mock_rep_1
-        ):
+        with mock.patch.object(mamburepayment.MambuStruct, "__init__", build_mock_rep_1):
             rep = mamburepayment.MambuRepayment(
                 urlfunc=getrepaymentsurl, entid="mockrepayment"
             )

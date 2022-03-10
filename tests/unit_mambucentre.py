@@ -39,8 +39,6 @@ class MambuCentreTests(unittest.TestCase):
         self.assertEqual(cn.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getcentresurl
 
         def build_mock_cen_1(self, *args, **kwargs):

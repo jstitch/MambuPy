@@ -39,8 +39,6 @@ class MambuProductTests(unittest.TestCase):
         self.assertEqual(p.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getproductsurl
 
         def build_mock_prod_1(self, *args, **kwargs):

@@ -9,8 +9,8 @@ try:
     import mock
 except ModuleNotFoundError:
     import unittest.mock as mock
+
 import unittest
-from datetime import datetime
 
 from MambuPy import mambuconfig
 
@@ -31,12 +31,10 @@ Another=BrickInTheWall
 
         if sys.version_info.major < 3:
             import ConfigParser
-            from ConfigParser import NoOptionError, NoSectionError
 
             self.config = ConfigParser.ConfigParser(defaults=defaults)
         else:
             import configparser
-            from configparser import NoOptionError, NoSectionError
 
             self.config = configparser.ConfigParser(defaults=defaults)
 
@@ -83,9 +81,7 @@ Another=BrickInTheWall
     def test_default_configs(self):
         self.assertEqual(mambuconfig.default_configs.get("apiurl"), "domain.mambu.com")
         self.assertEqual(mambuconfig.default_configs.get("apiuser"), "mambu_api_user")
-        self.assertEqual(
-            mambuconfig.default_configs.get("apipwd"), "mambu_api_password"
-        )
+        self.assertEqual(mambuconfig.default_configs.get("apipwd"), "mambu_api_password")
         self.assertEqual(mambuconfig.default_configs.get("dbname"), "mambu_db")
         self.assertEqual(mambuconfig.default_configs.get("dbuser"), "mambu_db_user")
         self.assertEqual(mambuconfig.default_configs.get("dbpwd"), "mambu_db_pwd")
@@ -100,9 +96,7 @@ Another=BrickInTheWall
         mambuconfig.args.mambupy_hello = None
         mambuconfig.args.mambupy_another = None
         self.assertEqual(mambuconfig.get_conf(self.config, "SECTION1", "Test"), "Value")
-        self.assertEqual(
-            mambuconfig.get_conf(self.config, "SECTION1", "Hello"), "World"
-        )
+        self.assertEqual(mambuconfig.get_conf(self.config, "SECTION1", "Hello"), "World")
         self.assertEqual(
             mambuconfig.get_conf(self.config, "SECTION2", "Another"), "BrickInTheWall"
         )

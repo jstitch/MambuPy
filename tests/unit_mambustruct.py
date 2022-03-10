@@ -12,7 +12,6 @@ except ModuleNotFoundError:
     import unittest.mock as mock
 
 import unittest
-from datetime import datetime
 
 from MambuPy import mambuconfig
 
@@ -21,9 +20,7 @@ for k, v in mambuconfig.default_configs.items():
 from MambuPy.rest import mambustruct
 
 try:
-    unittest.TestCase.assertRaisesRegexp = (
-        unittest.TestCase.assertRaisesRegex
-    )  # python3
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 
@@ -886,9 +883,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(serial["att"], ["1", "1.23", "001", "string", {"foo": "bar"}])
 
         # on dictionaries, each of its elements is recursively converted
-        json.loads.return_value = {
-            "att": {"a": 1, "b": 1.23, "c": "001", "d": "string"}
-        }
+        json.loads.return_value = {"att": {"a": 1, "b": 1.23, "c": "001", "d": "string"}}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
         self.assertEqual(
@@ -950,9 +945,7 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         # if the class who call method create is direfent who implemented it
         ms.create.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaisesRegexp(
-            Exception, r"^Child method not implemented$"
-        ):
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$"):
             ms.create(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1035,9 +1028,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             ms.updatePost({})
         # if the class who call method update is direfent who implemented it
         ms.updatePost.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaisesRegexp(
-            Exception, r"^Child method not implemented$"
-        ):
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$"):
             ms.updatePost(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1074,9 +1065,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             ms.uploadDocument({})
         # if the class who call method update is direfent who implemented it
         ms.uploadDocument.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
-        with self.assertRaisesRegexp(
-            Exception, r"^Child method not implemented$"
-        ):
+        with self.assertRaisesRegexp(Exception, r"^Child method not implemented$"):
             ms.uploadDocument(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
@@ -1333,9 +1322,8 @@ class MambuStructConnectTests(unittest.TestCase):
             with mock.patch("MambuPy.rest.mambustruct.time"):
                 mambustruct.MambuStruct(
                     entid="12345", urlfunc=lambda entid, limit, offset: ""
-                    )
-        self.assertEqual(
-            requests.get.call_count, mambustruct.MambuStruct.RETRIES)
+                )
+        self.assertEqual(requests.get.call_count, mambustruct.MambuStruct.RETRIES)
 
         # pagination mechanism
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = (
@@ -1398,9 +1386,7 @@ class mambustructFunctionTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_setCustomField(self, requests, json, iriToUri):
         """Test setCustomField"""
-        with mock.patch(
-            "MambuPy.rest.mambuuser.MambuUser"
-        ) as mock_mambuuser, mock.patch(
+        with mock.patch("MambuPy.rest.mambuuser.MambuUser") as mock_mambuuser, mock.patch(
             "MambuPy.rest.mambuclient.MambuClient"
         ) as mock_mambuclient:
             mock_mambuuser.return_value = {"id": "user123"}

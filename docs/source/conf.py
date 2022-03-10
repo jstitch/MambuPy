@@ -12,6 +12,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../../'))
 
 
@@ -22,6 +23,7 @@ copyright = '2022, Javier Novoa C.'
 author = 'Javier Novoa C.'
 
 from MambuPy import __version__
+
 # The short X.Y version
 version = ".".join(__version__.split(".")[0:3])
 # The full version, including alpha/beta/rc tags

@@ -19,9 +19,7 @@ for k, v in mambuconfig.default_configs.items():
 from MambuPy import mambuutil
 
 try:
-    unittest.TestCase.assertRaisesRegexp = (
-        unittest.TestCase.assertRaisesRegex
-    )  # python3
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 
@@ -71,7 +69,7 @@ class MambuUtilTests(unittest.TestCase):
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db?charset=utf8&use_unicode=1",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
 
         mambuutil.connectDb(echoopt=True, params="")
@@ -79,7 +77,7 @@ class MambuUtilTests(unittest.TestCase):
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=True
+            echo=True,
         )
 
         mambuutil.connectDb(engine="myeng", params="")
@@ -87,49 +85,47 @@ class MambuUtilTests(unittest.TestCase):
             "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
         mambuutil.connectDb(user="myuser", params="")
         mock_create_engine.assert_called_with(
             "mysql://myuser:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
         mambuutil.connectDb(password="mypass", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mypass@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
         mambuutil.connectDb(host="myhost", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@myhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
         mambuutil.connectDb(port="myport", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:myport/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
         mambuutil.connectDb(database="mydb", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mydb",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
-            echo=False
+            echo=False,
         )
 
     def test_strip_tags(self):
         self.assertEqual(mambuutil.strip_tags("<html>some text</html>"), "some text")
-        self.assertEqual(
-            mambuutil.strip_tags("<html>some&nbsp;text</html>"), "some text"
-        )
+        self.assertEqual(mambuutil.strip_tags("<html>some&nbsp;text</html>"), "some text")
 
     def test_strip_consecutive_repeated_chars(self):
         self.assertEqual(
@@ -148,7 +144,7 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_iriToUri(self):
         self.assertEqual(
-            mambuutil.iriToUri(u"https://domain.mambu.com/some_url"),
+            mambuutil.iriToUri("https://domain.mambu.com/some_url"),
             "https://domain.mambu.com/some_url",
         )
         if sys.version_info < (3, 0):
@@ -166,8 +162,8 @@ class MambuUtilTests(unittest.TestCase):
     def test_encoded_dict(self):
         d = {
             "a": "no-utf",
-            "b": u"yes-utf",
-            "c": u"strange-char-ñ",
+            "b": "yes-utf",
+            "c": "strange-char-ñ",
         }
         d2 = mambuutil.encoded_dict(d)
         self.assertEqual(d2["a"], "no-utf")
@@ -396,9 +392,7 @@ class UrlFuncTests(unittest.TestCase):
             self.prefix + "/api/" + "centres/CCCC",
         )
         self.assertEqual(
-            mambuutil.getcentresurl(
-                idcentre="CCCC", fullDetails=True, offset=2, limit=0
-            ),
+            mambuutil.getcentresurl(idcentre="CCCC", fullDetails=True, offset=2, limit=0),
             self.prefix + "/api/" + "centres/CCCC?fullDetails=true&offset=2&limit=0",
         )
 
@@ -748,9 +742,7 @@ class UrlFuncTests(unittest.TestCase):
             self.prefix + "/api/" + "clients/ABC123/custominformation",
         )
         self.assertEqual(
-            mambuutil.getclientcustominformationurl(
-                idclient="ABC123", customfield="bla"
-            ),
+            mambuutil.getclientcustominformationurl(idclient="ABC123", customfield="bla"),
             self.prefix + "/api/" + "clients/ABC123/custominformation/bla",
         )
 
@@ -809,9 +801,7 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(
             mambuutil.getuserurl("j.doe"), self.prefix + "/api/" + "users/j.doe"
         )
-        self.assertEqual(
-            mambuutil.getuserurl(iduser=""), self.prefix + "/api/" + "users"
-        )
+        self.assertEqual(mambuutil.getuserurl(iduser=""), self.prefix + "/api/" + "users")
         self.assertEqual(
             mambuutil.getuserurl(iduser="j.doe", fullDetails=True),
             self.prefix + "/api/" + "users/j.doe?fullDetails=true",

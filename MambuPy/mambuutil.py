@@ -66,7 +66,7 @@ PAGINATIONDETAILS = ["ON", "OFF"]
 DETAILSLEVEL = ["BASIC", "FULL"]
 """detailsLevel options"""
 
-MAX_UPLOAD_SIZE = 52428800 # 50Mb
+MAX_UPLOAD_SIZE = 52428800  # 50Mb
 """upload files maximum size"""
 
 UPLOAD_FILENAME_INVALID_CHARS = "/><|:&?*[]#\*`"
@@ -179,11 +179,10 @@ def connectDb(
     Useful when using schema modules in MambuPy
     """
     return create_engine(
-        "%s://%s:%s@%s:%s/%s%s"
-        % (engine, user, password, host, port, database, params),
+        "%s://%s:%s@%s:%s/%s%s" % (engine, user, password, host, port, database, params),
         poolclass=NullPool,
         isolation_level="READ UNCOMMITTED",
-        echo=echoopt
+        echo=echoopt,
     )
 
 
@@ -617,9 +616,7 @@ def getloansurl(idcred, *args, **kwargs):
         except Exception:
             pass
         try:
-            getparams.append(
-                "creditOfficerUsername=%s" % kwargs["creditOfficerUsername"]
-            )
+            getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
         except Exception:
             pass
         try:
@@ -723,9 +720,7 @@ def getgroupurl(idgroup, *args, **kwargs):
         except Exception:
             pass
         try:
-            getparams.append(
-                "creditOfficerUsername=%s" % kwargs["creditOfficerUsername"]
-            )
+            getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
         except Exception:
             pass
         try:
@@ -1243,9 +1238,7 @@ def getrolesurl(idrole="", *args, **kwargs):
 
     .. todo:: status API V2: NOT compatible. Apparently not yet implemented
     """
-    url = (
-        getmambuurl(*args, **kwargs) + "userroles" + (("/" + idrole) if idrole else "")
-    )
+    url = getmambuurl(*args, **kwargs) + "userroles" + (("/" + idrole) if idrole else "")
     return url
 
 
@@ -1291,7 +1284,7 @@ def dateFormat(field, formato=None):
         return datetime.strptime(
             datetime.fromisoformat(field).strftime(formato),
             formato,
-            )
+        )
 
 
 def strip_tags(html):

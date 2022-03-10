@@ -20,9 +20,7 @@ for k, v in mambuconfig.default_configs.items():
 from MambuPy.rest import mambuloan
 
 try:
-    unittest.TestCase.assertRaisesRegexp = (
-        unittest.TestCase.assertRaisesRegex
-    )  # python3
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 
@@ -77,9 +75,7 @@ class MambuLoanTests(unittest.TestCase):
 
         with mock.patch.object(
             mambuloan.MambuStruct, "connect", mock_connect
-        ), mock.patch.object(
-            mambuloan.MambuStruct, "preprocess", mock_preprocess
-        ):
+        ), mock.patch.object(mambuloan.MambuStruct, "preprocess", mock_preprocess):
             mambuloan.strip_tags = mock.Mock()
             mambuloan.strip_tags.side_effect = mock_loan_preprocess
             l = mambuloan.MambuLoan(urlfunc=lambda x: x)
@@ -101,9 +97,7 @@ class MambuLoanTests(unittest.TestCase):
                 return_value=[{"dueDate": "2018-10-23"}, {"dueDate": "2018-01-01"}]
             )
             reps.__iter__ = mock.Mock(
-                return_value=iter(
-                    [{"dueDate": "2018-01-01"}, {"dueDate": "2018-10-23"}]
-                )
+                return_value=iter([{"dueDate": "2018-01-01"}, {"dueDate": "2018-10-23"}])
             )
             reps.attrs = [{"dueDate": "2018-10-23"}, {"dueDate": "2018-01-01"}]
             mock_mamburepayments.return_value = reps
@@ -443,9 +437,7 @@ class MambuLoanTests(unittest.TestCase):
             l.setActivities()
             self.assertTrue(l.has_key("activities"))
             self.assertTrue(l.has_key("mambuactivitiesclass"))
-            mock_mambuactivities.assert_called_once_with(
-                loanAccountId="encKeyLoan12345"
-            )
+            mock_mambuactivities.assert_called_once_with(loanAccountId="encKeyLoan12345")
             self.assertEqual(list(l["activities"]), acts.attrs)
 
             # already with mambuactivitiesclass
@@ -453,9 +445,7 @@ class MambuLoanTests(unittest.TestCase):
             l.setActivities()
             self.assertTrue(l.has_key("activities"))
             self.assertTrue(l.has_key("mambuactivitiesclass"))
-            mock_mambuactivities.assert_called_once_with(
-                loanAccountId="encKeyLoan12345"
-            )
+            mock_mambuactivities.assert_called_once_with(loanAccountId="encKeyLoan12345")
 
     def test_getClientDetails(self):
         def mock_connect(*args, **kwargs):

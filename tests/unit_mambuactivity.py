@@ -39,8 +39,6 @@ class MambuActivityTests(unittest.TestCase):
         self.assertEqual(a.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getactivitiesurl
 
         def build_mock_act_1(self, *args, **kwargs):

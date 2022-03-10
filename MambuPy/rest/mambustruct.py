@@ -36,9 +36,9 @@ Some basic definitions:
   relational database but the term table is preferred in this case.
 """
 import json
+import time
 from builtins import str as unicode
 from datetime import datetime
-import time
 
 import requests
 from future.utils import implements_iterator
@@ -685,11 +685,12 @@ class MambuStruct(object):
                             retries += 1
                         else:
                             raise MambuError(
-                                strip_tags(
-                                    cont).strip().replace(
-                                        "\n\n", ": ", 1).replace(
-                                            "\n", ". ", 1).replace(
-                                                "\n", " "))
+                                strip_tags(cont)
+                                .strip()
+                                .replace("\n\n", ": ", 1)
+                                .replace("\n", ". ", 1)
+                                .replace("\n", " ")
+                            )
                     except Exception as ex:
                         # any other json error
                         raise MambuError("JSON Error: %s" % repr(ex))
@@ -701,7 +702,7 @@ class MambuStruct(object):
                 except requests.exceptions.RequestException:
                     retries += 1
                 except Exception as ex:
-                    """ unknown exception """
+                    """unknown exception"""
                     raise ex
             else:
                 raise MambuCommError("ERROR I can't communicate with Mambu")
@@ -716,11 +717,11 @@ class MambuStruct(object):
 
         try:
             if (
-                u"returnCode" in jsresp
-                and u"returnStatus" in jsresp
-                and jsresp[u"returnCode"] != 0
+                "returnCode" in jsresp
+                and "returnStatus" in jsresp
+                and jsresp["returnCode"] != 0
             ):
-                raise MambuError(jsresp[u"returnStatus"])
+                raise MambuError(jsresp["returnStatus"])
         except AttributeError:
             pass
 
@@ -845,7 +846,7 @@ class MambuStruct(object):
             except TypeError:
                 pass
             except Exception as ex:
-                """ unknown exception """
+                """unknown exception"""
                 raise ex
 
             # Python built-in types: ints, floats, or even datetimes. If it

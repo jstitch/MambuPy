@@ -19,9 +19,7 @@ for k, v in mambuconfig.default_configs.items():
 from MambuPy.rest import mambutransaction
 
 try:
-    unittest.TestCase.assertRaisesRegexp = (
-        unittest.TestCase.assertRaisesRegex
-    )  # python3
+    unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 

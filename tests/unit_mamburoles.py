@@ -39,8 +39,6 @@ class MambuRoleTests(unittest.TestCase):
         self.assertEqual(r.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getrolesurl
 
         def build_mock_role_1(self, *args, **kwargs):

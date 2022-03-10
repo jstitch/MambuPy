@@ -16,7 +16,7 @@ Uses mambuutil.getsavings as default urlfunc.
 """
 
 
-from ..mambuutil import MambuError, getsavingssurl, strip_tags
+from ..mambuutil import MambuError, getsavingssurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getsavingssurl

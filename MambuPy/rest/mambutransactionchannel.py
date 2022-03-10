@@ -16,7 +16,7 @@ Uses mambuutil.gettransactionchannelsurl as default urlfunc.
 """
 
 
-from ..mambuutil import MambuError, gettransactionchannelsurl, strip_tags
+from ..mambuutil import gettransactionchannelsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = gettransactionchannelsurl

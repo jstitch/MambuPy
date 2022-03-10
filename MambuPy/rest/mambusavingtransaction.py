@@ -17,8 +17,8 @@ mambuutil.getsavingstransactionssearchurl as default url for search.
 """
 
 
-from ..mambuutil import (MambuError, getsavingstransactionssearchurl,
-                         getsavingstransactionsurl, strip_tags)
+from ..mambuutil import (getsavingstransactionssearchurl,
+                         getsavingstransactionsurl)
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getsavingstransactionsurl

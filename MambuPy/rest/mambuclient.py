@@ -104,9 +104,7 @@ class MambuClient(MambuStruct):
             else ""
         )
 
-        self["name"] = scrc(
-            "%s %s" % (self["givenName"], self["lastName"]), " "
-        ).strip()
+        self["name"] = scrc("%s %s" % (self["givenName"], self["lastName"]), " ").strip()
 
         self["address"] = {}
         try:

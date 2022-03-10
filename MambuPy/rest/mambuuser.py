@@ -93,9 +93,7 @@ class MambuUser(MambuStruct):
             self.mamburoleclass = MambuRole
 
         try:
-            role = self.mamburoleclass(
-                entid=self["role"]["encodedKey"], *args, **kwargs
-            )
+            role = self.mamburoleclass(entid=self["role"]["encodedKey"], *args, **kwargs)
         except KeyError:
             return 0
         self["role"]["role"] = role

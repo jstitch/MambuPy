@@ -46,8 +46,6 @@ class MambuClientTests(unittest.TestCase):
         self.assertEqual(cl.entid, "anything")
 
     def test___repr__(self):
-        from datetime import date
-
         from MambuPy.mambuutil import getclienturl
 
         def build_mock_cln_1(self, *args, **kwargs):
@@ -250,9 +248,7 @@ class MambuClientsTests(unittest.TestCase):
             AttributeError, "'MambuClients' object has no attribute 'mambuclientclass'"
         ):
             clns.mambuclientclass
-        with mock.patch(
-            "MambuPy.rest.mambuclient.MambuClient.preprocess"
-        ):
+        with mock.patch("MambuPy.rest.mambuclient.MambuClient.preprocess"):
             clns.convertDict2Attrs()
             self.assertEqual(
                 str(clns.mambuclientclass),
