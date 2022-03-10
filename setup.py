@@ -14,7 +14,10 @@ from MambuPy import __version__
 
 def readme():
     """print long description"""
-    import m2r2
+    try:
+        import m2r2
+    except ImportError:
+        import m2r as m2r2
 
     with open("README.md") as f:
         return m2r2.convert(f.read())
@@ -33,6 +36,34 @@ class VerifyVersionCommand:
             )
             sys.exit(info)
 
+packages=[
+    "MambuPy",
+    "MambuPy/rest",
+    "MambuPy/orm",
+    "mambupy",
+    "mambupy/rest",
+    "mambupy/orm",
+    ],
+if int(__version__[0]) > 1:
+    packages.extend(
+        ["MambuPy/api",
+         "mambupy/api",
+         ])
+
+install_requires=[
+    "future",
+    "requests==2.26.0",
+    "requests_toolbelt==0.9.1",
+    "SQLAlchemy==1.3.6",
+    ]
+if int(__version__[0]) <= 1:
+    install_requires.extend(
+        ["mysqlclient",
+         ])
+else:
+    install_requires.extend(
+        ["mysqlclient==2.1.0",
+         ])
 
 setuptools.setup(
     name="MambuPy",
@@ -47,23 +78,8 @@ setuptools.setup(
     keywords=[
         "mambu",
     ],
-    packages=[
-        "MambuPy",
-        "MambuPy/api",
-        "MambuPy/rest",
-        "MambuPy/orm",
-        "mambupy",
-        "mambupy/api",
-        "mambupy/rest",
-        "mambupy/orm",
-    ],
+    packages=packages,
     python_requires=">=2.7",
     cmdclass={"verify": VerifyVersionCommand},
-    install_requires=[
-        "future",
-        "requests",
-        "requests_toolbelt",
-        "SQLAlchemy",
-        "mysqlclient",
-    ],
+    install_requires=install_requires,
 )
