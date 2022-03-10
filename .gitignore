@@ -10,3 +10,4 @@ MambuPy.egg-info/
 !.coveragerc
 coverage.*
 htmlcov*
+.venv

@@ -1,4 +1,19 @@
 #!/bin/bash
+OPTIND=1
+apiv2="apiv2"
+while getopts "a:" opt; do
+    case "$opt" in
+        a)
+            apiv2=$OPTARG
+            ;;
+    esac
+done
+
+rm -f .coverage
+rm -rf htmlcov
+rm -f coverage.xml
+
+fails=0
 
 tests=("unit_mambuconfig.py" \
            "unit_mambutask.py" \
@@ -23,7 +38,19 @@ tests=("unit_mambuconfig.py" \
       )
 for test in ${tests[@]}
 do
+    test_prefix=`cut -c 1-3 <<< $test`
+    [ $apiv2 != "apiv2" ] && [ $test_prefix == "api" ] && continue
     echo $test
-    python tests/$test
+    coverage run --append --rcfile=./.coveragerc tests/$test
+    out=$?
+    if [ $out -ne 0 ];then
+        fails=$(( fails+1 ))
+    fi
     echo ""
 done
+
+if [ $fails -ne 0 ];then
+    exit 1
+else
+    coverage report --precision=2
+fi
