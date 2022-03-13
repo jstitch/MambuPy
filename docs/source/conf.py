@@ -33,13 +33,14 @@ release = __version__
 # -- General configuration ---------------------------------------------------
 
 autoclass_content = "class"
-autodoc_default_flags = [
+autodoc_default_options = {
     # Make sure that any autodoc declarations show the right members
-    "members",
-    "undoc-members",
-    "private-members",
-    "show-inheritance",
-]
+    "members": True,
+    "undoc-members": True,
+    "private-members": True,
+    "show-inheritance": True,
+    "special-members": True,
+}
 autosummary_generate = True  # Make _autosummary files and include them
 napoleon_numpy_docstring = False  # Force consistency, leave only Google
 napoleon_use_rtype = False  # More legible
@@ -53,13 +54,14 @@ napoleon_include_private_with_doc = True
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.napoleon",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
-    "sphinx.ext.coverage",
-    "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.coverage",
+    "sphinx.ext.duration",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -97,8 +99,6 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import sphinx_rtd_theme
-
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
