@@ -4,8 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   Branch
-
 .. todo:: this is just a basic schema for branches. Some fields
           are missing.
 """

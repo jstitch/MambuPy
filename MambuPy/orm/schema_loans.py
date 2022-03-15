@@ -4,14 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   LoanProduct
-   DisbursementDetails
-   LoanAccount
-   Repayment
-   TransactionChannel
-   TransactionDetails
-   LoanTransaction
-
 .. todo:: this are just very basic schemas for loan tables. A lot of fields
           are missing.
 """

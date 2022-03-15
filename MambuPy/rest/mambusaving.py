@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuSaving
-   MambuSavings
-
 MambuSaving holds a savings account.
 
 MambuSavings holds a list of savings accounts.

@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuBranch
 """
 
 from .mambustruct import MambuEntity

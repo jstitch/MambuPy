@@ -4,11 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuError
-   MambuCommError
-   connectDb
-   backup_db
-
 Exceptions, some API return codes, utility functions, a lot of urlfuncs
 (see MambuStruct.__init__ and .connect pydocs for more info on this)
 

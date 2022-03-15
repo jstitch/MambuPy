@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuGroup
-   MambuGroups
-
 MambuGroup holds a group.
 
 MambuGroups holds a list of groups.

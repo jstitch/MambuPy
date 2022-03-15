@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   Task
 """
 
 from datetime import datetime

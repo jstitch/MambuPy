@@ -4,8 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   make_dummy
-
 Sample dummies are created here. Please DO NOT TRY to persist them to the DB.
 """
 

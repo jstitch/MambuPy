@@ -1,15 +1,10 @@
 """Connectors to Mambu.
 
+Currently supports REST.
+
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuConnector
-   MambuConnectorReader
-   MambuConnectorWriter
-   MambuConnectorREST
-
-Currently supports REST.
 """
 import base64
 import copy
@@ -49,9 +44,9 @@ class MambuConnectorReader(ABC):
         """get, a single entity, identified by its entid.
 
         Args:
-          entid (str) - ID for the entity
-          prefix (str) - entity's URL prefix
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          entid (str): ID for the entity
+          prefix (str): entity's URL prefix
+          detailsLevel (str BASIC/FULL): ask for extra details or not
         """
         raise NotImplementedError
 
@@ -69,13 +64,14 @@ class MambuConnectorReader(ABC):
         """get_all, several entities, filtering allowed
 
         Args:
-          prefix (str) - entity's URL prefix
-          filters (dict) - key-value filters (depends on each entity)
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
-          sortBy (str field:ASC,field2:DESC) - sorting criteria for results
+          prefix (str): entity's URL prefix
+          filters (dict): key-value filters (depends on each entity)
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
+          sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
+                        results
         """
         raise NotImplementedError
 
@@ -93,17 +89,16 @@ class MambuConnectorReader(ABC):
         """search, several entities, filtering criteria allowed
 
         Args:
-          filterCriteria (list of dicts) - fields according to
+          filterCriteria (list of dicts): fields according to
                               LoanAccountFilterCriteria schema
-          sortingCriteria (dict) - fields according to
+          sortingCriteria (dict): fields according to
                             LoanAccountSortingCriteria
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
         """
         raise NotImplementedError
-
 
 
 class MambuConnectorWriter(ABC):
@@ -122,9 +117,9 @@ class MambuConnectorWriter(ABC):
         """updates a mambu entity
 
         Args:
-          entid (str) - the id or encoded key of the entity owning the document
-          prefix (str) - entity's URL prefix
-          attrs (dict) - entity to be updated, complying with Mambu's schemas
+          entid (str): the id or encoded key of the entity owning the document
+          prefix (str): entity's URL prefix
+          attrs (dict): entity to be updated, complying with Mambu's schemas
         """
         raise NotImplementedError
 
@@ -133,8 +128,8 @@ class MambuConnectorWriter(ABC):
         """creates a mambu entity
 
         Args:
-          prefix (str) - entity's URL prefix
-          attrs (dict) - entity to be created, complying with Mambu's schemas
+          prefix (str): entity's URL prefix
+          attrs (dict): entity to be created, complying with Mambu's schemas
         """
         raise NotImplementedError
 
@@ -148,11 +143,11 @@ class MambuConnectorWriter(ABC):
         """uploads an attachment to this entity
 
         Args:
-          owner_type (str) - the type of the owner of the document
-          entid (str) - the id or encoded key of the entity owning the document
-          filename (str) - path and filename of file to upload as attachment
-          name (str) - name to assign to the attached file in Mambu
-          notes (str) - notes to associate to the attached file in Mambu
+          owner_type (str): the type of the owner of the document
+          entid (str): the id or encoded key of the entity owning the document
+          filename (str): path and filename of file to upload as attachment
+          name (str): name to assign to the attached file in Mambu
+          notes (str): notes to associate to the attached file in Mambu
         """
         raise NotImplementedError
 
@@ -173,17 +168,17 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """requests an url.
 
         Args:
-          method (str) - HTTP method for the request
-          url (str) - URL for the request
-          params (dict) - query parameters
-          data (serializable list of dicts or dict alone) - request body
-          content_type (str) - an alternative Content-Type to send in headers
+          method (str): HTTP method for the request
+          url (str): URL for the request
+          params (dict): query parameters
+          data (serializable list of dicts or dict alone): request body
+          content_type (str): an alternative Content-Type to send in headers
 
         Returns:
           response content (json)
 
         Raises:
-          MambuError in case of 400 or 500 response codes
+          `MambuError`: in case of 400 or 500 response codes
         """
         if not params:
             params = {}
@@ -261,10 +256,10 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """Validate query params
 
         Args:
-          **kwargs (dict) - query params
+          **kwargs (dict): query params
 
         Returns:
-          params (dict) - validated params for a query
+          params (dict): validated params for a query
         """
         params = {}
 
@@ -296,9 +291,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """get, a single entity, identified by its entid.
 
         Args:
-          entid (str) - ID for the entity
-          prefix (str) - entity's URL prefix
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          entid (str): ID for the entity
+          prefix (str): entity's URL prefix
+          detailsLevel (str BASIC/FULL): ask for extra details or not
 
         Returns:
           response content (str json {})
@@ -322,13 +317,14 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """get_all, several entities, filtering allowed
 
         Args:
-          prefix (str) - entity's URL prefix
-          filters (dict) - key-value filters (depends on each entity)
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
-          sortBy (str field:ASC,field2:DESC) - sorting criteria for results
+          prefix (str): entity's URL prefix
+          filters (dict): key-value filters (depends on each entity)
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
+          sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
+                        results
 
         Returns:
           response content (str json [])
@@ -371,15 +367,15 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """search, several entities, filtering criteria allowed
 
         Args:
-          prefix (str) - entity's URL prefix
-          filterCriteria (list of dicts) - fields according to
+          prefix (str): entity's URL prefix
+          filterCriteria (list of dicts): fields according to
                               LoanAccountFilterCriteria schema
-          sortingCriteria (dict) - fields according to
+          sortingCriteria (dict): fields according to
                             LoanAccountSortingCriteria
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
 
         Returns:
           response content (str json [])
@@ -435,9 +431,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """updates a mambu entity
 
         Args:
-          entid (str) - the id or encoded key of the entity owning the document
-          prefix (str) - entity's URL prefix
-          attrs (dict) - entity to be updated, complying with Mambu's schemas
+          entid (str): the id or encoded key of the entity owning the document
+          prefix (str): entity's URL prefix
+          attrs (dict): entity to be updated, complying with Mambu's schemas
 
         Returns:
           response content (str json {})
@@ -450,8 +446,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """creates a mambu entity
 
         Args:
-          prefix (str) - entity's URL prefix
-          attrs (dict) - entity to be created, complying with Mambu's schemas
+          prefix (str): entity's URL prefix
+          attrs (dict): entity to be created, complying with Mambu's schemas
 
         Returns:
           response content (str json {})
@@ -468,12 +464,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         Supported: add, remove, replace (move not yet supported)
 
         Args:
-          entid (str) - the id or encoded key of the entity
-          prefix (str) - entity's URL prefix
-          fields_ops (list of tuples) - each tuple has:
-            OP (str) - operation ("ADD", "REPLACE", "REMOVE")
-            PATH (str) - json pointer referencing the location in the target entity
-            VALUE (obj, opc) - the value of the field (not for REMOVE op)
+          entid (str): the id or encoded key of the entity
+          prefix (str): entity's URL prefix
+          fields_ops (list of tuples): each tuple has:
+          OP (str): operation ("ADD", "REPLACE", "REMOVE")
+          PATH (str): json pointer referencing the location in the target entity
+          VALUE (obj, opc): the value of the field (not for REMOVE op)
         """
         if not fields_ops:
             fields_ops = []
@@ -495,11 +491,11 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         """uploads an attachment to this entity
 
         Args:
-          owner_type (str) - the type of the owner of the document
-          entid (str) - the id or encoded key of the entity owning the document
-          filename (str) - path and filename of file to upload as attachment
-          name (str) - name to assign to the attached file in Mambu
-          notes (str) - notes to associate to the attached file in Mambu
+          owner_type (str): the type of the owner of the document
+          entid (str): the id or encoded key of the entity owning the document
+          filename (str): path and filename of file to upload as attachment
+          name (str): name to assign to the attached file in Mambu
+          notes (str): notes to associate to the attached file in Mambu
 
         Returns:
           response content (str json {}) metadata of the attached document

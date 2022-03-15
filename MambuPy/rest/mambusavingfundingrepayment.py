@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuSavingFundingRepayment
-   MambuSavingFundingRepayments
-
 MambuSavingFundingRepayment holds a savings account repayment. Don't instantiate this class
 directly. Look at MambuSavingFundingRepayment pydoc for further info.
 

@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuLoan
 """
 
 from .mambustruct import (MambuEntity, MambuEntityAttachable,

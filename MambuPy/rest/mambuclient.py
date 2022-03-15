@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuClient
-   MambuClients
-
 MambuClient holds a client.
 
 MambuClients holds a list of clients.

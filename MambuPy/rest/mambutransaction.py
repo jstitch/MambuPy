@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuTransaction
-   MambuTransactions
-
 MambuTransaction holds a loan transaction. Don't instantiate this class
 directly. Look at MambuTransaction pydoc for further info.
 

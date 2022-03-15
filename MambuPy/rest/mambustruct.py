@@ -5,11 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuStruct
-   MambuStructIterator
-   RequestsCounter
-   setCustomField
-
 Includes functionality to download such objects using GET requests to
 Mambu, and to POST requests to Mambu.
 

@@ -3,9 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   CustomField
-   CustomFieldValue
 """
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,

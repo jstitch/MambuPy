@@ -3,12 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuStruct
-   MambuEntity
-   MambuEntitySearchable
-   MambuEntityAttachable
-   MambuEntityCF
 """
 
 import copy
@@ -196,7 +190,12 @@ class MambuStruct(MambuMapObj):
 
     def _extractCustomFields(self, attrs=None):
         """Loops through every custom field set and extracts custom field values
-        on the root of the _attrs property."""
+        on the root of the attrs argument.
+
+        Args:
+          attrs (dict): dictionary of fields from where customfields will be
+                        extracted. If None, `self._attrs` will be used
+        """
 
         if not attrs:
             attrs = self._attrs
@@ -233,7 +232,7 @@ class MambuStruct(MambuMapObj):
 
     def _updateCustomFields(self):
         """Loops through every custom field set and update custom field values
-        with the corresponding property at the root of the _attrs dict, then
+        with the corresponding property at the root of the `_attrs` dict, then
         deletes the property at root"""
         cfs = []
         # updates customfieldsets
@@ -311,13 +310,15 @@ class MambuEntity(MambuStruct):
         applied here so that limit may be higher than 1,000 and _get_several
         will get a all the registers from Mambu in several requests.
 
-        If limit=0 or None, the algorithm will retrieve EVERYTHING according to
-        the given filters, using several requests to that end.
-
         Args:
-          get_func (function) - mambu request function that returns several
+          get_func (function): mambu request function that returns several
                                 entities (json [])
-          kwargs (dict) - keyword arguments to pass on to get_func
+          kwargs (dict): keyword arguments to pass on to get_func
+          detailsLevel (str): "BASIC" or "FULL"
+          offset (int): >= 0
+          limit (int): >= 0 If limit=0 or None, the algorithm will retrieve
+                       EVERYTHING according to the given filters, using several
+                       requests to that end.
 
         Returns:
           list of instances of an entity with data from Mambu, assembled from
@@ -376,8 +377,8 @@ class MambuEntity(MambuStruct):
         """get, a single entity, identified by its entid.
 
         Args:
-          entid (str) - ID for the entity
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          entid (str): ID for the entity
+          detailsLevel (str BASIC/FULL): ask for extra details or not
 
         Returns:
           instance of an entity with data from Mambu
@@ -404,7 +405,7 @@ class MambuEntity(MambuStruct):
         that don't come in the response.
 
         Args:
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          detailsLevel (str BASIC/FULL): ask for extra details or not
         """
         if not detailsLevel:
             detailsLevel = self._detailsLevel
@@ -431,12 +432,14 @@ class MambuEntity(MambuStruct):
         """get_all, several entities, filtering allowed
 
         Args:
-          filters (dict) - key-value filters (depends on each entity)
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
-          sortBy (str field:ASC,field2:DESC) - sorting criteria for results
+          filters (dict): key-value filters, dependes on each entity
+                          (keys must be one of the _filter_keys)
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
+          sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
+                        results (fields must be one of the _sortBy_fields)
 
         Returns:
           list of instances of an entity with data from Mambu
@@ -527,20 +530,19 @@ class MambuEntity(MambuStruct):
         Post-requires that CustomFields are extracted again.
 
         Args:
-          fields (list of str) - list of ids of fields to explicitly patch
-          autodetect_remove (bool) - False: if deleted fields, don't remove them
-                                     True: if delete field, remove them
+          fields (list of str): list of ids of fields to explicitly patch
+          autodetect_remove (bool): False: if deleted fields, don't remove them
+                                    True: if delete field, remove them
 
-        Autodetect operation, for any field
-        (every field if fields param is None):
-          ADD: in attrs, but not in resp
-          REPLACE: in attrs, and in resp
-          REMOVE: not in attrs, but in resp
-          MOVE is not yet implemented (how to autodetect?
-                                       request needs 'from' element)
+        Autodetect operation, for any field (every field if fields param is
+        None):
+          * ADD: in attrs, but not in resp
+          * REPLACE: in attrs, and in resp
+          * REMOVE: not in attrs, but in resp
+          * MOVE: not yet implemented (how to autodetect? request needs 'from' element)
 
         Raises:
-          MambuPyError if field not in attrrs, and not in resp
+          `MambuPyError`: if field not in attrrs, and not in resp
         """
         # customfields:
         # standard, as other fields (path includes CFset)
@@ -621,14 +623,14 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
         """search, several entities, filtering criteria allowed
 
         Args:
-          filterCriteria (list of dicts) - fields according to
+          filterCriteria (list of dicts): fields according to
                               LoanAccountFilterCriteria schema
-          sortingCriteria (dict) - fields according to
+          sortingCriteria (dict): fields according to
                             LoanAccountSortingCriteria
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
 
         Returns:
           list of instances of an entity with data from Mambu
@@ -658,9 +660,9 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
         """uploads an attachment to this entity
 
         Args:
-          filename (str) - path and filename of file to upload as attachment
-          title (str) - name to assign to the attached file in Mambu
-          notes (str) - notes to associate to the attached file in Mambu
+          filename (str): path and filename of file to upload as attachment
+          title (str): name to assign to the attached file in Mambu
+          notes (str): notes to associate to the attached file in Mambu
 
         Returns:
           Mambu's response with metadata of the attached document

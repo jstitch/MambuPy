@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuClient
 """
 
 from .mambustruct import (MambuEntity, MambuEntityAttachable,

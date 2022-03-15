@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuBranch
-   MambuBranches
-
 MambuBranch holds a branch.
 
 MambuBranches holds a list of branches.

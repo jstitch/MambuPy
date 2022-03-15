@@ -4,10 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   Client
-   GroupRole
-   IdentificationDocument
-
 .. todo:: this are just very basic schemas for clients. A lot of fields
           are missing.
 """

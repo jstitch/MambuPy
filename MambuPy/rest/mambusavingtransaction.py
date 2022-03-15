@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuSavingTransaction
-   MambuSavingTransactions
-
 MambuSavingTransaction holds a transaction from one saving account.
 
 MambuSavingTransactions holds a list of saving account transaction.

@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   Address
 """
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String

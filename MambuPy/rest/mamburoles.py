@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuRole
-   MambuRoles
-
 MambuRole holds a user role.
 
 MambuRoles holds a list of user roles.

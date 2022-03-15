@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuTransactionChannel
-   MambuTransactionChannels
-
 MambuTansactionChannel holds a transaction channel.
 
 MambuTansactionChannels holds a list of transaction channels.

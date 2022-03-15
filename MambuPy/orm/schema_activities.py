@@ -3,8 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   Activity
 """
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,

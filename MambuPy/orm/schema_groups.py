@@ -4,9 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   Group
-   GroupRoleName
-
 .. todo:: this are just very basic schemas for groups. A some fields
           are missing.
 """

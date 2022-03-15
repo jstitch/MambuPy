@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuUser
-   MambuUsers
-
 MambuUser holds a user.
 
 MambuUsers holds a list of users.

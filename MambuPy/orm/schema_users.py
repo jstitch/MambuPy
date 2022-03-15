@@ -4,9 +4,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   Role
-   User
-
 .. todo:: this are just very basic schemas for users.
 """
 

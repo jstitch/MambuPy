@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuTask
-   MambuTasks
-
 MambuTask holds a task. Look at MambuTask pydoc for further info.
 
 Uses mambuutil.gettasksurl as default urlfunc

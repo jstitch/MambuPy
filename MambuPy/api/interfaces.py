@@ -3,9 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuAttachable
-   MambuSearchable
 """
 
 from abc import ABC, abstractmethod
@@ -19,9 +16,9 @@ class MambuAttachable(ABC):
         """uploads an attachment to this entity
 
         Args:
-          filename (str) - path and filename of file to upload as attachment
-          title (str) - name to assign to the attached file in Mambu
-          notes (str) - notes to associate to the attached file in Mambu
+          filename (str): path and filename of file to upload as attachment
+          title (str): name to assign to the attached file in Mambu
+          notes (str): notes to associate to the attached file in Mambu
 
         Returns:
           Mambu's response with metadata of the attached document
@@ -46,14 +43,14 @@ class MambuSearchable(ABC):
         """search, several entities, filtering criteria allowed
 
         Args:
-          filterCriteria (list of dicts) - fields according to
+          filterCriteria (list of dicts): fields according to
                               LoanAccountFilterCriteria schema
-          sortingCriteria (dict) - fields according to
+          sortingCriteria (dict): fields according to
                             LoanAccountSortingCriteria
-          offset (int) - pagination, index to start searching
-          limit (int) - pagination, number of elements to retrieve
-          paginationDetails (str ON/OFF) - ask for details on pagination
-          detailsLevel (str BASIC/FULL) - ask for extra details or not
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
 
         Returns:
           list of instances of an entity with data from Mambu

@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuActivity
-   MambuActivities
-
 MambuActivity holds a mambu activity. Don't instantiate this class
 directly. Look at MambuActivity pydoc for further info.
 

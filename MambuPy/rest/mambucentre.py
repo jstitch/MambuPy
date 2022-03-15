@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuCentre
-   MambuCentres
-
 MambuCentre holds a centre.
 
 MambuCentres holds a list of centres.

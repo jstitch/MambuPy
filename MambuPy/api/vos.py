@@ -3,9 +3,6 @@
 .. autosummary::
    :nosignatures:
    :toctree: _autosummary
-
-   MambuValueObject
-   MambuDocument
 """
 
 from .classes import MambuMapObj

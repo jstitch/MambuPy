@@ -5,9 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuLoan
-   MambuLoans
-
 MambuLoan holds a loan account.
 
 MambuLoans holds a list of loan accounts.

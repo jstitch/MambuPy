@@ -5,10 +5,6 @@
    :nosignatures:
    :toctree: _autosummary
 
-   MambuProduct
-   MambuProducts
-   AllMambuProducts
-
 MambuProduct holds a product.
 
 MambuProducts holds a list of products.
