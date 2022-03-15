@@ -536,4 +536,3 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return self.__request(
             "POST", url, data=encoder, content_type=encoder.content_type
         )
-

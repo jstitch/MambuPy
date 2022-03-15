@@ -24,20 +24,20 @@ from .vos import MambuDocument, MambuValueObject
 
 
 class MambuStruct(MambuMapObj):
-    """Basic Struct for Mambu Objects.
+    """Basic Struct for Mambu Objects with basic connection functionality."""
 
-        Dictionary-like objects.
+    _tzattrs = {}
+    """TimeZones info:
 
-        TimeZones info:
-        convertDict2Attrs loses TZ info on datetime fields.
+        `_convertDict2Attrs` loses TZ info on datetime fields.
 
-        We will save them on _tzattrs field. Prefering this method since this allows
+        We will save them on `_tzattrs` field. Prefering this method since this allows
         comparison with datetimes on your code without needing TZ initialized.
 
         For example:
 
-    `today = datetime.now()`
-    `loan.creationDate < today`
+        >>> today = datetime.now()
+        >>> loan.creationDate < today
 
         That code works since now() doesn't have any TZ info.
 
@@ -49,8 +49,6 @@ class MambuStruct(MambuMapObj):
         own implementation of any MambuEntity. And you can set it as None if you
         really (really?) wish to lose TZ info.
     """
-
-    _tzattrs = {}
 
     def __init__(self, **kwargs):
         super().__init__(cf_class=MambuEntityCF, **kwargs)
@@ -291,6 +289,14 @@ class MambuEntity(MambuStruct):
     _connector = MambuConnectorREST()
     """Default connector (REST)"""
 
+    _filter_keys = [
+    ]
+    """allowed filters for get_all filtering"""
+
+    _sortBy_fields = [
+    ]
+    """allowed fields for get_all sorting"""
+
     @classmethod
     def _get_several(cls, get_func, **kwargs):
         """get several entities.
@@ -435,6 +441,25 @@ class MambuEntity(MambuStruct):
         Returns:
           list of instances of an entity with data from Mambu
         """
+        if filters and isinstance(filters, dict):
+            for filter_k in filters.keys():
+                if filter_k not in cls._filter_keys:
+                    raise MambuPyError(
+                        "key {} not in allowed _filterkeys: {}".format(
+                            filter_k, cls._filter_keys
+                        )
+                    )
+
+        if sortBy and isinstance(sortBy, str):
+            for sort in sortBy.split(","):
+                for num, part in enumerate(sort.split(":")):
+                    if num == 0 and part not in cls._sortBy_fields:
+                        raise MambuPyError(
+                            "field {} not in allowed _sortBy_fields: {}".format(
+                                part, cls._sortBy_fields
+                            )
+                        )
+
         params = {
             "filters": filters,
             "offset": offset,
@@ -578,6 +603,7 @@ class MambuEntity(MambuStruct):
         finally:
             self._convertDict2Attrs()
             self._extractCustomFields()
+
 
 class MambuEntitySearchable(MambuStruct, MambuSearchable):
     """A Mambu object with seraching capabilities."""

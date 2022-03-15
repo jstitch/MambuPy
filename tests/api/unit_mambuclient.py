@@ -33,21 +33,21 @@ class MambuClient(unittest.TestCase):
         )
         self.assertEqual(mc._ownerType, "CLIENT")
 
-    @mock.patch("MambuPy.api.mambuclient.MambuEntity.get_all")
-    def test_get_all(self, sup_get_all_mock):
-        sup_get_all_mock.return_value = "SupGetAllMock"
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    def test_get_all(self, mock_get_several):
+        mock_get_several.return_value = "SupGetSeveral"
 
         mc = mambuclient.MambuClient.get_all()
-        self.assertEqual(mc, "SupGetAllMock")
+        self.assertEqual(mc, "SupGetSeveral")
 
         mc = mambuclient.MambuClient.get_all(filters={})
-        self.assertEqual(mc, "SupGetAllMock")
+        self.assertEqual(mc, "SupGetSeveral")
 
         mc = mambuclient.MambuClient.get_all(filters={"branchId": "MyBranch"})
-        self.assertEqual(mc, "SupGetAllMock")
+        self.assertEqual(mc, "SupGetSeveral")
 
         mc = mambuclient.MambuClient.get_all(sortBy="firstName:ASC")
-        self.assertEqual(mc, "SupGetAllMock")
+        self.assertEqual(mc, "SupGetSeveral")
 
         with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambuclient.MambuClient.get_all(

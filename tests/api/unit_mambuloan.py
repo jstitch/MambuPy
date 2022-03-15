@@ -29,21 +29,21 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml._ownerType, "LOAN_ACCOUNT")
 
-    @mock.patch("MambuPy.api.mambuloan.MambuEntity.get_all")
-    def test_get_all(self, sup_get_all_mock):
-        sup_get_all_mock.return_value = "SupGetAllMock"
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    def test_get_all(self, mock_get_several):
+        mock_get_several.return_value = "SupGetSeveral"
 
         ml = mambuloan.MambuLoan.get_all()
-        self.assertEqual(ml, "SupGetAllMock")
+        self.assertEqual(ml, "SupGetSeveral")
 
         ml = mambuloan.MambuLoan.get_all(filters={})
-        self.assertEqual(ml, "SupGetAllMock")
+        self.assertEqual(ml, "SupGetSeveral")
 
         ml = mambuloan.MambuLoan.get_all(filters={"branchId": "MyBranch"})
-        self.assertEqual(ml, "SupGetAllMock")
+        self.assertEqual(ml, "SupGetSeveral")
 
         ml = mambuloan.MambuLoan.get_all(sortBy="id:ASC")
-        self.assertEqual(ml, "SupGetAllMock")
+        self.assertEqual(ml, "SupGetSeveral")
 
         with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambuloan.MambuLoan.get_all(filters={"branchId": "MyBranch", "Squad": "Red"})

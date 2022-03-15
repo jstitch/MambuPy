@@ -22,21 +22,21 @@ class MambuGroup(unittest.TestCase):
         )
         self.assertEqual(mg._ownerType, "GROUP")
 
-    @mock.patch("MambuPy.api.mambugroup.MambuEntity.get_all")
-    def test_get_all(self, sup_get_all_mock):
-        sup_get_all_mock.return_value = "SupGetAllMock"
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    def test_get_all(self, mock_get_several):
+        mock_get_several.return_value = "SupGetSeveral"
 
         mg = mambugroup.MambuGroup.get_all()
-        self.assertEqual(mg, "SupGetAllMock")
+        self.assertEqual(mg, "SupGetSeveral")
 
         mg = mambugroup.MambuGroup.get_all(filters={})
-        self.assertEqual(mg, "SupGetAllMock")
+        self.assertEqual(mg, "SupGetSeveral")
 
         mg = mambugroup.MambuGroup.get_all(filters={"branchId": "MyBranch"})
-        self.assertEqual(mg, "SupGetAllMock")
+        self.assertEqual(mg, "SupGetSeveral")
 
         mg = mambugroup.MambuGroup.get_all(sortBy="groupName:ASC")
-        self.assertEqual(mg, "SupGetAllMock")
+        self.assertEqual(mg, "SupGetSeveral")
 
         with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambugroup.MambuGroup.get_all(

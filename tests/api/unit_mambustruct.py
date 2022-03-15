@@ -819,6 +819,7 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
+        self.child_class._filter_keys = ["one"]
         ms = self.child_class.get_all(filters={"one": "two"})
 
         self.assertEqual(len(ms), 2)
@@ -826,6 +827,31 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    def test_get_all_filters_n_sortby(self, mock_get_several):
+        mock_get_several.return_value = "SupGetSeveral"
+
+        self.child_class._filter_keys = ["branchId"]
+        self.child_class._sortBy_fields = ["id"]
+
+        ms = self.child_class.get_all()
+        self.assertEqual(ms, "SupGetSeveral")
+
+        ms = self.child_class.get_all(filters={})
+        self.assertEqual(ms, "SupGetSeveral")
+
+        ms = self.child_class.get_all(filters={"branchId": "MyBranch"})
+        self.assertEqual(ms, "SupGetSeveral")
+
+        ms = self.child_class.get_all(sortBy="id:ASC")
+        self.assertEqual(ms, "SupGetSeveral")
+
+        with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
+            self.child_class.get_all(filters={"branchId": "MyBranch", "Squad": "Red"})
+
+        with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
+            self.child_class.get_all(sortBy="field:ASC")
 
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_search(self, mock_connector):
