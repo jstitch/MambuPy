@@ -350,6 +350,15 @@ class MambuConnectorREST(unittest.TestCase):
             headers=mcrest._headers,
         )
 
+        mcrest.mambu_get_all("someURL", **{"someParam": "someValue"})
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/someURL".format(apiurl),
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC", "someParam": "someValue"},
+            data=None,
+            headers=mcrest._headers,
+        )
+
     def test_mambu_get_all_validations(self):
         mcrest = mambuconnector.MambuConnectorREST()
 

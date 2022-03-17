@@ -1,0 +1,69 @@
+"""MambuUser entity: a MambuEntity struct for Users.
+
+.. autosummary::
+   :nosignatures:
+   :toctree: _autosummary
+"""
+
+from .mambustruct import MambuEntity, MambuEntityAttachable, MambuPyError
+
+
+class MambuUser(MambuEntity, MambuEntityAttachable):
+    """MambuUser entity"""
+
+    _prefix = "users"
+    """prefix constant for connections to Mambu"""
+
+    _filter_keys = [
+        "branchId",
+    ]
+    """allowed filters for get_all filtering"""
+
+    _sortBy_fields = [
+    ]
+    """allowed fields for get_all sorting"""
+
+    _ownerType = "USER"
+    """attachments owner type of this entity"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._attachments = {}
+
+    @classmethod
+    def get_all(
+        cls,
+        filters=None,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
+        detailsLevel="BASIC",
+        sortBy=None,
+        branchIdType="ASSIGNED",
+    ):
+        """get_all, several entities, filtering allowed
+
+        Args:
+          filters (dict): key-value filters, dependes on each entity
+                          (keys must be one of the _filter_keys)
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+          detailsLevel (str BASIC/FULL): ask for extra details or not
+          sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
+                        results (fields must be one of the _sortBy_fields)
+          branchIdType (str ASSIGNED/MANAGE): search assigned users or also
+                       those who can manage a branch
+
+        Returns:
+          list of instances of an entity with data from Mambu
+        """
+        if branchIdType not in ["ASSIGNED", "MANAGE"]:
+            raise MambuPyError("Invalid branchIdType: {}".format(branchIdType))
+
+        return super().get_all(
+            filters,
+            offset, limit,
+            paginationDetails, detailsLevel,
+            sortBy,
+            **{"branchIdType": branchIdType})

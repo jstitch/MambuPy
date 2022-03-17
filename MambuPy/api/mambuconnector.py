@@ -60,6 +60,7 @@ class MambuConnectorReader(ABC):
         paginationDetails="OFF",
         detailsLevel="BASIC",
         sortBy=None,
+        **kwargs
     ):
         """get_all, several entities, filtering allowed
 
@@ -72,6 +73,8 @@ class MambuConnectorReader(ABC):
           detailsLevel (str BASIC/FULL): ask for extra details or not
           sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
                         results
+          kwargs (dict): extra parameters that a specific entity may receive in
+                         its get_all method
         """
         raise NotImplementedError
 
@@ -313,6 +316,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         paginationDetails="OFF",
         detailsLevel="BASIC",
         sortBy=None,
+        **kwargs
     ):
         """get_all, several entities, filtering allowed
 
@@ -325,6 +329,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           detailsLevel (str BASIC/FULL): ask for extra details or not
           sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
                         results
+          kwargs (dict): extra parameters that a specific entity may receive in
+                         its get_all method
 
         Returns:
           response content (str json [])
@@ -335,6 +341,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             paginationDetails=paginationDetails,
             detailsLevel=detailsLevel,
         )
+        if kwargs:
+            params.update(kwargs)
 
         if sortBy:
             if not isinstance(sortBy, str) or not re.search(

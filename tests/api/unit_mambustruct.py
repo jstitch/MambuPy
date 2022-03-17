@@ -853,6 +853,17 @@ class MambuEntityTests(unittest.TestCase):
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             self.child_class.get_all(sortBy="field:ASC")
 
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    def test_get_all_kwargs(self, mock_get_several):
+        self.child_class.get_all(**{"hello": "world"})
+        mock_get_several.assert_any_call(
+            self.child_class._connector.mambu_get_all,
+            filters=None,
+            offset=None, limit=None,
+            paginationDetails="OFF", detailsLevel="BASIC",
+            sortBy=None,
+            hello="world")
+
     @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
     def test_search(self, mock_connector):
         mock_connector.mambu_search.return_value = b"""[

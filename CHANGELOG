@@ -124,3 +124,8 @@ Release Notes
   - Mambu API REST v2, support for patching entitites
   - MambuAPI REST v2, MambuGroup entity
   - MambuAPI REST v2, MambuClient entity
+*v2.0.0a5-dev1 2022-03-15
+  - MambuApi REST v2, MambuBranch entity
+  - MambuApi REST v2, MambuCentre entity
+*v2.0.0a5-dev2 2022-03-16
+  - MambuApi REST v2, MambuUser entity

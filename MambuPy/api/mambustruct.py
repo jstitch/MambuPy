@@ -428,6 +428,7 @@ class MambuEntity(MambuStruct):
         paginationDetails="OFF",
         detailsLevel="BASIC",
         sortBy=None,
+        **kwargs
     ):
         """get_all, several entities, filtering allowed
 
@@ -440,6 +441,8 @@ class MambuEntity(MambuStruct):
           detailsLevel (str BASIC/FULL): ask for extra details or not
           sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
                         results (fields must be one of the _sortBy_fields)
+          kwargs (dict): extra parameters that a specific entity may receive in
+                         its get_all method
 
         Returns:
           list of instances of an entity with data from Mambu
@@ -471,6 +474,8 @@ class MambuEntity(MambuStruct):
             "detailsLevel": detailsLevel,
             "sortBy": sortBy,
         }
+        if kwargs:
+            params.update(kwargs)
 
         return cls._get_several(cls._connector.mambu_get_all, **params)
 
