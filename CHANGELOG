@@ -129,3 +129,5 @@ Release Notes
   - MambuApi REST v2, MambuCentre entity
 *v2.0.0a5-dev2 2022-03-16
   - MambuApi REST v2, MambuUser entity
+*v2.0.0a5-dev3 2022-03-17
+  - MambuApi REST v2, MambuProduct entity
