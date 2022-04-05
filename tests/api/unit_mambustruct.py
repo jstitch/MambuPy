@@ -663,23 +663,29 @@ class MambuEntityTests(unittest.TestCase):
     def setUp(self):
         class child_class(mambustruct.MambuEntity):
             _prefix = "un_prefix"
-            id = "12345"
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self._attrs = {"id": "12345"}
 
         class child_class_writable(
             mambustruct.MambuEntity, mambustruct.MambuEntityWritable
         ):
             _prefix = "un_prefix"
-            id = "12345"
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self._attrs = {"id": "12345"}
 
         class child_class_attachable(
             mambustruct.MambuEntity, mambustruct.MambuEntityAttachable
         ):
             _prefix = "un_prefix"
             _ownerType = "MY_ENTITY"
-            id = "12345"
 
             def __init__(self, **kwargs):
                 super().__init__(**kwargs)
+                self._attrs = {"id": "12345"}
                 self._attachments = {}
 
         class child_class_searchable(
@@ -916,7 +922,7 @@ class MambuEntityTests(unittest.TestCase):
         child.update()
 
         mock_connector.mambu_update.assert_called_with(
-            "12345", "un_prefix", {"myProp": "myVal"}
+            "12345", "un_prefix", {"id": "12345", "myProp": "myVal"}
         )
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
@@ -1318,6 +1324,125 @@ class MambuEntityTests(unittest.TestCase):
             name="MyImage",
             notes="this is a test",
         )
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_get_attachments_metadata(self, mock_connector):
+        mock_connector.mambu_get_documents_metadata.return_value = b"""[{
+        "encodedKey":"0123456789abcdef","id":"67890","ownerType":"MY_ENTITY",
+        "type":"png","fileName":"someImage.png"
+        },
+        {
+        "encodedKey":"fedcba9876543210","id":"09876","ownerType":"MY_ENTITY",
+        "type":"png","fileName":"anotherImage.png"
+        }]"""
+
+        child = self.child_class_attachable()
+        metadata = child.get_attachments_metadata()
+
+        self.assertEqual(list(child._attachments.keys()), ["67890", "09876"])
+        self.assertEqual(
+            child._attachments["67890"]._attrs,
+            {
+                "encodedKey": "0123456789abcdef",
+                "id": "67890",
+                "ownerType": "MY_ENTITY",
+                "type": "png",
+                "fileName": "someImage.png",
+            },
+        )
+        self.assertEqual(
+            child._attachments["09876"]._attrs,
+            {
+                "encodedKey": "fedcba9876543210",
+                "id": "09876",
+                "ownerType": "MY_ENTITY",
+                "type": "png",
+                "fileName": "anotherImage.png",
+            },
+        )
+        self.assertEqual(
+            metadata,
+            mock_connector.mambu_get_documents_metadata.return_value)
+        mock_connector.mambu_get_documents_metadata.assert_called_with(
+            entid="12345",
+            owner_type="MY_ENTITY",
+            limit=None, offset=None, paginationDetails="OFF"
+        )
+        mock_connector.mambu_get_documents_metadata.assert_called_with(
+            entid="12345",
+            owner_type="MY_ENTITY",
+            limit=None, offset=None, paginationDetails="OFF"
+        )
+
+    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    def test_del_attachment(self, mock_connector):
+        mock_connector.mambu_delete_document.return_value = None
+
+        child = self.child_class_attachable()
+        child._attachments = {
+            "67890": {
+                "encodedKey": "0123456789abcdef",
+                "id": "67890",
+                "ownerType": "MY_ENTITY",
+                "name": "someImage",
+                "type": "png",
+                "fileName": "someImage.png"
+            },
+            "09876": {
+                "encodedKey": "fedcba9876543210",
+                "id": "09876",
+                "ownerType": "MY_ENTITY",
+                "name": "anotherImage",
+                "type": "png",
+                "fileName": "anotherImage.png"
+            },
+            "75310": {
+                "encodedKey": "fedcba9876543210",
+                "id": "75310",
+                "ownerType": "MY_ENTITY",
+                "name": "yaImage",
+                "type": "png",
+                "fileName": "yaImage.png"
+            },
+        }
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^You must provide a documentId or a documentName$"
+        ):
+            child.del_attachment()
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^Document name 'aName' is not an attachment of child_class_attachable - id: 12345$"
+        ):
+            child.del_attachment(documentName="aName")
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^Document id 'anId' is not an attachment of child_class_attachable - id: 12345$"
+        ):
+            child.del_attachment(documentId="anId")
+
+        with self.assertRaisesRegex(
+            MambuPyError,
+            r"^Document with name 'anotherImage' does not has id '67890'$"
+        ):
+            child.del_attachment(documentId="67890", documentName="anotherImage")
+
+        child.del_attachment(documentId="67890")
+        self.assertEqual(
+            sorted(list(child._attachments.keys())),
+            ["09876", "75310"])
+        mock_connector.mambu_delete_document.assert_called_with("67890")
+
+        child.del_attachment(documentName="anotherImage")
+        self.assertEqual(list(child._attachments.keys()), ["75310"])
+        mock_connector.mambu_delete_document.assert_called_with("09876")
+
+        child.del_attachment(documentId="75310", documentName="yaImage")
+        self.assertEqual(list(child._attachments.keys()), [])
+        mock_connector.mambu_delete_document.assert_called_with("75310")
 
 
 class MambuEntityCFTests(unittest.TestCase):

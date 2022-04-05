@@ -37,6 +37,8 @@ class MambuConnectorReader(ABC):
     - get (gets a single entity)
     - get_all (gets several entities, filtering allowed)
     - search (gets several entities, advanced filtering)
+    - get_documents_metadata (gets the metadata of documents attached to some
+                              entity)
     """
 
     @abstractmethod
@@ -103,6 +105,22 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def mambu_get_documents_metadata(
+        self, entid, owner_type,
+        offset=None, limit=None, paginationDetails="OFF",
+    ):
+        """Gets metadata for all the documents attached to an entity
+
+        Args:
+          entid (str): the id or encoded key of the entity owning the document
+          owner_type (str): the type of the owner of the document
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorWriter(ABC):
     """Interface for Writers.
@@ -113,6 +131,7 @@ class MambuConnectorWriter(ABC):
     - create (creates an entity)
     - patch (patches an entity)
     - upload_document (gets a single entity)
+    - delete_document (gets several entities, filtering allowed)
     """
 
     @abstractmethod
@@ -151,6 +170,15 @@ class MambuConnectorWriter(ABC):
           filename (str): path and filename of file to upload as attachment
           name (str): name to assign to the attached file in Mambu
           notes (str): notes to associate to the attached file in Mambu
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def mambu_delete_document(self, documentId):
+        """deletes an attachment by its documentId
+
+        Args:
+          documentId (str): the id or encodedkey of the document to be deleted
         """
         raise NotImplementedError
 
@@ -540,3 +568,39 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return self.__request(
             "POST", url, data=encoder, content_type=encoder.content_type
         )
+
+    def mambu_get_documents_metadata(
+        self, entid, owner_type,
+        offset=None, limit=None, paginationDetails="OFF",
+    ):
+        """Gets metadata for all the documents attached to an entity
+
+        Args:
+          entid (str): the id or encoded key of the entity owning the document
+          owner_type (str): the type of the owner of the document
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+        """
+        params = self.__validate_query_params(
+            offset=offset,
+            limit=limit,
+            paginationDetails=paginationDetails,
+        )
+
+        params.update({"entity": owner_type})
+        params.update({"ownerKey": entid})
+
+        url = "https://{}/api/documents/documentsMetadata".format(self._tenant)
+
+        return self.__request("GET", url, params=params)
+
+    def mambu_delete_document(self, documentId):
+        """deletes an attachment by its documentId
+
+        Args:
+          documentId (str): the id or encodedkey of the document to be deleted
+        """
+        url = "https://{}/api/documents/{}".format(self._tenant, documentId)
+
+        self.__request("DELETE", url)

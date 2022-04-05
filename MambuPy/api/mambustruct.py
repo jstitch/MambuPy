@@ -674,6 +674,8 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
     def attach_document(self, filename, title="", notes=""):
         """uploads an attachment to this entity
 
+        _attachments dicitionary gets a new entry with the attached document.
+
         Args:
           filename (str): path and filename of file to upload as attachment
           title (str): name to assign to the attached file in Mambu
@@ -694,6 +696,85 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
         self._attachments[str(doc["id"])] = doc
 
         return response
+
+    def get_attachments_metadata(
+        self,
+        offset=None, limit=None,
+        paginationDetails="OFF",
+    ):
+        """Gets metadata for all the documents attached to an entity
+
+        _attachments dicitionary is cleaned and set with attached documents.
+
+        Args:
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+
+        Returns:
+          Mambu's response with metadata of the attached documents
+        """
+        self._attachments = {}
+
+        response = self._connector.mambu_get_documents_metadata(
+            entid=self.id,
+            owner_type=self._ownerType,
+            offset=offset, limit=limit, paginationDetails=paginationDetails)
+
+        metadata_list = json.loads(response.decode())
+
+        for metadata in metadata_list:
+            doc = MambuDocument(**metadata)
+            self._attachments[str(doc["id"])] = doc
+
+        return response
+
+    def del_attachment(self, documentName=None, documentId=None):
+        """deletes an attachment by its documentName.
+
+        Args:
+          documentName (str): optional, the name (title)
+                              of the document to be deleted
+          documentid (str): optional, the id of the document to be deleted
+
+        Raises:
+          `MambuPyError`: if the documentId and the documentName is not an
+                          attachment of the entity
+        """
+        if not documentId and not documentName:
+            raise MambuPyError(
+                "You must provide a documentId or a documentName")
+        docid = None
+        docbyname = None
+        if documentName:
+            try:
+                docbyname = [
+                    attach for attach in self._attachments.values()
+                    if attach["name"] == documentName][0]
+                docid = docbyname["id"]
+            except IndexError:
+                raise MambuPyError(
+                    "Document name '{}' is not an attachment of {}".format(
+                        documentName,
+                        repr(self)))
+        if documentId:
+            try:
+                self._attachments[documentId]
+                if docid:
+                    if docid != documentId:
+                        raise MambuPyError(
+                            "Document with name '{}' does not has id '{}'".format(
+                                documentName, documentId))
+                else:
+                    docid = documentId
+            except KeyError:
+                raise MambuPyError(
+                    "Document id '{}' is not an attachment of {}".format(
+                        documentId,
+                        repr(self)))
+
+        self._connector.mambu_delete_document(docid)
+        self._attachments.pop(docid)
 
 
 class MambuEntityCF(MambuValueObject):

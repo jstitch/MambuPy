@@ -44,6 +44,14 @@ class MambuConnectorReader(unittest.TestCase):
                 [{}], {}, 0, 0, "OFF", "BASIC", ""
             )
 
+    def test_mambu_get_documents_metadata(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorReader, "mambu_get_documents_metadata"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorReader.mambu_get_documents_metadata(
+                None, "", "")
 
 
 class MambuConnectorWriter(unittest.TestCase):
@@ -77,6 +85,12 @@ class MambuConnectorWriter(unittest.TestCase):
                 None, "OWNER", "entid", "path/filename", "title", "notes"
             )
 
+    def test_mambu_delete_document(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_delete_document"), True
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_delete_document(None, "")
 
 
 class MambuConnectorREST(unittest.TestCase):
@@ -611,6 +625,44 @@ class MambuConnectorREST(unittest.TestCase):
         mambuconnector.MAX_UPLOAD_SIZE = MAX_UPLOAD_SIZE
 
         os.remove("/tmp/selfie.png")
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_get_documents_metadata(self, mock_requests):
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+        headers = app_json_headers()
+        del headers["Content-Type"]
+
+        mcrest.mambu_get_documents_metadata(
+            "entID", "MY_OWNER_TYPE",
+            offset=1, limit=2, paginationDetails="ON")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/documents/documentsMetadata".format(apiurl),
+            params={
+                "entity": "MY_OWNER_TYPE", "ownerKey": "entID",
+                "offset": 1, "limit": 2, "paginationDetails": "ON"},
+            data=None,
+            headers=headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_delete_document(self, mock_requests):
+        mock_requests.request().status_code = 204
+
+        mcrest = mambuconnector.MambuConnectorREST()
+        headers = app_json_headers()
+        del headers["Content-Type"]
+
+        mcrest.mambu_delete_document("docId")
+
+        mock_requests.request.assert_called_with(
+            "DELETE",
+            "https://{}/api/documents/{}".format(apiurl, "docId"),
+            params={},
+            data=None,
+            headers=headers)
 
 
 if __name__ == "__main__":
