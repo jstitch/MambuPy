@@ -5,10 +5,15 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import MambuEntity, MambuEntityAttachable
+from .mambustruct import (MambuEntity, MambuEntityWritable,
+                          MambuEntityAttachable)
 
 
-class MambuProduct(MambuEntity, MambuEntityAttachable):
+class MambuProduct(
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable
+):
     """MambuProduct entity"""
 
     _prefix = "loanproducts"

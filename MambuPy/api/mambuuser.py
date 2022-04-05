@@ -5,10 +5,15 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import MambuEntity, MambuEntityAttachable, MambuPyError
+from .mambustruct import (MambuEntity, MambuEntityWritable,
+                          MambuEntityAttachable, MambuPyError)
 
 
-class MambuUser(MambuEntity, MambuEntityAttachable):
+class MambuUser(
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable
+):
     """MambuUser entity"""
 
     _prefix = "users"

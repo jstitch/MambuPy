@@ -5,11 +5,17 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import (MambuEntity, MambuEntityAttachable,
+from .mambustruct import (MambuEntity, MambuEntityWritable,
+                          MambuEntityAttachable,
                           MambuEntitySearchable)
 
 
-class MambuClient(MambuEntity, MambuEntityAttachable, MambuEntitySearchable):
+class MambuClient(
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntitySearchable
+):
     """MambuClient entity"""
 
     _prefix = "clients"

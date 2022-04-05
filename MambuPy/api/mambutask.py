@@ -5,10 +5,10 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import MambuEntity
+from .mambustruct import (MambuEntity, MambuEntityWritable)
 
 
-class MambuTask(MambuEntity):
+class MambuTask(MambuEntity, MambuEntityWritable):
     """MambuTask entity"""
 
     _prefix = "tasks"

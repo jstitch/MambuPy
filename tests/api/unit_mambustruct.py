@@ -665,6 +665,12 @@ class MambuEntityTests(unittest.TestCase):
             _prefix = "un_prefix"
             id = "12345"
 
+        class child_class_writable(
+            mambustruct.MambuEntity, mambustruct.MambuEntityWritable
+        ):
+            _prefix = "un_prefix"
+            id = "12345"
+
         class child_class_attachable(
             mambustruct.MambuEntity, mambustruct.MambuEntityAttachable
         ):
@@ -682,6 +688,7 @@ class MambuEntityTests(unittest.TestCase):
             """"""
 
         self.child_class = child_class
+        self.child_class_writable = child_class_writable
         self.child_class_attachable = child_class_attachable
         self.child_class_searchable = child_class_searchable
 
@@ -903,7 +910,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_update.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
-        child = self.child_class()
+        child = self.child_class_writable()
         child._attrs["myProp"] = "myVal"
 
         child.update()
@@ -945,7 +952,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_create.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
-        child = self.child_class()
+        child = self.child_class_writable()
         child._attrs = {}
         child._attrs["myProp"] = "myVal"
         child._detailsLevel = "BASIC"
@@ -998,7 +1005,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -1025,7 +1032,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
@@ -1052,7 +1059,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
@@ -1079,7 +1086,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -1107,7 +1114,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
         }"""
@@ -1135,7 +1142,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
         }"""
@@ -1164,7 +1171,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -1195,7 +1202,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
         }"""
@@ -1232,7 +1239,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
         }"""
@@ -1267,7 +1274,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        child = self.child_class()
+        child = self.child_class_writable()
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""

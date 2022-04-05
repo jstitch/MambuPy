@@ -8,6 +8,59 @@
 from abc import ABC, abstractmethod
 
 
+class MambuWritable(ABC):
+    """An entity which allows basic write operations"""
+
+    @abstractmethod
+    def update(self):
+        """updates a mambu entity
+
+        Uses the current values of the _attrs to send to Mambu.
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def create(self):
+        """creates a mambu entity
+
+        Uses the current values of the _attrs to send to Mambu.
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+        """
+
+    @abstractmethod
+    def patch(self, fields=None, autodetect_remove=False):
+        """patches a mambu entity
+
+        Allows patching of parts of the entity up to Mambu.
+
+        fields is a list of the values in the _attrs that will be sent to Mambu
+
+        autodetect automatically searches for deleted fields and patches a
+        remove in Mambu.
+
+        Pre-requires that CustomFields are updated previously.
+        Post-requires that CustomFields are extracted again.
+
+        Args:
+          fields (list of str): list of ids of fields to explicitly patch
+          autodetect_remove (bool): False: if deleted fields, don't remove them
+                                    True: if delete field, remove them
+
+        Autodetect operation, for any field (every field if fields param is
+        None):
+          * ADD: in attrs, but not in resp
+          * REPLACE: in attrs, and in resp
+          * REMOVE: not in attrs, but in resp
+          * MOVE: not yet implemented (how to autodetect? request needs 'from' element)
+
+        Raises:
+          `MambuPyError`: if field not in attrrs, and not in resp
+        """
+
+
 class MambuAttachable(ABC):
     """An entity which can attach documents"""
 

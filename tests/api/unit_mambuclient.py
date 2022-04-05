@@ -6,11 +6,19 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api import interfaces
 from MambuPy.api import mambuclient
 from MambuPy.mambuutil import MambuPyError
 
 
 class MambuClient(unittest.TestCase):
+    def test_implements_interfaces(self):
+        mc = mambuclient.MambuClient()
+        self.assertTrue(isinstance(mc, mambuclient.MambuEntity))
+        self.assertTrue(isinstance(mc, interfaces.MambuWritable))
+        self.assertTrue(isinstance(mc, interfaces.MambuAttachable))
+        self.assertTrue(isinstance(mc, interfaces.MambuSearchable))
+
     def test_has_properties(self):
         mc = mambuclient.MambuClient()
         self.assertEqual(mc._prefix, "clients")

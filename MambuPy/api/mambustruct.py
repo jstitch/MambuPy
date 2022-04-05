@@ -12,7 +12,7 @@ from datetime import datetime
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuError,
                          MambuPyError, dateFormat)
 from .classes import GenericClass, MambuMapObj
-from .interfaces import MambuAttachable, MambuSearchable
+from .interfaces import MambuWritable, MambuAttachable, MambuSearchable
 from .mambuconnector import MambuConnectorREST
 from .vos import MambuDocument, MambuValueObject
 
@@ -484,6 +484,10 @@ class MambuEntity(MambuStruct):
             params.update(kwargs)
 
         return cls._get_several(cls._connector.mambu_get_all, **params)
+
+
+class MambuEntityWritable(MambuStruct, MambuWritable):
+    """A Mambu object with seraching capabilities."""
 
     def update(self):
         """updates a mambu entity

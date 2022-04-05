@@ -6,11 +6,19 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api import interfaces
 from MambuPy.api import mambuloan
 from MambuPy.mambuutil import MambuPyError
 
 
 class MambuLoan(unittest.TestCase):
+    def test_implements_interfaces(self):
+        ml = mambuloan.MambuLoan()
+        self.assertTrue(isinstance(ml, mambuloan.MambuEntity))
+        self.assertTrue(isinstance(ml, interfaces.MambuWritable))
+        self.assertTrue(isinstance(ml, interfaces.MambuAttachable))
+        self.assertTrue(isinstance(ml, interfaces.MambuSearchable))
+
     def test_has_properties(self):
         ml = mambuloan.MambuLoan()
         self.assertEqual(ml._prefix, "loans")

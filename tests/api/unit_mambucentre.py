@@ -11,6 +11,10 @@ from MambuPy.mambuutil import MambuPyError
 
 
 class MambuCentre(unittest.TestCase):
+    def test_implements_interfaces(self):
+        mc = mambucentre.MambuCentre()
+        self.assertTrue(isinstance(mc, mambucentre.MambuEntity))
+
     def test_has_properties(self):
         mc = mambucentre.MambuCentre()
         self.assertEqual(mc._prefix, "centres")

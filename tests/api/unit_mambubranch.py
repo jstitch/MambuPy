@@ -11,6 +11,10 @@ from MambuPy.mambuutil import MambuPyError
 
 
 class MambuBranch(unittest.TestCase):
+    def test_implements_interfaces(self):
+        mb = mambubranch.MambuBranch()
+        self.assertTrue(isinstance(mb, mambubranch.MambuEntity))
+
     def test_has_properties(self):
         mb = mambubranch.MambuBranch()
         self.assertEqual(mb._prefix, "branches")

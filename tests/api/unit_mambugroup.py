@@ -6,11 +6,19 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api import interfaces
 from MambuPy.api import mambugroup
 from MambuPy.mambuutil import MambuPyError
 
 
 class MambuGroup(unittest.TestCase):
+    def test_implements_interfaces(self):
+        mg = mambugroup.MambuGroup()
+        self.assertTrue(isinstance(mg, mambugroup.MambuEntity))
+        self.assertTrue(isinstance(mg, interfaces.MambuWritable))
+        self.assertTrue(isinstance(mg, interfaces.MambuAttachable))
+        self.assertTrue(isinstance(mg, interfaces.MambuSearchable))
+
     def test_has_properties(self):
         mg = mambugroup.MambuGroup()
         self.assertEqual(mg._prefix, "groups")

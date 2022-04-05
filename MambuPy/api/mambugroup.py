@@ -5,11 +5,17 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import (MambuEntity, MambuEntityAttachable,
+from .mambustruct import (MambuEntity, MambuEntityWritable,
+                          MambuEntityAttachable,
                           MambuEntitySearchable)
 
 
-class MambuGroup(MambuEntity, MambuEntityAttachable, MambuEntitySearchable):
+class MambuGroup(
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntitySearchable
+):
     """MambuGroup entity"""
 
     _prefix = "groups"

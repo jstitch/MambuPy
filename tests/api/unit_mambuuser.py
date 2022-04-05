@@ -6,11 +6,18 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api import interfaces
 from MambuPy.api import mambuuser
 from MambuPy.mambuutil import MambuPyError
 
 
 class MambuUser(unittest.TestCase):
+    def test_implements_interfaces(self):
+        mu = mambuuser.MambuUser()
+        self.assertTrue(isinstance(mu, mambuuser.MambuEntity))
+        self.assertTrue(isinstance(mu, interfaces.MambuWritable))
+        self.assertTrue(isinstance(mu, interfaces.MambuAttachable))
+
     def test_has_properties(self):
         mc = mambuuser.MambuUser()
         self.assertEqual(mc._prefix, "users")
