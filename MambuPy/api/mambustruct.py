@@ -25,8 +25,9 @@ class MambuStruct(MambuMapObj):
 
         `_convertDict2Attrs` loses TZ info on datetime fields.
 
-        We will save them on `_tzattrs` field. Prefering this method since this allows
-        comparison with datetimes on your code without needing TZ initialized.
+        We will save them on `_tzattrs` field. Prefering this method since this
+        allows comparison with datetimes on your code without needing TZ
+        initialized.
 
         For example:
 
@@ -35,13 +36,16 @@ class MambuStruct(MambuMapObj):
 
         That code works since now() doesn't have any TZ info.
 
-        If cretionDate has TZ info in it, you could not make the comparison.
+        If creationDate has TZ info in it, you could not make the comparison.
 
-        So, we need to preserve the TZ info somewhere else. Since TZ info is the
-        same for ALL the Mambu instance, you can extract it from any datetime
-        object. creationDate works almost all the time. You can change it on your
-        own implementation of any MambuEntity. And you can set it as None if you
-        really (really?) wish to lose TZ info.
+        So, we need to preserve the TZ info somewhere else.
+
+        Since TZ info is NOT the same for ALL the Mambu instance (each datetime
+        may have different TZs due to daylight saving time differences for
+        example), _tzattrs will hold the TZ for each datetime field.
+
+        Only-date fields are also included but they lack TZ info by definition,
+        so those fileds get a None TZ info.
     """
 
     def __init__(self, **kwargs):
@@ -159,8 +163,10 @@ class MambuStruct(MambuMapObj):
             except TypeError:
                 if isinstance(data, datetime):
                     data_asdate = data.isoformat()
-                    if tzdata:
+                    if tzdata:  # no tzdata means a date (no time) object
                         data_asdate += tzdata[-6:]
+                    else:
+                        data_asdate = data_asdate[:10]
                     return data_asdate
                 if data in [True, False]:
                     return str(data).lower()
