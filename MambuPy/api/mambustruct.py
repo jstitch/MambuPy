@@ -339,6 +339,11 @@ class MambuEntity(MambuStruct):
         else:
             ini_limit = 0
 
+        if "prefix" in kwargs and kwargs["prefix"] is not None:
+            prefix = kwargs.pop("prefix")
+        else:
+            prefix = cls._prefix
+
         params = copy.copy(kwargs)
         if "detailsLevel" not in params:
             params["detailsLevel"] = "BASIC"
@@ -352,7 +357,7 @@ class MambuEntity(MambuStruct):
 
             params["offset"] = offset
             params["limit"] = limit if limit != 0 else None
-            resp = get_func(cls._prefix, **params)
+            resp = get_func(prefix, **params)
 
             jsonresp = list(json.loads(resp.decode()))
             if len(jsonresp) < limit:

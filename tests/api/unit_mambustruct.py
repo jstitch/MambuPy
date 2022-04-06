@@ -737,6 +737,15 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(mock_extractCustomFields.call_count, 4)
         mock_extractCustomFields.assert_called_with()
 
+        self.child_class._get_several(
+            mock_func, **{"prefix": "something else"})
+        mock_func.assert_called_with(
+            "something else",
+            offset=0,
+            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+            detailsLevel="BASIC",
+        )
+
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class._get_several(mock_func, detailsLevel="FULL")
         mock_func.assert_called_with("un_prefix", offset=0, limit=5, detailsLevel="FULL")
