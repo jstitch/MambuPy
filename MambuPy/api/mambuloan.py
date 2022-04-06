@@ -10,7 +10,8 @@ import json
 
 from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityAttachable,
-                       MambuEntitySearchable)
+                       MambuEntitySearchable,
+                       MambuInstallment)
 
 
 class MambuLoan(
@@ -47,3 +48,16 @@ class MambuLoan(
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}
+
+    def get_schedule(self):
+        """Retrieves the installments schedule."""
+        resp = self._connector.mambu_loanaccount_getSchedule(self.id)
+
+        installments = json.loads(resp.decode())["installments"]
+
+        self.schedule = []
+        for installment in installments:
+            installment_entity = MambuInstallment(**installment)
+            installment_entity._tzattrs = copy.deepcopy(installment)
+            installment_entity._convertDict2Attrs()
+            self.schedule.append(installment_entity)

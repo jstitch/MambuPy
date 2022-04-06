@@ -6,6 +6,7 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api import entities
 from MambuPy.api import interfaces
 from MambuPy.api import mambuloan
 from MambuPy.mambuutil import MambuPyError
@@ -58,6 +59,52 @@ class MambuLoan(unittest.TestCase):
 
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             mambuloan.MambuLoan.get_all(sortBy="field:ASC")
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_get_schedule(self, mock_connector):
+        mock_connector.mambu_loanaccount_getSchedule.return_value = b"""{"installments": [
+        {"encodedKey":"54321dcba",
+         "parentAccountKey":"abcd12345",
+         "number":"1",
+         "dueDate":"2022-07-14T19:00:00-05:00",
+         "state":"PAID",
+         "isPaymentHoliday":false,
+         "principal":{"amount":{"expected":0,"paid":20105.8300000000,"due":20105.8300000000}},
+         "interest":{"amount":{"expected":408.1400000000,"paid":0,"due":408.1400000000},"tax":{"expected":0,"paid":0,"due":0}},
+         "fee":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}},
+         "penalty":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}}},
+        {"encodedKey":"09876fedc",
+         "parentAccountKey":"abcd12345",
+         "number":"2",
+         "dueDate":"2022-07-21T19:00:00-05:00",
+         "state":"PENDING",
+         "isPaymentHoliday":false,
+         "principal":{"amount":{"expected":20105.8300000000,"paid":0,"due":20105.8300000000}},
+         "interest":{"amount":{"expected":408.1400000000,"paid":0,"due":408.1400000000},"tax":{"expected":0,"paid":0,"due":0}},
+         "fee":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}},
+         "penalty":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}}}],
+        "currency": {"code": "MXN"}}
+        """
+
+        ml = mambuloan.MambuLoan(**{"id": "12345"})
+        ml.get_schedule()
+
+        mock_connector.mambu_loanaccount_getSchedule.assert_called_with("12345")
+        self.assertEqual(len(ml.schedule), 2)
+
+        self.assertTrue(isinstance(ml.schedule[0], entities.MambuInstallment))
+        self.assertEqual(ml.schedule[0]["encodedKey"], "54321dcba")
+        self.assertEqual(ml.schedule[0]["number"], 1)
+        self.assertEqual(ml.schedule[0]["state"], "PAID")
+        self.assertEqual(ml.schedule[0]["dueDate"].strftime("%Y%m%d"), "20220714")
+        self.assertEqual(repr(ml.schedule[0]), "MambuInstallment - #1, PAID, 2022-07-14")
+
+        self.assertTrue(isinstance(ml.schedule[1], entities.MambuInstallment))
+        self.assertEqual(ml.schedule[1]["encodedKey"], "09876fedc")
+        self.assertEqual(ml.schedule[1]["number"], 2)
+        self.assertEqual(ml.schedule[1]["state"], "PENDING")
+        self.assertEqual(ml.schedule[1]["dueDate"].strftime("%Y%m%d"), "20220721")
+        self.assertEqual(repr(ml.schedule[1]), "MambuInstallment - #2, PENDING, 2022-07-21")
 
 
 if __name__ == "__main__":

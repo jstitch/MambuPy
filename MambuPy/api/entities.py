@@ -531,3 +531,14 @@ class MambuEntityCF(MambuValueObject):
             raise MambuPyError("invalid CustomField type!")
         self._attrs = {"value": value, "path": path, "type": typecf}
         self._cf_class = GenericClass
+
+
+class MambuInstallment(MambuStruct):
+    """Loan Account Installment (aka Repayment)"""
+    def __repr__(self):
+        """repr tells the class name, the number, the state and the dueDate
+        """
+        return self.__class__.__name__ + " - #{}, {}, {}".format(
+            self._attrs["number"],
+            self._attrs["state"],
+            self._attrs["dueDate"].strftime("%Y-%m-%d"))

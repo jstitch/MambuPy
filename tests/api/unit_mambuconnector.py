@@ -46,21 +46,22 @@ class MambuConnectorReader(unittest.TestCase):
 
     def test_mambu_get_documents_metadata(self):
         self.assertEqual(
-            hasattr(mambuconnector.MambuConnectorReader, "mambu_get_documents_metadata"),
+            hasattr(mambuconnector.MambuConnectorReader,
+                    "mambu_get_documents_metadata"),
             True,
         )
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorReader.mambu_get_documents_metadata(
                 None, "", "")
 
-    def test_mambu_loanaccount_getScheduleForLoanAccount(self):
+    def test_mambu_loanaccount_getSchedule(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorReader,
-                    "mambu_loanaccount_getScheduleForLoanAccount"),
+                    "mambu_loanaccount_getSchedule"),
             True,
         )
         with self.assertRaises(NotImplementedError):
-            mambuconnector.MambuConnectorReader.mambu_loanaccount_getScheduleForLoanAccount(
+            mambuconnector.MambuConnectorReader.mambu_loanaccount_getSchedule(
                 None, "")
 
 
@@ -671,12 +672,12 @@ class MambuConnectorREST(unittest.TestCase):
             headers=mcrest._headers)
 
     @mock.patch("MambuPy.api.mambuconnector.requests")
-    def test_mambu_loanaccount_getScheduleForLoanAccount(self, mock_requests):
+    def test_mambu_loanaccount_getSchedule(self, mock_requests):
         mock_requests.request().status_code = 200
 
         mcrest = mambuconnector.MambuConnectorREST()
 
-        mcrest.mambu_loanaccount_getScheduleForLoanAccount("loanid")
+        mcrest.mambu_loanaccount_getSchedule("loanid")
 
         mock_requests.request.assert_called_with(
             "GET",
