@@ -9,7 +9,7 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.api import mambustruct
+from MambuPy.api import entities, mambustruct
 from MambuPy.mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
                                MambuError, MambuPyError)
 
@@ -25,8 +25,8 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms["hello"], "world")
 
     def test___getitem__CF(self):
-        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
-        cf = mambustruct.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj(cf_class=entities.MambuEntityCF)
+        cf = entities.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
         self.assertEqual(
@@ -44,8 +44,8 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(ms._attrs, {"hello": "world"})
 
     def test___setitem__CF(self):
-        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
-        cf = mambustruct.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj(cf_class=entities.MambuEntityCF)
+        cf = entities.MambuEntityCF("world")
         ms._attrs = {"hello": cf}
 
         ms["hello"] = "goodbye"
@@ -188,8 +188,8 @@ class MagicMethodsTests(unittest.TestCase):
             ms.some_unexistent_property
 
     def test___getattribute__CF(self):
-        cf = mambustruct.MambuEntityCF("world")
-        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
+        cf = entities.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj(cf_class=entities.MambuEntityCF)
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
         self.assertEqual(
@@ -215,8 +215,8 @@ class MagicMethodsTests(unittest.TestCase):
         self.assertEqual(getattr(ms, "goodbye"), "cruelworld")
 
     def test___setattribute__CF(self):
-        cf = mambustruct.MambuEntityCF("world")
-        ms = mambustruct.MambuMapObj(cf_class=mambustruct.MambuEntityCF)
+        cf = entities.MambuEntityCF("world")
+        ms = mambustruct.MambuMapObj(cf_class=entities.MambuEntityCF)
         ms._attrs = {"hello": cf}
 
         ms.hello = "goodbye"
@@ -246,7 +246,7 @@ class MagicMethodsTests(unittest.TestCase):
 
 class MambuConnectorTests(unittest.TestCase):
     def test_has_mambuconnector(self):
-        ms = mambustruct.MambuEntity()
+        ms = entities.MambuEntity()
         self.assertEqual(ms._connector.__class__.__name__, "MambuConnectorREST")
 
 
@@ -542,7 +542,7 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.aMambuStruct, someMambuStructObj)
 
     def test__extractCustomFields(self):
-        ms = mambustruct.MambuStruct()
+        ms = mambustruct.MambuStruct(cf_class=entities.MambuEntityCF)
         ms._attrs = {
             "aField": "abc123",
             "_customFieldList": [
@@ -661,7 +661,7 @@ class MambuStructTests(unittest.TestCase):
 
 class MambuEntityTests(unittest.TestCase):
     def setUp(self):
-        class child_class(mambustruct.MambuEntity):
+        class child_class(entities.MambuEntity):
             _prefix = "un_prefix"
 
             def __init__(self, **kwargs):
@@ -669,7 +669,7 @@ class MambuEntityTests(unittest.TestCase):
                 self._attrs = {"id": "12345"}
 
         class child_class_writable(
-            mambustruct.MambuEntity, mambustruct.MambuEntityWritable
+            entities.MambuEntity, entities.MambuEntityWritable
         ):
             _prefix = "un_prefix"
 
@@ -678,7 +678,7 @@ class MambuEntityTests(unittest.TestCase):
                 self._attrs = {"id": "12345"}
 
         class child_class_attachable(
-            mambustruct.MambuEntity, mambustruct.MambuEntityAttachable
+            entities.MambuEntity, entities.MambuEntityAttachable
         ):
             _prefix = "un_prefix"
             _ownerType = "MY_ENTITY"
@@ -689,7 +689,7 @@ class MambuEntityTests(unittest.TestCase):
                 self._attachments = {}
 
         class child_class_searchable(
-            mambustruct.MambuEntity, mambustruct.MambuEntitySearchable
+            entities.MambuEntity, entities.MambuEntitySearchable
         ):
             """"""
 
@@ -699,7 +699,7 @@ class MambuEntityTests(unittest.TestCase):
         self.child_class_searchable = child_class_searchable
 
     def test_has_properties(self):
-        me = mambustruct.MambuEntity()
+        me = entities.MambuEntity()
         self.assertEqual(me._prefix, "")
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
@@ -746,7 +746,7 @@ class MambuEntityTests(unittest.TestCase):
             detailsLevel="BASIC",
         )
 
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
+        entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class._get_several(mock_func, detailsLevel="FULL")
         mock_func.assert_called_with("un_prefix", offset=0, limit=5, detailsLevel="FULL")
 
@@ -763,7 +763,7 @@ class MambuEntityTests(unittest.TestCase):
             b"""[{"encodedKey":"jkl012","id":"09876"}]""",
             b"""[]""",
         ]
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
+        entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
         self.child_class._get_several(mock_func, limit=4)
         self.assertEqual(mock_func.call_count, 4)
         mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
@@ -771,11 +771,11 @@ class MambuEntityTests(unittest.TestCase):
         mock_func.assert_any_call("un_prefix", offset=2, limit=1, detailsLevel="BASIC")
         mock_func.assert_any_call("un_prefix", offset=3, limit=1, detailsLevel="BASIC")
 
-        mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+        entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_get(self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
@@ -800,7 +800,7 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_refresh(
         self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs
     ):
@@ -826,7 +826,7 @@ class MambuEntityTests(unittest.TestCase):
             "12345", prefix="un_prefix", detailsLevel="BASIC"
         )
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_get_all(self, mock_connector):
         mock_connector.mambu_get_all.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
@@ -850,7 +850,7 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all_filters_n_sortby(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"
 
@@ -875,7 +875,7 @@ class MambuEntityTests(unittest.TestCase):
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             self.child_class.get_all(sortBy="field:ASC")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all_kwargs(self, mock_get_several):
         self.child_class.get_all(**{"hello": "world"})
         mock_get_several.assert_any_call(
@@ -886,7 +886,7 @@ class MambuEntityTests(unittest.TestCase):
             sortBy=None,
             hello="world")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_search(self, mock_connector):
         mock_connector.mambu_search.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
@@ -913,7 +913,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_update(
         self,
         mock_connector,
@@ -955,7 +955,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_create(
         self,
         mock_connector,
@@ -1012,7 +1012,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add(
         self,
         mock_connector,
@@ -1039,7 +1039,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace(
         self,
         mock_connector,
@@ -1066,7 +1066,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove(
         self,
         mock_connector,
@@ -1093,7 +1093,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_standard(
         self,
         mock_connector,
@@ -1107,7 +1107,7 @@ class MambuEntityTests(unittest.TestCase):
         }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal", "/_myCFSet/myProp")
+        child._attrs["myProp"] = entities.MambuEntityCF("myVal", "/_myCFSet/myProp")
 
         child.patch(["myProp"])
 
@@ -1121,7 +1121,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_standard(
         self,
         mock_connector,
@@ -1135,7 +1135,7 @@ class MambuEntityTests(unittest.TestCase):
         }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {"myProp": "myVal"}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal2", "/_myCFSet/myProp")
+        child._attrs["myProp"] = entities.MambuEntityCF("myVal2", "/_myCFSet/myProp")
 
         child.patch(["myProp"])
 
@@ -1149,7 +1149,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_standard(
         self,
         mock_connector,
@@ -1163,7 +1163,7 @@ class MambuEntityTests(unittest.TestCase):
         }"""
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = {"myProp": "myVal"}
-        child._attrs["myProp"] = mambustruct.MambuEntityCF("myVal", "/_myCFSet/myProp")
+        child._attrs["myProp"] = entities.MambuEntityCF("myVal", "/_myCFSet/myProp")
 
         del child._attrs["myProp"]
         child.patch(autodetect_remove=True)
@@ -1178,7 +1178,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_grouped(
         self,
         mock_connector,
@@ -1193,7 +1193,7 @@ class MambuEntityTests(unittest.TestCase):
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = []
         child._attrs["myCFSet"] = []
-        child._attrs["myProp"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp"] = entities.MambuEntityCF(
             "myVal", "/_myCFSet/0/myProp", "GROUPED"
         )
 
@@ -1209,7 +1209,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_grouped(
         self,
         mock_connector,
@@ -1224,14 +1224,14 @@ class MambuEntityTests(unittest.TestCase):
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
         child._attrs["myCFSet"] = [{}, {}]
-        child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp_0"] = entities.MambuEntityCF(
             "myVal", "/_myCFSet/0/myProp", "GROUPED"
         )
-        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp_1"] = entities.MambuEntityCF(
             "myVal2", "/_myCFSet/1/myProp", "GROUPED"
         )
 
-        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp_1"] = entities.MambuEntityCF(
             "myVal3", "/_myCFSet/1/myProp", "GROUPED"
         )
         child.patch(["myProp_1"])
@@ -1246,7 +1246,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_grouped(
         self,
         mock_connector,
@@ -1261,10 +1261,10 @@ class MambuEntityTests(unittest.TestCase):
         child._attrs = dict(json.loads(child._resp))
         child._attrs["_myCFSet"] = [{"myProp": "myVal"}, {"myProp": "myVal2"}]
         child._attrs["myCFSet"] = [{}, {}]
-        child._attrs["myProp_0"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp_0"] = entities.MambuEntityCF(
             "myVal", "/_myCFSet/0/myProp", "GROUPED"
         )
-        child._attrs["myProp_1"] = mambustruct.MambuEntityCF(
+        child._attrs["myProp_1"] = entities.MambuEntityCF(
             "myVal2", "/_myCFSet/1/myProp", "GROUPED"
         )
 
@@ -1281,7 +1281,7 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_exceptions(
         self,
         mock_connector,
@@ -1305,7 +1305,7 @@ class MambuEntityTests(unittest.TestCase):
         with self.assertRaisesRegex(MambuError, r"A Mambu Error"):
             child.patch(["myProp"])
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_attach_document(self, mock_connector):
         mock_connector.mambu_upload_document.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
@@ -1334,7 +1334,7 @@ class MambuEntityTests(unittest.TestCase):
             notes="this is a test",
         )
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_get_attachments_metadata(self, mock_connector):
         mock_connector.mambu_get_documents_metadata.return_value = b"""[{
         "encodedKey":"0123456789abcdef","id":"67890","ownerType":"MY_ENTITY",
@@ -1383,7 +1383,7 @@ class MambuEntityTests(unittest.TestCase):
             limit=None, offset=None, paginationDetails="OFF"
         )
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_del_attachment(self, mock_connector):
         mock_connector.mambu_delete_document.return_value = None
 
@@ -1456,26 +1456,26 @@ class MambuEntityTests(unittest.TestCase):
 
 class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
-        ms = mambustruct.MambuEntityCF("_VALUE_")
+        ms = entities.MambuEntityCF("_VALUE_")
         self.assertEqual(ms._attrs, {"value": "_VALUE_", "path": "", "type": "STANDARD"})
 
-        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_")
+        ms = entities.MambuEntityCF("_VALUE_", "_PATH_")
         self.assertEqual(
             ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
         )
 
-        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "STANDARD")
+        ms = entities.MambuEntityCF("_VALUE_", "_PATH_", "STANDARD")
         self.assertEqual(
             ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
         )
 
-        ms = mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "GROUPED")
+        ms = entities.MambuEntityCF("_VALUE_", "_PATH_", "GROUPED")
         self.assertEqual(
             ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "GROUPED"}
         )
 
         with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):
-            mambustruct.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
+            entities.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
 
 
 if __name__ == "__main__":

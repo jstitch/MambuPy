@@ -121,6 +121,14 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
+    def mambu_loanaccount_getScheduleForLoanAccount(self, loanid):
+        """Retrieves the installments schedule
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorWriter(ABC):
     """Interface for Writers.
@@ -604,3 +612,14 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         url = "https://{}/api/documents/{}".format(self._tenant, documentId)
 
         self.__request("DELETE", url)
+
+    def mambu_loanaccount_getScheduleForLoanAccount(self, loanid):
+        """Retrieves the installments schedule
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+        """
+        url = "https://{}/api/{}/{}/schedule".format(
+            self._tenant, "loans", loanid)
+
+        return self.__request("GET", url)

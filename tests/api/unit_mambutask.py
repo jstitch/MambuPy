@@ -34,7 +34,7 @@ class MambuTask(unittest.TestCase):
             [],
         )
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity.get")
+    @mock.patch("MambuPy.api.entities.MambuEntity.get")
     def test_get(self, mock_get):
         mock_get.return_value = "SupGet"
 

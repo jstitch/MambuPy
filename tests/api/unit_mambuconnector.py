@@ -53,6 +53,16 @@ class MambuConnectorReader(unittest.TestCase):
             mambuconnector.MambuConnectorReader.mambu_get_documents_metadata(
                 None, "", "")
 
+    def test_mambu_loanaccount_getScheduleForLoanAccount(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorReader,
+                    "mambu_loanaccount_getScheduleForLoanAccount"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorReader.mambu_loanaccount_getScheduleForLoanAccount(
+                None, "")
+
 
 class MambuConnectorWriter(unittest.TestCase):
     def test_mambu_update(self):
@@ -631,8 +641,6 @@ class MambuConnectorREST(unittest.TestCase):
         mock_requests.request().status_code = 200
 
         mcrest = mambuconnector.MambuConnectorREST()
-        headers = app_json_headers()
-        del headers["Content-Type"]
 
         mcrest.mambu_get_documents_metadata(
             "entID", "MY_OWNER_TYPE",
@@ -645,15 +653,13 @@ class MambuConnectorREST(unittest.TestCase):
                 "entity": "MY_OWNER_TYPE", "ownerKey": "entID",
                 "offset": 1, "limit": 2, "paginationDetails": "ON"},
             data=None,
-            headers=headers)
+            headers=mcrest._headers)
 
     @mock.patch("MambuPy.api.mambuconnector.requests")
     def test_mambu_delete_document(self, mock_requests):
         mock_requests.request().status_code = 204
 
         mcrest = mambuconnector.MambuConnectorREST()
-        headers = app_json_headers()
-        del headers["Content-Type"]
 
         mcrest.mambu_delete_document("docId")
 
@@ -662,7 +668,22 @@ class MambuConnectorREST(unittest.TestCase):
             "https://{}/api/documents/{}".format(apiurl, "docId"),
             params={},
             data=None,
-            headers=headers)
+            headers=mcrest._headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_loanaccount_getScheduleForLoanAccount(self, mock_requests):
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_loanaccount_getScheduleForLoanAccount("loanid")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/loans/loanid/schedule".format(apiurl),
+            params={},
+            data=None,
+            headers=mcrest._headers)
 
 
 if __name__ == "__main__":

@@ -5,9 +5,12 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import (MambuEntity, MambuEntityWritable,
-                          MambuEntityAttachable,
-                          MambuEntitySearchable)
+import copy
+import json
+
+from .entities import (MambuEntity, MambuEntityWritable,
+                       MambuEntityAttachable,
+                       MambuEntitySearchable)
 
 
 class MambuLoan(

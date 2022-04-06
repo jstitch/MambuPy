@@ -5,7 +5,7 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import (MambuEntity, MambuEntityWritable,
+from .entities import (MambuEntity, MambuEntityWritable,
                           MambuEntityAttachable,
                           MambuEntitySearchable)
 

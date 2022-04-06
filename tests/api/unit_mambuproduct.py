@@ -37,7 +37,7 @@ class MambuProduct(unittest.TestCase):
         )
         self.assertEqual(mc._ownerType, "LOAN_PRODUCT")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity.get")
+    @mock.patch("MambuPy.api.entities.MambuEntity.get")
     def test_get(self, mock_get):
         mock_get.return_value = "SupGet"
 
@@ -49,7 +49,7 @@ class MambuProduct(unittest.TestCase):
         with self.assertRaises(TypeError):
             mambuproduct.MambuProduct.get(detailsLevel="BASIC")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity.refresh")
+    @mock.patch("MambuPy.api.entities.MambuEntity.refresh")
     def test_refresh(self, mock_refresh):
         mock_refresh.return_value = "SupRefresh"
 
@@ -60,7 +60,7 @@ class MambuProduct(unittest.TestCase):
         with self.assertRaises(TypeError):
             mp.refresh(detailsLevel="BASIC")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"
 

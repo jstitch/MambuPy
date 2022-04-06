@@ -30,7 +30,7 @@ class MambuGroup(unittest.TestCase):
         )
         self.assertEqual(mg._ownerType, "GROUP")
 
-    @mock.patch("MambuPy.api.mambustruct.MambuEntity._get_several")
+    @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"
 

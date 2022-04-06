@@ -5,7 +5,7 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import (MambuEntity, MambuEntitySearchable)
+from .entities import (MambuEntity, MambuEntitySearchable)
 
 
 class MambuTransaction(

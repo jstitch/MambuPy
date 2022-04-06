@@ -5,7 +5,7 @@
    :toctree: _autosummary
 """
 
-from .mambustruct import MambuEntity
+from .entities import MambuEntity
 
 
 class MambuBranch(MambuEntity):

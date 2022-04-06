@@ -5,10 +5,10 @@
    :toctree: _autosummary
 """
 
-from .classes import MambuMapObj
+from .mambustruct import MambuStruct
 
 
-class MambuValueObject(MambuMapObj):
+class MambuValueObject(MambuStruct):
     """A Mambu object with some schema but that you won't interact directly
     with in Mambu web, but through some entity."""
 
