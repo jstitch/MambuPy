@@ -7,6 +7,7 @@
 
 import copy
 from datetime import datetime
+from importlib import import_module
 
 from .classes import MambuMapObj
 from ..mambuutil import MambuPyError, dateFormat
@@ -41,6 +42,19 @@ class MambuStruct(MambuMapObj):
 
         Only-date fields are also included but they lack TZ info by definition,
         so those fileds get a None TZ info.
+    """
+
+    _vos = []
+    """List of Value Objects in the struct's _attrs.
+
+       Each element must be a 2-tuple:
+           ("name_in_attrs", "vos.class to instantiate")
+
+       `_extractVOs` loops this list to instantiate the corresponding Value
+       Objects inside _attrs. If the element in _attrs happens to be a list,
+       the result will be a list of instantiated Value Objects
+
+       `_updateVOs` loops this list to update the corresponding data in _attrs
     """
 
     def _convertDict2Attrs(self, *args, **kwargs):
@@ -275,3 +289,60 @@ class MambuStruct(MambuMapObj):
         # deletes _attrs root keys of custom fields
         for field in cfs:
             del self._attrs[field]
+
+    def _extractVOs(self):
+        """Loops _vos list to instantiate the corresponding Value Objects
+
+           If the element in _attrs happens to be a list, the result will be a
+           list of instantiated Value Objects.
+
+           End result, the key with the name of the element will be replaced
+           with the instantiated Value Object. And the original element will
+           change its key name from 'elem' to 'vo_elem'.
+        """
+        vos_module = import_module(".vos", "mambupy.api")
+        for elem, voclass in self._vos:
+            vo_data = self._attrs[elem]
+            if isinstance(vo_data, list):
+                vo_obj = []
+                already = False
+                for item in vo_data:
+                    if isinstance(item, getattr(vos_module, voclass)):
+                        already = True
+                        continue
+                    vo_item = getattr(vos_module, voclass)(**item)
+                    vo_obj.append(vo_item)
+                if already:
+                    continue
+            else:
+                if isinstance(vo_data, getattr(vos_module, voclass)):
+                    continue
+                vo_obj = getattr(vos_module, voclass)(**vo_data)
+            self._attrs[elem] = vo_obj
+
+    def _updateVOs(self):
+        """Loops _vos list to update the corresponding data in _attrs
+
+           End result, the element with the original element in _attr will have
+           its data updated, the Value Object will dissappear and the key name
+           of the original element will return to be from 'vo_elem' to 'elem'
+        """
+        vos_module = import_module(".vos", "mambupy.api")
+        for elem, voclass in self._vos:
+            vo_obj = self._attrs[elem]
+            if isinstance(vo_obj, list):
+                vo_data = []
+                already = False
+                for item in vo_obj:
+                    if not isinstance(item, getattr(vos_module, voclass)):
+                        already = True
+                        continue
+                    vo_item = copy.deepcopy(item._attrs)
+                    vo_data.append(vo_item)
+                if already:
+                    continue
+            else:
+                if not isinstance(vo_obj, getattr(vos_module, voclass)):
+                    continue
+                vo_data = copy.deepcopy(vo_obj._attrs)
+            self._attrs[elem] = vo_data

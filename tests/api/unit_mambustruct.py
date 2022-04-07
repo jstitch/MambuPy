@@ -560,6 +560,14 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.num, ms._customFieldDict["num"])
         self.assertEqual(ms.float, ms._customFieldDict["float"])
 
+        # idempotency
+        ms._extractCustomFields()
+        self.assertEqual(ms.aField, "abc123")
+        self.assertEqual(ms.customFieldList, ms._customFieldList)
+        self.assertEqual(ms.str, ms._customFieldDict["str"])
+        self.assertEqual(ms.num, ms._customFieldDict["num"])
+        self.assertEqual(ms.float, ms._customFieldDict["float"])
+
         ms._attrs["_invalidFieldSet"] = "someVal"
         with self.assertRaisesRegex(
             MambuPyError, r"CustomFieldSet _invalidFieldSet is not a dictionary"
@@ -624,8 +632,36 @@ class MambuStructTests(unittest.TestCase):
 
         ms._attrs["num"] = 321
         ms._attrs["customFieldList"][0]["num"] = 321
+
         ms._updateCustomFields()
 
+        self.assertEqual(
+            ms._customFieldList,
+            [
+                {
+                    "str": "abc123",
+                    "num": 321,
+                    "float": 15.56,
+                    "bool": "TRUE",
+                    "_index": 0,
+                },
+                {
+                    "str": "def456",
+                    "num": 456,
+                    "float": 23.34,
+                    "bool": "FALSE",
+                    "_index": 1,
+                },
+            ],
+        )
+        self.assertEqual(ms._customFieldDict["num"], 321)
+        self.assertEqual(ms._customFieldDict["bool"], "TRUE")
+        self.assertEqual(hasattr(ms, "num"), False)
+        self.assertEqual(hasattr(ms, "bool"), False)
+        self.assertEqual(hasattr(ms, "customFieldList"), False)
+
+        # idempotency
+        ms._updateCustomFields()
         self.assertEqual(
             ms._customFieldList,
             [
@@ -657,6 +693,58 @@ class MambuStructTests(unittest.TestCase):
             MambuPyError, r"CustomFieldSet _invalidFieldSet is not a dictionary"
         ):
             ms._updateCustomFields()
+
+    def test__extractVOs(self):
+        ms = mambustruct.MambuStruct()
+        ms._vos = [("a_vo", "MambuValueObject"),
+                   ("a_list_vo", "MambuValueObject")]
+        ms._attrs = {
+            "aField": "abc123",
+            "a_vo": {"aProp": "aVal"},
+            "a_list_vo": [{"aProp1": "aVal1"}, {"aProp2": "aVal2"}],
+        }
+
+        ms._extractVOs()
+
+        self.assertEqual(ms.a_vo.__class__.__name__, "MambuValueObject")
+        for ind, elem in enumerate(ms.a_list_vo):
+            self.assertEqual(elem.__class__.__name__, "MambuValueObject")
+
+        # idempotency
+        ms._extractVOs()
+        self.assertEqual(ms.a_vo.__class__.__name__, "MambuValueObject")
+        for ind, elem in enumerate(ms.a_list_vo):
+            self.assertEqual(elem.__class__.__name__, "MambuValueObject")
+
+    def test__updateVOs(self):
+        from mambupy.api.vos import MambuValueObject
+
+        ms = mambustruct.MambuStruct()
+        ms._vos = [("a_vo", "MambuValueObject"),
+                   ("a_list_vo", "MambuValueObject"),]
+        ms._attrs = {
+            "aField": "abc123",
+            "a_vo": MambuValueObject(**{"aProp": "aVal"}),
+            "a_list_vo": [MambuValueObject(**{"aProp1": "aVal1"}),
+                          MambuValueObject(**{"aProp2": "aVal2"})],
+        }
+
+        ms.a_vo.aProp = "anotherVal"
+        ms.a_list_vo[0].aProp1 = "anotherVal1"
+        ms.a_list_vo[1].aProp2 = "anotherVal2"
+
+        ms._updateVOs()
+
+        self.assertEqual(ms.a_vo, {"aProp": "anotherVal"})
+        self.assertEqual(ms.a_list_vo, [{"aProp1": "anotherVal1"},
+                                        {"aProp2": "anotherVal2"}])
+
+        # idempotency
+        ms._updateVOs()
+
+        self.assertEqual(ms.a_vo, {"aProp": "anotherVal"})
+        self.assertEqual(ms.a_list_vo, [{"aProp1": "anotherVal1"},
+                                        {"aProp2": "anotherVal2"}])
 
 
 class MambuEntityTests(unittest.TestCase):
@@ -704,7 +792,11 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
-    def test__get_several(self, mock_extractCustomFields, mock_convertDict2Attrs):
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
+    def test__get_several(
+        self,
+        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
+    ):
         mock_func = mock.Mock()
 
         mock_func.return_value = b"""[
@@ -736,6 +828,8 @@ class MambuEntityTests(unittest.TestCase):
         mock_convertDict2Attrs.assert_called_with()
         self.assertEqual(mock_extractCustomFields.call_count, 4)
         mock_extractCustomFields.assert_called_with()
+        self.assertEqual(mock_extractVOs.call_count, 4)
+        mock_extractVOs.assert_called_with()
 
         self.child_class._get_several(
             mock_func, **{"prefix": "something else"})
@@ -775,8 +869,13 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_get(self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs):
+    def test_get(
+        self,
+        mock_connector,
+        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
+    ):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
         ms = self.child_class.get("12345")
@@ -789,6 +888,7 @@ class MambuEntityTests(unittest.TestCase):
         )
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with()
 
         ms = self.child_class.get("12345", "FULL")
 
@@ -800,9 +900,11 @@ class MambuEntityTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_refresh(
-        self, mock_connector, mock_extractCustomFields, mock_convertDict2Attrs
+        self, mock_connector,
+        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
     ):
         mock_connector.mambu_get.return_value = (
             b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
@@ -909,18 +1011,22 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_update(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
         mock_extractCustomFields,
+        mock_extractVOs
     ):
         mock_connector.mambu_update.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
@@ -933,36 +1039,46 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_update.assert_called_with(
             "12345", "un_prefix", {"id": "12345", "myProp": "myVal"}
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with()
 
         # MambuError
+        mock_updateVOs.reset_mock()
         mock_updateCustomFields.reset_mock()
         mock_serializeFields.reset_mock()
         mock_convertDict2Attrs.reset_mock()
         mock_extractCustomFields.reset_mock()
+        mock_extractVOs.reset_mock()
         mock_connector.mambu_update.side_effect = MambuError("Un Err")
         with self.assertRaisesRegex(MambuError, r"Un Err"):
             child.update()
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with()
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_create(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
         mock_extractCustomFields,
+        mock_extractVOs,
     ):
         mock_connector.mambu_create.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
@@ -986,36 +1102,44 @@ class MambuEntityTests(unittest.TestCase):
         )
         self.assertEqual(child._detailsLevel, "FULL")
         mock_connector.mambu_create.assert_called_with("un_prefix", {"myProp": "myVal"})
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with()
 
         # MambuError
         child._attrs = {}
         child._attrs["myProp"] = "myVal"
         child._detailsLevel = "BASIC"
+        mock_updateVOs.reset_mock()
         mock_updateCustomFields.reset_mock()
         mock_serializeFields.reset_mock()
         mock_convertDict2Attrs.reset_mock()
         mock_extractCustomFields.reset_mock()
+        mock_extractVOs.reset_mock()
         mock_connector.mambu_create.side_effect = MambuError("Un Err")
         with self.assertRaisesRegex(MambuError, r"Un Err"):
             child.create()
         self.assertEqual(child._attrs, {"myProp": "myVal"})
         self.assertEqual(child._detailsLevel, "BASIC")
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with()
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1032,6 +1156,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("ADD", "/myProp", "myVal")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1039,10 +1164,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1059,6 +1186,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REPLACE", "/myProp", "myVal2")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1066,10 +1194,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1086,6 +1216,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REMOVE", "/myProp")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1093,10 +1224,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_standard(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1114,6 +1247,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("ADD", "/_myCFSet/myProp", "myVal")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1121,10 +1255,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_standard(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1142,6 +1278,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REPLACE", "/_myCFSet/myProp", "myVal2")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1149,10 +1286,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_standard(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1171,6 +1310,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REMOVE", "/_myCFSet/myProp")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1178,10 +1318,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_grouped(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1202,6 +1344,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("ADD", "/_myCFSet/0/myProp", "myVal")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1209,10 +1352,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_grouped(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1239,6 +1384,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REPLACE", "/_myCFSet/1/myProp", "myVal3")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1246,10 +1392,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_grouped(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
@@ -1274,6 +1422,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_patch.assert_called_once_with(
             "12345", "un_prefix", [("REMOVE", "/_myCFSet/0/myProp")]
         )
+        mock_updateVOs.assert_called_once_with()
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
@@ -1281,10 +1430,12 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_exceptions(
         self,
         mock_connector,
+        mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,

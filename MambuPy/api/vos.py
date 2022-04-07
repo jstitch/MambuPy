@@ -15,3 +15,7 @@ class MambuValueObject(MambuStruct):
 
 class MambuDocument(MambuValueObject):
     """Attached document"""
+
+
+class MambuAddress(MambuValueObject):
+    """Address"""

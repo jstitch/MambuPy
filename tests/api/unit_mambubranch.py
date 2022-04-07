@@ -26,6 +26,7 @@ class MambuBranch(unittest.TestCase):
         self.assertEqual(
             mb._sortBy_fields, ["creationDate", "lastModifiedDate", "id", "name"]
         )
+        self.assertEqual(mb._vos, [("addresses", "MambuAddress")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

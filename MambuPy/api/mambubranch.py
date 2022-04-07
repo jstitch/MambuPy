@@ -25,3 +25,6 @@ class MambuBranch(MambuEntity):
         "name",
     ]
     """allowed fields for get_all sorting"""
+
+    _vos = [("addresses", "MambuAddress")]
+    """2-tuples of elements and Value Objects"""

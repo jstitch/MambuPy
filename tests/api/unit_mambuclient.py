@@ -40,6 +40,7 @@ class MambuClient(unittest.TestCase):
             ["creationDate", "lastModifiedDate", "firstName", "lastName"],
         )
         self.assertEqual(mc._ownerType, "CLIENT")
+        self.assertEqual(mc._vos, [("addresses", "MambuAddress")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

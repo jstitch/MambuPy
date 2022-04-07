@@ -112,6 +112,7 @@ class MambuEntity(MambuStruct):
             elem._attrs = attr
             elem._convertDict2Attrs()
             elem._extractCustomFields()
+            elem._extractVOs()
             elem._detailsLevel = params["detailsLevel"]
             elements.append(elem)
 
@@ -138,6 +139,7 @@ class MambuEntity(MambuStruct):
         instance._tzattrs = dict(json.loads(resp.decode()))
         instance._convertDict2Attrs()
         instance._extractCustomFields()
+        instance._extractVOs()
         instance._detailsLevel = detailsLevel
 
         return instance
@@ -162,6 +164,7 @@ class MambuEntity(MambuStruct):
         self._tzattrs = dict(json.loads(self._resp.decode()))
         self._convertDict2Attrs()
         self._extractCustomFields()
+        self._extractVOs()
         self._detailsLevel = detailsLevel
 
     @classmethod
@@ -235,6 +238,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         Pre-requires that CustomFields are updated previously.
         Post-requires that CustomFields are extracted again.
         """
+        self._updateVOs()
         self._updateCustomFields()
         self._serializeFields()
         try:
@@ -247,6 +251,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         finally:
             self._convertDict2Attrs()
             self._extractCustomFields()
+            self._extractVOs()
 
     def create(self):
         """creates a mambu entity
@@ -255,6 +260,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         Pre-requires that CustomFields are updated previously.
         Post-requires that CustomFields are extracted again.
         """
+        self._updateVOs()
         self._updateCustomFields()
         self._serializeFields()
         try:
@@ -269,6 +275,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         finally:
             self._convertDict2Attrs()
             self._extractCustomFields()
+            self._extractVOs()
 
     def patch(self, fields=None, autodetect_remove=False):
         """patches a mambu entity
@@ -350,6 +357,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
                         path = extract_path(original_attrs, attr, self._cf_class)
                         fields_ops.append(("REMOVE", path))
 
+            self._updateVOs()
             self._updateCustomFields()
             self._serializeFields()
             self._connector.mambu_patch(self.id, self._prefix, fields_ops)
@@ -359,6 +367,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         finally:
             self._convertDict2Attrs()
             self._extractCustomFields()
+            self._extractVOs()
 
 
 class MambuEntitySearchable(MambuStruct, MambuSearchable):

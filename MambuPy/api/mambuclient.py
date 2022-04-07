@@ -44,6 +44,9 @@ class MambuClient(
     _ownerType = "CLIENT"
     """attachments owner type of this entity"""
 
+    _vos = [("addresses", "MambuAddress")]
+    """2-tuples of elements and Value Objects"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}

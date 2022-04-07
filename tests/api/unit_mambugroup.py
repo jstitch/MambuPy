@@ -29,6 +29,7 @@ class MambuGroup(unittest.TestCase):
             mg._sortBy_fields, ["creationDate", "lastModifiedDate", "groupName"]
         )
         self.assertEqual(mg._ownerType, "GROUP")
+        self.assertEqual(mg._vos, [("addresses", "MambuAddress")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
