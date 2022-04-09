@@ -202,13 +202,24 @@ class MambuUtilTests(unittest.TestCase):
         except OSError:
             pass
 
+        class request:
+            def __init__(self, url, body, headers):
+                self.url = url
+                self.body = body
+                self.headers = headers
+
         class response:
-            def __init__(self, code, content):
+            def __init__(self, code, content, request):
                 self.status_code = code
                 self.content = content
+                self.request = request
 
-        mock_requests.post.return_value = response(code=200, content="hello world")
-        mock_requests.get.return_value = response(code=200, content=b"hello world")
+        mock_requests.post.return_value = response(
+            code=200, content="hello world",
+            request=request("url", "body", "headers"))
+        mock_requests.get.return_value = response(
+            code=200, content=b"hello world",
+            request=request("url", "body", "headers"))
 
         d = mambuutil.backup_db(
             callback="da-callback", bool_func=lambda: True, output_fname="/tmp/out_test"
@@ -222,6 +233,8 @@ class MambuUtilTests(unittest.TestCase):
                 "Accept": "application/vnd.mambu.v1+zip",
             },
         )
+        self.assertEqual(mock_requests.post.call_count, 1)
+        self.assertEqual(mock_requests.get.call_count, 1)
         self.assertEqual(d["callback"], "da-callback")
         self.assertTrue(d["latest"])
 
@@ -234,6 +247,21 @@ class MambuUtilTests(unittest.TestCase):
         )
         self.assertEqual(d["callback"], "da-callback")
         self.assertFalse(d["latest"])
+
+        mock_requests.post.reset_mock()
+        mock_requests.get.reset_mock()
+        d = mambuutil.backup_db(
+            callback="da-callback",
+            bool_func=lambda: False,
+            retries=1,
+            justbackup=True,
+            output_fname="/tmp/out_test",
+            force_download_latest=True,
+        )
+        self.assertEqual(mock_requests.post.call_count, 0)
+        self.assertEqual(mock_requests.get.call_count, 1)
+        self.assertEqual(d["callback"], "da-callback")
+        self.assertTrue(d["latest"])
 
         d = mambuutil.backup_db(
             callback="da-callback",
@@ -256,7 +284,8 @@ class MambuUtilTests(unittest.TestCase):
             )
 
         mock_requests.post.return_value = response(
-            code=404, content="hello world (not found)"
+            code=404, content="hello world (not found)",
+            request=request("url", "body", "headers")
         )
         with self.assertRaisesRegexp(
             mambuutil.MambuCommError,
@@ -281,9 +310,12 @@ class MambuUtilTests(unittest.TestCase):
                 verbose=True,
             )
 
-        mock_requests.post.side_effect = [response(code=200, content="hello world")]
+        mock_requests.post.side_effect = [
+            response(code=200, content="hello world",
+                     request=request("url", "body", "headers"))]
         mock_requests.get.return_value = response(
-            code=404, content="hello world (not found)"
+            code=404, content="hello world (not found)",
+            request=request("url", "body", "headers")
         )
         with self.assertRaisesRegexp(
             mambuutil.MambuCommError,
@@ -1022,6 +1054,41 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(
             mambuutil.getusercustominformationurl("456", customfield="test"),
             self.prefix + "/api/" + "users/456/custominformation/test",
+        )
+
+    def test_getsavingsurl(self):
+        self.assertEqual(
+            mambuutil.getsavingssurl(
+                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+            self.prefix + "/api/" + "savings/12345?fullDetails=true&offset=0&limit=0",
+        )
+
+    def test_getsavingfundingrepaymentsurl(self):
+        self.assertEqual(
+            mambuutil.getsavingfundingrepaymentsurl(
+                "12345", "54321", **{"fullDetails": True, "offset": 0, "limit": 0}),
+            self.prefix + "/api/" + "savings/12345/funding/54321/repayments?fullDetails=true&offset=0&limit=0",
+        )
+
+    def test_getsavingstransactionsurl(self):
+        self.assertEqual(
+            mambuutil.getsavingstransactionsurl(
+                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+            self.prefix + "/api/" + "savings/12345/transactions/?fullDetails=true&offset=0&limit=0",
+        )
+
+    def test_getsavingstransactionssearchurl(self):
+        self.assertEqual(
+            mambuutil.getsavingstransactionssearchurl(
+                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+            self.prefix + "/api/" + "savings/transactions/search?fullDetails=true&offset=0&limit=0",
+        )
+
+    def test_gettransactionchannelsurl(self):
+        self.assertEqual(
+            mambuutil.gettransactionchannelsurl(
+                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+            self.prefix + "/api/" + "transactionchannels/12345?fullDetails=true&offset=0&limit=0",
         )
 
 

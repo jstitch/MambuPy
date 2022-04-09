@@ -30,6 +30,7 @@ except NameError:
     # python3
     unicode = str
 
+import json
 import sys
 
 API_RETURN_CODES = {
@@ -370,15 +371,15 @@ def getsavingssurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception:
+        except Exception:  # coverage: no cover
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
+        except Exception:  # coverage: no cover
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
+        except Exception:  # coverage: no cover
             pass
 
     url = (
@@ -413,15 +414,15 @@ def getsavingfundingrepaymentsurl(idcred, loan_id, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
 
     url = (
@@ -460,15 +461,15 @@ def getsavingstransactionsurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
     url = (
@@ -504,15 +505,15 @@ def getsavingstransactionssearchurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
 
     url = (
@@ -547,15 +548,15 @@ def gettransactionchannelsurl(idcred, *args, **kwargs):
                 getparams.append("fullDetails=true")
             else:
                 getparams.append("fullDetails=false")
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
         try:
             getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
 
     url = (
@@ -1304,7 +1305,7 @@ def strip_tags(html):
         def __init__(self):
             try:
                 super().__init__()  # required for python3
-            except TypeError:
+            except TypeError:  # pragma: no cover
                 pass  # with python2 raises TypeError
             self.reset()
             self.fed = []
@@ -1340,7 +1341,7 @@ def strip_consecutive_repeated_char(s, ch):
 if sys.version_info >= (3, 0):
     # python3
     from future.moves.urllib import parse as urlparse
-else:
+else:  # pragma: no cover
     # python2
     import urlparse
 
@@ -1369,7 +1370,7 @@ def iriToUri(iri):
         return re.sub("[\x80-\xFF]", lambda c: "%%%02x" % ord(c.group(0)), b)
 
     parts = urlparse.urlparse(iri)
-    if sys.version_info < (3, 0):
+    if sys.version_info < (3, 0):  # pragma: no cover
         # python2
         partes = []
         for parti, part in enumerate(parts):
@@ -1397,11 +1398,11 @@ def encoded_dict(in_dict):
     out_dict = {}
     for k, v in in_dict.items():
         if isinstance(v, unicode):
-            if sys.version_info < (3, 0):
+            if sys.version_info < (3, 0):  # pragma: no cover
                 v = v.encode("utf8")
         elif isinstance(v, str):
             # Must be encoded in UTF-8
-            if sys.version_info < (3, 0):
+            if sys.version_info < (3, 0):  # pragma: no cover
                 v.decode("utf8")
         out_dict[k] = v
     return out_dict
@@ -1446,6 +1447,8 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
 
     * retries number of retries for bool_func or -1 for keep waiting.
 
+    * just_backup bool if True, skip asking for backup, just download LATEST
+
     * force_download_latest boolean, True to force download even if no
       callback is called. False to throw error if callback isn't received
       after retries.
@@ -1465,6 +1468,10 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         retries = kwargs["retries"]
     except KeyError:
         retries = -1
+    try:
+        justbackup = kwargs["justbackup"]
+    except KeyError:
+        justbackup = False
     try:
         force_download_latest = bool(kwargs["force_download_latest"])
     except KeyError:
@@ -1486,19 +1493,27 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     pwd = kwargs.pop("pwd", apipwd)
     data = {"callback": callback}
     try:
-        posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
-        if verbose:
-            log.write("open url: " + posturl + "\n")
-            log.flush()
-        resp = requests.post(
-            posturl,
-            data=data,
-            headers={
-                "content-type": "application/json",
-                "Accept": "application/vnd.mambu.v1+json",
-            },
-            auth=(user, pwd),
-        )
+        if not justbackup:
+            posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
+            if verbose:
+                log.write("open url: " + posturl + "\n")
+                log.write("data: " + str(data) + "\n")
+                log.flush()
+            resp = requests.post(
+                posturl,
+                data=json.dumps(data),
+                headers={
+                    "content-type": "application/json",
+                    "Accept": "application/vnd.mambu.v1+json",
+                },
+                auth=(user, pwd),
+            )
+            if verbose:
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.content) + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.url + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.body + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.request.headers) + "\n")
+                log.flush()
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
         if verbose:
@@ -1506,7 +1521,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
             log.close()
         raise MambuError(mess)
 
-    if resp.status_code != 200:
+    if not justbackup and resp.status_code != 200:
         mess = "Error posting request for backup: %s" % resp.content
         if verbose:
             log.write(mess + "\n")
@@ -1514,7 +1529,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         raise MambuCommError(mess)
 
     data["latest"] = True
-    while retries and not bool_func():
+    while not justbackup and retries and not bool_func():
         if verbose:
             log.write("waiting...\n")
             log.flush()
@@ -1522,7 +1537,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         retries -= 1
         if retries < 0:
             retries = -1
-    if not retries:
+    if not justbackup and not retries:
         mess = "Tired of waiting, giving up..."
         if verbose:
             log.write(mess + "\n")
