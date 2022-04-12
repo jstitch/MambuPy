@@ -716,6 +716,14 @@ class MambuStructTests(unittest.TestCase):
         for ind, elem in enumerate(ms.a_list_vo):
             self.assertEqual(elem.__class__.__name__, "MambuValueObject")
 
+        # if fields are absent from _attrs, don't break
+        ms._attrs = {
+            "aField": "abc123",
+        }
+        ms._extractVOs()
+        self.assertFalse("a_vo" in ms._attrs)
+        self.assertFalse("a_list_vo" in ms._attrs)
+
     def test__updateVOs(self):
         from mambupy.api.vos import MambuValueObject
 
@@ -745,6 +753,14 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.a_vo, {"aProp": "anotherVal"})
         self.assertEqual(ms.a_list_vo, [{"aProp1": "anotherVal1"},
                                         {"aProp2": "anotherVal2"}])
+
+        # if fields are absent from _attrs, don't break
+        ms._attrs = {
+            "aField": "abc123",
+        }
+        ms._updateVOs()
+        self.assertFalse("a_vo" in ms._attrs)
+        self.assertFalse("a_list_vo" in ms._attrs)
 
 
 class MambuEntityTests(unittest.TestCase):

@@ -19,3 +19,7 @@ class MambuDocument(MambuValueObject):
 
 class MambuAddress(MambuValueObject):
     """Address"""
+
+
+class MambuIDDocument(MambuValueObject):
+    """ID Document"""

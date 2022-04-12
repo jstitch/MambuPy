@@ -302,7 +302,10 @@ class MambuStruct(MambuMapObj):
         """
         vos_module = import_module(".vos", "mambupy.api")
         for elem, voclass in self._vos:
-            vo_data = self._attrs[elem]
+            try:
+                vo_data = self._attrs[elem]
+            except KeyError:
+                continue
             if isinstance(vo_data, list):
                 vo_obj = []
                 already = False
@@ -329,7 +332,10 @@ class MambuStruct(MambuMapObj):
         """
         vos_module = import_module(".vos", "mambupy.api")
         for elem, voclass in self._vos:
-            vo_obj = self._attrs[elem]
+            try:
+                vo_obj = self._attrs[elem]
+            except KeyError:
+                continue
             if isinstance(vo_obj, list):
                 vo_data = []
                 already = False
