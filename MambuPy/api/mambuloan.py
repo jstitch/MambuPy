@@ -45,6 +45,9 @@ class MambuLoan(
     _ownerType = "LOAN_ACCOUNT"
     """attachments owner type of this entity"""
 
+    _vos = [("disbursementDetails", "MambuDisbursementDetails")]
+    """2-tuples of elements and Value Objects"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}

@@ -23,3 +23,11 @@ class MambuAddress(MambuValueObject):
 
 class MambuIDDocument(MambuValueObject):
     """ID Document"""
+
+
+class MambuDisbursementDetails(MambuValueObject):
+    """Disbursement Details"""
+
+
+class MambuUserRole(MambuValueObject):
+    """User Role"""

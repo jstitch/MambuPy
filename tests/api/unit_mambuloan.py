@@ -37,6 +37,7 @@ class MambuLoan(unittest.TestCase):
             ml._sortBy_fields, ["creationDate", "lastModifiedDate", "id", "loanName"]
         )
         self.assertEqual(ml._ownerType, "LOAN_ACCOUNT")
+        self.assertEqual(ml._vos, [("disbursementDetails", "MambuDisbursementDetails")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

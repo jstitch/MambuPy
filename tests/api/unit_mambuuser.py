@@ -19,19 +19,20 @@ class MambuUser(unittest.TestCase):
         self.assertTrue(isinstance(mu, interfaces.MambuAttachable))
 
     def test_has_properties(self):
-        mc = mambuuser.MambuUser()
-        self.assertEqual(mc._prefix, "users")
+        mu = mambuuser.MambuUser()
+        self.assertEqual(mu._prefix, "users")
         self.assertEqual(
-            mc._filter_keys,
+            mu._filter_keys,
             [
                 "branchId",
             ],
         )
         self.assertEqual(
-            mc._sortBy_fields,
+            mu._sortBy_fields,
             [],
         )
-        self.assertEqual(mc._ownerType, "USER")
+        self.assertEqual(mu._ownerType, "USER")
+        self.assertEqual(mu._vos, [("role", "MambuUserRole")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
