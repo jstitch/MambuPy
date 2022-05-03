@@ -29,7 +29,8 @@ class MambuGroup(unittest.TestCase):
             mg._sortBy_fields, ["creationDate", "lastModifiedDate", "groupName"]
         )
         self.assertEqual(mg._ownerType, "GROUP")
-        self.assertEqual(mg._vos, [("addresses", "MambuAddress")])
+        self.assertEqual(mg._vos, [("addresses", "MambuAddress"),
+                                   ("groupMembers", "MambuGroupMember")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
@@ -54,6 +55,57 @@ class MambuGroup(unittest.TestCase):
 
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             mambugroup.MambuGroup.get_all(sortBy="field:ASC")
+
+
+class MambuGroupMember(unittest.TestCase):
+    def test__extractVOs(self):
+        mg = mambugroup.MambuGroup()
+        mg._attrs = {
+            "groupMembers": [
+                {"clientKey": "abc123", "roles": []},
+                {"clientKey": "def456", "roles": [
+                    {"encodedKey": "ghi789",
+                     "roleName": "MyRole",
+                     "roleNameId": "789"}]}
+                ]
+        }
+        mg._extractVOs()
+
+        self.assertEqual(len(mg.groupMembers), 2)
+        for member in mg.groupMembers:
+            self.assertEqual(
+                member.__class__.__name__,
+                "MambuGroupMember")
+        self.assertEqual(len(mg.groupMembers[0]["roles"]), 0)
+        self.assertEqual(len(mg.groupMembers[1]["roles"]), 1)
+        self.assertEqual(
+            mg.groupMembers[1]["roles"][0].__class__.__name__,
+            "MambuGroupRole")
+
+    def test__updateVOs(self):
+        from mambupy.api.vos import MambuGroupMember, MambuGroupRole
+
+        mg = mambugroup.MambuGroup()
+        mg._attrs = {
+            "groupMembers": [
+                MambuGroupMember(**{"clientKey": "abc123", "roles": []}),
+                MambuGroupMember(**{"clientKey": "def456", "roles": [
+                    MambuGroupRole(**{"encodedKey": "ghi789",
+                                      "roleName": "MyRole",
+                                      "roleNameId": "789"})]})
+                ]
+        }
+        mg._updateVOs()
+
+        self.assertEqual(len(mg.groupMembers), 2)
+        self.assertEqual(mg.groupMembers[0], {"clientKey": "abc123", "roles": []})
+        self.assertEqual(mg.groupMembers[1],
+                         {"clientKey": "def456",
+                          "roles": [
+                              {"encodedKey": "ghi789",
+                               "roleName": "MyRole",
+                               "roleNameId": "789"}
+                              ]})
 
 
 if __name__ == "__main__":

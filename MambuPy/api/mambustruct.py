@@ -314,6 +314,7 @@ class MambuStruct(MambuMapObj):
                         already = True
                         continue
                     vo_item = getattr(vos_module, voclass)(**item)
+                    vo_item._extractVOs()
                     vo_obj.append(vo_item)
                 if already:
                     continue
@@ -321,6 +322,7 @@ class MambuStruct(MambuMapObj):
                 if isinstance(vo_data, getattr(vos_module, voclass)):
                     continue
                 vo_obj = getattr(vos_module, voclass)(**vo_data)
+                vo_obj._extractVOs()
             self._attrs[elem] = vo_obj
 
     def _updateVOs(self):
@@ -343,6 +345,7 @@ class MambuStruct(MambuMapObj):
                     if not isinstance(item, getattr(vos_module, voclass)):
                         already = True
                         continue
+                    item._updateVOs()
                     vo_item = copy.deepcopy(item._attrs)
                     vo_data.append(vo_item)
                 if already:
@@ -350,5 +353,6 @@ class MambuStruct(MambuMapObj):
             else:
                 if not isinstance(vo_obj, getattr(vos_module, voclass)):
                     continue
+                vo_obj._updateVOs()
                 vo_data = copy.deepcopy(vo_obj._attrs)
             self._attrs[elem] = vo_data

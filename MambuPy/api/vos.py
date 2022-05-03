@@ -31,3 +31,13 @@ class MambuDisbursementDetails(MambuValueObject):
 
 class MambuUserRole(MambuValueObject):
     """User Role"""
+
+
+class MambuGroupMember(MambuValueObject):
+    """Group member"""
+    _vos = [("roles", "MambuGroupRole")]
+    """2-tuples of elements and Value Objects"""
+
+
+class MambuGroupRole(MambuValueObject):
+    """Group member role"""
