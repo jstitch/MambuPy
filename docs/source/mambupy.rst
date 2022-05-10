@@ -1,5 +1,5 @@
-API Doc
-=======
+MambuPy API Doc
+===============
 
 .. contents:: Contents
    :local:

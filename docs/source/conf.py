@@ -10,10 +10,18 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import glob
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../../'))
+
+if "VIRTUAL_ENV" in os.environ:
+    for module in ["requests"]:
+        site_packages_glob = os.sep.join([
+            os.environ["VIRTUAL_ENV"], "lib", "python3.8", "site-packages", module])
+        site_packages = glob.glob(site_packages_glob)[-1]
+        sys.path.insert(0, site_packages)
 
 
 # -- Project information -----------------------------------------------------

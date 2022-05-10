@@ -110,6 +110,7 @@ class MambuEntity(MambuStruct):
             elem = cls.__call__()
             elem._resp = json.dumps(attr).encode()
             elem._attrs = attr
+            elem._tzattrs = copy.deepcopy(attr)
             elem._convertDict2Attrs()
             elem._extractCustomFields()
             elem._extractVOs()

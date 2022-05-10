@@ -124,10 +124,20 @@ Release Notes
   - Mambu API REST v2, support for patching entitites
   - MambuAPI REST v2, MambuGroup entity
   - MambuAPI REST v2, MambuClient entity
-*v2.0.0a5-dev1 2022-03-15
+* v2.0.0a5-dev1 2022-03-15
   - MambuApi REST v2, MambuBranch entity
   - MambuApi REST v2, MambuCentre entity
-*v2.0.0a5-dev2 2022-03-16
+* v2.0.0a5-dev2 2022-03-16
   - MambuApi REST v2, MambuUser entity
-*v2.0.0a5-dev3 2022-03-17
+* v2.0.0a5-dev3 2022-03-17
   - MambuApi REST v2, MambuProduct entity
+* v2.0.0a5-dev4 2022-05-09
+  MambuApi REST v2
+  - MambuEntities complete:
+    Client, Group, LoanAccount, Product, Branch,
+    Centre, User, Task
+  - MambuValueObjects complete: Address, IDDocument,
+    DisbursementDetails, UserRole, GroupMember, GroupRole
+  - Interfaces complete: writable, searchable, attachable
+  - Entities complete: installment, entityCF
+  - extract and update VOs
