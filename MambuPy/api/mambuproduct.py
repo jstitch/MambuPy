@@ -39,16 +39,20 @@ class MambuProduct(
         self._attachments = {}
 
     @classmethod
-    def get(cls, entid):
+    def get(cls, entid, get_entities=False, **kwargs):
         """get, a single entity, identified by its entid.
 
         Args:
           entid (str): ID for the entity
+          get_entities (bool): should MambuPy automatically instantiate other
+                               MambuPy entities found inside the retrieved
+                               entity?
 
         Returns:
           instance of an entity with data from Mambu
         """
-        return super().get(entid, detailsLevel="FULL")
+        return super().get(
+            entid, detailsLevel="FULL", get_entities=get_entities, **kwargs)
 
     def refresh(self):
         """get again this single entity, identified by its entid.

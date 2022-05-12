@@ -16,6 +16,9 @@ from ..mambuutil import MambuPyError, dateFormat
 class MambuStruct(MambuMapObj):
     """Basic Struct for Mambu Objects with basic connection functionality."""
 
+    _attrs = {}
+    """Properties of the Mambu object"""
+
     _tzattrs = {}
     """TimeZones info:
 
@@ -57,6 +60,14 @@ class MambuStruct(MambuMapObj):
        `_updateVOs` loops this list to update the corresponding data in _attrs
     """
 
+    _entities = []
+    """List of Entities in the struct's _attrs.
+
+    Each element must be a 3-tuple:
+        ("name_of_key_in_attrs",
+         "module.class to instantiate",
+         "name_of_obj_in_attrs")
+    """
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
@@ -290,7 +301,7 @@ class MambuStruct(MambuMapObj):
         for field in cfs:
             del self._attrs[field]
 
-    def _extractVOs(self):
+    def _extractVOs(self, get_entities=False, debug=False):
         """Loops _vos list to instantiate the corresponding Value Objects
 
            If the element in _attrs happens to be a list, the result will be a
@@ -299,6 +310,12 @@ class MambuStruct(MambuMapObj):
            End result, the key with the name of the element will be replaced
            with the instantiated Value Object. And the original element will
            change its key name from 'elem' to 'vo_elem'.
+
+           Args:
+             get_entities (bool): should MambuPy automatically instantiate
+                                  other MambuPy entities found inside the Value
+                                  Objects?
+             debug (bool): print debugging info
         """
         vos_module = import_module(".vos", "mambupy.api")
         for elem, voclass in self._vos:
@@ -315,6 +332,11 @@ class MambuStruct(MambuMapObj):
                         continue
                     vo_item = getattr(vos_module, voclass)(**item)
                     vo_item._extractVOs()
+                    if get_entities:
+                        vo_item._assignEntObjs(
+                            vo_item._entities,
+                            get_entities=get_entities,
+                            debug=debug)
                     vo_obj.append(vo_item)
                 if already:
                     continue
@@ -323,6 +345,11 @@ class MambuStruct(MambuMapObj):
                     continue
                 vo_obj = getattr(vos_module, voclass)(**vo_data)
                 vo_obj._extractVOs()
+                if get_entities:
+                    vo_obj._assignEntObjs(
+                        vo_obj._entities,
+                        get_entities=get_entities,
+                        debug=debug)
             self._attrs[elem] = vo_obj
 
     def _updateVOs(self):
@@ -356,3 +383,78 @@ class MambuStruct(MambuMapObj):
                 vo_obj._updateVOs()
                 vo_data = copy.deepcopy(vo_obj._attrs)
             self._attrs[elem] = vo_data
+    def _assignEntObjs(
+        self,
+        entities=None,
+        detailsLevel="BASIC",
+        get_entities=False,
+        debug=False
+    ):
+        """Loops entities list of tuples to instantiate MambuPy entities from Mambu.
+
+           End result: new properties will appear on the MambuPy object other
+           :py:obj:`MambuPy.api.entities.MambuEntity` objects retrieved from Mambu
+
+           Args:
+             entities (list): list of tuples with information of the entity and
+                              property to instantiate. Look at
+                              :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
+             detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
+             get_entities (bool): should MambuPy automatically instantiate
+                                  other MambuPy entities found inside the
+                                  retrieved entities?
+             debug (bool): print debugging info
+        """
+        def instance_entity_obj(encoded_key, ent_mod, ent_class, **kwargs):
+            """Instantiates a single MambuPy object calling its get method.
+
+               If the object doesn't supports detailsLevel (MambuProduct),
+               omit it.
+
+               Args:
+                 encoded_key (str): encoded key of the entity to retrieve
+                                    from Mambu
+                 ent_mod (obj): module holding the class to instantiate
+                 ent_class (str): class to instantiate
+                 kwargs (dict): extra parameters for the get method
+
+               Returns:
+                 MambuPyObject (obj): instantiation of the object from Mambu
+            """
+            try:
+                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+            except TypeError:
+                if "detailsLevel" in kwargs:
+                    kwargs.pop("detailsLevel")
+                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+
+        if entities is None:
+            entities = self._entities
+
+        for encodedKey, ent_path, new_property in entities:
+            ent_module = ".".join(ent_path.split(".")[:-1])
+            ent_class = ent_path.split(".")[-1]
+            ent_mod = import_module("." + ent_module, "mambupy.api")
+
+            try:
+                enc_key = self._attrs[encodedKey]
+            except KeyError:
+                continue
+
+            if isinstance(enc_key, list):
+                ent_item = []
+                for item in enc_key:
+                    ent_item.append(
+                        instance_entity_obj(
+                            item, ent_mod, ent_class,
+                            detailsLevel=detailsLevel,
+                            get_entities=get_entities,
+                            debug=debug))
+            else:
+                ent_item = instance_entity_obj(
+                    enc_key, ent_mod, ent_class,
+                    detailsLevel=detailsLevel,
+                    get_entities=get_entities,
+                    debug=debug)
+
+            self[new_property] = ent_item

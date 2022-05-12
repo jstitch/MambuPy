@@ -6,6 +6,7 @@
 """
 import copy
 import json
+import time
 
 from .classes import GenericClass
 from .interfaces import MambuWritable, MambuAttachable, MambuSearchable
@@ -53,17 +54,31 @@ class MambuEntity(MambuStruct):
         Args:
           get_func (function): mambu request function that returns several
                                 entities (json [])
-          kwargs (dict): keyword arguments to pass on to get_func
-          detailsLevel (str): "BASIC" or "FULL"
-          offset (int): >= 0
-          limit (int): >= 0 If limit=0 or None, the algorithm will retrieve
-                       EVERYTHING according to the given filters, using several
-                       requests to that end.
+          kwargs (dict): keyword arguments to pass on to get_func as arguments
+
+            - prefix (str): prefix for connections to Mambu
+
+          kwargs (dict): keyword arguments to pass on to get_func as params
+
+            - detailsLevel (str): "BASIC" or "FULL"
+            - offset (int): >= 0
+            - limit (int): >= 0 If limit=0 or None, the algorithm will retrieve
+                           EVERYTHING according to the given filters, using
+                           several requests to that end.
+
+          kwargs (dict): keyword arguments for this method
+
+            - get_entities (bool): should MambuPy automatically instantiate
+                                   other MambuPy entities found inside the
+                                   retrieved entities?
+            - debug (bool): print debugging info
 
         Returns:
           list of instances of an entity with data from Mambu, assembled from
           possibly several calls to get_func
         """
+        init_t = time.time()
+
         if "offset" in kwargs and kwargs["offset"] is not None:
             offset = kwargs["offset"]
         else:
@@ -77,6 +92,16 @@ class MambuEntity(MambuStruct):
             prefix = kwargs.pop("prefix")
         else:
             prefix = cls._prefix
+
+        if "get_entities" in kwargs and kwargs["get_entities"] is not None:
+            get_entities = kwargs.pop("get_entities")
+        else:
+            get_entities = False
+
+        if "debug" in kwargs and kwargs["debug"] is not None:
+            debug = kwargs.pop("debug")
+        else:
+            debug = False
 
         params = copy.copy(kwargs)
         if "detailsLevel" not in params:
@@ -113,23 +138,57 @@ class MambuEntity(MambuStruct):
             elem._tzattrs = copy.deepcopy(attr)
             elem._convertDict2Attrs()
             elem._extractCustomFields()
-            elem._extractVOs()
+            elem._extractVOs(
+                get_entities=get_entities, debug=debug)
+            entities = copy.deepcopy(elem._entities)
+            if get_entities:
+                elem._assignEntObjs(
+                    entities,
+                    params["detailsLevel"],
+                    get_entities,
+                    debug=debug)
             elem._detailsLevel = params["detailsLevel"]
             elements.append(elem)
+
+
+        fin_t = time.time()
+        interval = fin_t - init_t
+        hours, remainder = divmod(interval, 3600)
+        minutes = remainder // 60
+        seconds = round(remainder - (minutes * 60), 2)
+        if debug:
+            print("{}-{} ({}) {}:{}:{}".format(
+                elements[0].__class__.__name__,
+                elements[0]["id"],
+                len(elements),
+                int(hours), int(minutes), seconds))
 
         return elements
 
     @classmethod
-    def get(cls, entid, detailsLevel="BASIC"):
+    def get(cls, entid, detailsLevel="BASIC", get_entities=False, **kwargs):
         """get, a single entity, identified by its entid.
 
         Args:
           entid (str): ID for the entity
           detailsLevel (str BASIC/FULL): ask for extra details or not
+          get_entities (bool): should MambuPy automatically instantiate other
+                               MambuPy entities found inside the retrieved
+                               entity?
+          kwargs (dict): keyword arguments for this method
+
+            - debug (bool): print debugging info
 
         Returns:
           instance of an entity with data from Mambu
         """
+        init_t = time.time()
+
+        if "debug" in kwargs and kwargs["debug"]:
+            debug = True
+        else:
+            debug = False
+
         resp = cls._connector.mambu_get(
             entid, prefix=cls._prefix, detailsLevel=detailsLevel
         )
@@ -140,8 +199,27 @@ class MambuEntity(MambuStruct):
         instance._tzattrs = dict(json.loads(resp.decode()))
         instance._convertDict2Attrs()
         instance._extractCustomFields()
-        instance._extractVOs()
+        instance._extractVOs(
+            get_entities=get_entities, debug=debug)
+        entities = copy.deepcopy(instance._entities)
+        if get_entities:
+            instance._assignEntObjs(
+                entities,
+                detailsLevel,
+                get_entities,
+                debug=debug)
         instance._detailsLevel = detailsLevel
+
+        fin_t = time.time()
+        interval = fin_t - init_t
+        hours, remainder = divmod(interval, 3600)
+        minutes = remainder // 60
+        seconds = round(remainder - (minutes * 60), 2)
+        if debug:
+            print("{}-{} {}:{}:{}".format(
+                instance.__class__.__name__,
+                instance["id"],
+                int(hours), int(minutes), seconds))
 
         return instance
 

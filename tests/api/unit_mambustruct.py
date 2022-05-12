@@ -762,6 +762,88 @@ class MambuStructTests(unittest.TestCase):
         self.assertFalse("a_vo" in ms._attrs)
         self.assertFalse("a_list_vo" in ms._attrs)
 
+    @mock.patch("MambuPy.api.mambustruct.import_module")
+    def test__assignEntObjs(self, mock_import):
+        mock_import.return_value.MambuEntity.get.side_effect = [
+            "Treebeard", "Quickbeam", "Beechbone"]
+
+        ms = mambustruct.MambuStruct()
+        ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent"),
+                        ("a_list_ent_keys", "entities.MambuEntity", "ents")]
+        ms._attrs = {
+            "aField": "abc123",
+            "an_ent_key": "abcdef12345",
+            "a_list_ent_keys": ["fedcba6789", "02468acebdf"],
+        }
+
+        ms._assignEntObjs()
+        self.assertEqual(mock_import.call_count, 2)
+        mock_import.assert_any_call(".entities", "mambupy.api")
+        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 3)
+        mock_import().MambuEntity.get.assert_any_call(
+            "abcdef12345", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import().MambuEntity.get.assert_any_call(
+            "fedcba6789", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import().MambuEntity.get.assert_any_call(
+            "02468acebdf", detailsLevel="BASIC", get_entities=False, debug=False)
+        self.assertEqual(ms.an_ent, "Treebeard")
+        self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
+
+        # optional arguments
+        del ms._attrs["an_ent"]
+        del ms._attrs["ents"]
+        mock_import.return_value.MambuEntity.get.side_effect = [
+            "Treebeard", "Quickbeam", "Beechbone"]
+        mock_import.reset_mock()
+        ms._assignEntObjs(detailsLevel="FULL", get_entities=True, debug=True)
+        mock_import().MambuEntity.get.assert_any_call(
+            "abcdef12345", detailsLevel="FULL", get_entities=True, debug=True)
+        mock_import().MambuEntity.get.assert_any_call(
+            "fedcba6789", detailsLevel="FULL", get_entities=True, debug=True)
+        mock_import().MambuEntity.get.assert_any_call(
+            "02468acebdf", detailsLevel="FULL", get_entities=True, debug=True)
+
+        # explicit entities list argument
+        del ms._attrs["an_ent"]
+        del ms._attrs["ents"]
+        mock_import.return_value.MambuEntity.get.side_effect = [
+            "Treebeard", "Quickbeam", "Beechbone"]
+        mock_import.reset_mock()
+        ms._assignEntObjs([
+            ("an_ent_key", "entities.MambuEntity", "an_ent"),
+            ("a_list_ent_keys", "entities.MambuEntity", "ents")])
+        self.assertEqual(ms.an_ent, "Treebeard")
+        self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
+
+        # invalid entity key as argument
+        del ms._attrs["an_ent"]
+        del ms._attrs["ents"]
+        mock_import.return_value.MambuEntity.get.side_effect = [
+            "Treebeard", "Quickbeam", "Beechbone"]
+        mock_import.reset_mock()
+        ms._assignEntObjs([
+            ("an_INVALID_ent_key", "entities.MambuEntity", "an_ent")])
+        self.assertEqual(mock_import.call_count, 1)
+        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 0)
+
+        # get doesn't supports detailsLevel argument
+        mock_import.return_value.MambuEntity.get.side_effect = [
+            TypeError(""), "Treebeard",
+            TypeError(""), "Quickbeam",
+            TypeError(""), "Beechbone"]
+        mock_import.reset_mock()
+        ms._assignEntObjs()
+        mock_import.return_value.MambuEntity.get.assert_any_call(
+            "abcdef12345", get_entities=False, debug=False)
+        mock_import.return_value.MambuEntity.get.assert_any_call(
+            "fedcba6789", get_entities=False, debug=False)
+        mock_import.return_value.MambuEntity.get.assert_any_call(
+            "02468acebdf", get_entities=False, debug=False)
+        self.assertEqual(mock_import.call_count, 2)
+        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 6)
+        self.assertEqual(ms.an_ent, "Treebeard")
+        self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
+
 
 class MambuEntityTests(unittest.TestCase):
     def setUp(self):
@@ -798,6 +880,7 @@ class MambuEntityTests(unittest.TestCase):
             """"""
 
         self.child_class = child_class
+        self.child_class._assignEntObjs = mock.Mock()
         self.child_class_writable = child_class_writable
         self.child_class_attachable = child_class_attachable
         self.child_class_searchable = child_class_searchable
@@ -806,12 +889,16 @@ class MambuEntityTests(unittest.TestCase):
         me = entities.MambuEntity()
         self.assertEqual(me._prefix, "")
 
+    @mock.patch("MambuPy.api.entities.print")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
     def test__get_several(
         self,
-        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
+        mock_extractVOs,
+        mock_extractCustomFields,
+        mock_convertDict2Attrs,
+        mock_print
     ):
         mock_func = mock.Mock()
 
@@ -845,16 +932,28 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(mock_extractCustomFields.call_count, 4)
         mock_extractCustomFields.assert_called_with()
         self.assertEqual(mock_extractVOs.call_count, 4)
-        mock_extractVOs.assert_called_with()
+        mock_extractVOs.assert_called_with(
+            get_entities=False, debug=False)
 
-        self.child_class._get_several(
-            mock_func, **{"prefix": "something else"})
+        elems = self.child_class._get_several(
+            mock_func,
+            **{"prefix": "something else",
+               "get_entities": True,
+               "debug": True})
         mock_func.assert_called_with(
             "something else",
             offset=0,
             limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-            detailsLevel="BASIC",
+            detailsLevel="BASIC"
         )
+        mock_print.assert_called_with(
+            "child_class" + "-" +
+            elems[0]._attrs["id"] +
+            " ({}) ".format(len(elems)) +
+            "0:0:0.0")
+        for elem in elems:
+            elem._assignEntObjs.assert_called_with(
+                [], "BASIC", True, debug=True)
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class._get_several(mock_func, detailsLevel="FULL")
@@ -883,6 +982,7 @@ class MambuEntityTests(unittest.TestCase):
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
+    @mock.patch("MambuPy.api.entities.print")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
@@ -890,7 +990,8 @@ class MambuEntityTests(unittest.TestCase):
     def test_get(
         self,
         mock_connector,
-        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
+        mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs,
+        mock_print
     ):
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
@@ -904,7 +1005,8 @@ class MambuEntityTests(unittest.TestCase):
         )
         mock_convertDict2Attrs.assert_called_once_with()
         mock_extractCustomFields.assert_called_once_with()
-        mock_extractVOs.assert_called_once_with()
+        mock_extractVOs.assert_called_once_with(
+            get_entities=False, debug=False)
 
         ms = self.child_class.get("12345", "FULL")
 
@@ -913,6 +1015,14 @@ class MambuEntityTests(unittest.TestCase):
         mock_connector.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="FULL"
         )
+
+        ms = self.child_class.get("12345", get_entities=True, debug=True)
+        mock_print.assert_called_with(
+            "child_class" + "-" +
+            ms._attrs["id"] +
+            " 0:0:0.0")
+        ms._assignEntObjs.assert_called_with(
+            [], "BASIC", True, debug=True)
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")

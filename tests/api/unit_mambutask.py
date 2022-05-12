@@ -18,10 +18,10 @@ class MambuTask(unittest.TestCase):
         self.assertTrue(isinstance(mt, interfaces.MambuWritable))
 
     def test_has_properties(self):
-        mc = mambutask.MambuTask()
-        self.assertEqual(mc._prefix, "tasks")
+        mt = mambutask.MambuTask()
+        self.assertEqual(mt._prefix, "tasks")
         self.assertEqual(
-            mc._filter_keys,
+            mt._filter_keys,
             [
              "username",
              "clientId",
@@ -30,9 +30,12 @@ class MambuTask(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            mc._sortBy_fields,
+            mt._sortBy_fields,
             [],
         )
+        self.assertEqual(
+            mt._entities,
+            [("assignedUserKey", "mambuuser.MambuUser", "assignedUser")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity.get")
     def test_get(self, mock_get):

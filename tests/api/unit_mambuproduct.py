@@ -44,7 +44,7 @@ class MambuProduct(unittest.TestCase):
         mp = mambuproduct.MambuProduct.get(entid="MY PRODUCT")
         self.assertEqual(mp, "SupGet")
         mock_get.assert_called_once_with(
-            "MY PRODUCT", detailsLevel="FULL")
+            "MY PRODUCT", detailsLevel="FULL", get_entities=False)
 
         with self.assertRaises(TypeError):
             mambuproduct.MambuProduct.get(detailsLevel="BASIC")

@@ -38,6 +38,13 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml._ownerType, "LOAN_ACCOUNT")
         self.assertEqual(ml._vos, [("disbursementDetails", "MambuDisbursementDetails")])
+        self.assertEqual(
+            ml._entities,
+            [("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
+             ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+             ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre"),
+             ("productTypeKey", "mambuproduct.MambuProduct", "productType"),
+             ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

@@ -31,6 +31,11 @@ class MambuGroup(unittest.TestCase):
         self.assertEqual(mg._ownerType, "GROUP")
         self.assertEqual(mg._vos, [("addresses", "MambuAddress"),
                                    ("groupMembers", "MambuGroupMember")])
+        self.assertEqual(
+            mg._entities,
+            [("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
+             ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+             ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

@@ -38,6 +38,9 @@ class MambuGroupMember(MambuValueObject):
     _vos = [("roles", "MambuGroupRole")]
     """2-tuples of elements and Value Objects"""
 
+    _entities = [("clientKey", "mambuclient.MambuClient", "client")]
+    """3-tuples of elements and Mambu Entities"""
+
 
 class MambuGroupRole(MambuValueObject):
     """Group member role"""

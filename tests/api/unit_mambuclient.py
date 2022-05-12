@@ -42,6 +42,12 @@ class MambuClient(unittest.TestCase):
         self.assertEqual(mc._ownerType, "CLIENT")
         self.assertEqual(mc._vos, [("addresses", "MambuAddress"),
                                    ("idDocuments", "MambuIDDocument")])
+        self.assertEqual(
+            mc._entities,
+            [("groupKeys", "mambugroup.MambuGroup", "groups"),
+             ("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
+             ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+             ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

@@ -34,6 +34,10 @@ class MambuUser(
     _vos = [("role", "MambuUserRole")]
     """2-tuples of elements and Value Objects"""
 
+    _entities = [
+        ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch")]
+    """3-tuples of elements and Mambu Entities"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}

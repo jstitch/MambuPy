@@ -33,6 +33,9 @@ class MambuUser(unittest.TestCase):
         )
         self.assertEqual(mu._ownerType, "USER")
         self.assertEqual(mu._vos, [("role", "MambuUserRole")])
+        self.assertEqual(
+            mu._entities,
+            [("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

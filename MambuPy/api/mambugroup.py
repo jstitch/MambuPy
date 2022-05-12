@@ -38,6 +38,12 @@ class MambuGroup(
             ("groupMembers", "MambuGroupMember")]
     """2-tuples of elements and Value Objects"""
 
+    _entities = [
+        ("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
+        ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+        ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre")]
+    """3-tuples of elements and Mambu Entities"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}
