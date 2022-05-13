@@ -68,6 +68,23 @@ class MambuStruct(MambuMapObj):
          "module.class to instantiate",
          "name_of_obj_in_attrs")
     """
+
+    def __getattribute__(self, name):
+        """Object-like get attribute for MambuStructs.
+
+           If the attribute is not present at the _attrs dict, tries to build a
+           function that calls :py:meth:`getEntities`, which in turns will try
+           to instantiate an entity according to the requested attribute name
+        """
+        try:
+            return super().__getattribute__(name)
+        except AttributeError as attr:
+            if name[0:4] == "get_" and len(name) > 4:
+                ent = name[4:]
+                return lambda **kwargs: self.getEntities([ent], **kwargs)
+            else:
+                raise attr
+
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
@@ -383,6 +400,54 @@ class MambuStruct(MambuMapObj):
                 vo_obj._updateVOs()
                 vo_data = copy.deepcopy(vo_obj._attrs)
             self._attrs[elem] = vo_data
+
+    def getEntities(
+        self,
+        entities,
+        detailsLevel="BASIC",
+        get_entities=False,
+        debug=False
+    ):
+        """Retrieve certain entities from the properties of this MambuEntity.
+
+           Args:
+             entities (list): list of strings with the name of the entity to
+                              retrieve
+             detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
+             get_entities (bool): should MambuPy automatically instantiate
+                                  other MambuPy entities found inside the
+                                  retrieved entities?
+             debug (bool): print debugging info
+        """
+        ents = []  # do not be hasty, that is my motto
+        for entity in entities:
+            entwife = [enti for enti in self._entities if enti[2] == entity]
+            if len(entwife) == 0:  # you see, we lost the entwives
+                if (
+                    entity in self._attrs and
+                    isinstance(self._attrs[entity], list)
+                ):  # let the ents undertake the quest to look for the entwives!
+                    for entling in self._attrs[entity]:
+                        if isinstance(entling, MambuStruct):
+                            entling._assignEntObjs(
+                                entities=entling._entities,
+                                detailsLevel=detailsLevel,
+                                get_entities=get_entities,
+                                debug=debug)
+                else:
+                    raise MambuPyError(
+                        "The name {} is not part of the nested entities".format(
+                            entity))
+            else:  # come back to me and say my land is best!
+                ents.extend(entwife)
+
+        if len(ents) > 0:
+            self._assignEntObjs(
+                entities=ents,
+                detailsLevel=detailsLevel,
+                get_entities=get_entities,
+                debug=debug)
+
     def _assignEntObjs(
         self,
         entities=None,

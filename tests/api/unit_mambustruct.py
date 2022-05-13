@@ -1,4 +1,5 @@
 import copy
+import inspect
 import json
 import os
 import sys
@@ -873,6 +874,91 @@ class MambuStructTests(unittest.TestCase):
         }
         ms._assignEntObjs()
         self.assertEqual(ms.an_ent, None)
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
+    def test_getEntities(self, mock_assign):
+        ms = mambustruct.MambuStruct()
+        ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent"),
+                        ("a_list_ent_keys", "entities.MambuEntity", "ents")]
+        ms._attrs = {
+            "aField": "abc123",
+            "an_ent_key": "abcdef12345",
+            "a_list_ent_keys": ["fedcba6789", "02468acebdf"],
+            "lost_entwives": [
+                mambustruct.MambuStruct(),
+                mambustruct.MambuStruct(),
+                "notsonofmine"],
+        }
+        ms.lost_entwives[0]._entities = [("Fimbrethil", "entwive", "treebeards")]
+        ms.lost_entwives[1]._entities = [("Wandlimb", "entwive", "treebeards2")]
+        ms.lost_entwives[0]._assignEntObjs = mock.Mock()
+        ms.lost_entwives[1]._assignEntObjs = mock.Mock()
+
+        ms.getEntities(["an_ent"])
+        mock_assign.assert_called_with(
+            entities=[("an_ent_key", "entities.MambuEntity", "an_ent")],
+            detailsLevel="BASIC",
+            get_entities=False,
+            debug=False)
+        self.assertEqual(mock_assign.call_count, 1)
+
+        # optional arguments
+        mock_assign.reset_mock()
+        ms.getEntities(
+            ["ents"], detailsLevel="FULL", get_entities=True, debug=True)
+        mock_assign.assert_called_with(
+            entities=[("a_list_ent_keys", "entities.MambuEntity", "ents")],
+            detailsLevel="FULL",
+            get_entities=True,
+            debug=True)
+        self.assertEqual(mock_assign.call_count, 1)
+
+        # entities for items in a list
+        mock_assign.reset_mock()
+        ms.getEntities(["lost_entwives"])
+        ms.lost_entwives[0]._assignEntObjs.assert_called_with(
+            entities=[("Fimbrethil", "entwive", "treebeards")],
+            detailsLevel="BASIC",
+            get_entities=False,
+            debug=False)
+        ms.lost_entwives[1]._assignEntObjs.assert_called_with(
+            entities=[("Wandlimb", "entwive", "treebeards2")],
+            detailsLevel="BASIC",
+            get_entities=False,
+            debug=False)
+        self.assertEqual(mock_assign.call_count, 0)
+
+        # exception, there's no such property
+        with self.assertRaisesRegex(
+            MambuPyError, r"^The name \w+ is not part of the nested entities$"
+        ):
+            ms.getEntities(["Saruman"])
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
+    def test___getattribute__(self, mock_assign):
+        ms = mambustruct.MambuStruct()
+        ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent")]
+        ms._attrs = {
+            "aField": "abc123",
+            "an_ent_key": "abcdef12345",
+        }
+
+        self.assertEqual(inspect.isfunction(ms.get_an_ent), True)
+        self.assertEqual(
+            inspect.getsource(ms.get_an_ent).strip(),
+            "return lambda **kwargs: self.getEntities([ent], **kwargs)")
+        ms.get_an_ent()
+        mock_assign.assert_called_with(
+            entities=[("an_ent_key", "entities.MambuEntity", "an_ent")],
+            detailsLevel="BASIC",
+            get_entities=False,
+            debug=False)
+
+        # normal getattribute
+        self.assertEqual(ms.aField, "abc123")
+        with self.assertRaises(AttributeError):
+            ms.some_unexistent_property
+
 
 class MambuEntityTests(unittest.TestCase):
     def setUp(self):
