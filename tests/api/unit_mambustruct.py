@@ -724,6 +724,26 @@ class MambuStructTests(unittest.TestCase):
         self.assertFalse("a_vo" in ms._attrs)
         self.assertFalse("a_list_vo" in ms._attrs)
 
+    @mock.patch("MambuPy.api.mambustruct.import_module")
+    def test__extractVOs_assignEntObjs(self, mock_import):
+        from MambuPy.api import vos
+        mock_import.return_value = vos
+        vos.MambuValueObject._assignEntObjs = mock.Mock()
+
+        ms = mambustruct.MambuStruct()
+        ms._vos = [("a_vo", "MambuValueObject"),
+                   ("a_list_vo", "MambuValueObject")]
+        ms._attrs = {
+            "aField": "abc123",
+            "a_vo": {"aProp": "aVal"},
+            "a_list_vo": [{"aProp1": "aVal1"}, {"aProp2": "aVal2"}]}
+        ms._assignEntObjs = mock.Mock()
+
+        ms._extractVOs(get_entities=True)
+        vos.MambuValueObject._assignEntObjs.assert_called_with(
+            [], get_entities=True, debug=False)
+        self.assertEqual(vos.MambuValueObject._assignEntObjs.call_count, 3)
+
     def test__updateVOs(self):
         from mambupy.api.vos import MambuValueObject
 
@@ -844,6 +864,15 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.an_ent, "Treebeard")
         self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
 
+        # invalid import, assigns None to property
+        mock_import.return_value.invalid_class.get.side_effect = AttributeError("")
+        ms = mambustruct.MambuStruct()
+        ms._entities = [("an_ent_key", "invalid_class", "an_ent")]
+        ms._attrs = {
+            "an_ent_key": "abcdef12345",
+        }
+        ms._assignEntObjs()
+        self.assertEqual(ms.an_ent, None)
 
 class MambuEntityTests(unittest.TestCase):
     def setUp(self):
@@ -914,12 +943,16 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(len(ms), 4)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
         self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
+        self.assertEqual(list(ms[0]._tzattrs.keys()), ["encodedKey", "id"])
         self.assertEqual(ms[1].__class__.__name__, "child_class")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
+        self.assertEqual(list(ms[1]._tzattrs.keys()), ["encodedKey", "id"])
         self.assertEqual(ms[2].__class__.__name__, "child_class")
         self.assertEqual(ms[2]._attrs, {"encodedKey": "ghi789", "id": "54321"})
+        self.assertEqual(list(ms[2]._tzattrs.keys()), ["encodedKey", "id"])
         self.assertEqual(ms[3].__class__.__name__, "child_class")
         self.assertEqual(ms[3]._attrs, {"encodedKey": "jkl012", "id": "09876"})
+        self.assertEqual(list(ms[3]._tzattrs.keys()), ["encodedKey", "id"])
 
         mock_func.assert_called_with(
             "un_prefix",
@@ -1129,8 +1162,18 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(ms[1].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[1]._attrs, {"encodedKey": "def456", "id": "67890"})
 
-        ms = self.child_class_searchable.search(filterCriteria={"one": "two"})
+        ms = self.child_class_searchable.search(
+            filterCriteria={"one": "two"}, otherParam="random")
 
+        mock_connector.mambu_search.assert_called_with(
+            "",
+            filterCriteria={"one": "two"},
+            sortingCriteria=None,
+            offset=0,
+            limit=1000,
+            paginationDetails="OFF",
+            detailsLevel="BASIC",
+            otherParam="random")
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})

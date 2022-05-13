@@ -12,7 +12,7 @@ class MambuWritable(ABC):
     """An entity which allows basic write operations"""
 
     @abstractmethod
-    def update(self):
+    def update(self):  # pragma: no cover
         """updates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
@@ -22,16 +22,17 @@ class MambuWritable(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def create(self):
+    def create(self):  # pragma: no cover
         """creates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
         Pre-requires that CustomFields are updated previously.
         Post-requires that CustomFields are extracted again.
         """
+        raise NotImplementedError
 
     @abstractmethod
-    def patch(self, fields=None, autodetect_remove=False):
+    def patch(self, fields=None, autodetect_remove=False):  # pragma: no cover
         """patches a mambu entity
 
         Allows patching of parts of the entity up to Mambu.
@@ -59,13 +60,14 @@ class MambuWritable(ABC):
         Raises:
           `MambuPyError`: if field not in attrrs, and not in resp
         """
+        raise NotImplementedError
 
 
 class MambuAttachable(ABC):
     """An entity which can attach documents"""
 
     @abstractmethod
-    def attach_document(self, filename, title="", notes=""):
+    def attach_document(self, filename, title="", notes=""):  # pragma: no cover
         """uploads an attachment to this entity
 
         Args:
@@ -92,7 +94,7 @@ class MambuSearchable(ABC):
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
-    ):
+    ):  # pragma: no cover
         """search, several entities, filtering criteria allowed
 
         Args:

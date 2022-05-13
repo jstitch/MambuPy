@@ -461,6 +461,7 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
+        **kwargs
     ):
         """search, several entities, filtering criteria allowed
 
@@ -485,6 +486,8 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
             "paginationDetails": paginationDetails,
             "detailsLevel": detailsLevel,
         }
+        if kwargs:
+            params.update(kwargs)
 
         return cls._get_several(cls._connector.mambu_search, **params)
 

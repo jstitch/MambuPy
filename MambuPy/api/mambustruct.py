@@ -422,11 +422,13 @@ class MambuStruct(MambuMapObj):
                  MambuPyObject (obj): instantiation of the object from Mambu
             """
             try:
-                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
-            except TypeError:
-                if "detailsLevel" in kwargs:
+                try:
+                    return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+                except TypeError:
                     kwargs.pop("detailsLevel")
-                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+                    return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+            except AttributeError:
+                return
 
         if entities is None:
             entities = self._entities
