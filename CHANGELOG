@@ -141,3 +141,6 @@ Release Notes
   - Interfaces complete: writable, searchable, attachable
   - Entities complete: installment, entityCF
   - extract and update VOs
+* v1.8.13 2022-05-16
+  - BUGFIX MambuLoan setHolder() getClients if-branch was not
+    detaulting mambuclientclass to MambuPy's MambuClient

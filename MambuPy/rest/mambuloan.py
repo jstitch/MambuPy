@@ -371,8 +371,9 @@ class MambuLoan(MambuStruct):
             if getClients:
                 try:
                     self.mambuclientclass
-                except AttributeError:
-                    self.mambuclientclass = None
+                except AttributeError:  # pragma: no cover
+                    from .mambuclient import MambuClient
+                    self.mambuclientclass = MambuClient
                 requests += holder.setClients(
                     fullDetails=fullDetails,
                     mambuclientclass=self.mambuclientclass,
