@@ -308,7 +308,7 @@ class MambuEntity(MambuStruct):
 
 
 class MambuEntityWritable(MambuStruct, MambuWritable):
-    """A Mambu object with seraching capabilities."""
+    """A Mambu object with writing capabilities."""
 
     def update(self):
         """updates a mambu entity
@@ -450,7 +450,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
 
 
 class MambuEntitySearchable(MambuStruct, MambuSearchable):
-    """A Mambu object with seraching capabilities."""
+    """A Mambu object with searching capabilities."""
 
     @classmethod
     def search(

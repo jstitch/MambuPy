@@ -8,13 +8,15 @@
 from .entities import (MambuEntity, MambuEntityWritable,
                           MambuEntityAttachable,
                           MambuEntitySearchable)
+from .interfaces import MambuHolder
 
 
 class MambuGroup(
     MambuEntity,
     MambuEntityWritable,
     MambuEntityAttachable,
-    MambuEntitySearchable
+    MambuEntitySearchable,
+    MambuHolder
 ):
     """MambuGroup entity"""
 

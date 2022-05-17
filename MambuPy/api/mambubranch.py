@@ -6,9 +6,10 @@
 """
 
 from .entities import MambuEntity
+from .interfaces import MambuOwner
 
 
-class MambuBranch(MambuEntity):
+class MambuBranch(MambuEntity, MambuOwner):
     """MambuBranch entity"""
 
     _prefix = "branches"

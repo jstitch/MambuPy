@@ -111,3 +111,11 @@ class MambuSearchable(ABC):
           list of instances of an entity with data from Mambu
         """
         raise NotImplementedError
+
+
+class MambuOwner(ABC):
+    """"""
+
+
+class MambuHolder(ABC):
+    """"""

@@ -7,12 +7,14 @@
 
 from .entities import (MambuEntity, MambuEntityWritable,
                           MambuEntityAttachable, MambuPyError)
+from .interfaces import MambuOwner
 
 
 class MambuUser(
     MambuEntity,
     MambuEntityWritable,
-    MambuEntityAttachable
+    MambuEntityAttachable,
+    MambuOwner
 ):
     """MambuUser entity"""
 

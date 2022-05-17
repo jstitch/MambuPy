@@ -53,12 +53,47 @@ class MambuLoan(
         ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
         ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre"),
         ("productTypeKey", "mambuproduct.MambuProduct", "productType"),
-        ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount")]
+        ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount"),
+        ("accountHolderKey", "", "accountHolder")]
     """3-tuples of elements and Mambu Entities"""
 
     def __init__(self, **kwargs):
+        self._entities = copy.deepcopy(MambuLoan._entities)
         super().__init__(**kwargs)
         self._attachments = {}
+
+    def _assignEntObjs(
+        self,
+        entities=None,
+        detailsLevel="BASIC",
+        get_entities=False,
+        debug=False
+    ):
+        """Overwrites `MambuPy.api.mambustruct._assignEntObjs` for MambuLoan
+
+           Determines the type of account holder and instantiates accordingly
+        """
+        if entities is None:
+            entities = self._entities
+
+        try:
+            accountholder_index = entities.index(("accountHolderKey", "", "accountHolder"))
+        except ValueError:
+            accountholder_index = None
+
+        if accountholder_index is not None and self.has_key("accountHolderKey"):
+            if self.accountHolderType == "CLIENT":
+                entities[accountholder_index] = (
+                    "accountHolderKey", "mambuclient.MambuClient", "accountHolder")
+            elif self.accountHolderType == "GROUP":
+                entities[accountholder_index] = (
+                    "accountHolderKey", "mambugroup.MambuGroup", "accountHolder")
+
+        super()._assignEntObjs(
+            entities,
+            detailsLevel=detailsLevel,
+            get_entities=get_entities,
+            debug=debug)
 
     def get_schedule(self):
         """Retrieves the installments schedule."""
