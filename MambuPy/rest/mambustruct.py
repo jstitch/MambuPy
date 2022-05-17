@@ -424,7 +424,9 @@ class MambuStruct(object):
         Also, parameters to be sent to Mambu on the request, such as:
 
         * **limit** parameter (for pagination, see connect() method
-          pydoc)
+          pydoc). If 0 (default) tells connect to auto-paginate. All
+          else is used as given for manual pagination (all along with
+          the offset argument too)
         * **offset** parameter (for pagination, see connect() method
           pydoc)
         * **fullDetails**, accountState and other filtering parameters

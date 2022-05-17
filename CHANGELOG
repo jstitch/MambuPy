@@ -143,4 +143,10 @@ Release Notes
   - extract and update VOs
 * v1.8.13 2022-05-16
   - BUGFIX MambuLoan setHolder() getClients if-branch was not
-    detaulting mambuclientclass to MambuPy's MambuClient
+    defaulting mambuclientclass to MambuPy's MambuClient
+* v2.0.0a5-dev5
+  - automatic and controlled instantiation of all nested Mambu
+    Entities inside other MambuPy Entities
+  - dynamic creation of get_ methods for individual nested Mambu
+    Entities properties
+  - further documentation improvements

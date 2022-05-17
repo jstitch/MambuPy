@@ -148,6 +148,8 @@ When you wish to instantiate certain Mambu entity, you give the
 entity's Mambu ID to its constructor. If the ID exists in Mambu, the
 object will be instantiated.
 
+.. _iterable-entities:
+
 Iterable entities from Mambu
 ++++++++++++++++++++++++++++
 
@@ -171,8 +173,117 @@ resulting list in a list of single-entity classes.
 urlfuncs
 ++++++++
 
+MambuPy uses certain functions to build the URL to contact and request
+Mambu's REST API.
+
+:py:mod:`MambuPy.mambuutil` holds a lot of functions that in
+themselves call :py:func:`MambuPy.mambuutil.getmambuurl`. The purpose
+of this function is to build a :py:obj:`str` with the URL to access
+some Mambu's API endpoint.
+
+Each urlfunc function is named ``getSOMETHINGurl``. Its signature is usually:
+
+.. code-block:: python
+
+  def getSOMETHINGurl(idSOMETHING, *args, **kwargs)
+
+``idSOMETHING`` refers to the ID of the ``SOMETHING`` entity at Mambu
+(there are some exceptions to this rule).
+
+``idSOMETHING`` is generally (but not always) optional. When you do
+not supply an entity's id to certain Mambu's REST API endpoint results
+in a request whose response is a list (which as you may recall are
+converted into the :ref:`iterable-entities`)
+
+``kwargs`` usually has the query parameters for the URL. This
+parameters implement functionality as generic as offsets and limits
+for certain endpoint, but also filters that the endpoint gives to
+filter out entities from Mambu using the request URL.
+
+The real trick with urlfuncs is that, every MambuPy's REST class uses
+one as default. For instance,
+:py:class:`MambuPy.rest.mambuclient.MambuClient` uses
+:py:func:`MambuPy.mambuutil.getclienturl`, so you don't usually
+have to worry about them.
+
+HOWEVER, power users of MambuPy's REST module can tweak their default
+use to take advantage of certain endpoints. Let's talk it through an
+example:
+
+:py:class:`MambuPy.rest.mambuloan.MambuLoan` uses
+:py:func:`MambuPy.mambuutil.getloansurl` as default. This default
+behaviour builds the following URL to request certain loan account
+at Mambu::
+
+  GET /loans/LOAN_ID
+
+However, you can change the default urlfunc that :py:class:`MambuLoan`
+accepts, changing it for example with
+:py:func:`MambuPy.mambuutil.getgrouploansurl`, building the following
+URL::
+
+  GET /groups/GROUP_ID/loans
+
+which will respond with the list of loan accounts belonging to a
+certain group.
+
+So, using the same class, :py:class:`MambuLoan`, you get for free two
+different endpoints, ``/loans/LOAN_ID`` and
+``/groups/GROUP_ID/loans``, depending only on the urlfunc you pass to
+``MambuLoan's`` constructor. Remember that not providing any urlfunc
+will use ``getloansurl`` as default.
+
 The connect() method
 ++++++++++++++++++++
+
+Now that we know what we need: a dictionary-like object with
+properties acquired from the response in JSON from Mambu, request done
+using certain urlfunc,
+:py:meth:`MambuPy.rest.mambustruct.MambuStruct.connect` glues all this
+together following this recipe:
+
+  1. determine the type of request to do (basically the HTTP verb, which
+     depends on certain data present on the object)
+  2. using the given urlfunc (which may be the default one for the
+     object), make the corresponding request to Mambu
+  3. the resulting JSON is then preprocessed: if Mambu gave an error
+     (say for an invalid Mambu ID), a
+     :py:exc:`MambuPy.mambuutil.MambuError` is thrown
+  4. if no error was thrown by Mambu,
+     :py:meth:`MambuPy.rest.mambustruct.MambuStruct.init` is called,
+     which basically executes some custom preprocessing, converts the
+     JSON to a :py:obj:`dict` and them some custom postprocessing may be
+     executed
+
+The :py:meth:`MambuPy.rest.mambustruct.MambuStruct.connect` also
+catches comm errors. If for some reason Mambu is down,
+:py:exc:`MambuPy.mambuutil.MambuCommError` is thrown.
+
+Pagination
+~~~~~~~~~~
+
+Also, when retrieving several objects (when the JSON response is a
+:py:obj:`list`), Mambu has some restrictions on how many objects will
+be retrieved
+(:py:const:`MambuPy.mambuutil.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE`),
+which basically means pagination must be used. Well, if you like it
+that way, you can paginate it yourself.
+
+We thinked it in another manner. We believe this details should be (at
+least optionally) omitted. So,
+:py:meth:`MambuPy.rest.mambustruct.MambuStruct.connect` also has
+default logic to make the pagination for you, and join every single
+item you requested in a resulting big list with all the info you
+need.
+
+The pro: forget about managing pagination logic by yourself. The con:
+you may end up with some really BIG structures, and the number of the
+requests made to Mambu may be of a considerable size too. See the
+documentation for the **limit** argument on
+:py:meth:`MambuPy.rest.mambustruct.MambuStruct.__init__`
+
+Configuration
++++++++++++++
 
 Examples
 --------

@@ -15,7 +15,9 @@ wherever you say it is.
 You may edit the default_configs dictionary to have some defaults defined
 even if no RC file is found (NOT RECOMMENDED)
 
-RC files must have the following format::
+RC files must have the following format:
+
+.. code-block:: ini
 
     [API]
     apiurl=url_to_mambu_domain

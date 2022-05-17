@@ -6,6 +6,7 @@ Objects using `Mambu REST API <https://api.mambu.com/?python>`_
    :toctree: _autosummary
 
     MambuPy.api.classes
+    MambuPy.api.entities
     MambuPy.api.interfaces
     MambuPy.api.vos
     MambuPy.api.mambuconnector

@@ -29,10 +29,9 @@ Currently, there are two different ways to access Mambu objects:
 TODOS
 =====
 
-.. todo:: Unit testing is currently very basic. The purpose is to achive TDD
-          when implementing features or correcting bugs.
-.. todo:: Please also read the :any:`TODO` file for more suggestions
+.. todo:: Unit testing of some modules is currently very basic. The purpose is
+          to achive TDD when implementing features or correcting bugs.
 """
 
-__version__ = "1.8.13"
+__version__ = "2.0.0a5.dev5"
 """The version of this module."""

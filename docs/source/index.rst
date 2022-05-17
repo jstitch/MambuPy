@@ -36,7 +36,7 @@ MambuPy.
 
 Also, for more information, look at the MambuStruct class and all the
 classes inheriting from it. MambuPy implements this at the
-:ref:`MambuPy.rest` module.
+:py:mod:`MambuPy.rest` module.
 
 MambuPy for Database Backup
 ---------------------------
@@ -56,7 +56,7 @@ Look at :doc:`mambu_orm` for the documentation of this way of using
 MambuPy.
 
 Also, for more information, look at the scripts in the
-:ref:`MambuPy.orm` module.
+:py:mod:`MambuPy.orm` module.
 
 Installation
 ------------
@@ -75,7 +75,7 @@ Configuration
 You must configure your local MambuPy environment first so you can
 correctly use this module.
 
-Look at :ref:`MambuPy.mambuconfig` for more information.
+Look at :py:mod:`MambuPy.mambuconfig` for more information.
 
 Work in progress
 ----------------
@@ -113,6 +113,9 @@ Author
 JNC
 jstitch@gmail.com
 
+
+Table of Contents
+-----------------
 
 .. toctree::
    :maxdepth: 3
