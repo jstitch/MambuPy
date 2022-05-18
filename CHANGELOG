@@ -150,3 +150,7 @@ Release Notes
   - dynamic creation of get_ methods for individual nested Mambu
     Entities properties
   - further documentation improvements
+* v2.0.0b1
+  - MambuTasks and MambuLoans have special entities instantiation
+    methods for taskLink and accountHolder properties.
+  - First beta of MambuPyv2 release

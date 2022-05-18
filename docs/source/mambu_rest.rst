@@ -6,14 +6,14 @@ MambuPy for REST
 REST module of MambuPy implements communication with Mambu using
 Mambu's REST API.
 
-V1 of MambuPy implements v1 of `Mambu's API REST
+V1 of MambuPy implements v1 of `Mambu's REST API
 <https://api.mambu.com/v1>`_. There's work in progress to implement v2
-of MambuPy, which will use `Mambu's API REST v2
+of MambuPy, which will use `Mambu's REST API v2
 <https://api.mambu.com/>`_.
 
 Basically, MambuPy REST is a set of classes in Python that uses
 `requests <https://docs.python-requests.org>`_ module to communicate
-with Mambu's API REST.
+with Mambu's REST API.
 
 As all modules in MambuPy, REST module must be configured with a user
 with correct permissions with API access rights.
@@ -26,6 +26,8 @@ How MambuPy REST module works
 
 Every MambuPy REST object inherits from a common class,
 :py:class:`MambuPy.rest.mambustruct.MambuStruct`.
+
+.. image:: /_static/mambupyv1_classdiagram.png
 
 Also, there are two types of MambuPy REST objects: single entities,
 and iterable entities.
@@ -41,6 +43,8 @@ Since everything is related to Mambu's REST API, it all boils down to
 JSON objects. If translated to python, JSON objects are either:
 dictionaries or lists (either of which may recursively include more
 dictionaries, lists, and of course plain data)
+
+.. image:: /_static/mambupyv1_single_and_iterable_entities.png
 
 Single entities from Mambu
 ++++++++++++++++++++++++++
@@ -109,7 +113,8 @@ translated as python's native types:
 * :py:obj:`datetime.datetime`, it's not a native type, but we consider
   it to be of really high value to convert it. There are some gotchas
   to consider when using datetime objects, as any developer using
-  datetimes may know. Please refer to the corresponding section below.
+  datetimes may know. Please refer to the corresponding :ref:`section
+  below <datetime-object-gotchas>`.
 * :py:obj:`str` are the default case, every other case not being able
   to be converted to some of the previous types is left as is.
 
@@ -134,9 +139,10 @@ following dictionary:
             "another": "TESTING2"}]}
 
 In essence, that would be the way MambuPy objects work, they store
-this dictionary inside itselves. In fact, every MambuPy object has
-dictionary-like behaviour, since this data is what in essence conforms
-the entity in Mambu.
+this dictionary inside itselves (in a property named
+:py:obj:`MambuPy.rest.mambustruct.MambuStruct.attrs`). In fact, every
+MambuPy object has dictionary-like behaviour, since this data is what
+in essence conforms the entity in Mambu.
 
 Several other methods, besides the dictionary-like ones, support this
 objects.
@@ -147,6 +153,8 @@ to instantiate single entities from Mambu.
 When you wish to instantiate certain Mambu entity, you give the
 entity's Mambu ID to its constructor. If the ID exists in Mambu, the
 object will be instantiated.
+
+.. image:: /_static/mambupyv1_mambustruct_attrs.png
 
 .. _iterable-entities:
 
@@ -170,6 +178,8 @@ When you wish to instantiate several Mambu entities, you give several
 filters to its constructor. When requested, MambuPy converts the
 resulting list in a list of single-entity classes.
 
+.. image:: /_static/mambupyv1_iterables.png
+
 urlfuncs
 ++++++++
 
@@ -192,7 +202,7 @@ Each urlfunc function is named ``getSOMETHINGurl``. Its signature is usually:
 
 ``idSOMETHING`` is generally (but not always) optional. When you do
 not supply an entity's id to certain Mambu's REST API endpoint results
-in a request whose response is a list (which as you may recall are
+in a request whose response is a list (which as you may recall is
 converted into the :ref:`iterable-entities`)
 
 ``kwargs`` usually has the query parameters for the URL. This
@@ -217,6 +227,12 @@ at Mambu::
 
   GET /loans/LOAN_ID
 
+Which will result in a single or iterable
+:py:class:`MambuPy.rest.mambuloan.MambuLoan`. If you don't provide a
+specific ``LOAN_ID``, you will get several
+:py:class:`MambuPy.rest.mambuloan.MambuLoans`, depending on the
+additional filters you give to the ``kwargs`` parameter.
+
 However, you can change the default urlfunc that :py:class:`MambuLoan`
 accepts, changing it for example with
 :py:func:`MambuPy.mambuutil.getgrouploansurl`, building the following
@@ -224,14 +240,17 @@ URL::
 
   GET /groups/GROUP_ID/loans
 
-which will respond with the list of loan accounts belonging to a
-certain group.
+which will respond with the list of loan accounts
+(:py:class:`MambuPy.rest.mambuloan.MambuLoans`) belonging to a certain
+group.
 
 So, using the same class, :py:class:`MambuLoan`, you get for free two
 different endpoints, ``/loans/LOAN_ID`` and
 ``/groups/GROUP_ID/loans``, depending only on the urlfunc you pass to
 ``MambuLoan's`` constructor. Remember that not providing any urlfunc
 will use ``getloansurl`` as default.
+
+.. image:: /_static/mambupyv1_mambustruct_attrs.png
 
 The connect() method
 ++++++++++++++++++++
@@ -259,6 +278,13 @@ The :py:meth:`MambuPy.rest.mambustruct.MambuStruct.connect` also
 catches comm errors. If for some reason Mambu is down,
 :py:exc:`MambuPy.mambuutil.MambuCommError` is thrown.
 
+The following are the methods involved in step 4:
+  - :py:meth:`MambuPy.rest.mambustruct.MambuStruct.preprocess`
+  - :py:meth:`MambuPy.rest.mambustruct.MambuStruct.postprocess`
+  - :py:meth:`MambuPy.rest.mambustruct.MambuStruct.convertDict2Attrs`
+
+.. image:: /_static/mambupyv1_mambustruct_methods.png
+
 Pagination
 ~~~~~~~~~~
 
@@ -276,14 +302,21 @@ default logic to make the pagination for you, and join every single
 item you requested in a resulting big list with all the info you
 need.
 
-The pro: forget about managing pagination logic by yourself. The con:
+The pro: forget about managing pagination logic by yourself. The cons:
 you may end up with some really BIG structures, and the number of the
 requests made to Mambu may be of a considerable size too. See the
 documentation for the **limit** argument on
 :py:meth:`MambuPy.rest.mambustruct.MambuStruct.__init__`
 
+.. image:: /_static/mambupyv1_mambustruct_attrs.png
+
 Configuration
 +++++++++++++
+
+.. _datetime-object-gotchas:
+
+datetime objects gotchas
+++++++++++++++++++++++++
 
 Examples
 --------
