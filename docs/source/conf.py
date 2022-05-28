@@ -186,7 +186,8 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.8", None),
-    "sqlalchemy": ("https://sqlalchemy.org/docs/latest", None),
+    "sqlalchemy": ("https://sqlalchemy.org/en/14/orm/mapping_api", None),
+    "requests": ("https://docs.python-requests.org", None),
 }
 
 # -- Options for todo extension ----------------------------------------------

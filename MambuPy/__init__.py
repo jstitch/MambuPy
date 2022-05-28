@@ -17,7 +17,7 @@ Currently, there are two different ways to access Mambu objects:
    , they live at the :any:`MambuPy.rest` package
 
 2) An ORM using a `DB backup retrieved from Mambu
-   <https://developer.mambu.com/customer/en/portal/articles/1162274-data-dictionary-and-api-standards>`_
+   <https://support.mambu.com/docs/mambu-data-dictionary>`_
    , they live at the :any:`MambuPy.orm` package
 
 .. note::

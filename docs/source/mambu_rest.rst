@@ -313,15 +313,45 @@ documentation for the **limit** argument on
 Configuration
 +++++++++++++
 
+As you may read at :py:mod:`MambuPy.mambuconfig`, REST configuration
+consists of the following options:
+
+* :py:obj:`MambuPy.mambuconfig.apiurl` - the URL of the Mambu tenant you use.
+* :py:obj:`MambuPy.mambuconfig.apiuser` - a Mambu user with API permissions
+* :py:obj:`MambuPy.mambuconfig.apipwd` - the password of the user
+
+As :py:mod:`MambuPy.mambuconfig` documentation tells, you can set
+these on ``/etc/mambupyrc``, ``$HOME/.mambupy.rc``, on an `ini-format
+<https://en.wikipedia.org/wiki/INI_file>`_ style. Home directory RC
+file overrides what ``/etc`` file says.
+
+You can also set the environment variables: ``MAMBUPY_APIRUL``,
+``MAMBUPY_APIUSER`` and ``MAMBUPY_APIPWD``, which override what RC
+files say.
+
 .. _datetime-object-gotchas:
 
 datetime objects gotchas
 ++++++++++++++++++++++++
 
-Examples
---------
+As you may read at
+`<https://docs.python.org/3/library/datetime.html#aware-and-naive-objects>`_,
+datetime objects may be aware or naive.
 
-API Docs
+Aware datetime objects know about timezones and daylight saving time
+information. Naive objecst on the other hand do not.
+
+The most simple use of datetime objects is when you use them as
+naive. Using the aware feature complicates things a little. On the
+flip side being able to differentiate time zones on datetime objects
+gives you the ability to make date and time equivalencies, specially
+when treating with dates and times across the world.
+
+Mambu gives timezone information insied every datetime field it
+uses. MambuPy v1's REST module on the other hand uses naive mode. v2
+for MambuPy supports aware mode too.
+
+Examples
 --------
 
 Steps to instantiate a certain MambuEntity (a
@@ -343,3 +373,9 @@ Steps to instantiate a certain MambuEntity (a
   client = mambuclient.MambuClient(entid="MY_CLIENT_ID")
 
 Go to :py:obj:`MambuPy.rest` for the complete API reference.
+
+API Docs
+--------
+
+The API documentation is hold at the docstrings of every file at the
+:py:mod:`MambuPy.rest` module.

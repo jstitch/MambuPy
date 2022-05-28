@@ -1,6 +1,7 @@
 """ MambuPy's REST package.
 
-Objects using `Mambu REST API <https://developer.mambu.com/customer/en/portal/articles/1162276-rest-apis-overview/>`_
+Objects using `Mambu REST API
+<https://developer.mambu.com/customer/en/portal/articles/1162276-rest-apis-overview/>`_
 
 .. autosummary::
    :toctree: _autosummary
