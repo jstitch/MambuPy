@@ -523,9 +523,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
           entid (str): the id or encoded key of the entity
           prefix (str): entity's URL prefix
           fields_ops (list of tuples): each tuple has:
-          OP (str): operation ("ADD", "REPLACE", "REMOVE")
-          PATH (str): json pointer referencing the location in the target entity
-          VALUE (obj, opc): the value of the field (not for REMOVE op)
+            OP (str): operation ("ADD", "REPLACE", "REMOVE")
+            PATH (str): json pointer referencing the location in the target entity
+            VALUE (obj, opc): the value of the field (not for REMOVE op)
         """
         if not fields_ops:
             fields_ops = []

@@ -55,7 +55,7 @@ install_requires=[
     "future",
     "requests==2.26.0",
     "requests_toolbelt==0.9.1",
-    "SQLAlchemy==1.3.6",
+    "SQLAlchemy>=1.3.6",
     ]
 if int(__version__[0]) <= 3:
     install_requires.extend(
