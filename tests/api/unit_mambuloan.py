@@ -190,6 +190,34 @@ class MambuLoan(unittest.TestCase):
             detailsLevel="BASIC",
             get_entities=False, debug=False)
 
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_set_state(self, mock_connector):
+        mock_connector.mambu_change_state.return_value = '{"accountState": "APPROVED"}'
+        ml = mambuloan.MambuLoan(id=1)
+
+        ml.set_state(
+            action="APPROVE",
+            notes="PRUEBA 66"
+        )
+
+        mock_connector.mambu_change_state.assert_called_with(
+            action="APPROVE",
+            entid=1,
+            notes="PRUEBA 66",
+            prefix="loans"
+        )
+        self.assertEqual(ml.accountState, "APPROVED")
+
+        mock_connector.mambu_change_state.reset_mock()
+        with self.assertRaisesRegex(
+            MambuPyError, r"^field CANCELADO not in allowed _accepted_actions"
+        ):
+            ml.set_state(
+                action="CANCELADO",
+                notes="PRUEBA 66"
+            )
+            mock_connector.mambu_change_state.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -190,6 +190,18 @@ class MambuConnectorWriter(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def mambu_change_state(self, entid, prefix, action, notes):
+        """change state of mambu entity
+
+        Args:
+          entid (str): the id or encoded key of the entity owning the document
+          prefix (str): entity's URL prefix
+          action (str): specify the action state
+          notes (str): notes to associate to the change of status
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
     """A connector for Mambu REST API"""
@@ -623,3 +635,20 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             self._tenant, "loans", loanid)
 
         return self.__request("GET", url)
+
+
+    def mambu_change_state(self, entid, prefix, action, notes):
+        """change state of mambu entity
+
+        Args:
+          entid (str): the id or encoded key of the entity owning the document
+          prefix (str): entity's URL prefix
+          action (str): specify the action state
+          notes (str): notes to associate to the change of status
+        """
+        url = "https://{}/api/{}/{}:changeState".format(self._tenant, prefix, entid)
+        data = {
+            "action": action,
+            "notes": notes
+        }
+        return self.__request("POST", url, data=data)

@@ -12,6 +12,7 @@ from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityAttachable,
                        MambuEntitySearchable,
                        MambuInstallment)
+from MambuPy.mambuutil import MambuPyError
 
 
 class MambuLoan(
@@ -56,6 +57,20 @@ class MambuLoan(
         ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount"),
         ("accountHolderKey", "", "accountHolder")]
     """3-tuples of elements and Mambu Entities"""
+
+    _accepted_actions = [
+        "REQUEST_APPROVAL",
+        "SET_INCOMPLETE",
+        "APPROVE",
+        "UNDO_APPROVE",
+        "REJECT",
+        "WITHDRAW",
+        "CLOSE",
+        "UNDO_REJECT",
+        "UNDO_WITHDRAW",
+        "UNDO_CLOSE",
+    ]
+    """accepted actions to change"""
 
     def __init__(self, **kwargs):
         self._entities = copy.deepcopy(MambuLoan._entities)
@@ -107,3 +122,26 @@ class MambuLoan(
             installment_entity._tzattrs = copy.deepcopy(installment)
             installment_entity._convertDict2Attrs()
             self.schedule.append(installment_entity)
+
+    def set_state(self, action, notes):
+        """Change status of mambu loan
+
+        Args:
+            action (str): specify the action state
+            notes (str): notes to associate to the change of status
+
+        Raises:
+          `MambuPyError`: if action not in _accepted_actions
+        """
+        if action in self._accepted_actions:
+            resp = self._connector.mambu_change_state(
+                entid=self.id, prefix=self._prefix, action=action, notes=notes
+            )
+            resp = json.loads(resp)
+            self.accountState = resp["accountState"]
+        else:
+            raise MambuPyError(
+                "field {} not in allowed _accepted_actions: {}".format(
+                    action, self._accepted_actions
+                )
+            )

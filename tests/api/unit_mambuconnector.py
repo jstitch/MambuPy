@@ -103,6 +103,13 @@ class MambuConnectorWriter(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorWriter.mambu_delete_document(None, "")
 
+    def test_mambu_change_state(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_change_state"), True
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_change_state(None, "", "", "" , "")
+
 
 class MambuConnectorREST(unittest.TestCase):
     def test_properties(self):
@@ -685,6 +692,31 @@ class MambuConnectorREST(unittest.TestCase):
             params={},
             data=None,
             headers=mcrest._headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    def test_mambu_change_state(self, mock_uuid, mock_requests):
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+        mcrest._headers["Content-Type"] = "application/json"
+        mcrest._headers["Idempotency-Key"] = "r2d2-n-c3pO-BB8"
+
+        mcrest.mambu_change_state(
+            entid="12345",
+            prefix="loans",
+            action="APPROVE",
+            notes="Prueba"
+        )
+
+        mock_requests.request.assert_called_with(
+            "POST",
+            "https://{}/api/loans/12345:changeState".format(apiurl),
+            params={},
+            data='{"action": "APPROVE", "notes": "Prueba"}',
+            headers=mcrest._headers
+        )
 
 
 if __name__ == "__main__":
