@@ -154,3 +154,5 @@ Release Notes
   - MambuTasks and MambuLoans have special entities instantiation
     methods for taskLink and accountHolder properties.
   - First beta of MambuPyv2 release
+* v2.0.0b4
+  - changeState endpoint added for Mambu Loans
