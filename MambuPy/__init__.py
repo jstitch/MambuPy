@@ -8,6 +8,7 @@
     MambuPy.rest
     MambuPy.orm
     MambuPy.api
+    MambuPy.rest1to2
 
 
 Currently, there are two different ways to access Mambu objects:

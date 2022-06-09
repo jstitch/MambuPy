@@ -49,6 +49,8 @@ if int(__version__[0]) >= 2:
     packages.extend(
         ["MambuPy/api",
          "mambupy/api",
+         "MambuPy/rest1to2",
+         "mambupy/rest1to2",
          ])
 
 install_requires=[
