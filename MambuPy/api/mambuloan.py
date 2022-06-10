@@ -32,6 +32,7 @@ class MambuLoan(
         "accountState",
         "accountHolderType",
         "accountHolderId",
+        "creditOfficerUsername",
     ]
     """allowed filters for get_all filtering"""
 

@@ -467,9 +467,9 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
 
         Args:
           filterCriteria (list of dicts): fields according to
-                              LoanAccountFilterCriteria schema
+                              each entity FilterCriteria schema
           sortingCriteria (dict): fields according to
-                            LoanAccountSortingCriteria
+                            each entity SortingCriteria
           offset (int): pagination, index to start searching
           limit (int): pagination, number of elements to retrieve
           paginationDetails (str ON/OFF): ask for details on pagination

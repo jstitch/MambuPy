@@ -31,6 +31,7 @@ class MambuLoan(unittest.TestCase):
                 "accountState",
                 "accountHolderType",
                 "accountHolderId",
+                "creditOfficerUsername",
             ],
         )
         self.assertEqual(
