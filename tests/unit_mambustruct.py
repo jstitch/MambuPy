@@ -1375,7 +1375,7 @@ class MambuStructConnectTests(unittest.TestCase):
 from MambuPy.rest import mambuclient, mambuuser
 
 
-class mambustructFunctionTests(unittest.TestCase):
+class MambuStructFunctionTests(unittest.TestCase):
     """mambustruct module Functions Tests"""
 
     def setUp(self):
