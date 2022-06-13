@@ -232,7 +232,8 @@ class LoanTransaction(Base):
     transactionDetails = relationship("TransactionDetails")
 
     def __repr__(self):
-        return "<LoanTransaction(transactionId=%s, amount=%s, creationDate=%s, entryDate=%s, type=%s, comment='%s', reversed=%s\naccount=%s)>" % (
+        return "<LoanTransaction(transactionId=%s, amount=%s, creationDate=%s, entryDate=%s, type=%s, comment='%s',\
+ reversed=%s\naccount=%s)>" % (
             self.transactionId,
             self.amount,
             self.creationDate.strftime("%Y%m%d"),
