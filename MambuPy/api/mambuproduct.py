@@ -51,6 +51,8 @@ class MambuProduct(
         Returns:
           instance of an entity with data from Mambu
         """
+        if "detailsLevel" in kwargs:
+            kwargs.pop("detailsLevel")
         return super().get(
             entid, detailsLevel="FULL", get_entities=get_entities, **kwargs)
 

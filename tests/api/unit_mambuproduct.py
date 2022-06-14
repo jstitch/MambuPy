@@ -46,8 +46,10 @@ class MambuProduct(unittest.TestCase):
         mock_get.assert_called_once_with(
             "MY PRODUCT", detailsLevel="FULL", get_entities=False)
 
-        with self.assertRaises(TypeError):
-            mambuproduct.MambuProduct.get(detailsLevel="BASIC")
+        mock_get.reset_mock()
+        mambuproduct.MambuProduct.get(entid="MY PRODUCT", detailsLevel="BASIC")
+        mock_get.assert_called_once_with(
+            "MY PRODUCT", detailsLevel="FULL", get_entities=False)
 
     @mock.patch("MambuPy.api.entities.MambuEntity.refresh")
     def test_refresh(self, mock_refresh):
