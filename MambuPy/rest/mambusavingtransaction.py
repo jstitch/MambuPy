@@ -29,13 +29,24 @@ class MambuSavingTransaction(MambuStruct):
     transaction channel you wish to retrieve.
     """
 
-    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
+    def __init__(
+        self,
+        urlfunc_saving=mod_urlfunc,
+        entid="",
+        *args,
+        **kwargs
+        ):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+            self,
+            urlfunc_saving,
+            entid,
+            customFieldName="customInformation",
+            *args,
+            **kwargs
         )
 
     def preprocess(self):
@@ -58,17 +69,17 @@ class MambuSavingTransactions(MambuStruct):
 
     def __init__(
         self,
-        urlfunc=mod_urlfunc,
+        urlfunc_saving=mod_urlfunc,
         entid="",
-        itemclass=MambuSavingTransaction,
+        itemclass_saving=MambuSavingTransaction,
         *args,
         **kwargs
     ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
-        self.itemclass = itemclass
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.itemclass = itemclass_saving
+        MambuStruct.__init__(self, urlfunc_saving, entid, *args, **kwargs)
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
@@ -87,18 +98,18 @@ class MambuSavingTransactions(MambuStruct):
           not to connect() by default. It's desirable to connect at any
           other further moment to refresh some element in the list.
         """
-        for n, l in enumerate(self.attrs):
+        for n_saving, l_saving in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
-                params = self.params
+                params_saving = self.params_saving
             except AttributeError:
-                params = {}
-            kwargs.update(params)
-            transaction_channel = self.itemclass(
+                params_saving = {}
+            kwargs.update(params_saving)
+            transaction_channel_saving = self.itemclass_saving(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel.init(l, *args, **kwargs)
-            self.attrs[n] = transaction_channel
+            transaction_channel_saving.init(l_saving, *args, **kwargs)
+            self.attrs[n_saving] = transaction_channel_saving
 
 
 class MambuSavingsTransactionSearch(MambuStruct):
@@ -106,17 +117,17 @@ class MambuSavingsTransactionSearch(MambuStruct):
 
     def __init__(
         self,
-        urlfunc=mod_urlfunc_search,
+        urlfunc_search=mod_urlfunc_search,
         entid="",
-        itemclass=MambuSavingTransaction,
+        itemclass_search=MambuSavingTransaction,
         *args,
         **kwargs
     ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
-        self.itemclass = itemclass
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.itemclass_search = itemclass_search
+        MambuStruct.__init__(self, urlfunc_search, entid, *args, **kwargs)
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
@@ -135,16 +146,16 @@ class MambuSavingsTransactionSearch(MambuStruct):
           not to connect() by default. It's desirable to connect at any
           other further moment to refresh some element in the list.
         """
-        for n, l in enumerate(self.attrs):
+        for n_search, l_search in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
-                params = self.params
+                params_search = self.params_search
             except AttributeError:
-                params = {}
-            kwargs.update(params)
-            transaction_channel = self.itemclass(
+                params_search = {}
+            kwargs.update(params_search)
+            transaction_channel_search = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel.init(l, *args, **kwargs)
-            transaction_channel._MambuStruct__urlfunc = getsavingstransactionsurl
-            self.attrs[n] = transaction_channel
+            transaction_channel_search.init(l_search, *args, **kwargs)
+            transaction_channel_search._MambuStruct__urlfunc = getsavingstransactionsurl
+            self.attrs[n_search] = transaction_channel_search
