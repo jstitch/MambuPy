@@ -18,7 +18,7 @@ from ..mambuutil import (getsavingstransactionssearchurl,
                          getsavingstransactionsurl)
 from .mambustruct import MambuStruct, MambuStructIterator
 
-mod_urlfunc = getsavingstransactionsurl
+mod_urlfunc_saving = getsavingstransactionsurl
 mod_urlfunc_search = getsavingstransactionssearchurl
 
 # Objeto con una Cuenta desde Mambu
@@ -31,7 +31,7 @@ class MambuSavingTransaction(MambuStruct):
 
     def __init__(
         self,
-        urlfunc_saving=mod_urlfunc,
+        urlfunc_saving=mod_urlfunc_saving,
         entid="",
         *args,
         **kwargs
@@ -69,7 +69,7 @@ class MambuSavingTransactions(MambuStruct):
 
     def __init__(
         self,
-        urlfunc_saving=mod_urlfunc,
+        urlfunc=mod_urlfunc_saving,
         entid="",
         itemclass_saving=MambuSavingTransaction,
         *args,
@@ -108,8 +108,8 @@ class MambuSavingTransactions(MambuStruct):
             transaction_channel_saving = self.itemclass_saving(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel_saving.init(l_saving, *args, **kwargs)
-            self.attrs[n_saving] = transaction_channel_saving
+            transaction_channel.init(l_saving, *args, **kwargs)
+            self.attrs[n_saving] = transaction_channel
 
 
 class MambuSavingsTransactionSearch(MambuStruct):
@@ -156,6 +156,6 @@ class MambuSavingsTransactionSearch(MambuStruct):
             transaction_channel_search = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel_search.init(l_search, *args, **kwargs)
-            transaction_channel_search._MambuStruct__urlfunc = getsavingstransactionsurl
-            self.attrs[n_search] = transaction_channel_search
+            transaction_channel.init(l_search, *args, **kwargs)
+            transaction_channel._MambuStruct__urlfunc = getsavingstransactionsurl
+            self.attrs[n_search] = transaction_channel
