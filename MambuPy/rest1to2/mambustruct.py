@@ -66,15 +66,11 @@ class MambuStruct(MambuStruct1):
             self.wrapped2 = []
             _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
             for entity in entities:
-                obj = _class2(urlfunc=None)
+                obj = _class2(urlfunc=None, fullDetails=self.fullDetails)
                 obj._entid = entity.id
                 obj.wrapped2 = entity
                 obj.mambuclassname = self.mambuclassname
                 obj.mambuclass1 = self.mambuclass1
-                obj.wrapped1 = obj.mambuclass1(
-                    entid=obj._entid,
-                    fullDetails=self.fullDetails,
-                    *args, **kwargs)
                 self.wrapped2.append(obj)
 
     def __getitem__(self, key):
@@ -87,11 +83,12 @@ class MambuStruct(MambuStruct1):
                 return item
             except (KeyError, TypeError):
                 if not self.wrapped1 and self._entid != "":
-                    _class = import_class("MambuPy.rest", self.mambuclassname)
+                    _class_base = import_class("MambuPy.rest", self.mambuclassname)
+                    _class = self.mambuclass1
                     self.wrapped1 = _class(
                         fullDetails=self.fullDetails, entid=self._entid,
                         mambuclassname=self.mambuclassname,
-                        mambuclass1=super().__class__)
+                        mambuclass1=_class_base)
                     self.wrapped1.preprocess()
                     self.wrapped1.postprocess()
                 item = self.wrapped1[key]
@@ -113,11 +110,12 @@ class MambuStruct(MambuStruct1):
                 return attribute
             except AttributeError:
                 if not self.wrapped1 and self._entid != "":
-                    _class = import_class("MambuPy.rest", self.mambuclassname)
+                    _class_base = import_class("MambuPy.rest", self.mambuclassname)
+                    _class = self.mambuclass1
                     self.wrapped1 = _class(
                         fullDetails=self.fullDetails, entid=self._entid,
                         mambuclassname=self.mambuclassname,
-                        mambuclass1=super().__class__)
+                        mambuclass1=_class_base)
                     self.wrapped1.preprocess()
                     self.wrapped1.postprocess()
                 attribute = getattr(self.wrapped1, name)
@@ -127,7 +125,8 @@ class MambuStruct(MambuStruct1):
         if name not in [
                 "_class", "_entid",
                 "wrapped1", "wrapped2",
-                "mambuclassname", "mambuclass1"]:
+                "mambuclassname", "mambuclass1",
+                "fullDetails", "detailsLevel"]:
             try:
                 self.wrapped2.__setattr__(name, value)
             except AttributeError:
@@ -146,13 +145,25 @@ class MambuStruct(MambuStruct1):
 
     def __repr__(self):
         try:
-            return self.wrapped1.__class__.__name__ + " - id: %s" % self.id
+            if self.wrapped1:
+                _class = self.wrapped1
+            else:
+                _class = self
+            return _class.__class__.__name__ + " - id: %s" % self.id
         except KeyError:
-            return self.wrapped1.__class__.__name__ + " - " + str(self.attrs)
+            if self.wrapped1:
+                _class = self.wrapped1
+            else:
+                _class = self
+            return _class.__class__.__name__ + " - " + str(self.attrs)
         except AttributeError:
-            return self.__class__.__name__ + " - len: %s" % len(self.wrapped2)
+            if self.wrapped1:
+                _class = self.wrapped1
+            else:
+                _class = self
+            return _class.__class__.__name__ + " - len: %s" % len(self.wrapped2)
         except TypeError:
-            return self.mambuclass1.__class__.__name__ + " - len: %s" % len(self.wrapped2)
+            return self.mambuclass1.__name__ + " - len: %s" % len(self.wrapped2)
 
     def __len__(self):
         return self.wrapped2.__len__()
