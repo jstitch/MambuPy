@@ -122,7 +122,7 @@ class MambuStruct(object):
     """
 
     @staticmethod
-    def serializeFields(data):
+    def serialize_fields(data):
         """Turns every attribute of the Mambu object in to a string representation.
 
         If the object is an iterable one, it goes down to each of its
@@ -143,12 +143,12 @@ class MambuStruct(object):
         if type(it) == type(iter([])):
             l = []
             for e in it:
-                l.append(MambuStruct.serializeFields(e))
+                l.append(MambuStruct.serialize_fields(e))
             return l
         elif type(it) == type(iter({})):
             d = {}
             for k in it:
-                d[k] = MambuStruct.serializeFields(data[k])
+                d[k] = MambuStruct.serialize_fields(data[k])
             return d
         # elif ... tuples? sets?
         return unicode(data)
@@ -371,7 +371,7 @@ class MambuStruct(object):
     def serializeStruct(self):
         """Makes a string from each element on the attrs attribute.
 
-                Read the class attribute MambuStruct.serializeFields pydoc for
+                Read the class attribute MambuStruct.serialize_fields pydoc for
                 more info.
 
                 It DOES NOT serializes the class, for persistence or network
@@ -385,7 +385,7 @@ class MambuStruct(object):
 
         .. todo:: check recursion levels.
         """
-        serial = MambuStruct.serializeFields(self.attrs)
+        serial = MambuStruct.serialize_fields(self.attrs)
         return serial
 
     def __init__(self, urlfunc, entid="", *args, **kwargs):
