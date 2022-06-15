@@ -837,21 +837,21 @@ class MambuStructMethodsTests(unittest.TestCase):
         serial = ms.serializeStruct()
         self.assertEqual(serial, {"att1": "1"})
 
-        orig_serializeFields = mambustruct.MambuStruct.serializeFields
-        mambustruct.MambuStruct.serializeFields = mock.Mock()
+        orig_serialize_fields = mambustruct.MambuStruct.serialize_fields
+        mambustruct.MambuStruct.serialize_fields = mock.Mock()
 
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         ms.serializeStruct()
-        ms.serializeFields.assert_called_with(ms.attrs)
-        ms.serializeFields.assert_called_with({"att1": "1"})
+        ms.serialize_fields.assert_called_with(ms.attrs)
+        ms.serialize_fields.assert_called_with({"att1": "1"})
 
-        mambustruct.MambuStruct.serializeFields = orig_serializeFields
+        mambustruct.MambuStruct.serialize_fields = orig_serialize_fields
 
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_serializeFields(self, requests, json, iriToUri):
-        """Test serializeFields method"""
+    def test_serialize_fields(self, requests, json, iriToUri):
+        """Test serialize_fields method"""
         # every 'normal' data type is converted to its string version
         json.loads.return_value = {
             "att1": 1,
@@ -860,7 +860,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             "att4": "string",
         }
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(serial["att1"], "1")
         self.assertEqual(serial["att2"], "1.23")
         self.assertEqual(serial["att3"], "001")
@@ -869,23 +869,23 @@ class MambuStructMethodsTests(unittest.TestCase):
         # on lists, each of its elements is recursively converted
         json.loads.return_value = {"att": [1, 1.23, "001", "string"]}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(serial["att"], ["1", "1.23", "001", "string"])
 
         json.loads.return_value = {"att": [1, 1.23, "001", "string", ["foo", "bar"]]}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(serial["att"], ["1", "1.23", "001", "string", ["foo", "bar"]])
 
         json.loads.return_value = {"att": [1, 1.23, "001", "string", {"foo": "bar"}]}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(serial["att"], ["1", "1.23", "001", "string", {"foo": "bar"}])
 
         # on dictionaries, each of its elements is recursively converted
         json.loads.return_value = {"att": {"a": 1, "b": 1.23, "c": "001", "d": "string"}}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(
             serial["att"], {"a": "1", "b": "1.23", "c": "001", "d": "string"}
         )
@@ -894,7 +894,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             "att": {"a": 1, "b": 1.23, "c": "001", "d": "string", "e": {"foo": "bar"}}
         }
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(
             serial["att"],
             {"a": "1", "b": "1.23", "c": "001", "d": "string", "e": {"foo": "bar"}},
@@ -904,7 +904,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             "att": {"a": 1, "b": 1.23, "c": "001", "d": "string", "e": ["foo", "bar"]}
         }
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms.attrs)
         self.assertEqual(
             serial["att"],
             {"a": "1", "b": "1.23", "c": "001", "d": "string", "e": ["foo", "bar"]},
@@ -915,7 +915,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         json.loads.return_value = {"att1": ms, "att2": "001"}
         ms2 = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = mambustruct.MambuStruct.serializeFields(ms2.attrs)
+        serial = mambustruct.MambuStruct.serialize_fields(ms2.attrs)
         self.assertEqual(serial["att1"], {"att1": "1", "att2": "1.23"})
         self.assertEqual(serial["att2"], "001")
 
@@ -1376,7 +1376,7 @@ from MambuPy.rest import mambuclient, mambuuser
 
 
 class MambuStructFunctionTests(unittest.TestCase):
-    """mambustruct module Functions Tests"""
+    """MambuStruct module Functions Tests"""
 
     def setUp(self):
         self.ms = mambustruct.MambuStruct(urlfunc=None)
