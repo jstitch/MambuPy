@@ -18,7 +18,7 @@ from ..mambuutil import (getsavingstransactionssearchurl,
                          getsavingstransactionsurl)
 from .mambustruct import MambuStruct, MambuStructIterator
 
-mod_urlfunc = getsavingstransactionsurl
+mod_urlfunc_saving = getsavingstransactionsurl
 mod_urlfunc_search = getsavingstransactionssearchurl
 
 # Objeto con una Cuenta desde Mambu
@@ -29,13 +29,24 @@ class MambuSavingTransaction(MambuStruct):
     transaction channel you wish to retrieve.
     """
 
-    def __init__(self, urlfunc=mod_urlfunc, entid="", *args, **kwargs):
+    def __init__(
+        self,
+        urlfunc_saving=mod_urlfunc_saving,
+        entid="",
+        *args,
+        **kwargs
+        ):
         """Tasks done here:
 
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+            self,
+            urlfunc_saving,
+            entid,
+            customFieldName="customInformation",
+            *args,
+            **kwargs
         )
 
     def preprocess(self):
@@ -58,7 +69,7 @@ class MambuSavingTransactions(MambuStruct):
 
     def __init__(
         self,
-        urlfunc=mod_urlfunc,
+        urlfunc=mod_urlfunc_saving,
         entid="",
         itemclass=MambuSavingTransaction,
         *args,
@@ -87,7 +98,7 @@ class MambuSavingTransactions(MambuStruct):
           not to connect() by default. It's desirable to connect at any
           other further moment to refresh some element in the list.
         """
-        for n, l in enumerate(self.attrs):
+        for n_saving, l_saving in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
@@ -97,8 +108,8 @@ class MambuSavingTransactions(MambuStruct):
             transaction_channel = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel.init(l, *args, **kwargs)
-            self.attrs[n] = transaction_channel
+            transaction_channel.init(l_saving, *args, **kwargs)
+            self.attrs[n_saving] = transaction_channel
 
 
 class MambuSavingsTransactionSearch(MambuStruct):
@@ -135,7 +146,7 @@ class MambuSavingsTransactionSearch(MambuStruct):
           not to connect() by default. It's desirable to connect at any
           other further moment to refresh some element in the list.
         """
-        for n, l in enumerate(self.attrs):
+        for n_search, l_search in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
                 params = self.params
@@ -145,6 +156,6 @@ class MambuSavingsTransactionSearch(MambuStruct):
             transaction_channel = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
-            transaction_channel.init(l, *args, **kwargs)
+            transaction_channel.init(l_search, *args, **kwargs)
             transaction_channel._MambuStruct__urlfunc = getsavingstransactionsurl
-            self.attrs[n] = transaction_channel
+            self.attrs[n_search] = transaction_channel
