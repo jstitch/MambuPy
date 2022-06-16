@@ -850,7 +850,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_serialize_fields(self, requests, json, iriToUri):
+    def test__serialize_fields(self, requests, json, iriToUri):
         """Test serialize_fields method"""
         # every 'normal' data type is converted to its string version
         json.loads.return_value = {
