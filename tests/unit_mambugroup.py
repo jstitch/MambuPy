@@ -256,7 +256,103 @@ class MambuGroupTests(unittest.TestCase):
         """Test create"""
         # set data response
         mock_requests.post.return_value = Response(
-            '{"group":{"encodedKey":"8a8186c46edd2297016edd5871271060","id":"RV982","creationDate":"2019-12-06T22:49:25+0000","lastModifiedDate":"2019-12-06T22:49:25+0000","groupName":"NUEVO AMANECER I(COPIA)","notes":"<div id=\\":2da\\" class=\\"ii gt adP adO\\" style=\\"direction: ltr; margin: 5px 15px 0px 0px; padding-bottom: 5px; position: relative; background-color: rgb(255, 255, 255);\\"><div id=\\":2d9\\" class=\\"a3s aXjCH m1584b9a66e5110e3\\" style=\\"overflow: hidden;\\"><div style=\\"color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 12.8px;\\">Mapa de Ubicaci\xc3\xb3n:&nbsp;<a href=\\"https://drive.google.com/open?id=1mbQ5tI8EEOa65yQt_yArpfmfE2M&amp;usp=sharing:\\">https://drive.google.com/open?id=1mbQ5tI8EEOa65yQt_yArpfmfE2M&amp;usp=sharing:</a><div class=\\"yj6qo\\" style=\\"color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 12.8px;\\"><div class=\\"hq gt a10\\" id=\\":nk\\" style=\\"clear: both; margin: 15px 0px; font-size: 12.8px; color: rgb(34, 34, 34); font-family: arial, sans-serif; background-color: rgb(255, 255, 255);\\">","loanCycle":0,"idPattern":"@@###","preferredLanguage":"ENGLISH","clientRole":{"encodedKey":"8a1357704bf8b4f1014bf8b874cc07ad"}},"addresses":[{"encodedKey":"8a8186c46edd2297016edd5871271061","parentKey":"8a8186c46edd2297016edd5871271060","line1":"SAN FELIPE #SN","line2":"EJIDO PALMA","city":"ISIDRO FABELA","region":"MEXICO","postcode":"54480","country":"MEXICO","indexInList":0}],"customInformation":[{"encodedKey":"8a8186c46edd2297016edd5871271062","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8afae1dc2ecf2844012ee4a468f62773","customField":{"encodedKey":"8afae1dc2ecf2844012ee4a468f62773","id":"Referencia_de_ubicacion_Groups","creationDate":"2016-10-10T22:20:45+0000","lastModifiedDate":"2019-12-04T01:22:03+0000","name":"Referencia de ubicacion","type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":0,"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bd852fd1","isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bd892fd3","isAccessibleByAllUsers":false,"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b","8a818e5e6594c7f40165a1d7bd2a7faa","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2","8a818f285bfa98c1015bfe9af3de14f9"]},"unique":false,"values":[],"amounts":{}},"value":"CAMINO BALNEARIO MANANTIAL UNA CALLE ARRIBA DE ESTACIONAMIENTO 4 CAMINOS ","indexInList":0,"customFieldID":"Referencia_de_ubicacion_Groups","customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1063","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acbe9abb1d0f","customField":{"encodedKey":"8af63f3538a5ba4b0138acbe9abb1d0f","id":"Nivel_Groups","creationDate":"2016-10-10T22:20:55+0000","lastModifiedDate":"2019-12-04T01:22:20+0000","name":"Nivel","type":"GROUP_INFO","dataType":"NUMBER","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"Nivel del grupo otorgado por el coordinador","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":2,"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bda32fdb","isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bdae2fdd","isAccessibleByAllUsers":false,"roles":["8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2"]},"unique":false,"values":[],"amounts":{}},"value":"15","indexInList":1,"customFieldID":"Nivel_Groups","customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1064","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acbefd781d10","customField":{"encodedKey":"8af63f3538a5ba4b0138acbefd781d10","id":"Ciclo-Tipo_Groups","creationDate":"2016-10-10T22:21:04+0000","lastModifiedDate":"2019-12-04T01:22:34+0000","name":"Ciclo-Tipo","type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"Ciclo actual del grupo - Tipo de credito","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":3,"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bdbe2fe0","isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bdc22fe2","isAccessibleByAllUsers":false,"roles":["8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2"]},"unique":false,"values":[],"amounts":{}},"value":"C15 - CIMI","indexInList":2,"customFieldID":"Ciclo-Tipo_Groups","customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1065","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acc01b381d11","customField":{"encodedKey":"8af63f3538a5ba4b0138acc01b381d11","id":"Dia_de_reunion_Groups","creationDate":"2016-10-10T22:21:17+0000","lastModifiedDate":"2019-12-03T23:48:57+0000","name":"Dia de reunion","type":"GROUP_INFO","dataType":"SELECTION","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":4,"state":"NORMAL","customFieldSelectionOptions":[{"encodedKey":"8a68c1894cd107ab014cd10c43f41d5c","value":"Lunes","score":"1"},{"encodedKey":"8a68c1894cd107ab014cd10c43f61d5d","value":"Martes","score":"2"},{"encodedKey":"8a68c1894cd107ab014cd10c43f81d5e","value":"Miercoles","score":"3"},{"encodedKey":"8a68c1894cd107ab014cd10c43fa1d5f","value":"Jueves","score":"4"},{"encodedKey":"8a68c1894cd107ab014cd10c43fd1d60","value":"Viernes","score":"5"},{"encodedKey":"8a68c1894cd107ab014cd10c43ff1d61","value":"Sabado","score":"6"},{"encodedKey":"8a68c1894cd107ab014cd10c44021d62","value":"Domingo","score":"7"}],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4c9ed2fe7","isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4c9f12fe9","isAccessibleByAllUsers":false,"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2","8a818f285bfa98c1015bfe9af3de14f9"]},"unique":false,"values":["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"],"amounts":{"Miercoles":"3","Martes":"2","Viernes":"5","Lunes":"1","Domingo":"7","Jueves":"4","Sabado":"6"}},"value":"Lunes","indexInList":3,"customFieldID":"Dia_de_reunion_Groups","customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1066","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acc05a611d12","customField":{"encodedKey":"8af63f3538a5ba4b0138acc05a611d12","id":"Hora_de_reunion_Groups","creationDate":"2016-10-10T22:21:34+0000","lastModifiedDate":"2019-12-04T01:22:52+0000","name":"Hora de reunion","type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":5,"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4c9ff2fec","isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4ca032fee","isAccessibleByAllUsers":false,"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2","8a818f285bfa98c1015bfe9af3de14f9"]},"unique":false,"values":[],"amounts":{}},"value":"13:30","indexInList":4,"customFieldID":"Hora_de_reunion_Groups","customFieldSetGroupIndex":-1}]}'
+            '{"group":{"encodedKey":"8a8186c46edd2297016edd5871271060","id":"RV982",\
+"creationDate":"2019-12-06T22:49:25+0000","lastModifiedDate":"2019-12-06T22:49:25+0000",\
+"groupName":"NUEVO AMANECER I(COPIA)","notes":"<div id=\\":2da\\" class=\\"ii gt adP adO\\" style=\\"direction: ltr; \
+margin: 5px 15px 0px 0px; padding-bottom: 5px; position: relative; background-color: rgb(255, 255, 255);\\">\
+<div id=\\":2d9\\" class=\\"a3s aXjCH m1584b9a66e5110e3\\" style=\\"overflow: hidden;\\"><div style=\\"color: \
+rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 12.8px;\\">Mapa de Ubicaci\xc3\xb3n:&nbsp;\
+<a href=\\"https://drive.google.com/open?id=1mbQ5tI8EEOa65yQt_yArpfmfE2M&amp;usp=sharing:\\">\
+https://drive.google.com/open?id=1mbQ5tI8EEOa65yQt_yArpfmfE2M&amp;usp=sharing:</a>\
+<div class=\\"yj6qo\\" style=\\"color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: \
+12.8px;\\"><div class=\\"hq gt a10\\" id=\\":nk\\" style=\\"clear: both; margin: 15px 0px; font-size: 12.8px; color: \
+rgb(34, 34, 34); font-family: arial, sans-serif; background-color: rgb(255, 255, 255);\\">","loanCycle":0,"idPattern":\
+"@@###","preferredLanguage":"ENGLISH","clientRole":{"encodedKey":"8a1357704bf8b4f1014bf8b874cc07ad"}},\
+"addresses":[{"encodedKey":"8a8186c46edd2297016edd5871271061","parentKey":"8a8186c46edd2297016edd5871271060",\
+"line1":"SAN FELIPE #SN","line2":"EJIDO PALMA","city":"ISIDRO FABELA","region":"MEXICO","postcode":"54480",\
+"country":"MEXICO","indexInList":0}],"customInformation":[{"encodedKey":"8a8186c46edd2297016edd5871271062",\
+"parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8afae1dc2ecf2844012ee4a468f62773",\
+"customField":{"encodedKey":"8afae1dc2ecf2844012ee4a468f62773","id":"Referencia_de_ubicacion_Groups","creationDate":\
+"2016-10-10T22:20:45+0000","lastModifiedDate":"2019-12-04T01:22:03+0000","name":"Referencia de ubicacion",\
+"type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,"isRequired":true,\
+"description":"","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626",\
+"id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000",\
+"indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":0,"state":"NORMAL",\
+"customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bd852fd1",\
+"isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bd892fd3",\
+"isAccessibleByAllUsers":false,"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94",\
+"8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b",\
+"8a818e5e6594c7f40165a1d7bd2a7faa","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b",\
+"8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2",\
+"8a818f285bfa98c1015bfe9af3de14f9"]},"unique":false,"values":[],"amounts":{}},\
+"value":"CAMINO BALNEARIO MANANTIAL UNA CALLE ARRIBA DE ESTACIONAMIENTO 4 CAMINOS ","indexInList":0,\
+"customFieldID":"Referencia_de_ubicacion_Groups","customFieldSetGroupIndex":-1},\
+{"encodedKey":"8a8186c46edd2297016edd674faf1063","parentKey":"8a8186c46edd2297016edd5871271060",\
+"customFieldKey":"8af63f3538a5ba4b0138acbe9abb1d0f","customField":{"encodedKey":"8af63f3538a5ba4b0138acbe9abb1d0f",\
+"id":"Nivel_Groups","creationDate":"2016-10-10T22:20:55+0000","lastModifiedDate":"2019-12-04T01:22:20+0000",\
+"name":"Nivel","type":"GROUP_INFO","dataType":"NUMBER","valueLength":"SHORT","isDefault":true,"isRequired":true,\
+"description":"Nivel del grupo otorgado por el coordinador","customFieldSet":\
+{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados",\
+"createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":2,\
+"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bda32fdb",\
+"isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bdae2fdd",\
+"isAccessibleByAllUsers":false,"roles":["8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633",\
+"8a818e09576c4cfe01576c61422a0594","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b",\
+"8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2"]},\
+"unique":false,"values":[],"amounts":{}},"value":"15","indexInList":1,"customFieldID":"Nivel_Groups",\
+"customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1064",\
+"parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acbefd781d10",\
+"customField":{"encodedKey":"8af63f3538a5ba4b0138acbefd781d10","id":"Ciclo-Tipo_Groups",\
+"creationDate":"2016-10-10T22:21:04+0000","lastModifiedDate":"2019-12-04T01:22:34+0000",\
+"name":"Ciclo-Tipo","type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,\
+"isRequired":true,"description":"Ciclo actual del grupo - Tipo de credito","customFieldSet":\
+{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos","name":"Campos Personalizados",\
+"createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":3,\
+"state":"NORMAL","customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4bdbe2fe0",\
+"isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4bdc22fe2",\
+"isAccessibleByAllUsers":false,"roles":["8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633",\
+"8a818e09576c4cfe01576c61422a0594","8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b",\
+"8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2"]},\
+"unique":false,"values":[],"amounts":{}},"value":"C15 - CIMI","indexInList":2,"customFieldID":"Ciclo-Tipo_Groups",\
+"customFieldSetGroupIndex":-1},{"encodedKey":"8a8186c46edd2297016edd674faf1065",\
+"parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":"8af63f3538a5ba4b0138acc01b381d11",\
+"customField":{"encodedKey":"8af63f3538a5ba4b0138acc01b381d11","id":"Dia_de_reunion_Groups",\
+"creationDate":"2016-10-10T22:21:17+0000","lastModifiedDate":"2019-12-03T23:48:57+0000","name":"Dia de reunion",\
+"type":"GROUP_INFO","dataType":"SELECTION","valueLength":"SHORT","isDefault":true,"isRequired":true,"description":"",\
+"customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626","id":"Campos_Personalizados_Grupos",\
+"name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000","indexInList":0,"type":"GROUP_INFO",\
+"usage":"SINGLE"},"indexInList":4,"state":"NORMAL","customFieldSelectionOptions":[\
+{"encodedKey":"8a68c1894cd107ab014cd10c43f41d5c","value":"Lunes","score":"1"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c43f61d5d","value":"Martes","score":"2"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c43f81d5e","value":"Miercoles","score":"3"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c43fa1d5f","value":"Jueves","score":"4"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c43fd1d60","value":"Viernes","score":"5"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c43ff1d61","value":"Sabado","score":"6"},\
+{"encodedKey":"8a68c1894cd107ab014cd10c44021d62","value":"Domingo","score":"7"}],\
+"viewRights":{"encodedKey":"8a818897519a4a8601519aa4c9ed2fe7","isAccessibleByAllUsers":true,"roles":[]},\
+"editRights":{"encodedKey":"8a818897519a4a8601519aa4c9f12fe9","isAccessibleByAllUsers":false,\
+"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94","8a818e2760e54d450160e6d45eaf1633",\
+"8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b","8a818eca5591bf840155998756067649",\
+"8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41","8a10ca994b09d039014b0e71ed7e040b",\
+"8a6886e7510218560151033d4c170df2","8a818f285bfa98c1015bfe9af3de14f9"]},"unique":false,"values":["Lunes",\
+"Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"],"amounts":{"Miercoles":"3","Martes":"2","Viernes":"5",\
+"Lunes":"1","Domingo":"7","Jueves":"4","Sabado":"6"}},"value":"Lunes","indexInList":3,\
+"customFieldID":"Dia_de_reunion_Groups","customFieldSetGroupIndex":-1},{"encodedKey":\
+"8a8186c46edd2297016edd674faf1066","parentKey":"8a8186c46edd2297016edd5871271060","customFieldKey":\
+"8af63f3538a5ba4b0138acc05a611d12","customField":{"encodedKey":"8af63f3538a5ba4b0138acc05a611d12",\
+"id":"Hora_de_reunion_Groups","creationDate":"2016-10-10T22:21:34+0000","lastModifiedDate":"2019-12-04T01:22:52+0000",\
+"name":"Hora de reunion","type":"GROUP_INFO","dataType":"STRING","valueLength":"SHORT","isDefault":true,\
+"isRequired":true,"description":"","customFieldSet":{"encodedKey":"8a116c9c3ce7bf9c013ce7c448b40626",\
+"id":"Campos_Personalizados_Grupos","name":"Campos Personalizados","createdDate":"2013-02-17T10:47:46+0000",\
+"indexInList":0,"type":"GROUP_INFO","usage":"SINGLE"},"indexInList":5,"state":"NORMAL",\
+"customFieldSelectionOptions":[],"viewRights":{"encodedKey":"8a818897519a4a8601519aa4c9ff2fec",\
+"isAccessibleByAllUsers":true,"roles":[]},"editRights":{"encodedKey":"8a818897519a4a8601519aa4ca032fee",\
+"isAccessibleByAllUsers":false,"roles":["8a818868520c7ca901520f6d1ae44dfe","8a818e9f5edd9fc9015ee364730f4e94",\
+"8a818e2760e54d450160e6d45eaf1633","8a818e09576c4cfe01576c61422a0594","8a818e9a54e28e440154ea4c71a10f1b",\
+"8a818eca5591bf840155998756067649","8a6b86a043fa70ec0143fea56df6145b","8a36366d43e6ebf90143ea757e0e5a41",\
+"8a10ca994b09d039014b0e71ed7e040b","8a6886e7510218560151033d4c170df2","8a818f285bfa98c1015bfe9af3de14f9"]},\
+"unique":false,"values":[],"amounts":{}},"value":"13:30","indexInList":4,"customFieldID":"Hora_de_reunion_Groups",\
+"customFieldSetGroupIndex":-1}]}'
         )
         g = mambugroup.MambuGroup(connect=False)
         # since we mock requests.post, send any data
@@ -274,7 +370,39 @@ class MambuGroupTests(unittest.TestCase):
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
         mock_requests.post.return_value = Response(
-            '{"group":{"encodedKey":"8a10ca994b09d039014b145049e94892","id":"JB324","creationDate":"2015-01-23T01:03:01+0000","lastModifiedDate":"2019-12-11T18:26:46+0000","groupName":"ZAFIRO","notes":"Mapa de Ubicaci\xc3\xb3n<br><a href=\\"https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing\\">https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing</a><br>","assignedUserKey":"8a818fe569173a910169176a41ce0696","assignedBranchKey":"8a6a80593fc305e1013fc47bf2da686e","loanCycle":17,"assignedCentreKey":"8a818f9767c1805b0167c33192306f02","mobilePhone1":"5550566170","preferredLanguage":"SPANISH","clientRole":{"encodedKey":"8a1357704bf8b4f1014bf8b874cc07ad"}},"addresses":[{"encodedKey":"8a8187f56ef565cb016ef61c457221c1","parentKey":"8a10ca994b09d039014b145049e94892","line1":"SAN FELIPE","line2":"EJIDO ","city":"Saltadilla","region":"MEXICO","postcode":"54480","country":"MEXICO","indexInList":0}],"groupRoles":[],"groupMembers":[{"encodedKey":"8a8187c06ef5687d016ef6230ca41f7e","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f01394959bf305787","creationDate":"2019-12-11T18:07:25+0000","indexInList":0},{"encodedKey":"8a8187c06ef5687d016ef6230ca41f7f","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a1edda54e72f31a014e7974be7a69b2","creationDate":"2019-12-11T18:07:25+0000","indexInList":1},{"encodedKey":"8a8187c06ef5687d016ef6230ca41f80","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139497311205836","creationDate":"2019-12-11T18:07:25+0000","indexInList":2},{"encodedKey":"8a8187c06ef5687d016ef624e982209e","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a10800239357cf2013949f50aa76c00","creationDate":"2019-12-11T18:07:25+0000","indexInList":3},{"encodedKey":"8a8187c06ef5687d016ef624e982209f","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139497721125857","creationDate":"2019-12-11T18:07:25+0000","indexInList":4},{"encodedKey":"8a8187c06ef5687d016ef624e98220a0","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139495e238057a4","creationDate":"2019-12-11T18:07:25+0000","indexInList":5},{"encodedKey":"8a8187c06ef5687d016ef624e98220a1","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a10800239357cf2013949f233666bed","creationDate":"2019-12-11T18:07:25+0000","indexInList":6},{"encodedKey":"8a8187c06ef5687d016ef624e98220a2","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818e026be62441016be77b9e514261","creationDate":"2019-12-11T18:07:25+0000","indexInList":7},{"encodedKey":"8a8187c06ef5687d016ef624e98220a3","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818e0d617702e801617c33bef5796f","creationDate":"2019-12-11T18:07:25+0000","indexInList":8},{"encodedKey":"8a8187c06ef5687d016ef624e98220a4","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a1a2fa94a2da970014a4f8dcfb94e98","creationDate":"2019-12-11T18:07:25+0000","indexInList":9},{"encodedKey":"8a8187c06ef5687d016ef624e98220a5","groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818f4067a7bee90167adb77c1b75b4","creationDate":"2019-12-11T18:07:25+0000","indexInList":10}]}'
+            '{"group":{"encodedKey":"8a10ca994b09d039014b145049e94892","id":"JB324",\
+"creationDate":"2015-01-23T01:03:01+0000","lastModifiedDate":"2019-12-11T18:26:46+0000",\
+"groupName":"ZAFIRO","notes":"Mapa de Ubicaci\xc3\xb3n<br>\
+<a href=\\"https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing\\">\
+https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing</a><br>",\
+"assignedUserKey":"8a818fe569173a910169176a41ce0696","assignedBranchKey":"8a6a80593fc305e1013fc47bf2da686e",\
+"loanCycle":17,"assignedCentreKey":"8a818f9767c1805b0167c33192306f02","mobilePhone1":"5550566170",\
+"preferredLanguage":"SPANISH","clientRole":{"encodedKey":"8a1357704bf8b4f1014bf8b874cc07ad"}},\
+"addresses":[{"encodedKey":"8a8187f56ef565cb016ef61c457221c1","parentKey":"8a10ca994b09d039014b145049e94892",\
+"line1":"SAN FELIPE","line2":"EJIDO ","city":"Saltadilla","region":"MEXICO","postcode":"54480",\
+"country":"MEXICO","indexInList":0}],"groupRoles":[],"groupMembers":[{"encodedKey":"8a8187c06ef5687d016ef6230ca41f7e",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f01394959bf305787",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":0},{"encodedKey":"8a8187c06ef5687d016ef6230ca41f7f",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a1edda54e72f31a014e7974be7a69b2",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":1},{"encodedKey":"8a8187c06ef5687d016ef6230ca41f80",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139497311205836",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":2},{"encodedKey":"8a8187c06ef5687d016ef624e982209e",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a10800239357cf2013949f50aa76c00",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":3},{"encodedKey":"8a8187c06ef5687d016ef624e982209f",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139497721125857",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":4},{"encodedKey":"8a8187c06ef5687d016ef624e98220a0",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a60faf23935815f0139495e238057a4",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":5},{"encodedKey":"8a8187c06ef5687d016ef624e98220a1",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a10800239357cf2013949f233666bed",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":6},{"encodedKey":"8a8187c06ef5687d016ef624e98220a2",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818e026be62441016be77b9e514261",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":7},{"encodedKey":"8a8187c06ef5687d016ef624e98220a3",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818e0d617702e801617c33bef5796f",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":8},{"encodedKey":"8a8187c06ef5687d016ef624e98220a4",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a1a2fa94a2da970014a4f8dcfb94e98",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":9},{"encodedKey":"8a8187c06ef5687d016ef624e98220a5",\
+"groupKey":"8a10ca994b09d039014b145049e94892","clientKey":"8a818f4067a7bee90167adb77c1b75b4",\
+"creationDate":"2019-12-11T18:07:25+0000","indexInList":10}]}'
         )
         mambugroup.MambuStruct.update = mock.Mock()
         mambugroup.MambuStruct.update.return_value = 1
@@ -344,7 +472,9 @@ class MambuGroupTests(unittest.TestCase):
                 "Content-Type": "application/json",
                 "Accept": "application/vnd.mambu.v1+json",
             },
-            data='{"group": {}, "groupMembers": [{"clientKey": "8a818fc56e65226e016e65fcd66c64ca"}, {"clientKey": "8a818fc56e65226e016e656582853e9d"}, {"clientKey": "8a818e5b61de14e70161de42a3fc21a5"}, {"clientKey": "idDeIntegranteNueva"}]}',
+            data='{"group": {}, "groupMembers": [{"clientKey": "8a818fc56e65226e016e65fcd66c64ca"}, \
+{"clientKey": "8a818fc56e65226e016e656582853e9d"}, {"clientKey": "8a818e5b61de14e70161de42a3fc21a5"}, \
+{"clientKey": "idDeIntegranteNueva"}]}',
         )
         # get called when connect()
         mock_requests.get.assert_called_with(
