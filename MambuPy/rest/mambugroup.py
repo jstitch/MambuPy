@@ -165,7 +165,7 @@ class MambuGroup(MambuStruct):
         Returns the number of requests done to Mambu.
         """
 
-        def activityDate(activity):
+        def activity_date(activity):
             """Util function used for sorting activities according to timestamp"""
             try:
                 return activity["activity"]["timestamp"]
@@ -182,7 +182,7 @@ class MambuGroup(MambuStruct):
         activities = self.mambuactivitiesclass(
             groupId=self["encodedKey"], *args, **kwargs
         )
-        activities.attrs = sorted(activities.attrs, key=activityDate)
+        activities.attrs = sorted(activities.attrs, key=activity_date)
         self["activities"] = activities
 
         return 1
