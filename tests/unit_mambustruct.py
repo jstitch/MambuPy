@@ -386,13 +386,13 @@ class MambuStructMethodsTests(unittest.TestCase):
         orig_convertDict2Attrs = mambustruct.MambuStruct.convertDict2Attrs
         orig_postprocess = mambustruct.MambuStruct.postprocess
         orig_util_dateFormat = mambustruct.MambuStruct.util_dateFormat
-        orig_serializeStruct = mambustruct.MambuStruct.serializeStruct
+        orig_serialize_struct = mambustruct.MambuStruct.serialize_struct
 
         mambustruct.MambuStruct.preprocess = mock.Mock()
         mambustruct.MambuStruct.convertDict2Attrs = mock.Mock()
         mambustruct.MambuStruct.postprocess = mock.Mock()
         mambustruct.MambuStruct.util_dateFormat = mock.Mock()
-        mambustruct.MambuStruct.serializeStruct = mock.Mock()
+        mambustruct.MambuStruct.serialize_struct = mock.Mock()
 
         # init calls preprocess, convertDict2Attrs, postprocess methods, on that order
         json.loads.return_value = {"hello": "goodbye"}
@@ -407,10 +407,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         json.loads.return_value = {"hello": "goodbye"}
         mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            methods=["util_dateFormat", "serializeStruct"],
+            methods=["util_dateFormat", "serialize_struct"],
         )
         mambustruct.MambuStruct.util_dateFormat.assert_called_with()
-        mambustruct.MambuStruct.serializeStruct.assert_called_with()
+        mambustruct.MambuStruct.serialize_struct.assert_called_with()
         # non-existent method is just not called, no exception raised
         mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
@@ -434,7 +434,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         mambustruct.MambuStruct.convertDict2Arrs = orig_convertDict2Attrs
         mambustruct.MambuStruct.postprocess = orig_postprocess
         mambustruct.MambuStruct.util_dateFormat = orig_util_dateFormat
-        mambustruct.MambuStruct.serializeStruct = orig_serializeStruct
+        mambustruct.MambuStruct.serialize_struct = orig_serialize_struct
 
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
     @mock.patch("MambuPy.rest.mambustruct.json")
@@ -830,18 +830,18 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_serializeStruct(self, requests, json, iriToUri):
-        """Test serializeStruct method"""
+    def test_serialize_struct(self, requests, json, iriToUri):
+        """Test serialize_struct method"""
         json.loads.return_value = {"att1": "1"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        serial = ms.serializeStruct()
+        serial = ms.serialize_struct()
         self.assertEqual(serial, {"att1": "1"})
 
         orig_serialize_fields = mambustruct.MambuStruct.serialize_fields
         mambustruct.MambuStruct.serialize_fields = mock.Mock()
 
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
-        ms.serializeStruct()
+        ms.serialize_struct()
         ms.serialize_fields.assert_called_with(ms.attrs)
         ms.serialize_fields.assert_called_with({"att1": "1"})
 
