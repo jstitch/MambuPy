@@ -130,12 +130,12 @@ class MambuStruct(object):
 
         The base case is when it's a MambuStruct class (this one) so it
         just 'serializes' the attr atribute. Refer to
-        MambuStruct.serializeStruct pydoc.
+        MambuStruct.serialize_struct pydoc.
 
         This is perhaps the worst way to do it, still looking for a better way.
         """
         if isinstance(data, MambuStruct):
-            return data.serializeStruct()
+            return data.serialize_struct()
         try:
             it = iter(data)
         except TypeError:
@@ -368,7 +368,7 @@ class MambuStruct(object):
         except Exception:
             pass
 
-    def serializeStruct(self):
+    def serialize_struct(self):
         """Makes a string from each element on the attrs attribute.
 
                 Read the class attribute MambuStruct.serialize_fields pydoc for
