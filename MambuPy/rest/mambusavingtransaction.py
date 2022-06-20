@@ -71,15 +71,15 @@ class MambuSavingTransactions(MambuStruct):
         self,
         urlfunc=mod_urlfunc_saving,
         entid="",
-        itemclass=MambuSavingTransaction,
+        itemclass_saving=MambuSavingTransaction,
         *args,
         **kwargs
     ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
-        self.itemclass = itemclass
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.itemclass = itemclass_saving
+        MambuStruct.__init__(self, urlfunc_saving, entid, *args, **kwargs)
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
@@ -101,11 +101,11 @@ class MambuSavingTransactions(MambuStruct):
         for n_saving, l_saving in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
-                params = self.params
+                params_saving = self.params_saving
             except AttributeError:
-                params = {}
-            kwargs.update(params)
-            transaction_channel = self.itemclass(
+                params_saving = {}
+            kwargs.update(params_saving)
+            transaction_channel_saving = self.itemclass_saving(
                 urlfunc=None, entid=None, *args, **kwargs
             )
             transaction_channel.init(l_saving, *args, **kwargs)
@@ -117,17 +117,17 @@ class MambuSavingsTransactionSearch(MambuStruct):
 
     def __init__(
         self,
-        urlfunc=mod_urlfunc_search,
+        urlfunc_search=mod_urlfunc_search,
         entid="",
-        itemclass=MambuSavingTransaction,
+        itemclass_search=MambuSavingTransaction,
         *args,
         **kwargs
     ):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
-        self.itemclass = itemclass
-        MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
+        self.itemclass_search = itemclass_search
+        MambuStruct.__init__(self, urlfunc_search, entid, *args, **kwargs)
 
     def __iter__(self):
         return MambuStructIterator(self.attrs)
@@ -149,11 +149,11 @@ class MambuSavingsTransactionSearch(MambuStruct):
         for n_search, l_search in enumerate(self.attrs):
             # ok ok, I'm modifying elements of a list while iterating it. BAD PRACTICE!
             try:
-                params = self.params
+                params_search = self.params_search
             except AttributeError:
-                params = {}
-            kwargs.update(params)
-            transaction_channel = self.itemclass(
+                params_search = {}
+            kwargs.update(params_search)
+            transaction_channel_search = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
             transaction_channel.init(l_search, *args, **kwargs)
