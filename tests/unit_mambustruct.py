@@ -385,13 +385,13 @@ class MambuStructMethodsTests(unittest.TestCase):
         orig_preprocess = mambustruct.MambuStruct.preprocess
         orig_convertDict2Attrs = mambustruct.MambuStruct.convertDict2Attrs
         orig_postprocess = mambustruct.MambuStruct.postprocess
-        orig_util_dateFormat = mambustruct.MambuStruct.util_dateFormat
+        orig_util_date_format = mambustruct.MambuStruct.util_date_format
         orig_serialize_struct = mambustruct.MambuStruct.serialize_struct
 
         mambustruct.MambuStruct.preprocess = mock.Mock()
         mambustruct.MambuStruct.convertDict2Attrs = mock.Mock()
         mambustruct.MambuStruct.postprocess = mock.Mock()
-        mambustruct.MambuStruct.util_dateFormat = mock.Mock()
+        mambustruct.MambuStruct.util_date_format = mock.Mock()
         mambustruct.MambuStruct.serialize_struct = mock.Mock()
 
         # init calls preprocess, convertDict2Attrs, postprocess methods, on that order
@@ -407,9 +407,9 @@ class MambuStructMethodsTests(unittest.TestCase):
         json.loads.return_value = {"hello": "goodbye"}
         mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            methods=["util_dateFormat", "serialize_struct"],
+            methods=["util_date_format", "serialize_struct"],
         )
-        mambustruct.MambuStruct.util_dateFormat.assert_called_with()
+        mambustruct.MambuStruct.util_date_format.assert_called_with()
         mambustruct.MambuStruct.serialize_struct.assert_called_with()
         # non-existent method is just not called, no exception raised
         mambustruct.MambuStruct(
@@ -433,7 +433,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         mambustruct.MambuStruct.preprocess = orig_preprocess
         mambustruct.MambuStruct.convertDict2Arrs = orig_convertDict2Attrs
         mambustruct.MambuStruct.postprocess = orig_postprocess
-        mambustruct.MambuStruct.util_dateFormat = orig_util_dateFormat
+        mambustruct.MambuStruct.util_date_format = orig_util_date_format
         mambustruct.MambuStruct.serialize_struct = orig_serialize_struct
 
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
@@ -772,21 +772,21 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iriToUri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_util_dateFormat(self, requests, json, iriToUri):
+    def test_util_date_format(self, requests, json, iriToUri):
         """Test dateFormat"""
         from datetime import datetime
 
         today = datetime.now()
         # default dateFormat
         self.assertEqual(
-            self.ms.util_dateFormat(
+            self.ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000")
             ).strftime("%Y%m%d%H%M%S"),
             today.strftime("%Y%m%d%H%M%S"),
         )
         # given format
         self.assertEqual(
-            self.ms.util_dateFormat(
+            self.ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000"), formato="%Y%m%d"
             ).strftime("%Y%m%d"),
             today.strftime("%Y%m%d"),
@@ -798,7 +798,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             dateFormat="%Y%m%d",
         )
         self.assertEqual(
-            ms.util_dateFormat(
+            ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000"), formato="%Y%m%d"
             ).strftime("%Y%m%d"),
             today.strftime("%Y%m%d"),
@@ -806,7 +806,7 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         del self.ms._MambuStruct__formatoFecha
         self.assertEqual(
-            self.ms.util_dateFormat(
+            self.ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000")
             ).strftime("%Y%m%d%H%M%S"),
             today.strftime("%Y%m%d%H%M%S"),

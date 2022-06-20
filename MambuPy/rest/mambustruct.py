@@ -419,7 +419,7 @@ class MambuStruct(object):
         * **connect** flag, to optionally omit the connection to Mambu (see
           the init() (with no underscores) method pydoc)
         * **data** parameter for POST requests (see connect() method pydoc)
-        * **dateFormat** parameter (see util_dateFormat() method pydoc)
+        * **dateFormat** parameter (see util_date_format() method pydoc)
 
         Also, parameters to be sent to Mambu on the request, such as:
 
@@ -862,7 +862,7 @@ class MambuStruct(object):
                     return float(data)
                 except (TypeError, ValueError):
                     try:
-                        return self.util_dateFormat(data)
+                        return self.util_date_format(data)
                     except (TypeError, ValueError):
                         return data
 
@@ -870,7 +870,7 @@ class MambuStruct(object):
 
         self.attrs = convierte(self.attrs)
 
-    def util_dateFormat(self, field, formato=None):
+    def util_date_format(self, field, formato=None):
         """Converts a datetime field to a datetime using some specified format.
 
         What this really means is that, if specified format includes
