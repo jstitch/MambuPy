@@ -28,9 +28,9 @@ from __future__ import absolute_import
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from ..mambuutil import connectDb, dbname
+from ..mambuutil import connect_db, dbname
 
-engine = connectDb()
+engine = connect_db()
 """Database engine, connecting with default parameters by default.
 """
 

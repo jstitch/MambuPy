@@ -160,7 +160,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
 
-def connectDb(
+def connect_db(
     engine=dbeng,
     user=dbuser,
     password=dbpwd,
@@ -1254,7 +1254,7 @@ def getpostdocumentsurl(identity="", *args, **kwargs):
 ### No more urlfuncs from here ###
 
 ### More utility functions follow ###
-def dateFormat(field, formato=None):
+def date_format(field, formato=None):
     """Converts a datetime field to a datetime using some specified format.
 
     What this really means is that, if specified format includes only for
@@ -1346,7 +1346,7 @@ else:  # pragma: no cover
     import urlparse
 
 
-def iriToUri(iri):
+def iri_to_uri(iri):
     """Change an IRI (internationalized R) to an URI.
 
     Used at MambuStruct.connect() method for any requests done to Mambu.
@@ -1359,7 +1359,7 @@ def iriToUri(iri):
     unicode chars there. Using this I solved the problem.
     """
 
-    def urlEncodeNonAscii(b):
+    def url_encode_non_ascii(b):
         """Encode Non ASCII chars to URL-friendly chars.
 
         Sometimes unicode gets in the way. A shame, I know. And perhaps the
@@ -1376,11 +1376,11 @@ def iriToUri(iri):
         for parti, part in enumerate(parts):
             try:
                 if parti != 1:
-                    partes.append(urlEncodeNonAscii(part.encode("utf-8")))
+                    partes.append(url_encode_non_ascii(part.encode("utf-8")))
                 else:
                     partes.append(part.encode("idna"))
             except UnicodeDecodeError:
-                partes.append(urlEncodeNonAscii(part.decode("latin")))
+                partes.append(url_encode_non_ascii(part.decode("latin")))
             except Exception:
                 raise Exception
         return urlparse.urlunparse(partes)
@@ -1494,7 +1494,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     data = {"callback": callback}
     try:
         if not justbackup:
-            posturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup")
+            posturl = iri_to_uri(getmambuurl(*args, **kwargs) + "database/backup")
             if verbose:
                 log.write("open url: " + posturl + "\n")
                 log.write("data: " + str(data) + "\n")
@@ -1550,7 +1550,7 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
             data["latest"] = False
     sleep(30)
 
-    geturl = iriToUri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
+    geturl = iri_to_uri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
     if verbose:
         log.write("open url: " + geturl + "\n")
         log.flush()

@@ -39,7 +39,7 @@ import requests
 from future.utils import implements_iterator
 
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuCommError,
-                         MambuError, apipwd, apiuser, encoded_dict, iriToUri,
+                         MambuError, apipwd, apiuser, encoded_dict, iri_to_uri,
                          strip_tags)
 
 
@@ -419,7 +419,7 @@ class MambuStruct(object):
         * **connect** flag, to optionally omit the connection to Mambu (see
           the init() (with no underscores) method pydoc)
         * **data** parameter for POST requests (see connect() method pydoc)
-        * **dateFormat** parameter (see util_date_format() method pydoc)
+        * **date_format** parameter (see util_date_format() method pydoc)
 
         Also, parameters to be sent to Mambu on the request, such as:
 
@@ -450,13 +450,13 @@ class MambuStruct(object):
             self.__debug = False
 
         try:
-            self.__formatoFecha = kwargs["dateFormat"]
+            self.__formato_fecha = kwargs["date_format"]
             """The default date format to be used for any datettime elements on the attrs attribute.
 
             Remember to use valid Python datetime strftime formats.
             """
         except KeyError:
-            self.__formatoFecha = "%Y-%m-%dT%H:%M:%S+0000"
+            self.__formato_fecha = "%Y-%m-%dT%H:%M:%S+0000"
 
         try:
             self.__data = kwargs["data"]
@@ -554,7 +554,7 @@ class MambuStruct(object):
                 new Mambu object.
 
                 Provides to prevent errors due to using special chars on the
-                request URL. See mambuutil.iriToUri() method pydoc for further
+                request URL. See mambuutil.iri_to_uri() method pydoc for further
                 info.
 
                 Provides to prevent errors due to using special chars on the
@@ -619,7 +619,7 @@ class MambuStruct(object):
                     # Basic authentication
                     user = self.__kwargs.get("user", apiuser)
                     pwd = self.__kwargs.get("pwd", apipwd)
-                    url = iriToUri(
+                    url = iri_to_uri(
                         self.__urlfunc(
                             str(self.entid),
                             limit=limit,
@@ -888,7 +888,7 @@ class MambuStruct(object):
         """
         if not formato:
             try:
-                formato = self.__formatoFecha
+                formato = self.__formato_fecha
             except AttributeError:
                 formato = "%Y-%m-%dT%H:%M:%S+0000"
         return datetime.strptime(

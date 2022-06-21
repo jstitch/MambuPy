@@ -10,7 +10,7 @@ from datetime import datetime
 from importlib import import_module
 
 from .classes import MambuMapObj
-from ..mambuutil import MambuPyError, dateFormat
+from ..mambuutil import MambuPyError, date_format
 
 
 class MambuStruct(MambuMapObj):
@@ -164,7 +164,7 @@ class MambuStruct(MambuMapObj):
                     return f_data
                 except (TypeError, ValueError):
                     try:
-                        return dateFormat(data)
+                        return date_format(data)
                     except (TypeError, ValueError):
                         return data
 

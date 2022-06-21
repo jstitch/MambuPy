@@ -63,10 +63,10 @@ class MambuStructTests(unittest.TestCase):
         """MambuStruct's class tests"""
         self.assertEqual(mambustruct.MambuStruct.RETRIES, 5)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___getattribute__(self, requests, json, iriToUri):
+    def test___getattribute__(self, requests, json, iri_to_uri):
         """Get MambuStruct's attrs values as if they were properties of the object itself.
 
         Using dot notation"""
@@ -92,10 +92,10 @@ class MambuStructTests(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ms.bla
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___setattr__(self, requests, json, iriToUri):
+    def test___setattr__(self, requests, json, iri_to_uri):
         """Set MambuStruct's attrs keys as if they were properties of the object itself.
 
         Using dot notation"""
@@ -125,10 +125,10 @@ class MambuStructTests(unittest.TestCase):
         ms.RETRIES = 6
         self.assertEqual(ms.RETRIES, 6)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___getitem__(self, requests, json, iriToUri):
+    def test___getitem__(self, requests, json, iri_to_uri):
         """Get an item from the attrs dict"""
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
@@ -136,10 +136,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.attrs["hello"], "goodbye")
         self.assertEqual(ms["hello"], "goodbye")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___setitem__(self, requests, json, iriToUri):
+    def test___setitem__(self, requests, json, iri_to_uri):
         """Set an item in the attrs dict"""
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
@@ -147,10 +147,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.attrs["hello"], "world")
         self.assertEqual(ms["hello"], "world")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___delitem__(self, requests, json, iriToUri):
+    def test___delitem__(self, requests, json, iri_to_uri):
         """Del an item from the attrs dict"""
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
@@ -163,10 +163,10 @@ class MambuStructTests(unittest.TestCase):
         del ms[1]
         self.assertEqual(len(ms.attrs), 2)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test__hash__(self, requests, json, iriToUri):
+    def test__hash__(self, requests, json, iri_to_uri):
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual(ms.__hash__(), hash(repr(ms)))
@@ -175,10 +175,10 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "abcd")
         self.assertEqual(ms.__hash__(), hash(ms.id))
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___str__(self, requests, json, iriToUri):
+    def test___str__(self, requests, json, iri_to_uri):
         """String representation of MambuStruct"""
         # when urlfunc is None, or not connected yet connected to Mambu
         self.assertEqual(str(self.ms), repr(self.ms))
@@ -193,10 +193,10 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual(str(ms), "MambuStruct - [1, 2, 3]")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___repr__(self, requests, json, iriToUri):
+    def test___repr__(self, requests, json, iri_to_uri):
         """Repr of MambuStruct"""
         # when urlfunc is None, or not connected yet connected to Mambu
         self.assertEqual(repr(self.ms), "MambuStruct - id: '' (not synced with Mambu)")
@@ -218,10 +218,10 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual(repr(ms), "MambuStruct - len: 3")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___len__(self, requests, json, iriToUri):
+    def test___len__(self, requests, json, iri_to_uri):
         """Len of MambuStruct"""
         # on attrs=dict-like, len is number of keys
         json.loads.return_value = {"id": "12345", "hello": "goodbye"}
@@ -233,10 +233,10 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual(len(ms), 3)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test___eq__(self, requests, json, iriToUri):
+    def test___eq__(self, requests, json, iri_to_uri):
         """Equivalence between MambuStructs"""
         # if comparing to anything other than MambuStruct
         self.assertEqual(self.ms == object, None)
@@ -263,10 +263,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms, ms2)
         self.assertEqual(ms2, ms)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_has_key(self, requests, json, iriToUri):
+    def test_has_key(self, requests, json, iri_to_uri):
         """Dictionary-like has_key method"""
         # when no attrs or not dict-like, raises NotImplementedError
         with self.assertRaises(NotImplementedError):
@@ -283,10 +283,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.has_key("hello"), True)
         self.assertEqual(ms.has_key("bla"), False)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_contains(self, requests, json, iriToUri):
+    def test_contains(self, requests, json, iri_to_uri):
         """__contains__ method"""
         # when no attrs, raises AttributeError
         with self.assertRaises(AttributeError):
@@ -304,10 +304,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertTrue("hello" in ms)
         self.assertFalse("bla" in ms)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_get(self, requests, json, iriToUri):
+    def test_get(self, requests, json, iri_to_uri):
         """Dictionary-like get method"""
         json.loads.return_value = [1, 2, 3]
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
@@ -320,10 +320,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms.get("bla"), None)
         self.assertEqual(ms.get("bla", False), False)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_keys(self, requests, json, iriToUri):
+    def test_keys(self, requests, json, iri_to_uri):
         """Dictionary-like keys method"""
         # when no attrs or not dict-like, raises NotImplementedError
         with self.assertRaises(NotImplementedError):
@@ -339,10 +339,10 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
         self.assertEqual([k for k in ms.keys()], ["hello"])
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_items(self, requests, json, iriToUri):
+    def test_items(self, requests, json, iri_to_uri):
         """Dictionary-like items method"""
         # when no attrs or not dict-like, raises NotImplementedError
         with self.assertRaises(NotImplementedError):
@@ -377,10 +377,10 @@ class MambuStructMethodsTests(unittest.TestCase):
     def setUp(self):
         self.ms = mambustruct.MambuStruct(urlfunc=None)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_init(self, requests, json, iriToUri):
+    def test_init(self, requests, json, iri_to_uri):
         """Test init method, which is called by the connect method"""
         orig_preprocess = mambustruct.MambuStruct.preprocess
         orig_convertDict2Attrs = mambustruct.MambuStruct.convertDict2Attrs
@@ -436,10 +436,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         mambustruct.MambuStruct.util_date_format = orig_util_date_format
         mambustruct.MambuStruct.serialize_struct = orig_serialize_struct
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_convertDict2Attrs(self, requests, json, iriToUri):
+    def test_convertDict2Attrs(self, requests, json, iri_to_uri):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(
@@ -653,10 +653,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(getattr(ms, "_MambuStruct__debug"), True)
 
         self.assertEqual(
-            getattr(self.ms, "_MambuStruct__formatoFecha"), "%Y-%m-%dT%H:%M:%S+0000"
+            getattr(self.ms, "_MambuStruct__formato_fecha"), "%Y-%m-%dT%H:%M:%S+0000"
         )
-        ms = mambustruct.MambuStruct(urlfunc=None, dateFormat="%Y%m%d")
-        self.assertEqual(getattr(ms, "_MambuStruct__formatoFecha"), "%Y%m%d")
+        ms = mambustruct.MambuStruct(urlfunc=None, date_format="%Y%m%d")
+        self.assertEqual(getattr(ms, "_MambuStruct__formato_fecha"), "%Y%m%d")
 
         self.assertEqual(getattr(self.ms, "_MambuStruct__data"), None)
         data = {"postdata": "value"}
@@ -678,10 +678,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms = mambustruct.MambuStruct(urlfunc=None, offset=321)
         self.assertEqual(getattr(ms, "_MambuStruct__offset"), 321)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test__process_fields(self, requests, json, iriToUri):
+    def test__process_fields(self, requests, json, iri_to_uri):
         """Test default fields (pre/post)processing"""
         # preprocess strips spaces from beginning/end of values
         json.loads.return_value = {"hello": "   goodbye   "}
@@ -769,15 +769,15 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms.fieldid, "abc123")
         self.assertEqual(ms.customFields[0]["value"], "abc123")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_util_date_format(self, requests, json, iriToUri):
-        """Test dateFormat"""
+    def test_util_date_format(self, requests, json, iri_to_uri):
+        """Test date_format"""
         from datetime import datetime
 
         today = datetime.now()
-        # default dateFormat
+        # default date_format
         self.assertEqual(
             self.ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000")
@@ -795,7 +795,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            dateFormat="%Y%m%d",
+            date_format="%Y%m%d",
         )
         self.assertEqual(
             ms.util_date_format(
@@ -804,7 +804,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             today.strftime("%Y%m%d"),
         )
 
-        del self.ms._MambuStruct__formatoFecha
+        del self.ms._MambuStruct__formato_fecha
         self.assertEqual(
             self.ms.util_date_format(
                 field=today.strftime("%Y-%m-%dT%H:%M:%S+0000")
@@ -812,10 +812,10 @@ class MambuStructMethodsTests(unittest.TestCase):
             today.strftime("%Y%m%d%H%M%S"),
         )
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_preprocess_postprocess(self, requests, json, iriToUri):
+    def test_preprocess_postprocess(self, requests, json, iri_to_uri):
         """Test default preprocess and postprocess"""
         orig__process_fields = mambustruct.MambuStruct._process_fields
         mambustruct.MambuStruct._process_fields = mock.Mock()
@@ -827,10 +827,10 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         mambustruct.MambuStruct._process_fields = orig__process_fields
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_serialize_struct(self, requests, json, iriToUri):
+    def test_serialize_struct(self, requests, json, iri_to_uri):
         """Test serialize_struct method"""
         json.loads.return_value = {"att1": "1"}
         ms = mambustruct.MambuStruct(urlfunc=lambda entid, limit, offset: "")
@@ -847,10 +847,10 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         mambustruct.MambuStruct.serialize_fields = orig_serialize_fields
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test__serialize_fields(self, requests, json, iriToUri):
+    def test__serialize_fields(self, requests, json, iri_to_uri):
         """Test serialize_fields method"""
         # every 'normal' data type is converted to its string version
         json.loads.return_value = {
@@ -919,17 +919,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(serial["att1"], {"att1": "1", "att2": "1.23"})
         self.assertEqual(serial["att2"], "001")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_create(self, requests, json, iriToUri):
+    def test_create(self, requests, json, iri_to_uri):
         """Test create"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
             connect=False, urlfunc=lambda entid, limit, offset: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         requests.post.return_value = mock.Mock()
         responsePOST = {
             "user": {"user": "moreData"},
@@ -952,17 +952,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__data, None)
         self.assertTrue(ms._MambuStruct__urlfunc)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_update(self, requests, json, iriToUri):
+    def test_update(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
             connect=False, urlfunc=lambda entid, limit, offset: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         requests.patch.return_value = Response(str(data))
 
         self.assertEqual(ms.update(data), 1)
@@ -975,19 +975,19 @@ class MambuStructMethodsTests(unittest.TestCase):
             ms.update(data)
 
         # ensures that connect() was called to refresh the info in the entity
-        iriToUri.assert_called_with("")
+        iri_to_uri.assert_called_with("")
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_updatePatch(self, requests, json, iriToUri):
+    def test_updatePatch(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
             connect=False, urlfunc=lambda entid, limit, offset: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         requests.patch.return_value = Response(str(data))
 
         self.assertEqual(ms.updatePatch(data), 1)
@@ -1006,17 +1006,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__data, None)
         self.assertTrue(ms._MambuStruct__urlfunc)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_updatePost(self, requests, json, iriToUri):
+    def test_updatePost(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
             connect=False, urlfunc=lambda entid, limit, offset: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         requests.post.return_value = Response(str(data))
 
         self.assertEqual(ms.updatePost(data), 1)
@@ -1035,10 +1035,10 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms._MambuStruct__data, None)
         self.assertTrue(ms._MambuStruct__urlfunc)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_uploadDocument(self, requests, json, iriToUri):
+    def test_uploadDocument(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
@@ -1053,7 +1053,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             },
             "documentContent": "['encodedBase64_file']",
         }
-        iriToUri.return_value = "http://example.com/api/documents"
+        iri_to_uri.return_value = "http://example.com/api/documents"
         requests.post.return_value = Response(str(data))
 
         self.assertEqual(ms.uploadDocument(data), 1)
@@ -1083,21 +1083,21 @@ class MambuStructConnectTests(unittest.TestCase):
     def tearDown(self):
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = self.tmp_bound_limit
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_connect(self, requests, json, iriToUri):
+    def test_connect(self, requests, json, iri_to_uri):
         # urlfunc=None -> returns immediately
         ms = mambustruct.MambuStruct(entid="", urlfunc=None)
         self.assertIsNone(ms.connect())
-        self.assertFalse(iriToUri.called)
+        self.assertFalse(iri_to_uri.called)
         self.assertFalse(requests.get().called)
         self.assertFalse(json.loads.called)
 
         # normal load
         requests.reset_mock()
         rc_cnt = ms.rc.cnt
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         requests.get.return_value = mock.Mock()
         requests.get.return_value.content = "my raw response"
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
@@ -1130,7 +1130,7 @@ class MambuStructConnectTests(unittest.TestCase):
         # POST data
         requests.reset_mock()
         data = {"data1": "value1"}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
         requests.post.return_value = mock.Mock()
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
@@ -1174,7 +1174,7 @@ class MambuStructConnectTests(unittest.TestCase):
         # PATCH data
         requests.reset_mock()
         data = {"data1": "value1"}
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
         requests.patch.return_value = mock.Mock()
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
@@ -1203,7 +1203,7 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # DELETE data
         requests.reset_mock()
-        iriToUri.return_value = "http://example.com"
+        iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
         requests.delete.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
@@ -1230,7 +1230,7 @@ class MambuStructConnectTests(unittest.TestCase):
         )
 
         # normal load with error
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.return_value = mock.Mock()
         json.loads.return_value = {"returnCode": "500", "returnStatus": "TEST ERROR"}
         with self.assertRaisesRegexp(mambustruct.MambuError, r"^TEST ERROR$"):
@@ -1239,7 +1239,7 @@ class MambuStructConnectTests(unittest.TestCase):
             )
 
         # load list
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.return_value = mock.Mock()
         json.loads.return_value = [
             {"field1": "value1", "field2": "value2"},
@@ -1258,7 +1258,7 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # retries mechanism
         # one Comm Error, but retrying solves it
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.side_effect = [
             ValueError("TESTING RETRIES %s" % i) for i in range(1)
         ].extend([mock.Mock()])
@@ -1272,7 +1272,7 @@ class MambuStructConnectTests(unittest.TestCase):
         import requests as reqs
 
         mambustruct.requests.exceptions = reqs.exceptions
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.side_effect = [
             reqs.exceptions.RequestException("TESTING RETRIES")
             for _ in range(mambustruct.MambuStruct.RETRIES)
@@ -1286,7 +1286,7 @@ class MambuStructConnectTests(unittest.TestCase):
             )
 
         # MambuError
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.side_effect = [mock.Mock()]
         json.loads.side_effect = [Exception("TEST ERROR")]
         with self.assertRaisesRegexp(
@@ -1298,7 +1298,7 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # MambuError
         requests.get.side_effect = None
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get().content = b"""<html>\n<head><title>Oh My</title></head>
 <body>\n<h1>One error</h1>\n<p>Watcha gonna do?</p></body></html>"""
         json.loads.side_effect = [ValueError("TEST ERROR")]
@@ -1311,7 +1311,7 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # Mambu 500 Error
         requests.get.side_effect = None
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get().content = b"""<html>\n<head><title>502 gateway error</title></head>
 <body>\n<h1>502 gateway error</h1>\n<p>Should retry!</p></body></html>"""
         json.loads.side_effect = ValueError("TEST ERROR")
@@ -1329,7 +1329,7 @@ class MambuStructConnectTests(unittest.TestCase):
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = (
             1  # simulate as if Mambu could only returns one element per request
         )
-        iriToUri.return_value = ""
+        iri_to_uri.return_value = ""
         requests.get.side_effect = [
             mock.Mock(),
             mock.Mock(),
@@ -1381,10 +1381,10 @@ class MambuStructFunctionTests(unittest.TestCase):
     def setUp(self):
         self.ms = mambustruct.MambuStruct(urlfunc=None)
 
-    @mock.patch("MambuPy.rest.mambustruct.iriToUri")
+    @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_setCustomField(self, requests, json, iriToUri):
+    def test_setCustomField(self, requests, json, iri_to_uri):
         """Test setCustomField"""
         with mock.patch("MambuPy.rest.mambuuser.MambuUser") as mock_mambuuser, mock.patch(
             "MambuPy.rest.mambuclient.MambuClient"

@@ -61,10 +61,10 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(mambuutil.MambuCommError.__bases__, (mambuutil.MambuError,))
 
     @mock.patch("MambuPy.mambuutil.create_engine")
-    def test_connectDB(self, mock_create_engine):
-        mock_create_engine.return_value = "test_connectDB"
-        en = mambuutil.connectDb()
-        self.assertEqual(en, "test_connectDB")
+    def test_connect_dB(self, mock_create_engine):
+        mock_create_engine.return_value = "test_connect_dB"
+        en = mambuutil.connect_db()
+        self.assertEqual(en, "test_connect_dB")
         mock_create_engine.assert_called_once_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db?charset=utf8&use_unicode=1",
             poolclass=mambuutil.NullPool,
@@ -72,7 +72,7 @@ class MambuUtilTests(unittest.TestCase):
             echo=False,
         )
 
-        mambuutil.connectDb(echoopt=True, params="")
+        mambuutil.connect_db(echoopt=True, params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
@@ -80,42 +80,42 @@ class MambuUtilTests(unittest.TestCase):
             echo=True,
         )
 
-        mambuutil.connectDb(engine="myeng", params="")
+        mambuutil.connect_db(engine="myeng", params="")
         mock_create_engine.assert_called_with(
             "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-        mambuutil.connectDb(user="myuser", params="")
+        mambuutil.connect_db(user="myuser", params="")
         mock_create_engine.assert_called_with(
             "mysql://myuser:mambu_db_pwd@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-        mambuutil.connectDb(password="mypass", params="")
+        mambuutil.connect_db(password="mypass", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mypass@localhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-        mambuutil.connectDb(host="myhost", params="")
+        mambuutil.connect_db(host="myhost", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@myhost:3306/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-        mambuutil.connectDb(port="myport", params="")
+        mambuutil.connect_db(port="myport", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:myport/mambu_db",
             poolclass=mambuutil.NullPool,
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-        mambuutil.connectDb(database="mydb", params="")
+        mambuutil.connect_db(database="mydb", params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mydb",
             poolclass=mambuutil.NullPool,
@@ -142,18 +142,18 @@ class MambuUtilTests(unittest.TestCase):
         )
         self.assertEqual(mambuutil.strip_consecutive_repeated_char("TTTT", "T"), "T")
 
-    def test_iriToUri(self):
+    def test_iri_to_uri(self):
         self.assertEqual(
-            mambuutil.iriToUri("https://domain.mambu.com/some_url"),
+            mambuutil.iri_to_uri("https://domain.mambu.com/some_url"),
             "https://domain.mambu.com/some_url",
         )
         if sys.version_info < (3, 0):
             url = "https://domain.mambu.com/some_url/strange_ñame/having_ñ"
             resUrl = "https://domain.mambu.com/some_url/strange_%c3%b1ame/having_%c3%b1"
-            self.assertEqual(mambuutil.iriToUri(url), resUrl)
+            self.assertEqual(mambuutil.iri_to_uri(url), resUrl)
         else:
             self.assertEqual(
-                mambuutil.iriToUri(
+                mambuutil.iri_to_uri(
                     "https://domain.mambu.com/some_url/strange_name/having_ñ"
                 ),
                 "https://domain.mambu.com/some_url/strange_name/having_ñ",
@@ -170,8 +170,8 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(d2["b"], "yes-utf")
         self.assertEqual(d2["c"], "strange-char-ñ")
 
-    def test_dateFormat(self):
-        """Test dateFormat"""
+    def test_date_format(self):
+        """Test date_format"""
         from datetime import datetime
 
         if sys.version_info < (3, 0):
@@ -179,14 +179,14 @@ class MambuUtilTests(unittest.TestCase):
         else:
             format = "%Y-%m-%dT%H:%M:%S-06:00"
         today = datetime.now()
-        # default dateFormat
+        # default date_format
         self.assertEqual(
-            mambuutil.dateFormat(field=today.strftime(format)).strftime("%Y%m%d%H%M%S"),
+            mambuutil.date_format(field=today.strftime(format)).strftime("%Y%m%d%H%M%S"),
             today.strftime("%Y%m%d%H%M%S"),
         )
         # given format
         self.assertEqual(
-            mambuutil.dateFormat(field=today.strftime(format), formato="%Y%m%d").strftime(
+            mambuutil.date_format(field=today.strftime(format), formato="%Y%m%d").strftime(
                 "%Y%m%d"
             ),
             today.strftime("%Y%m%d"),
@@ -226,7 +226,7 @@ class MambuUtilTests(unittest.TestCase):
         )
         # API is called with these arguments using GET method
         mock_requests.get.assert_called_with(
-            mambuutil.iriToUri(mambuutil.getmambuurl() + "database/backup/LATEST"),
+            mambuutil.iri_to_uri(mambuutil.getmambuurl() + "database/backup/LATEST"),
             auth=(mambuconfig.apiuser, mambuconfig.apipwd),
             headers={
                 "content-type": "application/json",
@@ -520,7 +520,8 @@ class UrlFuncTests(unittest.TestCase):
             ),
             self.prefix
             + "/api/"
-            + "loans/12345?fullDetails=true&accountState=ACTIVE_IN_ARREARS&branchId=CCCC&centreId=CCCC&creditOfficerUsername=fulanito&offset=2&limit=0",
+            + "loans/12345?fullDetails=true&accountState=ACTIVE_IN_ARREARS&branchId=CCCC&centreId=CCCC&creditOfficerUs\
+ername=fulanito&offset=2&limit=0",
         )
 
         self.assertEqual(
@@ -597,7 +598,8 @@ class UrlFuncTests(unittest.TestCase):
             ),
             self.prefix
             + "/api/"
-            + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&branchId=BRANCH&centreId=CENTRE&limit=0&offset=2",
+            + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&branchId=BRANCH&centreId=CENTRE&limit=0&of\
+fset=2",
         )
 
         self.assertEqual(
@@ -758,7 +760,8 @@ class UrlFuncTests(unittest.TestCase):
             ),
             self.prefix
             + "/api/"
-            + "clients/ABC123?fullDetails=true&firstName=FULANA&lastName=DE TAL&idDocument=WXYZ098765MDFXYZ99&birthdate=1981-12-31&state=INACTIVE&offset=2&limit=0",
+            + "clients/ABC123?fullDetails=true&firstName=FULANA&lastName=DE TAL&idDocument=WXYZ098765MDFXYZ99&birthdat\
+e=1981-12-31&state=INACTIVE&offset=2&limit=0",
         )
 
         self.assertEqual(
@@ -1025,7 +1028,8 @@ class UrlFuncTests(unittest.TestCase):
             ),
             self.prefix
             + "/api/"
-            + "activities?from=2018-01-01&to=2018-01-31&branchID=CCCC&clientID=ABC123&centreID=CCCC&userID=j.doe&loanAccountID=12345&groupID=XYZ890&limit=0",
+            + "activities?from=2018-01-01&to=2018-01-31&branchID=CCCC&clientID=ABC123&centreID=CCCC&userID=j.doe&loanA\
+ccountID=12345&groupID=XYZ890&limit=0",
         )
 
     def test_getrolesurl(self):
