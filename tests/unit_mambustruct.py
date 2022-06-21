@@ -1384,8 +1384,8 @@ class MambuStructFunctionTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_setCustomField(self, requests, json, iri_to_uri):
-        """Test setCustomField"""
+    def test_set_custom_field(self, requests, json, iri_to_uri):
+        """Test set_custom_field"""
         with mock.patch("MambuPy.rest.mambuuser.MambuUser") as mock_mambuuser, mock.patch(
             "MambuPy.rest.mambuclient.MambuClient"
         ) as mock_mambuclient:
@@ -1411,9 +1411,9 @@ class MambuStructFunctionTests(unittest.TestCase):
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
                 customFieldName="customFields",
             )
-            mambustruct.setCustomField(ms, customfield="field")
+            mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(ms.field, "val")
-            mambustruct.setCustomField(ms, customfield="fieldid")
+            mambustruct.set_custom_field(ms, customfield="fieldid")
             self.assertEqual(ms.fieldid, "val")
 
             # user_link custom field
@@ -1435,10 +1435,10 @@ class MambuStructFunctionTests(unittest.TestCase):
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
                 customFieldName="customFields",
             )
-            mambustruct.setCustomField(ms, customfield="field")
+            mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
             self.assertEqual(ms.field["id"], "user123")
-            mambustruct.setCustomField(ms, customfield="fieldid")
+            mambustruct.set_custom_field(ms, customfield="fieldid")
             self.assertEqual(type(ms.fieldid), dict)
             self.assertEqual(ms.fieldid["id"], "user123")
 
@@ -1461,10 +1461,10 @@ class MambuStructFunctionTests(unittest.TestCase):
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
                 customFieldName="customFields",
             )
-            mambustruct.setCustomField(ms, customfield="field")
+            mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
             self.assertEqual(ms.field["id"], "client123")
-            mambustruct.setCustomField(ms, customfield="fieldid")
+            mambustruct.set_custom_field(ms, customfield="fieldid")
             self.assertEqual(type(ms.fieldid), dict)
             self.assertEqual(ms.fieldid["id"], "client123")
 
@@ -1487,9 +1487,9 @@ class MambuStructFunctionTests(unittest.TestCase):
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
                 customFieldName="customFields",
             )
-            mambustruct.setCustomField(ms, customfield="field_0")
+            mambustruct.set_custom_field(ms, customfield="field_0")
             self.assertEqual(ms.field_0, "val")
-            mambustruct.setCustomField(ms, customfield="fieldid_0")
+            mambustruct.set_custom_field(ms, customfield="fieldid_0")
             self.assertEqual(ms.fieldid_0, "val")
 
 

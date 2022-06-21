@@ -1013,7 +1013,7 @@ class MambuStruct(object):
         return 1
 
 
-def setCustomField(mambuentity, customfield="", *args, **kwargs):
+def set_custom_field(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
     something related to the value of the given field.
 
