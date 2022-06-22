@@ -24,29 +24,29 @@ except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
 
 
+
+
 class MambuUtilTests(unittest.TestCase):
     def test_attrs(self):
-        for atr in [
-            "apiurl",
-            "apiuser",
-            "apipwd",
-            "dbname",
-            "dbuser",
-            "dbpwd",
-            "dbhost",
-            "dbport",
-            "dbeng",
-            "OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE",
-            "PAGINATIONDETAILS",
-            "DETAILSLEVEL",
-            "MAX_UPLOAD_SIZE",
-            "UPLOAD_FILENAME_INVALID_CHARS",
-            "ALLOWED_UPLOAD_MIMETYPES",
-            "SEARCH_OPERATORS",
-            "MambuPyError",
-            "MambuError",
-            "MambuCommError",
-        ]:
+        for atr in ["apiurl",
+                    "apiuser",
+                    "apipwd",
+                    "dbname",
+                    "dbuser",
+                    "dbpwd",
+                    "dbhost",
+                    "dbport",
+                    "dbeng",
+                    "OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE",
+                    "PAGINATIONDETAILS", "DETAILSLEVEL",
+                    "MAX_UPLOAD_SIZE",
+                    "UPLOAD_FILENAME_INVALID_CHARS",
+                    "ALLOWED_UPLOAD_MIMETYPES",
+                    "SEARCH_OPERATORS",
+                    "MambuPyError",
+                    "MambuError",
+                    "MambuCommError",
+                    ]:
             try:
                 getattr(mambuutil, atr)
             except AttributeError:
@@ -57,8 +57,10 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_error_attrs(self):
         self.assertEqual(mambuutil.MambuPyError.__bases__, (Exception,))
-        self.assertEqual(mambuutil.MambuError.__bases__, (mambuutil.MambuPyError,))
-        self.assertEqual(mambuutil.MambuCommError.__bases__, (mambuutil.MambuError,))
+        self.assertEqual(mambuutil.MambuError.__bases__,
+                         (mambuutil.MambuPyError,))
+        self.assertEqual(mambuutil.MambuCommError.__bases__,
+                         (mambuutil.MambuError,))
 
     @mock.patch("MambuPy.mambuutil.create_engine")
     def test_connect_dB(self, mock_create_engine):
@@ -71,7 +73,6 @@ class MambuUtilTests(unittest.TestCase):
             isolation_level="READ UNCOMMITTED",
             echo=False,
         )
-
         mambuutil.connect_db(echoopt=True, params="")
         mock_create_engine.assert_called_with(
             "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
@@ -79,7 +80,6 @@ class MambuUtilTests(unittest.TestCase):
             isolation_level="READ UNCOMMITTED",
             echo=True,
         )
-
         mambuutil.connect_db(engine="myeng", params="")
         mock_create_engine.assert_called_with(
             "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
@@ -124,8 +124,10 @@ class MambuUtilTests(unittest.TestCase):
         )
 
     def test_strip_tags(self):
-        self.assertEqual(mambuutil.strip_tags("<html>some text</html>"), "some text")
-        self.assertEqual(mambuutil.strip_tags("<html>some&nbsp;text</html>"), "some text")
+        self.assertEqual(mambuutil.strip_tags(
+            "<html>some text</html>"), "some text")
+        self.assertEqual(mambuutil.strip_tags(
+            "<html>some&nbsp;text</html>"), "some text")
 
     def test_strip_consecutive_repeated_chars(self):
         self.assertEqual(
@@ -140,7 +142,8 @@ class MambuUtilTests(unittest.TestCase):
             mambuutil.strip_consecutive_repeated_char("TEST STRINGGG", "G"),
             "TEST STRING",
         )
-        self.assertEqual(mambuutil.strip_consecutive_repeated_char("TTTT", "T"), "T")
+        self.assertEqual(
+            mambuutil.strip_consecutive_repeated_char("TTTT", "T"), "T")
 
     def test_iri_to_uri(self):
         self.assertEqual(
@@ -150,7 +153,8 @@ class MambuUtilTests(unittest.TestCase):
         if sys.version_info < (3, 0):
             url = "https://domain.mambu.com/some_url/strange_ñame/having_ñ"
             resUrl = "https://domain.mambu.com/some_url/strange_%c3%b1ame/having_%c3%b1"
-            self.assertEqual(mambuutil.iri_to_uri(url), resUrl)
+            self.assertEqual(mambuutil.iri_to_uri(url), resUrl
+                             )
         else:
             self.assertEqual(
                 mambuutil.iri_to_uri(
@@ -173,7 +177,6 @@ class MambuUtilTests(unittest.TestCase):
     def test_date_format(self):
         """Test date_format"""
         from datetime import datetime
-
         if sys.version_info < (3, 0):
             format = "%Y-%m-%dT%H:%M:%S+0000"
         else:
@@ -181,14 +184,14 @@ class MambuUtilTests(unittest.TestCase):
         today = datetime.now()
         # default date_format
         self.assertEqual(
-            mambuutil.date_format(field=today.strftime(format)).strftime("%Y%m%d%H%M%S"),
+            mambuutil.date_format(field=today.strftime(
+                format)).strftime("%Y%m%d%H%M%S"),
             today.strftime("%Y%m%d%H%M%S"),
         )
         # given format
         self.assertEqual(
             mambuutil.date_format(field=today.strftime(format), formato="%Y%m%d").strftime(
-                "%Y%m%d"
-            ),
+                "%Y%m%d"),
             today.strftime("%Y%m%d"),
         )
 
@@ -213,20 +216,19 @@ class MambuUtilTests(unittest.TestCase):
                 self.status_code = code
                 self.content = content
                 self.request = request
-
         mock_requests.post.return_value = response(
             code=200, content="hello world",
             request=request("url", "body", "headers"))
         mock_requests.get.return_value = response(
             code=200, content=b"hello world",
             request=request("url", "body", "headers"))
-
         d = mambuutil.backup_db(
             callback="da-callback", bool_func=lambda: True, output_fname="/tmp/out_test"
         )
         # API is called with these arguments using GET method
         mock_requests.get.assert_called_with(
-            mambuutil.iri_to_uri(mambuutil.getmambuurl() + "database/backup/LATEST"),
+            mambuutil.iri_to_uri(mambuutil.getmambuurl() +
+                                 "database/backup/LATEST"),
             auth=(mambuconfig.apiuser, mambuconfig.apipwd),
             headers={
                 "content-type": "application/json",
@@ -235,9 +237,9 @@ class MambuUtilTests(unittest.TestCase):
         )
         self.assertEqual(mock_requests.post.call_count, 1)
         self.assertEqual(mock_requests.get.call_count, 1)
+
         self.assertEqual(d["callback"], "da-callback")
         self.assertTrue(d["latest"])
-
         d = mambuutil.backup_db(
             callback="da-callback",
             bool_func=lambda: False,
@@ -247,7 +249,6 @@ class MambuUtilTests(unittest.TestCase):
         )
         self.assertEqual(d["callback"], "da-callback")
         self.assertFalse(d["latest"])
-
         mock_requests.post.reset_mock()
         mock_requests.get.reset_mock()
         d = mambuutil.backup_db(
@@ -262,7 +263,6 @@ class MambuUtilTests(unittest.TestCase):
         self.assertEqual(mock_requests.get.call_count, 1)
         self.assertEqual(d["callback"], "da-callback")
         self.assertTrue(d["latest"])
-
         d = mambuutil.backup_db(
             callback="da-callback",
             bool_func=lambda: True,
@@ -271,7 +271,6 @@ class MambuUtilTests(unittest.TestCase):
         )
         self.assertEqual(d["callback"], "da-callback")
         self.assertTrue(d["latest"])
-
         with self.assertRaisesRegexp(
             mambuutil.MambuError, r"Tired of waiting, giving up..."
         ):
@@ -330,6 +329,9 @@ class MambuUtilTests(unittest.TestCase):
 
 
 class UrlFuncTests(unittest.TestCase):
+    def url_to_compare(self, result_of_functions, params_of_functions):
+        return [parameter for parameter in params_of_functions if parameter in result_of_functions]
+
     def setUp(self):
         self.prefix = "https://domain.mambu.com"
 
@@ -337,93 +339,51 @@ class UrlFuncTests(unittest.TestCase):
         self.assertEqual(mambuutil.getmambuurl(), self.prefix + "/api/")
 
     def test_getbranchesurl(self):
+        result_getbranchesurl = mambuutil.getbranchesurl(idbranch="CCCC", fullDetails=True, limit=0, offset=2)
         self.assertEqual(
             mambuutil.getbranchesurl(idbranch="CCCC"),
             self.prefix + "/api/" + "branches/CCCC",
         )
         self.assertEqual(
-            mambuutil.getbranchesurl("CCCC"), self.prefix + "/api/" + "branches/CCCC"
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch=""), self.prefix + "/api/" + "branches"
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", fullDetails=True),
-            self.prefix + "/api/" + "branches/CCCC?fullDetails=true",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", fullDetails=False),
-            self.prefix + "/api/" + "branches/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", fullDetails=None),
-            self.prefix + "/api/" + "branches/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", fullDetails="whatever"),
-            self.prefix + "/api/" + "branches/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", offset=10),
-            self.prefix + "/api/" + "branches/CCCC?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", limit=10),
-            self.prefix + "/api/" + "branches/CCCC?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.getbranchesurl(idbranch="CCCC", anything="whatever"),
-            self.prefix + "/api/" + "branches/CCCC",
+            mambuutil.getbranchesurl(
+                "CCCC"), self.prefix + "/api/" + "branches/CCCC"
         )
         self.assertEqual(
             mambuutil.getbranchesurl(
-                idbranch="CCCC", fullDetails=True, offset=2, limit=0
-            ),
-            self.prefix + "/api/" + "branches/CCCC?fullDetails=true&offset=2&limit=0",
+                idbranch=""), self.prefix + "/api/" + "branches"
+        )
+        self.assertTrue("fullDetails=true" in result_getbranchesurl)
+        self.assertTrue("limit=0" in result_getbranchesurl)
+        self.assertTrue("offset=2" in result_getbranchesurl)
+
+        params_branchesurl = ["fullDetails=true", "limit=0", "offset=2"]
+        x = self.url_to_compare(result_getbranchesurl, params_branchesurl)
+        self.assertEqual(self.prefix + "/api/" + "branches/CCCC?"+x[0]+"&"+x[1]+"&"+x[2],
+            self.prefix + "/api/" + "branches/CCCC?fullDetails=true&limit=0&offset=2"
         )
 
     def test_getcentresurl(self):
+        result_getcentresurl = mambuutil.getcentresurl(idcentre="CCCC", fullDetails=True,limit=0,offset=2)
         self.assertEqual(
             mambuutil.getcentresurl(idcentre="CCCC"),
             self.prefix + "/api/" + "centres/CCCC",
         )
         self.assertEqual(
-            mambuutil.getcentresurl("CCCC"), self.prefix + "/api/" + "centres/CCCC"
+            mambuutil.getcentresurl("CCCC"), self.prefix +
+            "/api/" + "centres/CCCC"
         )
         self.assertEqual(
-            mambuutil.getcentresurl(idcentre=""), self.prefix + "/api/" + "centres"
+            mambuutil.getcentresurl(
+                idcentre=""), self.prefix + "/api/" + "centres"
         )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", fullDetails=True),
-            self.prefix + "/api/" + "centres/CCCC?fullDetails=true",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", fullDetails=False),
-            self.prefix + "/api/" + "centres/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", fullDetails=None),
-            self.prefix + "/api/" + "centres/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", fullDetails="whatever"),
-            self.prefix + "/api/" + "centres/CCCC?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", offset=10),
-            self.prefix + "/api/" + "centres/CCCC?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", limit=10),
-            self.prefix + "/api/" + "centres/CCCC?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", anything="whatever"),
-            self.prefix + "/api/" + "centres/CCCC",
-        )
-        self.assertEqual(
-            mambuutil.getcentresurl(idcentre="CCCC", fullDetails=True, offset=2, limit=0),
-            self.prefix + "/api/" + "centres/CCCC?fullDetails=true&offset=2&limit=0",
+        self.assertTrue("fullDetails=true" in result_getcentresurl)
+        self.assertTrue("limit=0" in result_getcentresurl)
+        self.assertTrue("offset=2" in result_getcentresurl)
+
+        params_centresurl = ["fullDetails=true", "limit=0", "offset=2"]
+        x = self.url_to_compare(result_getcentresurl, params_centresurl)
+        self.assertEqual(self.prefix + "/api/" + "branches/CCCC?"+x[0]+"&"+x[1]+"&"+x[2],
+            self.prefix + "/api/" + "branches/CCCC?fullDetails=true&limit=0&offset=2"
         )
 
     def test_getrepaymentsurl(self):
@@ -458,76 +418,31 @@ class UrlFuncTests(unittest.TestCase):
         )
 
     def test_getloansurl(self):
+        result_getloansurl = mambuutil.getrepaymentsurl(idcred="12345", fullDetails=False, accountState="ACTIVE",
+            branchId="CCCC", centreId="DDDD", creditOfficerUsername="fulanito", limit=0,offset=1)
         self.assertEqual(
-            mambuutil.getloansurl(idcred="12345"), self.prefix + "/api/" + "loans/12345"
+            mambuutil.getloansurl(
+                idcred="12345"), self.prefix + "/api/" + "loans/12345"
         )
         self.assertEqual(
-            mambuutil.getloansurl("12345"), self.prefix + "/api/" + "loans/12345"
+            mambuutil.getloansurl("12345"), self.prefix +
+            "/api/" + "loans/12345"
         )
         self.assertEqual(
             mambuutil.getloansurl(idcred=""), self.prefix + "/api/" + "loans"
         )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", fullDetails=True),
-            self.prefix + "/api/" + "loans/12345?fullDetails=true",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", fullDetails=False),
-            self.prefix + "/api/" + "loans/12345?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", fullDetails=None),
-            self.prefix + "/api/" + "loans/12345?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", fullDetails="whatever"),
-            self.prefix + "/api/" + "loans/12345?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", offset=10),
-            self.prefix + "/api/" + "loans/12345?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", limit=10),
-            self.prefix + "/api/" + "loans/12345?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", accountState="ACTIVE"),
-            self.prefix + "/api/" + "loans/12345?accountState=ACTIVE",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", branchId="CCCC"),
-            self.prefix + "/api/" + "loans/12345?branchId=CCCC",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", centreId="CCCC"),
-            self.prefix + "/api/" + "loans/12345?centreId=CCCC",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", creditOfficerUsername="fulanito"),
-            self.prefix + "/api/" + "loans/12345?creditOfficerUsername=fulanito",
-        )
-        self.assertEqual(
-            mambuutil.getloansurl(
-                idcred="12345",
-                fullDetails=True,
-                accountState="ACTIVE_IN_ARREARS",
-                branchId="CCCC",
-                centreId="CCCC",
-                creditOfficerUsername="fulanito",
-                offset=2,
-                limit=0,
-            ),
-            self.prefix
-            + "/api/"
-            + "loans/12345?fullDetails=true&accountState=ACTIVE_IN_ARREARS&branchId=CCCC&centreId=CCCC&creditOfficerUs\
-ername=fulanito&offset=2&limit=0",
-        )
+        self.assertTrue("fullDetails=false" in result_getloansurl)
+        self.assertTrue("accountState=ACTIVE" in result_getloansurl)
+        self.assertTrue("limit=0" in result_getloansurl)
+        self.assertTrue("offset=1" in result_getloansurl)
 
-        self.assertEqual(
-            mambuutil.getloansurl(idcred="12345", anything="whatever"),
-            self.prefix + "/api/" + "loans/12345",
-        )
+        params_loansurl = ["fullDetails=false", "accountState=ACTIVE", "branchId=CCCC", "centreId=DDDD",
+            "creditOfficerUsername=fulanito", "limit=0","offset=1"]
+        x = self.url_to_compare(result_getloansurl, params_loansurl)
+        self.assertEqual(self.prefix + "/api/" + "loans/12345/repayments?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3]+"&"+x[4]+
+            "&"+x[5]+"&"+x[6],
+            self.prefix + "/api/" + "loans/12345/repayments?fullDetails=false&accountState=ACTIVE&branchId=CCCC&centre\
+Id=DDDD&creditOfficerUsername=fulanito&limit=0&offset=1")
 
     def test_getloanscustominformationurl(self):
         self.assertEqual(
@@ -535,79 +450,43 @@ ername=fulanito&offset=2&limit=0",
             self.prefix + "/api/" + "loans/loanID123/custominformation",
         )
         self.assertEqual(
-            mambuutil.getloanscustominformationurl("loanID123", customfield="bla"),
+            mambuutil.getloanscustominformationurl(
+                "loanID123", customfield="bla"),
             self.prefix + "/api/" + "loans/loanID123/custominformation/bla",
         )
 
     def test_getgroupurl(self):
+        result_getgroupurl = mambuutil.getgroupurl(idgroup="XY890",fullDetails=True,creditOfficerUsername="fulanito",
+            branchId="BRANCH",centreId="CENTRE",limit=0,offset=1,
+        )
         self.assertEqual(
             mambuutil.getgroupurl(idgroup="XY890"),
             self.prefix + "/api/" + "groups/XY890",
         )
         self.assertEqual(
-            mambuutil.getgroupurl("XY890"), self.prefix + "/api/" + "groups/XY890"
+            mambuutil.getgroupurl("XY890"), self.prefix +
+            "/api/" + "groups/XY890"
         )
         self.assertEqual(
             mambuutil.getgroupurl(idgroup=""), self.prefix + "/api/" + "groups"
         )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", fullDetails=True),
-            self.prefix + "/api/" + "groups/XY890?fullDetails=true",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", fullDetails=False),
-            self.prefix + "/api/" + "groups/XY890?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", fullDetails=None),
-            self.prefix + "/api/" + "groups/XY890?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", fullDetails="whatever"),
-            self.prefix + "/api/" + "groups/XY890?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", branchId="BRANCH"),
-            self.prefix + "/api/" + "groups/XY890?branchId=BRANCH",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", centreId="CENTRE"),
-            self.prefix + "/api/" + "groups/XY890?centreId=CENTRE",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", offset=10),
-            self.prefix + "/api/" + "groups/XY890?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", limit=10),
-            self.prefix + "/api/" + "groups/XY890?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", creditOfficerUsername="fulanito"),
-            self.prefix + "/api/" + "groups/XY890?creditOfficerUsername=fulanito",
-        )
-        self.assertEqual(
-            mambuutil.getgroupurl(
-                idgroup="XY890",
-                fullDetails=True,
-                creditOfficerUsername="fulanito",
-                branchId="BRANCH",
-                centreId="CENTRE",
-                offset=2,
-                limit=0,
-            ),
-            self.prefix
-            + "/api/"
-            + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&branchId=BRANCH&centreId=CENTRE&limit=0&of\
-fset=2",
-        )
+        self.assertTrue("fullDetails=true" in result_getgroupurl)
+        self.assertTrue("creditOfficerUsername=fulanito" in result_getgroupurl)
+        self.assertTrue("branchId=BRANCH" in result_getgroupurl)
+        self.assertTrue("centreId=CENTRE" in result_getgroupurl)
+        self.assertTrue("limit=0" in result_getgroupurl)
+        self.assertTrue("offset=1" in result_getgroupurl)
 
-        self.assertEqual(
-            mambuutil.getgroupurl(idgroup="XY890", anything="whatever"),
-            self.prefix + "/api/" + "groups/XY890",
+        params_groupurl = ["fullDetails=true","creditOfficerUsername=fulanito","branchId=BRANCH","centreId=CENTRE",
+            "limit=0","offset=1"]
+        x = self.url_to_compare(result_getgroupurl, params_groupurl)
+        self.assertEqual(self.prefix + "/api/" + "groups/XY890?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3]+"&"+x[4]+"&"+x[5],
+                         self.prefix + "/api/" + "groups/XY890?fullDetails=true&creditOfficerUsername=fulanito&branchI\
+d=BRANCH&centreId=CENTRE&limit=0&offset=1",
         )
 
     def test_getgrouploansurl(self):
+        result_getgrouploansurl = mambuutil.getgrouploansurl(idgroup="XY890", fullDetails=True, accountState="CLOSED")
         self.assertEqual(
             mambuutil.getgrouploansurl(idgroup="XY890"),
             self.prefix + "/api/" + "groups/XY890/loans",
@@ -633,25 +512,17 @@ fset=2",
             self.prefix + "/api/" + "groups/XY890/loans?fullDetails=false",
         )
         self.assertEqual(
-            mambuutil.getgrouploansurl(idgroup="XY890", fullDetails="whatever"),
+            mambuutil.getgrouploansurl(
+                idgroup="XY890", fullDetails="whatever"),
             self.prefix + "/api/" + "groups/XY890/loans?fullDetails=false",
         )
-        self.assertEqual(
-            mambuutil.getgrouploansurl(idgroup="XY890", accountState="ACTIVE"),
-            self.prefix + "/api/" + "groups/XY890/loans?accountState=ACTIVE",
-        )
-        self.assertEqual(
-            mambuutil.getgrouploansurl(
-                idgroup="XY890", fullDetails=True, accountState="CLOSED"
-            ),
-            self.prefix
-            + "/api/"
-            + "groups/XY890/loans?fullDetails=true&accountState=CLOSED",
-        )
+        self.assertTrue("fullDetails=true" in result_getgrouploansurl)
+        self.assertTrue("accountState=CLOSED" in result_getgrouploansurl)
 
-        self.assertEqual(
-            mambuutil.getgrouploansurl(idgroup="XY890", anything="whatever"),
-            self.prefix + "/api/" + "groups/XY890/loans",
+        params_grouploansurl = ["fullDetails=true", "accountState=CLOSED"]
+        x = self.url_to_compare(result_getgrouploansurl, params_grouploansurl)
+        self.assertEqual(self.prefix + "/api/" + "groups/XY890/loans?"+x[0]+"&"+x[1],
+            self.prefix + "/api/" + "groups/XY890/loans?fullDetails=true&accountState=CLOSED",
         )
 
     def test_getgroupcustominformationurl(self):
@@ -660,11 +531,13 @@ fset=2",
             self.prefix + "/api/" + "groups/XY890/custominformation",
         )
         self.assertEqual(
-            mambuutil.getgroupcustominformationurl(idgroup="XY890", customfield="bla"),
+            mambuutil.getgroupcustominformationurl(
+                idgroup="XY890", customfield="bla"),
             self.prefix + "/api/" + "groups/XY890/custominformation/bla",
         )
 
     def test_gettransactionsurl(self):
+        rest_gettransactionsurl = mambuutil.gettransactionsurl(idcred="12345", offset=2, limit=0)
         self.assertEqual(
             mambuutil.gettransactionsurl(idcred="12345"),
             self.prefix + "/api/" + "loans/12345/transactions",
@@ -673,100 +546,52 @@ fset=2",
             mambuutil.gettransactionsurl("12345"),
             self.prefix + "/api/" + "loans/12345/transactions",
         )
-        self.assertEqual(
-            mambuutil.gettransactionsurl(idcred="12345", offset=10),
-            self.prefix + "/api/" + "loans/12345/transactions?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.gettransactionsurl(idcred="12345", limit=10),
-            self.prefix + "/api/" + "loans/12345/transactions?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.gettransactionsurl(idcred="12345", offset=2, limit=0),
+        self.assertTrue("offset=2" in rest_gettransactionsurl)
+        self.assertTrue("limit=0" in rest_gettransactionsurl)
+
+        params_gettransactionsurl = ["offset=2", "limit=0"]
+        x = self.url_to_compare(rest_gettransactionsurl, params_gettransactionsurl)
+        self.assertEqual(self.prefix + "/api/" + "loans/12345/transactions?"+x[0]+"&"+x[1],
             self.prefix + "/api/" + "loans/12345/transactions?offset=2&limit=0",
         )
 
-        self.assertEqual(
-            mambuutil.gettransactionsurl(idcred="12345", anything="whatever"),
-            self.prefix + "/api/" + "loans/12345/transactions",
-        )
-
     def test_getclienturl(self):
+        result_getclienturl = mambuutil.getclienturl(idclient="ABC123",fullDetails=True,firstName="FULANO",
+        lastName="DE TAL",idDocument="ABCD123456HDFABC00",birthdate="1980-01-01",state="ACTIVE",offset=10,limit=10,)
         self.assertEqual(
             mambuutil.getclienturl(idclient="ABC123"),
             self.prefix + "/api/" + "clients/ABC123",
         )
         self.assertEqual(
-            mambuutil.getclienturl("ABC123"), self.prefix + "/api/" + "clients/ABC123"
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient=""), self.prefix + "/api/" + "clients"
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", fullDetails=True),
-            self.prefix + "/api/" + "clients/ABC123?fullDetails=true",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", fullDetails=False),
-            self.prefix + "/api/" + "clients/ABC123?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", fullDetails=None),
-            self.prefix + "/api/" + "clients/ABC123?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", fullDetails="whatever"),
-            self.prefix + "/api/" + "clients/ABC123?fullDetails=false",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", offset=10),
-            self.prefix + "/api/" + "clients/ABC123?offset=10",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", limit=10),
-            self.prefix + "/api/" + "clients/ABC123?limit=10",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", firstName="FULANO"),
-            self.prefix + "/api/" + "clients/ABC123?firstName=FULANO",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", lastName="DE TAL"),
-            self.prefix + "/api/" + "clients/ABC123?lastName=DE TAL",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", idDocument="ABCD123456HDFABC00"),
-            self.prefix + "/api/" + "clients/ABC123?idDocument=ABCD123456HDFABC00",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", birthdate="1980-01-01"),
-            self.prefix + "/api/" + "clients/ABC123?birthdate=1980-01-01",
-        )
-        self.assertEqual(
-            mambuutil.getclienturl(idclient="ABC123", state="ACTIVE"),
-            self.prefix + "/api/" + "clients/ABC123?state=ACTIVE",
+            mambuutil.getclienturl("ABC123"), self.prefix +
+            "/api/" + "clients/ABC123"
         )
         self.assertEqual(
             mambuutil.getclienturl(
-                idclient="ABC123",
-                fullDetails=True,
-                state="INACTIVE",
-                firstName="FULANA",
-                lastName="DE TAL",
-                idDocument="WXYZ098765MDFXYZ99",
-                birthdate="1981-12-31",
-                offset=2,
-                limit=0,
-            ),
-            self.prefix
-            + "/api/"
-            + "clients/ABC123?fullDetails=true&firstName=FULANA&lastName=DE TAL&idDocument=WXYZ098765MDFXYZ99&birthdat\
-e=1981-12-31&state=INACTIVE&offset=2&limit=0",
+                idclient=""), self.prefix + "/api/" + "clients"
         )
-
         self.assertEqual(
             mambuutil.getclienturl(idclient="ABC123", anything="whatever"),
-            self.prefix + "/api/" + "clients/ABC123",
+            self.prefix + "/api/" + "clients/ABC123?anything=whatever",
+        )
+        self.assertTrue("fullDetails=true" in result_getclienturl)
+        self.assertTrue("offset=10" in result_getclienturl)
+        self.assertTrue("limit=10" in result_getclienturl)
+        self.assertTrue("firstName=FULANO" in result_getclienturl)
+        self.assertTrue("lastName=DE TAL" in result_getclienturl)
+        self.assertTrue("idDocument=ABCD123456HDFABC00" in result_getclienturl)
+        self.assertTrue("birthdate=1980-01-01" in result_getclienturl)
+        self.assertTrue("state=ACTIVE" in result_getclienturl)
+
+        params_clienturl = ["fullDetails=true","firstName=FULANO","lastName=DE TAL","idDocument=ABCD123456HDFABC00",
+            "birthdate=1980-01-01","state=ACTIVE","offset=10","limit=10"]
+        x = self.url_to_compare(result_getclienturl, params_clienturl)
+        self.assertEqual(self.prefix + "/api/" + "clients/ABC123?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3]+"&"+x[4]+"&"+x[5]+
+            "&"+x[6]+"&"+x[7],
+            self.prefix
+            + "/api/"
+            + "clients/ABC123?fullDetails=true&firstName=FULANO&lastName=DE TAL&idDocument=ABCD123456HDFABC00&birthdat\
+e=1980-01-01&state=ACTIVE&offset=10&limit=10",
         )
 
     def test_getclientcustominformationurl(self):
@@ -775,11 +600,17 @@ e=1981-12-31&state=INACTIVE&offset=2&limit=0",
             self.prefix + "/api/" + "clients/ABC123/custominformation",
         )
         self.assertEqual(
-            mambuutil.getclientcustominformationurl(idclient="ABC123", customfield="bla"),
+            mambuutil.getclientcustominformationurl(
+                idclient="ABC123", customfield="bla"),
             self.prefix + "/api/" + "clients/ABC123/custominformation/bla",
         )
 
     def test_getclientloansurl(self):
+        result_getclientloansurl = mambuutil.getclientloansurl(
+            idclient="ABC123",
+            fullDetails=True,
+            accountState="CLOSED_WRITTEN_OFF"
+        )
         self.assertEqual(
             mambuutil.getclientloansurl(idclient="ABC123"),
             self.prefix + "/api/" + "clients/ABC123/loans",
@@ -805,36 +636,45 @@ e=1981-12-31&state=INACTIVE&offset=2&limit=0",
             self.prefix + "/api/" + "clients/ABC123/loans?fullDetails=false",
         )
         self.assertEqual(
-            mambuutil.getclientloansurl(idclient="ABC123", fullDetails="whatever"),
+            mambuutil.getclientloansurl(
+                idclient="ABC123", fullDetails="whatever"),
             self.prefix + "/api/" + "clients/ABC123/loans?fullDetails=false",
         )
         self.assertEqual(
-            mambuutil.getclientloansurl(idclient="ABC123", accountState="ACTIVE"),
+            mambuutil.getclientloansurl(
+                idclient="ABC123", accountState="ACTIVE"),
             self.prefix + "/api/" + "clients/ABC123/loans?accountState=ACTIVE",
         )
-
         self.assertEqual(
             mambuutil.getclientloansurl(
-                idclient="ABC123", fullDetails=True, accountState="CLOSED_WRITTEN_OFF"
-            ),
+                idclient="ABC123", anything="whatever"),
+            self.prefix + "/api/" + "clients/ABC123/loans?anything=whatever",
+        )
+
+        params_clientloansurl = ["fullDetails=true", "accountState=CLOSED_WRITTEN_OFF"]
+        x = self.url_to_compare(result_getclientloansurl, params_clientloansurl)
+        self.assertEqual(self.prefix
+            + "/api/"
+            + "clients/ABC123/loans?"+x[0]+"&"+x[1],
             self.prefix
             + "/api/"
             + "clients/ABC123/loans?fullDetails=true&accountState=CLOSED_WRITTEN_OFF",
         )
 
-        self.assertEqual(
-            mambuutil.getclientloansurl(idclient="ABC123", anything="whatever"),
-            self.prefix + "/api/" + "clients/ABC123/loans",
-        )
-
     def test_getuserurl(self):
-        self.assertEqual(
-            mambuutil.getuserurl(iduser="j.doe"), self.prefix + "/api/" + "users/j.doe"
+        result_getuserurl = mambuutil.getuserurl(
+            iduser="j.doe", fullDetails=True, branchId="CCCC", offset=2, limit=0
         )
         self.assertEqual(
-            mambuutil.getuserurl("j.doe"), self.prefix + "/api/" + "users/j.doe"
+            mambuutil.getuserurl(
+                iduser="j.doe"), self.prefix + "/api/" + "users/j.doe"
         )
-        self.assertEqual(mambuutil.getuserurl(iduser=""), self.prefix + "/api/" + "users")
+        self.assertEqual(
+            mambuutil.getuserurl("j.doe"), self.prefix +
+            "/api/" + "users/j.doe"
+        )
+        self.assertEqual(mambuutil.getuserurl(iduser=""), self.prefix + "/api/" + "users"
+                         )
         self.assertEqual(
             mambuutil.getuserurl(iduser="j.doe", fullDetails=True),
             self.prefix + "/api/" + "users/j.doe?fullDetails=true",
@@ -857,24 +697,19 @@ e=1981-12-31&state=INACTIVE&offset=2&limit=0",
         )
         self.assertEqual(
             mambuutil.getuserurl(iduser="j.doe", limit=10),
-            self.prefix + "/api/" + "users/j.doe?limit=10",
-        )
+            self.prefix + "/api/" + "users/j.doe?limit=10",)
         self.assertEqual(
             mambuutil.getuserurl(iduser="j.doe", branchId="CCCC"),
             self.prefix + "/api/" + "users/j.doe?branchId=CCCC",
         )
         self.assertEqual(
-            mambuutil.getuserurl(
-                iduser="j.doe", fullDetails=True, branchId="CCCC", offset=2, limit=0
-            ),
-            self.prefix
-            + "/api/"
-            + "users/j.doe?fullDetails=true&branchId=CCCC&offset=2&limit=0",
-        )
-
-        self.assertEqual(
             mambuutil.getuserurl(iduser="j.doe", anything="whatever"),
-            self.prefix + "/api/" + "users/j.doe",
+            self.prefix + "/api/" + "users/j.doe?anything=whatever",
+        )
+        params_userurl = ["fullDetails=true", "branchId=CCCC", "offset=2", "limit=0"]
+        x = self.url_to_compare(result_getuserurl, params_userurl)
+        self.assertEqual(self.prefix + "/api/" + "users/j.doe?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3],
+            self.prefix + "/api/" + "users/j.doe?fullDetails=true&branchId=CCCC&offset=2&limit=0",
         )
 
     def test_getproductsurl(self):
@@ -893,149 +728,151 @@ e=1981-12-31&state=INACTIVE&offset=2&limit=0",
 
     def test_gettasksurl(self):
         self.assertEqual(mambuutil.gettasksurl(), self.prefix + "/api/" + "tasks")
-        self.assertEqual(
-            mambuutil.gettasksurl(username="auser"),
+        result_gettasksurl = mambuutil.gettasksurl(username="auser", status="OPEN",)
+        params_tasksurl = ["username=auser","status=OPEN"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0]+"&"+x[1],
             self.prefix + "/api/" + "tasks?username=auser&status=OPEN",
         )
-        self.assertEqual(
-            mambuutil.gettasksurl(clientId="ABC123"),
-            self.prefix + "/api/" + "tasks?clientid=ABC123&status=OPEN",
-        )
-        self.assertEqual(
-            mambuutil.gettasksurl(groupId="XY890"),
-            self.prefix + "/api/" + "tasks?groupid=XY890&status=OPEN",
-        )
-        self.assertEqual(
-            mambuutil.gettasksurl(status="COMPLETED"),
+        result_gettasksurl = mambuutil.gettasksurl(status="COMPLETED")
+        params_tasksurl = ["status=COMPLETED"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0],
             self.prefix + "/api/" + "tasks?status=COMPLETED",
         )
-        self.assertEqual(
-            mambuutil.gettasksurl(offset=10),
+        result_gettasksurl = mambuutil.gettasksurl(status="OPEN",offset=10)
+        params_tasksurl = ["status=OPEN","offset=10"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0]+"&"+x[1],
             self.prefix + "/api/" + "tasks?status=OPEN&offset=10",
         )
-        self.assertEqual(
-            mambuutil.gettasksurl(limit=10),
+        result_gettasksurl = mambuutil.gettasksurl(status="OPEN",limit=10,)
+        params_tasksurl = ["status=OPEN","limit=10"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0]+"&"+x[1],
             self.prefix + "/api/" + "tasks?status=OPEN&limit=10",
         )
-        self.assertEqual(
-            mambuutil.gettasksurl(
-                username="auser",
-                clientId="ABC123",
-                groupId="XY890",
-                status="OVERDUE",
-                offset=2,
-                limit=0,
-            ),
-            self.prefix
-            + "/api/"
-            + "tasks?username=auser&clientid=ABC123&groupid=XY890&status=OVERDUE&offset=2&limit=0",
+        result_gettasksurl = mambuutil.gettasksurl(clientId="ABC123", status="OVERDUE")
+        params_tasksurl = ["clientId=ABC123", "status=OVERDUE"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0]+"&"+x[1],
+            self.prefix + "/api/" + "tasks?clientId=ABC123&status=OVERDUE",)
+        result_gettasksurl = mambuutil.gettasksurl(username="auser", clientId="ABC123", groupId="XY890",
+            status="OVERDUE",offset=2, limit=0,)
+        params_tasksurl = ["username=auser","clientId=ABC123", "groupId=XY890","status=OVERDUE","offset=2","limit=0"]
+        x = self.url_to_compare(result_gettasksurl, params_tasksurl)
+        self.assertEqual(self.prefix + "/api/" + "tasks?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3]+"&"+x[4]+"&"+x[5],
+            self.prefix + "/api/" + "tasks?username=auser&clientId=ABC123&groupId=XY890&status=OVERDUE&offset=2&limit\
+=0",
         )
 
     def test_getactivitiesurl(self):
+        result_getactivitiesurl = mambuutil.getactivitiesurl(fromDate="2018-01-01",toDate="2018-01-31",
+            branchId="CCCC",clientId="ABC123",centreId="CCCC",userId="j.doe",loanAccountId="12345",groupId="XYZ890",
+            limit=0
+        )
         self.assertEqual(
             mambuutil.getactivitiesurl(), self.prefix + "/api/" + "activities"
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(dummyId=""), self.prefix + "/api/" + "activities"
+            mambuutil.getactivitiesurl(
+                dummyId=""), self.prefix + "/api/" + "activities"
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(""), self.prefix + "/api/" + "activities"
+            mambuutil.getactivitiesurl(
+                ""), self.prefix + "/api/" + "activities"
         )
         self.assertEqual(
             mambuutil.getactivitiesurl(dummyId="whatever"),
             self.prefix + "/api/" + "activities",
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(fromDate="2018-01-01"),
+            mambuutil.getactivitiesurl(
+                fromDate="2018-01-01", toDate=datetime.now().strftime("%Y-%m-%d")),
             self.prefix
             + "/api/"
             + "activities?from=2018-01-01&to={}".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(toDate="2018-01-31"),
+            mambuutil.getactivitiesurl(
+                fromDate="1900-01-01", toDate="2018-01-31"),
             self.prefix + "/api/" + "activities?from=1900-01-01&to=2018-01-31",
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(branchId="CCCC"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       branchId="CCCC"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&branchID=CCCC".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&branchId=CCCC".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(clientId="ABC123"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       clientId="ABC123"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&clientID=ABC123".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&clientId=ABC123".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(centreId="CCCC"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       centreId="CCCC"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&centreID=CCCC".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&centreId=CCCC".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(userId="j.doe"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       userId="j.doe"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&userID=j.doe".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&userId=j.doe".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(loanAccountId="12345"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       loanAccountId="12345"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&loanAccountID=12345".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&loanAccountId=12345".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(groupId="XYZ890"),
+            mambuutil.getactivitiesurl(fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"),
+                                       groupId="XYZ890"),
             self.prefix
             + "/api/"
-            + "activities?from=1900-01-01&to={}&groupID=XYZ890".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+            + "activities?from=1900-01-01&to={}&groupId=XYZ890".format(
+                datetime.now().strftime("%Y-%m-%d")),
         )
         self.assertEqual(
-            mambuutil.getactivitiesurl(limit=10),
+            mambuutil.getactivitiesurl(
+                fromDate="1900-01-01", toDate=datetime.now().strftime("%Y-%m-%d"), limit=10),
             self.prefix
             + "/api/"
             + "activities?from=1900-01-01&to={}&limit=10".format(
-                datetime.now().strftime("%Y-%m-%d")
-            ),
+                datetime.now().strftime("%Y-%m-%d")),
         )
-
-        self.assertEqual(
-            mambuutil.getactivitiesurl(
-                fromDate="2018-01-01",
-                toDate="2018-01-31",
-                branchId="CCCC",
-                clientId="ABC123",
-                centreId="CCCC",
-                userId="j.doe",
-                loanAccountId="12345",
-                groupId="XYZ890",
-                limit=0,
-            ),
+        params_activitiesurl = ["from=2018-01-01", "to=2018-01-31","branchId=CCCC","clientId=ABC123",
+        "centreId=CCCC", "userId=j.doe", "loanAccountId=12345","groupId=XYZ890", "limit=0"]
+        x = self.url_to_compare(result_getactivitiesurl, params_activitiesurl)
+        self.assertEqual(self.prefix
+            + "/api/"
+            + "activities?"+x[0]+"&"+x[1]+"&"+x[2]+"&"+x[3]+"&"+x[4]+"&"+x[5]+"&"+x[6]+"&"+x[7]+"&"+x[8],
             self.prefix
             + "/api/"
-            + "activities?from=2018-01-01&to=2018-01-31&branchID=CCCC&clientID=ABC123&centreID=CCCC&userID=j.doe&loanA\
-ccountID=12345&groupID=XYZ890&limit=0",
+            + "activities?from=2018-01-01&to=2018-01-31&branchId=CCCC&clientId=ABC123&centreId=CCCC&userId=j.doe&loanA\
+ccountId=12345&groupId=XYZ890&limit=0",
         )
 
     def test_getrolesurl(self):
-        self.assertEqual(mambuutil.getrolesurl(), self.prefix + "/api/" + "userroles")
+        self.assertEqual(mambuutil.getrolesurl(), self.prefix + "/api/" + "userroles"
+                         )
         self.assertEqual(
-            mambuutil.getrolesurl("ABC123"), self.prefix + "/api/" + "userroles/ABC123"
+            mambuutil.getrolesurl("ABC123"), self.prefix +
+            "/api/" + "userroles/ABC123"
         )
         self.assertEqual(
             mambuutil.getrolesurl(idrole="ABC123"),
@@ -1047,7 +884,8 @@ ccountID=12345&groupID=XYZ890&limit=0",
             mambuutil.getpostdocumentsurl(), self.prefix + "/api/" + "documents"
         )
         self.assertEqual(
-            mambuutil.getpostdocumentsurl("123"), self.prefix + "/api/" + "documents"
+            mambuutil.getpostdocumentsurl(
+                "123"), self.prefix + "/api/" + "documents"
         )
 
     def test_getusercustominformationurl(self):
@@ -1061,39 +899,76 @@ ccountID=12345&groupID=XYZ890&limit=0",
         )
 
     def test_getsavingsurl(self):
-        self.assertEqual(
-            mambuutil.getsavingssurl(
-                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
-            self.prefix + "/api/" + "savings/12345?fullDetails=true&offset=0&limit=0",
-        )
+        try:
+            self.assertEqual(
+                mambuutil.getsavingssurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/12345?fullDetails=true&offset=0&limit=0",
+            )
+        except Exception:
+            self.assertEqual(
+                mambuutil.getsavingssurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/12345?fullDetails=true&limit=0&offset=0",
+            )
 
     def test_getsavingfundingrepaymentsurl(self):
-        self.assertEqual(
-            mambuutil.getsavingfundingrepaymentsurl(
-                "12345", "54321", **{"fullDetails": True, "offset": 0, "limit": 0}),
-            self.prefix + "/api/" + "savings/12345/funding/54321/repayments?fullDetails=true&offset=0&limit=0",
-        )
+        try:
+            self.assertEqual(
+                mambuutil.getsavingfundingrepaymentsurl(
+                    "12345", "54321", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" +
+                "savings/12345/funding/54321/repayments?fullDetails=true&offset=0&limit=0",
+            )
+        except Exception:
+            self.assertEqual(
+                mambuutil.getsavingfundingrepaymentsurl(
+                    "12345", "54321", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" +
+                "savings/12345/funding/54321/repayments?fullDetails=true&limit=0&offset=0",
+            )
 
     def test_getsavingstransactionsurl(self):
-        self.assertEqual(
-            mambuutil.getsavingstransactionsurl(
-                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
-            self.prefix + "/api/" + "savings/12345/transactions/?fullDetails=true&offset=0&limit=0",
-        )
+        try:
+            self.assertEqual(
+                mambuutil.getsavingstransactionsurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/12345/transactions/?fullDetails=true&offset=0&limit=0",
+            )
+        except Exception:
+            self.assertEqual(
+                mambuutil.getsavingstransactionsurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/12345/transactions/?fullDetails=true&limit=0&offset=0",
+            )
 
     def test_getsavingstransactionssearchurl(self):
-        self.assertEqual(
-            mambuutil.getsavingstransactionssearchurl(
-                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
-            self.prefix + "/api/" + "savings/transactions/search?fullDetails=true&offset=0&limit=0",
-        )
+        try:
+            self.assertEqual(
+                mambuutil.getsavingstransactionssearchurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/transactions/search?fullDetails=true&offset=0&limit=0",
+            )
+        except Exception:
+            self.assertEqual(
+                mambuutil.getsavingstransactionssearchurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "savings/transactions/search?fullDetails=true&limit=0&offset=0",
+            )
 
     def test_gettransactionchannelsurl(self):
-        self.assertEqual(
-            mambuutil.gettransactionchannelsurl(
-                "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
-            self.prefix + "/api/" + "transactionchannels/12345?fullDetails=true&offset=0&limit=0",
-        )
+        try:
+            self.assertEqual(
+                mambuutil.gettransactionchannelsurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "transactionchannels/12345?fullDetails=true&offset=0&limit=0",
+            )
+        except Exception:
+            self.assertEqual(
+                mambuutil.gettransactionchannelsurl(
+                    "12345", **{"fullDetails": True, "offset": 0, "limit": 0}),
+                self.prefix + "/api/" + "transactionchannels/12345?fullDetails=true&limit=0&offset=0",
+            )
 
 
 if __name__ == "__main__":

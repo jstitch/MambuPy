@@ -203,6 +203,25 @@ def getmambuurl(url=apiurl, *args, **kwargs):
 # This things are the gateways for implementing parameters on requests done to
 # the Mambu REST API.
 
+def get_parameters_url(dict_kwargs):
+    """Get list with parameters for the url of getbranchesurl, getloansurl, getgroupurl, getclienturl,
+    getactivitiesurl, getcentresurl, getrepaymentsurl, getsavingssurl, getsavingfundingrepaymentsurl,
+    getsavingstransactionsurl, getsavingstransactionssearchurl, gettransactionchannelsurl, getgrouploansurl,
+    gettransactionsurl, getclientloansurl, getuserurl, gettasksurl.
+    """
+    getparams_list = []
+
+    for key in dict_kwargs.keys():
+        if key == "fullDetails":
+            if dict_kwargs[key] == True:
+                getparams_list.append("fullDetails=true")
+            else:
+                getparams_list.append("fullDetails=false")
+        else:
+            getparams_list.append(key+'=%s' % dict_kwargs[key])
+
+    return getparams_list
+
 
 def getbranchesurl(idbranch, *args, **kwargs):
     """Request Branches URL.
@@ -223,21 +242,7 @@ def getbranchesurl(idbranch, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
 
     branchidparam = "" if idbranch == "" else "/" + idbranch
     url = (
@@ -268,21 +273,7 @@ def getcentresurl(idcentre, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
 
     centreidparam = "" if idcentre == "" else "/" + idcentre
     url = (
@@ -321,21 +312,7 @@ def getrepaymentsurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -366,21 +343,7 @@ def getsavingssurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:  # coverage: no cover
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:  # coverage: no cover
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:  # coverage: no cover
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -409,21 +372,7 @@ def getsavingfundingrepaymentsurl(idcred, loan_id, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:  # pragma: no cover
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -456,21 +405,7 @@ def getsavingstransactionsurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception: # pragma: no cover
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -500,21 +435,7 @@ def getsavingstransactionssearchurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:  # pragma: no cover
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -543,21 +464,7 @@ def gettransactionchannelsurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:  # pragma: no cover
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:  # pragma: no cover
-            pass
+        getparams = get_parameters_url(kwargs)
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -594,49 +501,7 @@ def getloansurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception:
-            pass
-        try:
-            getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception:
-            pass
-        try:
-            getparams.append("centreId=%s" % kwargs["centreId"])
-        except Exception:
-            pass
-        try:
-            getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
-        except Exception:
-            pass
-        try:
-            getparams.append("startDate=%s" % kwargs["startDate"])
-        except Exception:
-            pass
-        try:
-            getparams.append("endDate=%s" % kwargs["endDate"])
-        except Exception:
-            pass
-        try:
-            getparams.append("fixedDaysOfMonth=%s" % kwargs["fixedDaysOfMonth"])
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
 
     idcredparam = "" if idcred == "" else "/" + idcred
     url = (
@@ -710,38 +575,14 @@ def getgroupurl(idgroup, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("creditOfficerUsername=%s" % kwargs["creditOfficerUsername"])
-        except Exception:
-            pass
-        try:
-            getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception:
-            pass
-        try:
-            getparams.append("centreId=%s" % kwargs["centreId"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-    groupidparam = "" if idgroup == "" else "/" + idgroup
+        getparams = get_parameters_url(kwargs)
+
+    groupIdparam = "" if idgroup == "" else "/" + idgroup
+
     url = (
         getmambuurl(*args, **kwargs)
         + "groups"
-        + groupidparam
+        + groupIdparam
         + ("" if len(getparams) == 0 else "?" + "&".join(getparams))
     )
     return url
@@ -775,22 +616,13 @@ def getgrouploansurl(idgroup, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception:
-            pass
-    groupidparam = "/" + idgroup
+        getparams = get_parameters_url(kwargs)
+
+    groupIdparam = "/" + idgroup
     url = (
         getmambuurl(*args, **kwargs)
         + "groups"
-        + groupidparam
+        + groupIdparam
         + "/loans"
         + ("" if len(getparams) == 0 else "?" + "&".join(getparams))
     )
@@ -807,11 +639,11 @@ def getgroupcustominformationurl(idgroup, customfield="", *args, **kwargs):
 
     .. todo:: status API V2: NOT compatible
     """
-    groupidparam = "/" + idgroup
+    groupIdparam = "/" + idgroup
     url = (
         getmambuurl(*args, **kwargs)
         + "groups"
-        + groupidparam
+        + groupIdparam
         + "/custominformation"
         + (("/" + customfield) if customfield else "")
     )
@@ -846,14 +678,7 @@ def gettransactionsurl(idcred, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
     url = (
         getmambuurl(*args, **kwargs)
         + "loans/"
@@ -890,46 +715,13 @@ def getclienturl(idclient, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("firstName=%s" % kwargs["firstName"])
-        except Exception:
-            pass
-        try:
-            getparams.append("lastName=%s" % kwargs["lastName"])
-        except Exception:
-            pass
-        try:
-            getparams.append("idDocument=%s" % kwargs["idDocument"])
-        except Exception:
-            pass
-        try:
-            getparams.append("birthdate=%s" % kwargs["birthdate"])
-        except Exception:
-            pass
-        try:
-            getparams.append("state=%s" % kwargs["state"])
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
-    clientidparam = "" if idclient == "" else "/" + idclient
+        getparams = get_parameters_url(kwargs)
+
+    clientIdparam = "" if idclient == "" else "/" + idclient
     url = (
         getmambuurl(*args, **kwargs)
         + "clients"
-        + clientidparam
+        + clientIdparam
         + ("" if len(getparams) == 0 else "?" + "&".join(getparams))
     )
     return url
@@ -963,22 +755,13 @@ def getclientloansurl(idclient, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("accountState=%s" % kwargs["accountState"])
-        except Exception:
-            pass
-    clientidparam = "/" + idclient
+        getparams = get_parameters_url(kwargs)
+
+    clientIdparam = "/" + idclient
     url = (
         getmambuurl(*args, **kwargs)
         + "clients"
-        + clientidparam
+        + clientIdparam
         + "/loans"
         + ("" if len(getparams) == 0 else "?" + "&".join(getparams))
     )
@@ -995,11 +778,11 @@ def getclientcustominformationurl(idclient, customfield="", *args, **kwargs):
 
     .. todo:: status API V2: NOT compatible
     """
-    clientidparam = "/" + idclient
+    clientIdparam = "/" + idclient
     url = (
         getmambuurl(*args, **kwargs)
         + "clients"
-        + clientidparam
+        + clientIdparam
         + "/custominformation"
         + (("/" + customfield) if customfield else "")
     )
@@ -1026,25 +809,8 @@ def getuserurl(iduser, *args, **kwargs):
     """
     getparams = []
     if kwargs:
-        try:
-            if kwargs["fullDetails"] == True:
-                getparams.append("fullDetails=true")
-            else:
-                getparams.append("fullDetails=false")
-        except Exception:
-            pass
-        try:
-            getparams.append("branchId=%s" % kwargs["branchId"])
-        except Exception:
-            pass
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams = get_parameters_url(kwargs)
+
     useridparam = "" if iduser == "" else "/" + iduser
     url = (
         getmambuurl(*args, **kwargs)
@@ -1103,34 +869,11 @@ def gettasksurl(dummyId="", *args, **kwargs):
     getparams = []
     if kwargs:
         try:
-            getparams.append("username=%s" % kwargs["username"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("clientid=%s" % kwargs["clientId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("groupid=%s" % kwargs["groupId"])
-        except Exception:
-            pass
-
-        try:
             getparams.append("status=%s" % kwargs["status"])
         except Exception:
             getparams.append("status=OPEN")
-
-        try:
-            getparams.append("offset=%s" % kwargs["offset"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        del kwargs["status"]
+        getparams.extend(get_parameters_url(kwargs))
 
     url = (
         getmambuurl(*args, **kwargs)
@@ -1154,11 +897,11 @@ def getactivitiesurl(dummyId="", *args, **kwargs):
     * from
     * to
     * branchID
-    * clientID
+    * clientId
     * centreID
     * userID
-    * loanAccountID
-    * groupID
+    * loanAccountId
+    * groupId
     * limit
 
     See Mambu official developer documentation for further details, and
@@ -1181,40 +924,10 @@ def getactivitiesurl(dummyId="", *args, **kwargs):
             hoy = datetime.now().strftime("%Y-%m-%d")
             getparams.append("to=%s" % hoy)
 
-        try:
-            getparams.append("branchID=%s" % kwargs["branchId"])
-        except Exception:
-            pass
+        del kwargs["fromDate"]
+        del kwargs["toDate"]
 
-        try:
-            getparams.append("clientID=%s" % kwargs["clientId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("centreID=%s" % kwargs["centreId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("userID=%s" % kwargs["userId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("loanAccountID=%s" % kwargs["loanAccountId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("groupID=%s" % kwargs["groupId"])
-        except Exception:
-            pass
-
-        try:
-            getparams.append("limit=%s" % kwargs["limit"])
-        except Exception:
-            pass
+        getparams.extend(get_parameters_url(kwargs))
 
     url = (
         getmambuurl(*args, **kwargs)
