@@ -980,7 +980,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_updatePatch(self, requests, json, iri_to_uri):
+    def test_update_patch(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
@@ -990,17 +990,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         iri_to_uri.return_value = "http://example.com"
         requests.patch.return_value = Response(str(data))
 
-        self.assertEqual(ms.updatePatch(data), 1)
+        self.assertEqual(ms.update_patch(data), 1)
         self.assertEqual(ms._MambuStruct__args, ())
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
         with self.assertRaisesRegexp(Exception, r"^Requires data to update$"):
-            ms.updatePatch({})
+            ms.update_patch({})
         # if the class who call method update is direfent who implemented it
-        ms.updatePatch.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        ms.update_patch.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaises(NotImplementedError):
-            ms.updatePatch(data)
+            ms.update_patch(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
         self.assertEqual(ms._MambuStruct__data, None)
@@ -1009,7 +1009,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_updatePost(self, requests, json, iri_to_uri):
+    def test_update_post(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
@@ -1019,17 +1019,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         iri_to_uri.return_value = "http://example.com"
         requests.post.return_value = Response(str(data))
 
-        self.assertEqual(ms.updatePost(data), 1)
+        self.assertEqual(ms.update_post(data), 1)
         self.assertEqual(ms._MambuStruct__args, ())
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
         with self.assertRaisesRegexp(Exception, r"^Requires data to update$"):
-            ms.updatePost({})
+            ms.update_post({})
         # if the class who call method update is direfent who implemented it
-        ms.updatePost.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        ms.update_post.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(Exception, r"^Child method not implemented$"):
-            ms.updatePost(data)
+            ms.update_post(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
         self.assertEqual(ms._MambuStruct__data, None)
@@ -1038,7 +1038,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_uploadDocument(self, requests, json, iri_to_uri):
+    def test_upload_document(self, requests, json, iri_to_uri):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
@@ -1056,17 +1056,17 @@ class MambuStructMethodsTests(unittest.TestCase):
         iri_to_uri.return_value = "http://example.com/api/documents"
         requests.post.return_value = Response(str(data))
 
-        self.assertEqual(ms.uploadDocument(data), 1)
+        self.assertEqual(ms.upload_document(data), 1)
         self.assertEqual(ms._MambuStruct__args, ())
         self.assertEqual(ms._MambuStruct__kwargs, {})
 
         # if not send any data raises an Exception
         with self.assertRaisesRegexp(Exception, r"^Requires data to upload$"):
-            ms.uploadDocument({})
+            ms.upload_document({})
         # if the class who call method update is direfent who implemented it
-        ms.uploadDocument.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
+        ms.upload_document.__func__.__module__ = "mambupy.mambuNOTSTRUCT"
         with self.assertRaisesRegexp(Exception, r"^Child method not implemented$"):
-            ms.uploadDocument(data)
+            ms.upload_document(data)
 
         self.assertEqual(ms._MambuStruct__method, "GET")
         self.assertEqual(ms._MambuStruct__data, None)

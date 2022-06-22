@@ -250,8 +250,8 @@ class MambuUserTests(unittest.TestCase):
         mambuuser.MambuStruct.update.assert_called()
 
     def test_update_patch(self):
-        mambuuser.MambuStruct.updatePatch = mock.Mock()
-        mambuuser.MambuStruct.updatePatch.return_value = 1
+        mambuuser.MambuStruct.update_patch = mock.Mock()
+        mambuuser.MambuStruct.update_patch.return_value = 1
         data = {
             "customInformation": [
                 {"customFieldID": "UnidadesCoordinador", "value": "PRUEBA"}
@@ -259,8 +259,8 @@ class MambuUserTests(unittest.TestCase):
         }
         user = mambuuser.MambuUser(connect=False)
 
-        self.assertEqual(user.updatePatch(data), 1)
-        mambuuser.MambuStruct.updatePatch.assert_called()
+        self.assertEqual(user.update_patch(data), 1)
+        mambuuser.MambuStruct.update_patch.assert_called()
 
 
 class MambuUsersTests(unittest.TestCase):

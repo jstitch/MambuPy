@@ -751,7 +751,7 @@ class MambuLoanTests(unittest.TestCase):
         mambuloan.MambuStruct.update.assert_called()
 
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_uploadDocument(self, mock_requests):
+    def test_upload_document(self, mock_requests):
         """Test upload"""
         # set data response
         mock_requests.post.return_value = Response(
@@ -770,7 +770,7 @@ class MambuLoanTests(unittest.TestCase):
             "documentContent": "['encodedeBase64_file']",
         }
         # upload data
-        self.assertEqual(l.uploadDocument(lData), 1)
+        self.assertEqual(l.upload_document(lData), 1)
         self.assertEqual(l.id, "ABC123")
 
         # exception
@@ -778,7 +778,7 @@ class MambuLoanTests(unittest.TestCase):
             '{"returnCode":4,"returnStatus":"INVALID_PARAMETERS","errorSource":"OwnerType"}'
         )
         with self.assertRaisesRegexp(mambuloan.MambuError, "INVALID_PARAMETERS"):
-            l.uploadDocument(lData)
+            l.upload_document(lData)
 
 
 class MambuLoansTests(unittest.TestCase):

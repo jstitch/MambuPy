@@ -931,7 +931,7 @@ class MambuStruct(object):
         self.connect(*args, **kwargs)
         return 1
 
-    def updatePatch(self, data, *args, **kwargs):
+    def update_patch(self, data, *args, **kwargs):
         """Updates an entity in Mambu
 
         This method must be implemented in child classes
@@ -942,7 +942,7 @@ class MambuStruct(object):
         """
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
-        if self.updatePatch.__func__.__module__ != self.__module__:
+        if self.update_patch.__func__.__module__ != self.__module__:
             raise NotImplementedError
 
         if not data:
@@ -956,7 +956,7 @@ class MambuStruct(object):
 
         return 1
 
-    def updatePost(self, data, *args, **kwargs):
+    def update_post(self, data, *args, **kwargs):
         """Updates an entity in Mambu
 
         This method must be implemented in child classes
@@ -967,7 +967,7 @@ class MambuStruct(object):
         """
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
-        if self.updatePost.__func__.__module__ != self.__module__:
+        if self.update_post.__func__.__module__ != self.__module__:
             raise Exception("Child method not implemented")
         if not data:
             raise Exception("Requires data to update")
@@ -979,7 +979,7 @@ class MambuStruct(object):
         self._MambuStruct__data = None
         return 1
 
-    def uploadDocument(self, data, *args, **kwargs):
+    def upload_document(self, data, *args, **kwargs):
         """Uploads a document in Mambu
 
         This method must be implemented in child classes
@@ -1000,7 +1000,7 @@ class MambuStruct(object):
         """
         # if module of the function is diferent from the module of the object
         # that means create is not implemented in child class
-        if self.uploadDocument.__func__.__module__ != self.__module__:
+        if self.upload_document.__func__.__module__ != self.__module__:
             raise Exception("Child method not implemented")
         if not data:
             raise Exception("Requires data to upload")

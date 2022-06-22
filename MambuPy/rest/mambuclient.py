@@ -220,14 +220,14 @@ class MambuClient(MambuStruct):
         # UPDATE client fields
         if data.get("client"):
             data2update["client"] = data.get("client", {})
-            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            cont_requests += self.update_patch(data2update, *args, **kwargs)
 
         # UPDATE customFields
         if data.get("customInformation"):
             data2update = {"client": {}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getclientcustominformationurl
-            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            cont_requests += self.update_patch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getclienturl
 
         # UPDATE addresses or idDocuments
@@ -239,13 +239,13 @@ class MambuClient(MambuStruct):
             # UPDATE idDocuments
             if data.get("idDocuments"):
                 data2update["idDocuments"] = data.get("idDocuments")
-            cont_requests += self.updatePost(data2update, *args, **kwargs)
+            cont_requests += self.update_post(data2update, *args, **kwargs)
 
         cont_requests += super(MambuClient, self).update(data, *args, **kwargs)
 
         return cont_requests
 
-    def updatePatch(self, data, *args, **kwargs):
+    def update_patch(self, data, *args, **kwargs):
         """Updates a client Mambu using method PATCH
 
         Args:
@@ -253,9 +253,9 @@ class MambuClient(MambuStruct):
 
         https://support.mambu.com/docs/clients-api#patch-client
         """
-        return super(MambuClient, self).updatePatch(data, *args, **kwargs)
+        return super(MambuClient, self).update_patch(data, *args, **kwargs)
 
-    def updatePost(self, data, *args, **kwargs):
+    def update_post(self, data, *args, **kwargs):
         """Updates a client in Mambu using method POST
 
         Args:
@@ -263,7 +263,7 @@ class MambuClient(MambuStruct):
 
         https://support.mambu.com/docs/clients-api#post-clients
         """
-        return super(MambuClient, self).updatePost(data, *args, **kwargs)
+        return super(MambuClient, self).update_post(data, *args, **kwargs)
 
 
 class MambuClients(MambuStruct):

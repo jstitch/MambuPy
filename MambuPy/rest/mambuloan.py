@@ -525,14 +525,14 @@ class MambuLoan(MambuStruct):
             data2update = {}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getloanscustominformationurl
-            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            cont_requests += self.update_patch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getloansurl
 
         cont_requests += super(MambuLoan, self).update(data, *args, **kwargs)
 
         return cont_requests
 
-    def updatePatch(self, data, *args, **kwargs):
+    def update_patch(self, data, *args, **kwargs):
         """Updates a Mambu loan using method PATCH
 
         Args:
@@ -540,9 +540,9 @@ class MambuLoan(MambuStruct):
 
         https://support.mambu.com/docs/loans-api#patch-loan
         """
-        return super(MambuLoan, self).updatePatch(data, *args, **kwargs)
+        return super(MambuLoan, self).update_patch(data, *args, **kwargs)
 
-    def uploadDocument(self, data, *args, **kwargs):
+    def upload_document(self, data, *args, **kwargs):
         """Updates a loan in Mambu
 
         Uploads a document to a MambuLoan
@@ -566,7 +566,7 @@ class MambuLoan(MambuStruct):
         cont_requests = 0
         # upload document
         self._MambuStruct__urlfunc = getpostdocumentsurl
-        cont_requests += super(MambuLoan, self).uploadDocument(data, *args, **kwargs)
+        cont_requests += super(MambuLoan, self).upload_document(data, *args, **kwargs)
         self._MambuStruct__urlfunc = getloansurl
 
         return cont_requests

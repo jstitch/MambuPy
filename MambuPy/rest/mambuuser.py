@@ -145,13 +145,13 @@ class MambuUser(MambuStruct):
             data2update = {"user": {}}
             data2update["customInformation"] = data.get("customInformation")
             self._MambuStruct__urlfunc = getusercustominformationurl
-            cont_requests += self.updatePatch(data2update, *args, **kwargs)
+            cont_requests += self.update_patch(data2update, *args, **kwargs)
             self._MambuStruct__urlfunc = getuserurl
 
         cont_requests += super(MambuUser, self).update(data, *args, **kwargs)
         return cont_requests
 
-    def updatePatch(self, data, *args, **kwargs):
+    def update_patch(self, data, *args, **kwargs):
         """Updates a Mambu user using method PATCH
 
         Args:
@@ -159,7 +159,7 @@ class MambuUser(MambuStruct):
 
         https://support.mambu.com/docs/users-api#patch-user-custom-field-values
         """
-        return super(MambuUser, self).updatePatch(data, *args, **kwargs)
+        return super(MambuUser, self).update_patch(data, *args, **kwargs)
 
 
 class MambuUsers(MambuStruct):
