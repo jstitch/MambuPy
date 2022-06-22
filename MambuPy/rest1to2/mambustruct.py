@@ -1,4 +1,6 @@
+from base64 import b64decode
 import importlib
+import os
 
 from mambupy.rest.mambustruct import MambuStruct as MambuStruct1
 
@@ -167,3 +169,35 @@ class MambuStruct(MambuStruct1):
 
     def __len__(self):
         return self.wrapped2.__len__()
+
+    def update(self, data, *args, **kwargs):
+        fields = []
+        for ci in data.get("customInformation", {}):
+            self[ci["customFieldID"]] = ci["value"]
+            fields.append(ci["customFieldID"])
+        self.wrapped2.patch(fields=fields)
+
+        return 1
+
+    def update_patch(self, data, *args, **kwargs):
+        fields = []
+        for k, v in data.items():
+            self[k] = v
+            fields.append(k)
+        self.wrapped2.patch(fields=fields)
+
+        return 1
+
+    def upload_document(self, data, *args, **kwargs):
+        fname = "/tmp/_mamburest1to2_{}.{}".format(
+            data["document"]["name"], data["document"]["type"])
+        with open(fname, "wb") as f:
+            f.write(b64decode(
+                data["documentContent"][1:-1]))
+        self.wrapped2.attach_document(
+            fname,
+            title=data["document"]["name"],
+            notes="uploaded via rest1to2 adapter")
+        os.remove(fname)
+
+        return 1

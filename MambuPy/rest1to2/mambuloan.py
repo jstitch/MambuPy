@@ -61,6 +61,20 @@ class MambuLoan(MambuStruct, MambuLoan1):
 
         return 1
 
+    def setActivities(self, *args, **kwargs):
+        from mambupy.rest.mambuactivity import MambuActivities
+
+        def activity_date(activity):
+            try:
+                return activity["activity"]["timestamp"]
+            except KeyError:
+                return None
+        activities = MambuActivities(loanAccountId=self.encodedKey, *args, **kwargs)
+        activities.attrs = sorted(activities.attrs, key=activity_date)
+        self["activities"] = activities
+
+        return 1
+
 
 class MambuLoans(MambuStruct, MambuLoans1):
     def __init__(self, *args, **kwargs):
