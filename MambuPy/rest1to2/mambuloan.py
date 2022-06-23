@@ -61,6 +61,21 @@ class MambuLoan(MambuStruct, MambuLoan1):
 
         return 1
 
+    def setTransactions(self, *args, **kwargs):
+        from mambupy.rest1to2 import mambutransaction
+
+        def transaction_id(transaction):
+            try:
+                return transaction.id
+            except KeyError:
+                return None
+
+        transactions = sorted(mambutransaction.MambuTransactions(
+            loanAccountId=self.id, *args, **kwargs), key=transaction_id)
+        self.transactions = transactions
+
+        return 1
+
     def setActivities(self, *args, **kwargs):
         from mambupy.rest.mambuactivity import MambuActivities
 
