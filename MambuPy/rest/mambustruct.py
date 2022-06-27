@@ -37,6 +37,7 @@ from datetime import datetime
 
 import requests
 from future.utils import implements_iterator
+from copy import deepcopy
 
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuCommError,
                          MambuError, apipwd, apiuser, encoded_dict, iri_to_uri,
@@ -392,11 +393,11 @@ class MambuStruct(object):
         """Initializes a new Mambu object.
 
         Args:
-         urlfunc (string): is the only required parameter. The urlfunc
+         urlfunc (str): is the only required parameter. The urlfunc
                            returns a string of the URL to make a request to Mambu. You
                            may read about the valid urlfuncs supported by MambuPy at
                            mambuutil.py
-         entid (string): is the usual ID of a Mambu entity you like to GET from
+         entid (str): is the usual ID of a Mambu entity you like to GET from
                          Mambu. The ID of a loan account, a client, a group, etc. Or the
                          transactions or repayments of certain loan account. It's an
                          optional parameter because the iterable Mambu objects don't need
@@ -439,6 +440,9 @@ class MambuStruct(object):
 
         self.rc = RequestsCounter()
         """Request Count Singleton"""
+
+        connect = False
+        """Default value connect"""
 
         try:
             self.__debug = kwargs["debug"]
@@ -504,20 +508,15 @@ class MambuStruct(object):
         try:
             if kwargs.pop("connect"):
                 connect = True
-            else:
-                connect = False
         except KeyError:
             connect = True
 
         self.__args = ()
         self.__kwargs = {}
-        from copy import deepcopy
 
-        if args:
-            self.__args = deepcopy(args)
-        if kwargs:
-            for k, v in kwargs.items():
-                self.__kwargs[k] = deepcopy(v)
+        self.__args = deepcopy(args)
+        for k, v in kwargs.items():
+            self.__kwargs[k] = deepcopy(v)
 
         self.__urlfunc = urlfunc
         """The given urlfunc argument is saved here.
@@ -532,6 +531,46 @@ class MambuStruct(object):
 
         if connect:
             self.connect(*args, **kwargs)
+
+    def _make_request(self, url, user, pwd):
+        """Method used in connect, for make the request.
+
+        Uses self.__data dictionary to feed the body for POST and PATCH requests.
+        If there is no data in self.__data, it defaults to a GET request.
+
+        Args:
+            url (str): url to make request, changed with iri_to_uri
+            user (str): user to authenticate for requests
+            pwd (str): password to authenticate for requests
+
+        Returns:
+            The response of the request (json)         
+        """
+        if self.__data:
+            data = json.dumps(encoded_dict(self.__data))
+            self.__headers["Content-Type"] = "application/json"
+            # PATCH
+            if self.__method == "PATCH":
+                resp = requests.patch(
+                    url, data=data, headers=self.__headers, auth=(user, pwd)
+                )
+            # POST
+            else: 
+                resp = requests.post(
+                    url, data=data, headers=self.__headers, auth=(user, pwd)
+                )
+        else:
+            # DELETE
+            if self.__method == "DELETE":
+                resp = requests.delete(
+                    url, headers=self.__headers, auth=(user, pwd)
+                )
+            # GET
+            else:
+                resp = requests.get(
+                    url, headers=self.__headers, auth=(user, pwd)
+                )
+        return resp
 
     def connect(self, *args, **kwargs):
         """Connect to Mambu, make the request to the REST API.
@@ -589,13 +628,10 @@ class MambuStruct(object):
                   (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
                   # Reusing impossible-to-reuse code)
         """
-        from copy import deepcopy
 
-        if args:
-            self.__args = deepcopy(args)
-        if kwargs:
-            for k, v in kwargs.items():
-                self.__kwargs[k] = deepcopy(v)
+        self.__args = deepcopy(args)
+        for k, v in kwargs.items():
+            self.__kwargs[k] = deepcopy(v)
 
         jsresp = {}
 
@@ -629,30 +665,10 @@ class MambuStruct(object):
                         )
                     )
                     self.__url = url
-                    if self.__data:
-                        data = json.dumps(encoded_dict(self.__data))
-                        self.__headers["Content-Type"] = "application/json"
-                        # PATCH
-                        if self.__method == "PATCH":
-                            resp = requests.patch(
-                                url, data=data, headers=self.__headers, auth=(user, pwd)
-                            )
-                        # POST
-                        else:
-                            resp = requests.post(
-                                url, data=data, headers=self.__headers, auth=(user, pwd)
-                            )
-                    else:
-                        # DELETE
-                        if self.__method == "DELETE":
-                            resp = requests.delete(
-                                url, headers=self.__headers, auth=(user, pwd)
-                            )
-                        # GET
-                        else:
-                            resp = requests.get(
-                                url, headers=self.__headers, auth=(user, pwd)
-                            )
+
+                    # Return a response, default Get 
+                    resp = self._make_request(url, user, pwd)
+
                     # Always count a new request when done!
                     self.rc.add(datetime.now())
                     try:
@@ -803,7 +819,7 @@ class MambuStruct(object):
         self._process_fields()
 
     def convertDict2Attrs(self, *args, **kwargs):
-        """Each element on the atttrs attribute gest converted to a
+        """Each element on the attrs attribute gest converted to a
         proper python object, depending on type.
 
         Some default constantFields are left as is (strings), because
