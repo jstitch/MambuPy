@@ -33,6 +33,8 @@ except NameError:
 import json
 import sys
 
+from datetime import datetime
+
 API_RETURN_CODES = {
     "SUCCESS": 0,
     "INVALID_PARAMETERS": 4,
@@ -1125,6 +1127,142 @@ from time import sleep
 
 import requests
 
+def _backup_db_previous_prep(callback, kwargs):
+    list_ret = []
+    try:
+        verbose = kwargs["verbose"]
+    except KeyError:
+        verbose = False
+    list_ret.append(verbose)
+    try:
+        retries = kwargs["retries"]
+    except KeyError:
+        retries = -1
+    list_ret.append(retries)
+    try:
+        justbackup = kwargs["justbackup"]
+    except KeyError:
+        justbackup = False
+    list_ret.append(justbackup)
+    try:
+        force_download_latest = bool(kwargs["force_download_latest"])
+    except KeyError:
+        force_download_latest = False
+    list_ret.append(force_download_latest)
+    try:
+        headers = kwargs["headers"]
+    except KeyError:
+        headers = {
+            "content-type": "application/json",
+            "Accept": "application/vnd.mambu.v1+zip",
+        }
+    list_ret.append(headers)
+
+    if verbose:
+        log = open("/tmp/log_mambu_backup", "a")
+        log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - Mambu DB Backup\n")
+        log.flush()
+    else:
+        log = None
+    list_ret.append(log)
+
+    user = kwargs.pop("user", apiuser)
+    list_ret.append(user)
+
+    pwd = kwargs.pop("pwd", apipwd)
+    list_ret.append(pwd)
+
+    data = {"callback": callback}
+    list_ret.append(data)
+
+    return list_ret
+
+
+def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
+    try:
+        if not justbackup:
+
+            posturl = iri_to_uri(getmambuurl() + "database/backup")
+            if verbose:
+                log.write("open url: " + posturl + "\n")
+                log.write("data: " + str(data) + "\n")
+                log.flush()
+            resp = requests.post(
+                posturl,
+                data=json.dumps(data),
+                headers={
+                    "content-type": "application/json",
+                    "Accept": "application/vnd.mambu.v1+json",
+                },
+                auth=(user, pwd),
+            )
+            if verbose:
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.content) + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.url + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.body + "\n")
+                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.request.headers) + "\n")
+                log.flush()
+    except Exception as ex:
+        mess = "Error requesting backup: %s" % repr(ex)
+        if verbose:
+            log.write(mess + "\n")
+            log.close()
+        raise MambuError(mess)
+
+    if not justbackup and resp.status_code != 200:
+        mess = "Error posting request for backup: %s" % resp.content
+        if verbose:
+            log.write(mess + "\n")
+            log.close()
+        raise MambuCommError(mess)
+
+def _backup_db_timeout_mechanism(justbackup, retries, bool_func, force_download_latest,verbose=None, log=None):
+    value_to_latest = True
+    while not justbackup and retries and not bool_func():
+        if verbose:
+            log.write("waiting...\n")
+            log.flush()
+        sleep(10)
+        retries -= 1
+        if retries < 0:
+            retries = -1
+    if not justbackup and not retries:
+        mess = "Tired of waiting, giving up..."
+        if verbose:
+            log.write(mess + "\n")
+            log.flush()
+        if not force_download_latest:
+            if verbose:
+                log.close()
+            raise MambuError(mess)
+        else:
+            value_to_latest = False
+    sleep(30)
+
+    return value_to_latest
+
+def _backup_db_request_download_backup(user, pwd, headers, verbose=None, log=None):
+    geturl = iri_to_uri(getmambuurl() + "database/backup/LATEST")
+    if verbose:
+        log.write("open url: " + geturl + "\n")
+        log.flush()
+    resp = requests.get(geturl, auth=(user, pwd), headers=headers)
+
+    if resp.status_code != 200:
+        mess = "Error getting database backup: %s" % resp.content
+        if verbose:
+            log.write(mess + "\n")
+            log.close()
+        raise MambuCommError(mess)
+
+    return resp
+
+def _backup_db_post_processing(resp, output_fname, verbose=None, log=None):
+    if verbose:
+        log.write("saving...\n")
+        log.flush()
+    with open(output_fname, "wb") as fw:
+        fw.write(resp.content)
 
 def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     """Backup Mambu Database via REST API.
@@ -1170,118 +1308,25 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         -latest     boolean flag, if the db downloaded was the latest or not
 
     .. todo:: status API V2: compatible
-    """
-    from datetime import datetime
+   """
 
-    try:
-        verbose = kwargs["verbose"]
-    except KeyError:
-        verbose = False
-    try:
-        retries = kwargs["retries"]
-    except KeyError:
-        retries = -1
-    try:
-        justbackup = kwargs["justbackup"]
-    except KeyError:
-        justbackup = False
-    try:
-        force_download_latest = bool(kwargs["force_download_latest"])
-    except KeyError:
-        force_download_latest = False
-    try:
-        headers = kwargs["headers"]
-    except KeyError:
-        headers = {
-            "content-type": "application/json",
-            "Accept": "application/vnd.mambu.v1+zip",
-        }
+    # previous preparation
+    verbose, retries, justbackup, force_download_latest, headers, log, user, pwd, data = \
+    _backup_db_previous_prep(callback, kwargs)
 
-    if verbose:
-        log = open("/tmp/log_mambu_backup", "a")
-        log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - Mambu DB Backup\n")
-        log.flush()
+    # POST to request Mambu to prepare backup of its own DB
+    _backup_db_request(justbackup, data, user, pwd, verbose, log)
 
-    user = kwargs.pop("user", apiuser)
-    pwd = kwargs.pop("pwd", apipwd)
-    data = {"callback": callback}
-    try:
-        if not justbackup:
-            posturl = iri_to_uri(getmambuurl(*args, **kwargs) + "database/backup")
-            if verbose:
-                log.write("open url: " + posturl + "\n")
-                log.write("data: " + str(data) + "\n")
-                log.flush()
-            resp = requests.post(
-                posturl,
-                data=json.dumps(data),
-                headers={
-                    "content-type": "application/json",
-                    "Accept": "application/vnd.mambu.v1+json",
-                },
-                auth=(user, pwd),
-            )
-            if verbose:
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.content) + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.url + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.body + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.request.headers) + "\n")
-                log.flush()
-    except Exception as ex:
-        mess = "Error requesting backup: %s" % repr(ex)
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
-        raise MambuError(mess)
+    # wait & timeout mechanism
+    data["latest"] = _backup_db_timeout_mechanism(justbackup, retries, bool_func, force_download_latest,verbose, log)
 
-    if not justbackup and resp.status_code != 200:
-        mess = "Error posting request for backup: %s" % resp.content
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
-        raise MambuCommError(mess)
+    # GET request to download LATEST Mambu's DB backup
+    resp = _backup_db_request_download_backup(user, pwd, headers, verbose, log)
 
-    data["latest"] = True
-    while not justbackup and retries and not bool_func():
-        if verbose:
-            log.write("waiting...\n")
-            log.flush()
-        sleep(10)
-        retries -= 1
-        if retries < 0:
-            retries = -1
-    if not justbackup and not retries:
-        mess = "Tired of waiting, giving up..."
-        if verbose:
-            log.write(mess + "\n")
-            log.flush()
-        if not force_download_latest:
-            if verbose:
-                log.close()
-            raise MambuError(mess)
-        else:
-            data["latest"] = False
-    sleep(30)
+    # post-processing
+    _backup_db_post_processing(resp, output_fname, verbose, log)
 
-    geturl = iri_to_uri(getmambuurl(*args, **kwargs) + "database/backup/LATEST")
-    if verbose:
-        log.write("open url: " + geturl + "\n")
-        log.flush()
-    resp = requests.get(geturl, auth=(user, pwd), headers=headers)
-
-    if resp.status_code != 200:
-        mess = "Error getting database backup: %s" % resp.content
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
-        raise MambuCommError(mess)
-
-    if verbose:
-        log.write("saving...\n")
-        log.flush()
-    with open(output_fname, "wb") as fw:
-        fw.write(resp.content)
-
+    # no refactor
     if verbose:
         log.write("DONE!\n")
         log.close()

@@ -544,7 +544,7 @@ class MambuStruct(object):
             pwd (str): password to authenticate for requests
 
         Returns:
-            The response of the request (json)         
+            The response of the request (json)
         """
         if self.__data:
             data = json.dumps(encoded_dict(self.__data))
@@ -555,7 +555,7 @@ class MambuStruct(object):
                     url, data=data, headers=self.__headers, auth=(user, pwd)
                 )
             # POST
-            else: 
+            else:
                 resp = requests.post(
                     url, data=data, headers=self.__headers, auth=(user, pwd)
                 )
@@ -666,7 +666,7 @@ class MambuStruct(object):
                     )
                     self.__url = url
 
-                    # Return a response, default Get 
+                    # Return a response, default Get
                     resp = self._make_request(url, user, pwd)
 
                     # Always count a new request when done!
