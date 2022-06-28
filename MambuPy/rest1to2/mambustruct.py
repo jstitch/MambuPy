@@ -1,4 +1,5 @@
 from base64 import b64decode
+from copy import deepcopy
 import importlib
 import os
 
@@ -26,13 +27,15 @@ def import_class(path, _object):
 
 
 class MambuStruct(MambuStruct1):
+    DEFAULTS = {}
     attrs = {}
 
     def __init__(self, *args, **kwargs):
         self.wrapped1 = None
         self.wrapped2 = None
+        connect = True
         if "connect" in kwargs:
-            kwargs.pop("connect")
+            connect = kwargs.pop("connect")
         if "fullDetails" in kwargs:
             fullDetails = kwargs.pop("fullDetails")
             detailsLevel = "FULL" if fullDetails else "BASIC"
@@ -51,29 +54,25 @@ class MambuStruct(MambuStruct1):
         else:
             self.mambuclass1 = import_class(
                 "MambuPy.rest", self.__class__.__name__)
-        _class = import_class("MambuPy.api", self.mambuclassname)
+        if "mambuclass2" in kwargs:
+            self.mambuclass2 = kwargs.pop("mambuclass2")
+        else:
+            self.mambuclass2 = import_class(
+                "MambuPy.api", self.mambuclassname)
 
-        if "urlfunc" in kwargs and kwargs["urlfunc"] is None:
-            self.wrapped2 = _class()
+        self._entid = None
+        self.__args = ()
+        self.__kwargs = {}
+        self.__args = deepcopy(args)
+        for k, v in kwargs.items():
+            self.__kwargs[k] = deepcopy(v)
+
+        if "urlfunc" in self.__kwargs and self.__kwargs["urlfunc"] is None:
+            self.wrapped2 = self.mambuclass2()
             return
 
-        if "entid" in kwargs:
-            self._entid = kwargs["entid"]
-            self.wrapped2 = _class.get(
-                detailsLevel=self.detailsLevel, *args, **kwargs)
-        else:
-            self._entid = ""
-            entities = _class.get_all(
-                detailsLevel=self.detailsLevel, *args, **kwargs)
-            self.wrapped2 = []
-            _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
-            for entity in entities:
-                obj = _class2(urlfunc=None, fullDetails=self.fullDetails)
-                obj._entid = entity.id
-                obj.wrapped2 = entity
-                obj.mambuclassname = self.mambuclassname
-                obj.mambuclass1 = self.mambuclass1
-                self.wrapped2.append(obj)
+        if connect:
+            self.connect(*self.__args, **self.__kwargs)
 
     def __getitem__(self, key):
         try:
@@ -84,17 +83,11 @@ class MambuStruct(MambuStruct1):
                 item = self.wrapped2[key]
                 return item
             except (KeyError, TypeError):
-                if not self.wrapped1 and self._entid != "":
-                    _class_base = import_class("MambuPy.rest", self.mambuclassname)
-                    _class = self.mambuclass1
-                    self.wrapped1 = _class(
-                        fullDetails=self.fullDetails, entid=self._entid,
-                        mambuclassname=self.mambuclassname,
-                        mambuclass1=_class_base)
-                    self.wrapped1.preprocess()
-                    self.wrapped1.postprocess()
-                item = self.wrapped1[key]
-                return item
+                try:
+                    item = self.__getattribute__(key)
+                    return item
+                except AttributeError:
+                    raise KeyError("{}".format(key))
 
     def __setitem__(self, key, value):
         try:
@@ -111,23 +104,33 @@ class MambuStruct(MambuStruct1):
                 attribute = getattr(self.wrapped2, name)
                 return attribute
             except AttributeError:
-                if not self.wrapped1 and self._entid != "":
-                    _class_base = import_class("MambuPy.rest", self.mambuclassname)
-                    _class = self.mambuclass1
-                    self.wrapped1 = _class(
-                        fullDetails=self.fullDetails, entid=self._entid,
-                        mambuclassname=self.mambuclassname,
-                        mambuclass1=_class_base)
-                    self.wrapped1.preprocess()
-                    self.wrapped1.postprocess()
-                attribute = getattr(self.wrapped1, name)
-                return attribute
+                try:
+                    return self.DEFAULTS[name]
+                except KeyError:
+                    if not self.wrapped1 and self._entid and self._entid != "":
+                        _class_base = import_class(
+                            "MambuPy.rest", self.mambuclassname)
+                        _class = self.mambuclass1
+                        self.wrapped1 = _class(
+                            fullDetails=self.fullDetails, entid=self._entid,
+                            mambuclassname=self.mambuclassname,
+                            mambuclass1=_class_base)
+                        self.wrapped1.preprocess()
+                        self.wrapped1.postprocess()
+                    attribute = getattr(self.wrapped1, name)
+                    return attribute
 
     def __setattr__(self, name, value):
         if name not in [
                 "_class", "_entid",
+                "__args", "__kwargs",
+                "_MambuStruct__args", "_MambuStruct__kwargs",
                 "wrapped1", "wrapped2",
-                "mambuclassname", "mambuclass1",
+                "mambuclassname", "mambuclass1", "mambuclass2",
+                "mambubranchclass", "mambucentreclass", "mambuuserclass",
+                "mambuclientclass", "mambugroupclass",
+                "mamburepaymentclass",
+                "mamburepaymentsclass", "mambutransactionclass",
                 "fullDetails", "detailsLevel"]:
             try:
                 self.wrapped2.__setattr__(name, value)
@@ -169,6 +172,38 @@ class MambuStruct(MambuStruct1):
 
     def __len__(self):
         return self.wrapped2.__len__()
+
+    def connect(self, *args, **kwargs):
+        self.__args = deepcopy(args)
+        self.__kwargs.update(kwargs)
+
+        if "entid" in self.__kwargs:
+            self._entid = self.__kwargs["entid"]
+            self.wrapped2 = self.mambuclass2.get(
+                detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
+            self.preprocess()
+            self.postprocess()
+        else:
+            self._entid = ""
+            entities = self.mambuclass2.get_all(
+                detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
+            self.wrapped2 = []
+            _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
+            for entity in entities:
+                obj = _class2(urlfunc=None, fullDetails=self.fullDetails)
+                obj._entid = entity.id
+                obj.wrapped2 = entity
+                obj.mambuclassname = self.mambuclassname
+                obj.mambuclass1 = self.mambuclass1
+                obj.preprocess()
+                obj.postprocess()
+                self.wrapped2.append(obj)
+
+    def preprocess(self, *args, **kwargs):
+        """"""
+
+    def postprocess(self, *args, **kwargs):
+        """"""
 
     def update(self, data, *args, **kwargs):
         fields = []
