@@ -198,7 +198,7 @@ class MambuLoan(MambuStruct):
         try:
             user = self.mambuuserclass(entid=self["assignedUserKey"], *args, **kwargs)
         except KeyError:
-            err = MambuError("La cuenta %s no tiene asignado un usuario" % self["id"])
+            err = MambuError("Loan Account %s has no assigned user" % self["id"])
             err.noUser = True
             raise err
 
@@ -247,6 +247,43 @@ class MambuLoan(MambuStruct):
         self["product"] = product
 
         return 1
+
+    def _get_roles(self, fullDetails=True, *args, **kwargs):
+        """ Get a list of roles and clients for the loan account.
+
+        The roles are mentionend in the holder of the loan account.
+
+        The holder acquires a "roles" property, a list of dictionaries
+        with the following keys:
+
+          role (str): role name
+          client (obj): MambuClient that has the mentioned role
+
+        Args:
+          fullDetails (bool): whether instantiate clients with
+                              full details or not
+
+        Returns:
+          int - number of requests done to Mambu
+        """
+        requests = 0
+        self["holder"]["roles"] = []
+        # If holder is group, attach role client data to the group
+        for c in self["holder"]["groupRoles"]:
+            try:
+                self.mambuclientclass
+            except AttributeError:
+                from .mambuclient import MambuClient
+                self.mambuclientclass = MambuClient
+
+            cli = self.mambuclientclass(
+                entid=c["clientKey"], fullDetails=fullDetails, *args, **kwargs
+            )
+            self["holder"]["roles"].append(
+                {"role": c["roleName"], "client": cli})
+            requests += 1
+
+        return requests
 
     def setHolder(self, getClients=False, getRoles=False, *args, **kwargs):
         """Adds the "holder" of the loan to a 'holder' field.
@@ -351,22 +388,7 @@ class MambuLoan(MambuStruct):
             requests += 1
 
             if getRoles:
-                roles = []
-                # If holder is group, attach role client data to the group
-                for c in holder["groupRoles"]:
-                    try:
-                        self.mambuclientclass
-                    except AttributeError:
-                        from .mambuclient import MambuClient
-
-                        self.mambuclientclass = MambuClient
-
-                    cli = self.mambuclientclass(
-                        entid=c["clientKey"], fullDetails=fullDetails, *args, **kwargs
-                    )
-                    roles.append({"role": c["roleName"], "client": cli})
-                    requests += 1
-                holder["roles"] = roles
+                requests += self._get_roles(fullDetails, *args, **kwargs)
 
             if getClients:
                 try:

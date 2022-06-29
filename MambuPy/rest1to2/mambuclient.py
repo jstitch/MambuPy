@@ -2,15 +2,56 @@ from mambupy.rest.mambuclient import MambuClient as MambuClient1, MambuClients a
 from mambupy.rest1to2.mambustruct import MambuStruct
 from mambupy.rest.mambustruct import MambuStructIterator
 
+from ..mambuutil import strip_consecutive_repeated_char as scrc
+
 
 class MambuClient(MambuStruct, MambuClient1):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def setBranch(self, *args, **kwargs):
+    def preprocess(self):
         from mambupy.rest1to2 import mambubranch
-        self.branch = mambubranch.MambuBranch(
+
+        self.mambubranchclass = mambubranch.MambuBranch
+
+        try:
+            self.firstName = scrc(self.wrapped2.firstName, " ").strip()
+        except Exception:
+            self.firstName = ""
+        try:
+            self.middleName = scrc(self.wrapped2.middleName, " ").strip()
+        except Exception:
+            self.middleName = ""
+        self.givenName = scrc(
+            self.firstName +
+            ((" " + self.middleName) if self.middleName != "" else ""),
+            " ",
+        ).strip()
+        self.lastName = scrc(self.wrapped2.lastName, " ").strip()
+        self.firstLastName = (
+            " ".join(self.lastName.split(" ")[:-1])
+            if len(self.lastName.split(" ")) > 1
+            else self.lastName
+        )
+        self.secondLastName = (
+            " ".join(self.lastName.split(" ")[-1:])
+            if len(self.lastName.split(" ")) > 1
+            else ""
+        )
+
+        self.name = scrc("%s %s" % (self.givenName, self.lastName), " ").strip()
+
+    def setBranch(self, *args, **kwargs):
+        try:
+            self.mambubranchclass
+        except AttributeError:
+            from mambupy.rest1to2 import mambubranch
+            self.mambubranchclass = mambubranch.MambuBranch
+
+        self.branch = self.mambubranchclass(
             entid=self.wrapped2.assignedBranchKey, *args, **kwargs)
+        self.assignedBranchName = self.branch.name
+        self.assignedBranch = self.branch
 
     def updatePatch(self, data, *args, **kwargs):
         if data.get("client"):

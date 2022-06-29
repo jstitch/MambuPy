@@ -7,15 +7,21 @@ class MambuGroup(MambuStruct, MambuGroup1):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def setBranch(self, *args, **kwargs):
-        from mambupy.rest1to2 import mambubranch
-        self.branch = mambubranch.MambuBranch(
-            entid=self.wrapped2.assignedBranchKey, *args, **kwargs)
+    def preprocess(self):
+        from mambupy.rest1to2 import mambubranch, mambucentre
+        from mambupy.rest1to2 import mambuclient
 
-    def setCentre(self, *args, **kwargs):
-        from mambupy.rest1to2 import mambucentre
-        self.centre = mambucentre.MambuCentre(
-            entid=self.wrapped2.assignedCentreKey, *args, **kwargs)
+        self.mambubranchclass = mambubranch.MambuBranch
+        self.mambucentreclass = mambucentre.MambuCentre
+        self.mambuclientclass = mambuclient.MambuClient
+
+    def setClients(self, *args, **kwargs):
+        requests = super().setClients(*args, **kwargs)
+        for member in self.groupMembers:
+            member.client = [
+                cl for cl in self.clients
+                if cl.encodedKey == member.clientKey][0]
+        return requests
 
     def updatePatch(self, data, *args, **kwargs):
         if data.get("group"):

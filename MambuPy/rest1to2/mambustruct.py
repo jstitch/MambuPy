@@ -58,7 +58,7 @@ class MambuStruct(MambuStruct1):
             self.mambuclass2 = kwargs.pop("mambuclass2")
         else:
             self.mambuclass2 = import_class(
-                "MambuPy.api", self.mambuclassname)
+                "mambupy.api", self.mambuclassname)
 
         self._entid = None
         self.__args = ()
@@ -76,11 +76,11 @@ class MambuStruct(MambuStruct1):
 
     def __getitem__(self, key):
         try:
-            item = super().__getitem__(key)
+            item = self.wrapped2[key]
             return item
         except KeyError:
             try:
-                item = self.wrapped2[key]
+                item = super().__getitem__(key)
                 return item
             except (KeyError, TypeError):
                 try:
@@ -122,7 +122,7 @@ class MambuStruct(MambuStruct1):
 
     def __setattr__(self, name, value):
         if name not in [
-                "_class", "_entid",
+                "_class", "_entid", "attrs",
                 "__args", "__kwargs",
                 "_MambuStruct__args", "_MambuStruct__kwargs",
                 "wrapped1", "wrapped2",
@@ -181,6 +181,8 @@ class MambuStruct(MambuStruct1):
             self._entid = self.__kwargs["entid"]
             self.wrapped2 = self.mambuclass2.get(
                 detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
+            self.attrs = self.wrapped2._attrs
+            self.wrapped1 = None
             self.preprocess()
             self.postprocess()
         else:
@@ -188,11 +190,13 @@ class MambuStruct(MambuStruct1):
             entities = self.mambuclass2.get_all(
                 detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
             self.wrapped2 = []
+            self.wrapped1 = None
             _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
             for entity in entities:
                 obj = _class2(urlfunc=None, fullDetails=self.fullDetails)
                 obj._entid = entity.id
                 obj.wrapped2 = entity
+                obj.attrs = obj.wrapped2._attrs
                 obj.mambuclassname = self.mambuclassname
                 obj.mambuclass1 = self.mambuclass1
                 obj.preprocess()
@@ -234,5 +238,33 @@ class MambuStruct(MambuStruct1):
             title=data["document"]["name"],
             notes="uploaded via rest1to2 adapter")
         os.remove(fname)
+
+        return 1
+
+    def setBranch(self, *args, **kwargs):
+        try:
+            self.mambubranchclass
+        except AttributeError:
+            from mambupy.rest1to2 import mambubranch
+            self.mambubranchclass = mambubranch.MambuBranch
+
+        self.branch = self.mambubranchclass(
+            entid=self.wrapped2.assignedBranchKey, *args, **kwargs)
+        self.assignedBranchName = self.branch.name
+        self.assignedBranch = self.branch
+
+        return 1
+
+    def setCentre(self, *args, **kwargs):
+        try:
+            self.mambucentreclass
+        except AttributeError:
+            from mambupy.rest1to2 import mambucentre
+            self.mambubranchclass = mambucentre.MambuCentre
+
+        self.centre = self.mambucentreclass(
+            entid=self.wrapped2.assignedCentreKey, *args, **kwargs)
+        self.assignedCentreName = self.centre.name
+        self.assignedCentre = self.centre
 
         return 1

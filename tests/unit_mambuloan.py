@@ -295,7 +295,7 @@ class MambuLoanTests(unittest.TestCase):
             l = mambuloan.MambuLoan(urlfunc=lambda x: x)
             self.assertFalse(l.has_key("assignedUser"))
             with self.assertRaisesRegexp(
-                mambuloan.MambuError, r"La cuenta 12345 no tiene asignado un usuario"
+                mambuloan.MambuError, r"Loan Account 12345 has no assigned user"
             ):
                 l.setUser()
             self.assertFalse(l.has_key("user"))

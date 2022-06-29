@@ -50,36 +50,32 @@ class MambuLoan(MambuStruct, MambuLoan1):
     def penaltyBalance(self):
         return self.wrapped2.balances["penaltyBalance"]
 
+    @property
+    def repaymentInstallments(self):
+        return self.wrapped2.scheduleSettings["repaymentInstallments"]
+
+    def _get_roles(self, fullDetails=True, *args, **kwargs):
+        requests = 0
+        self.holder.roles = []
+        for c in [r for r in self.holder.groupMembers if r.roles]:
+            try:
+                self.mambuclientclass
+            except AttributeError:
+                from mambupy.rest1to2 import mambuclient
+                self.mambuclientclass = mambuclient.MambuClient
+
+            cli = self.mambuclientclass(
+                entid=c.clientKey, fullDetails=fullDetails, *args, **kwargs
+            )
+            for role in c.roles:
+                self.holder.roles.append(
+                    {"role": role.roleName, "client": cli})
+            requests += 1
+
+        return requests
+
     def getDebt(self):
         return MambuLoan1.getDebt(self)
-
-    def setBranch(self, *args, **kwargs):
-        try:
-            self.mambubranchclass
-        except AttributeError:
-            from mambupy.rest1to2 import mambubranch
-            self.mambubranchclass = mambubranch.MambuBranch
-
-        self.branch = self.mambubranchclass(
-            entid=self.wrapped2.assignedBranchKey, *args, **kwargs)
-        self.assignedBranchName = self.branch.name
-        self.assignedBranch = self.branch
-
-        return 1
-
-    def setCentre(self, *args, **kwargs):
-        try:
-            self.mambucentreclass
-        except AttributeError:
-            from mambupy.rest1to2 import mambucentre
-            self.mambubranchclass = mambucentre.MambuCentre
-
-        self.centre = self.mambucentreclass(
-            entid=self.wrapped2.assignedCentreKey, *args, **kwargs)
-        self.assignedCentreName = self.centre.name
-        self.assignedCentre = self.centre
-
-        return 1
 
     def setUser(self, *args, **kwargs):
         try:
