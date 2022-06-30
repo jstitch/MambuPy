@@ -769,29 +769,31 @@ class MambuStruct(object):
         classes you should call this method too, or else you lose the
         effect of the tasks done here.
         """
+        def massage_appropiate_format():
+            if self.has_key(self.custom_field_name):
+                self[self.custom_field_name] = [
+                    c
+                    for c in self[self.custom_field_name]
+                    if c["customField"]["state"] != "DEACTIVATED"
+                ]
+                for custom in self[self.custom_field_name]:
+                    field_name = custom["customField"]["name"]
+                    field_id = custom["customField"]["id"]
+                    if custom["customFieldSetGroupIndex"] != -1:
+                        field_name += "_" + str(custom["customFieldSetGroupIndex"])
+                        field_id += "_" + str(custom["customFieldSetGroupIndex"])
+                    custom["name"] = field_name
+                    custom["id"] = field_id
+                    try:
+                        self[field_name] = custom["value"]
+                        self[field_id] = custom["value"]
+                    except KeyError:
+                        self[field_name] = custom["linkedEntityKeyValue"]
+                        self[field_id] = custom["linkedEntityKeyValue"]
+                        custom["value"] = custom["linkedEntityKeyValue"]            
         try:
             try:
-                if self.has_key(self.custom_field_name):
-                    self[self.custom_field_name] = [
-                        c
-                        for c in self[self.custom_field_name]
-                        if c["customField"]["state"] != "DEACTIVATED"
-                    ]
-                    for custom in self[self.custom_field_name]:
-                        field_name = custom["customField"]["name"]
-                        field_id = custom["customField"]["id"]
-                        if custom["customFieldSetGroupIndex"] != -1:
-                            field_name += "_" + str(custom["customFieldSetGroupIndex"])
-                            field_id += "_" + str(custom["customFieldSetGroupIndex"])
-                        custom["name"] = field_name
-                        custom["id"] = field_id
-                        try:
-                            self[field_name] = custom["value"]
-                            self[field_id] = custom["value"]
-                        except KeyError:
-                            self[field_name] = custom["linkedEntityKeyValue"]
-                            self[field_id] = custom["linkedEntityKeyValue"]
-                            custom["value"] = custom["linkedEntityKeyValue"]
+                massage_appropiate_format()
             # in case you don't have any custom_field_name, don't do anything here
             except (AttributeError, TypeError):
                 pass
@@ -818,13 +820,33 @@ class MambuStruct(object):
         """
         self._process_fields()
 
-    def convertDict2Attrs(self, *args, **kwargs):
-        """Each element on the attrs attribute gest converted to a
-        proper python object, depending on type.
-
-        Some default constantFields are left as is (strings), because
-        they are better treated as strings.
+    def _convert_data_to_pytype(self, data):
+        """"Python built-in types: ints, floats, or even datetimes.
+        If it cannot convert it to a built-in type, leave it as string,
+        or as-is. There may be nested Mambu objects here!
+        This are the recursion base cases!
         """
+
+        try:
+            d = int(data)
+            if (
+                str(d) != data
+            ):  # if string has trailing 0's, leave it as string, to not lose them
+                return data
+            return d
+        except (TypeError, ValueError):
+            try:
+                return float(data)
+            except (TypeError, ValueError):
+                try:
+                    return self.util_date_format(data)
+                except (TypeError, ValueError):
+                    return data
+        return data
+
+    def _convert_dict_to_pytypes(self, data):
+        """Recursively convert the fields on the data given to a python object."""
+
         constantFields = [
             "id",
             "groupName",
@@ -837,54 +859,39 @@ class MambuStruct(object):
             "description",
         ]
 
-        def convierte(data):
-            """Recursively convert the fields on the data given to a python object."""
-            # Iterators, lists and dictionaries
-            # Here comes the recursive calls!
-            try:
-                it = iter(data)
-                if type(it) == type(iter({})):
-                    d = {}
-                    for k in it:
-                        if k in constantFields:
-                            d[k] = data[k]
-                        else:
-                            d[k] = convierte(data[k])
-                    data = d
-                if type(it) == type(iter([])):
-                    l = []
-                    for e in it:
-                        l.append(convierte(e))
-                    data = l
-            except TypeError:
-                pass
-            except Exception as ex:
-                """unknown exception"""
-                raise ex
+        # Iterators, lists and dictionaries
+        # Here comes the recursive calls!
+        try:
+            it = iter(data)
+            if type(it) == type(iter({})):
+                d = {}
+                for k in it:
+                    if k in constantFields:
+                        d[k] = data[k]
+                    else:
+                        d[k] = self._convert_dict_to_pytypes(data[k])
+                data = d
+            if type(it) == type(iter([])):
+                l = []
+                for e in it:
+                    l.append(self._convert_dict_to_pytypes(e))
+                data = l
+        except TypeError:
+            pass
+        except Exception as ex:
+            """unknown exception"""
+            raise ex
+        return self._convert_data_to_pytype(data)
 
-            # Python built-in types: ints, floats, or even datetimes. If it
-            # cannot convert it to a built-in type, leave it as string, or
-            # as-is. There may be nested Mambu objects here!
-            # This are the recursion base cases!
-            try:
-                d = int(data)
-                if (
-                    str(d) != data
-                ):  # if string has trailing 0's, leave it as string, to not lose them
-                    return data
-                return d
-            except (TypeError, ValueError):
-                try:
-                    return float(data)
-                except (TypeError, ValueError):
-                    try:
-                        return self.util_date_format(data)
-                    except (TypeError, ValueError):
-                        return data
+    def convertDict2Attrs(self, *args, **kwargs):
+        """Each element on the attrs attribute gest converted to a
+        proper python object, depending on type.
 
-            return data
+        Some default constantFields are left as is (strings), because
+        they are better treated as strings.
+        """
 
-        self.attrs = convierte(self.attrs)
+        self.attrs = self._convert_dict_to_pytypes(self.attrs)
 
     def util_date_format(self, field, formato=None):
         """Converts a datetime field to a datetime using some specified format.
