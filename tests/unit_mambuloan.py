@@ -43,7 +43,7 @@ class MambuLoanTests(unittest.TestCase):
 
     def test___init__(self):
         l = mambuloan.MambuLoan(urlfunc=None)
-        self.assertEqual(l.customFieldName, "customFieldValues")
+        self.assertEqual(l.custom_field_name, "customFieldValues")
 
     def test_getDebt(self):  # , mambustruct):
         def mock_connect(*args, **kwargs):

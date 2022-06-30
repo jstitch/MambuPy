@@ -32,7 +32,7 @@ class MambuBranch(MambuStruct):
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customFieldValues", *args, **kwargs
+            self, urlfunc, entid, custom_field_name="customFieldValues", *args, **kwargs
         )
 
     def setUsers(self, *args, **kwargs):

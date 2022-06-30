@@ -639,12 +639,12 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.attrs = {}
         self.assertEqual(getattr(ms, "_MambuStruct__urlfunc"), fun)
 
-    def test_customFieldName(self):
+    def test_custom_field_name(self):
         """Tests setting custom field name"""
-        self.assertEqual(hasattr(self.ms, "customFieldName"), False)
-        ms = mambustruct.MambuStruct(urlfunc=None, customFieldName="test")
-        self.assertEqual(hasattr(ms, "customFieldName"), True)
-        self.assertEqual(getattr(ms, "customFieldName"), "test")
+        self.assertEqual(hasattr(self.ms, "custom_field_name"), False)
+        ms = mambustruct.MambuStruct(urlfunc=None, custom_field_name="test")
+        self.assertEqual(hasattr(ms, "custom_field_name"), True)
+        self.assertEqual(getattr(ms, "custom_field_name"), "test")
 
     def test_private_props(self):
         """Tests private properties"""
@@ -706,7 +706,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         }
         ms = mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            customFieldName="customFields",
+            custom_field_name="customFields",
         )
         self.assertEqual(ms.field, "val")
         self.assertEqual(ms.fieldid, "val")
@@ -738,7 +738,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         }
         ms = mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            customFieldName="customFields",
+            custom_field_name="customFields",
         )
         self.assertEqual(ms.field_0, "val0")
         self.assertEqual(ms.field_1, "val1")
@@ -763,7 +763,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         }
         ms = mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-            customFieldName="customFields",
+            custom_field_name="customFields",
         )
         self.assertEqual(ms.field, "abc123")
         self.assertEqual(ms.fieldid, "abc123")
@@ -1409,7 +1409,7 @@ class MambuStructFunctionTests(unittest.TestCase):
             }
             ms = mambustruct.MambuStruct(
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-                customFieldName="customFields",
+                custom_field_name="customFields",
             )
             mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(ms.field, "val")
@@ -1433,7 +1433,7 @@ class MambuStructFunctionTests(unittest.TestCase):
             }
             ms = mambustruct.MambuStruct(
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-                customFieldName="customFields",
+                custom_field_name="customFields",
             )
             mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
@@ -1459,7 +1459,7 @@ class MambuStructFunctionTests(unittest.TestCase):
             }
             ms = mambustruct.MambuStruct(
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-                customFieldName="customFields",
+                custom_field_name="customFields",
             )
             mambustruct.set_custom_field(ms, customfield="field")
             self.assertEqual(type(ms.field), dict)
@@ -1485,7 +1485,7 @@ class MambuStructFunctionTests(unittest.TestCase):
             }
             ms = mambustruct.MambuStruct(
                 urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
-                customFieldName="customFields",
+                custom_field_name="customFields",
             )
             mambustruct.set_custom_field(ms, customfield="field_0")
             self.assertEqual(ms.field_0, "val")

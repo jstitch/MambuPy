@@ -35,7 +35,7 @@ class MambuClient(MambuStruct):
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+            self, urlfunc, entid, custom_field_name="customInformation", *args, **kwargs
         )
 
     def preprocess(self):

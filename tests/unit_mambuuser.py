@@ -209,14 +209,14 @@ class MambuUserTests(unittest.TestCase):
 
         data = {"dataDummy": "dataDummy"}
         # before init() method is called inside create() the attribute
-        # u[u.customFieldName] not exists
-        with self.assertRaisesRegexp(KeyError, r"^'%s'" % (u.customFieldName)):
-            self.assertTrue(u[u.customFieldName])
+        # u[u.custom_field_name] not exists
+        with self.assertRaisesRegexp(KeyError, r"^'%s'" % (u.custom_field_name)):
+            self.assertTrue(u[u.custom_field_name])
         self.assertEqual(u.create(data), 1)
         mock_super_create.assert_called_with(data)
         # after init() method is called inside create() the attribute
-        # u[u.customFieldName] is created
-        self.assertTrue(u[u.customFieldName])
+        # u[u.custom_field_name] is created
+        self.assertTrue(u[u.custom_field_name])
 
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_update(self, mock_requests):

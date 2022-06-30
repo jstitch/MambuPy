@@ -33,7 +33,7 @@ class MambuGroup(MambuStruct):
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customInformation", *args, **kwargs
+            self, urlfunc, entid, custom_field_name="customInformation", *args, **kwargs
         )
 
     def preprocess(self):
@@ -195,7 +195,7 @@ class MambuGroup(MambuStruct):
         """
         super(MambuGroup, self).create(data)
         if self.get("customInformation"):
-            self["group"][self.customFieldName] = self["customInformation"]
+            self["group"][self.custom_field_name] = self["customInformation"]
         if self.get("addresses"):
             self["group"]["addresses"] = self["addresses"]
         if self.get("groupMembers"):

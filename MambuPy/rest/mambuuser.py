@@ -32,7 +32,7 @@ class MambuUser(MambuStruct):
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customFields", *args, **kwargs
+            self, urlfunc, entid, custom_field_name="customFields", *args, **kwargs
         )
 
     def preprocess(self):
@@ -122,7 +122,7 @@ class MambuUser(MambuStruct):
 
         """
         super(MambuUser, self).create(data)
-        self["user"][self.customFieldName] = self["customInformation"]
+        self["user"][self.custom_field_name] = self["customInformation"]
         self.init(attrs=self["user"])
         return 1
 

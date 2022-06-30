@@ -44,7 +44,7 @@ class MambuSavingTransaction(MambuStruct):
             self,
             urlfunc,
             entid,
-            customFieldName="customInformation",
+            custom_field_name="customInformation",
             *args,
             **kwargs
         )

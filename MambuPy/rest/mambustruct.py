@@ -497,8 +497,8 @@ class MambuStruct(object):
             self.__offset = 0
 
         try:
-            self.customFieldName = kwargs["customFieldName"]
-            """customFieldName attribute.
+            self.custom_field_name = kwargs["custom_field_name"]
+            """custom_field_name attribute.
             """
         except KeyError:
             pass
@@ -771,13 +771,13 @@ class MambuStruct(object):
         """
         try:
             try:
-                if self.has_key(self.customFieldName):
-                    self[self.customFieldName] = [
+                if self.has_key(self.custom_field_name):
+                    self[self.custom_field_name] = [
                         c
-                        for c in self[self.customFieldName]
+                        for c in self[self.custom_field_name]
                         if c["customField"]["state"] != "DEACTIVATED"
                     ]
-                    for custom in self[self.customFieldName]:
+                    for custom in self[self.custom_field_name]:
                         field_name = custom["customField"]["name"]
                         field_id = custom["customField"]["id"]
                         if custom["customFieldSetGroupIndex"] != -1:
@@ -792,7 +792,7 @@ class MambuStruct(object):
                             self[field_name] = custom["linkedEntityKeyValue"]
                             self[field_id] = custom["linkedEntityKeyValue"]
                             custom["value"] = custom["linkedEntityKeyValue"]
-            # in case you don't have any customFieldName, don't do anything here
+            # in case you don't have any custom_field_name, don't do anything here
             except (AttributeError, TypeError):
                 pass
 
@@ -1049,7 +1049,7 @@ def set_custom_field(mambuentity, customfield="", *args, **kwargs):
         # find the dataType customfield by name or id
         datatype = [
             l["customField"]["dataType"]
-            for l in mambuentity[mambuentity.customFieldName]
+            for l in mambuentity[mambuentity.custom_field_name]
             if (l["name"] == customfield or l["id"] == customfield)
         ][0]
     except IndexError:
@@ -1060,7 +1060,7 @@ def set_custom_field(mambuentity, customfield="", *args, **kwargs):
             # find the dataType customfield by name or id
             datatype = [
                 l["customField"]["dataType"]
-                for l in mambuentity[mambuentity.customFieldName]
+                for l in mambuentity[mambuentity.custom_field_name]
                 if (
                     l["name"] == customfield.split("_")[0]
                     or l["id"] == customfield.split("_")[0]

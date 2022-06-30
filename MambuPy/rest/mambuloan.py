@@ -36,7 +36,7 @@ class MambuLoan(MambuStruct):
         Just initializes the MambuStruct.
         """
         MambuStruct.__init__(
-            self, urlfunc, entid, customFieldName="customFieldValues", *args, **kwargs
+            self, urlfunc, entid, custom_field_name="customFieldValues", *args, **kwargs
         )
 
     def getDebt(self):
