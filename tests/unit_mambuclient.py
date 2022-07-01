@@ -64,7 +64,7 @@ class MambuClientTests(unittest.TestCase):
         "city":"","region":"","postcode":"","country":"","indexInList":0}]}'
 
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getclienturl
+        from MambuPy.mambugeturl import getclienturl
 
         self.assertEqual(mambuclient.mod_urlfunc, getclienturl)
 
@@ -77,7 +77,7 @@ class MambuClientTests(unittest.TestCase):
         self.assertEqual(cl.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getclienturl
+        from MambuPy.mambugeturl import getclienturl
 
         def build_mock_cln_1(self, *args, **kwargs):
             self.attrs = {"id": args[1]}
@@ -264,7 +264,7 @@ class MambuClientsTests(unittest.TestCase):
             self.assertEqual(n, c[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getclienturl
+        from MambuPy.mambugeturl import getclienturl
 
         clns = mambuclient.MambuClients(urlfunc=None)
         clns.attrs = [

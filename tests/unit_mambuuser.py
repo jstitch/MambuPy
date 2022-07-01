@@ -33,7 +33,7 @@ class Response(object):
 
 class MambuUserTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getuserurl
+        from MambuPy.mambugeturl import getuserurl
 
         self.assertEqual(mambuuser.mod_urlfunc, getuserurl)
 
@@ -55,7 +55,7 @@ class MambuUserTests(unittest.TestCase):
 
     @mock.patch("MambuPy.rest.mambuuser.MambuStruct.preprocess")
     def test_preprocess(self, mock_super_preprocess):
-        from MambuPy.mambuutil import getuserurl
+        from MambuPy.mambugeturl import getuserurl
 
         def build_mock_user(self, *args, **kwargs):
             self.attrs = {
@@ -277,7 +277,7 @@ class MambuUsersTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getuserurl
+        from MambuPy.mambugeturl import getuserurl
 
         us = mambuuser.MambuUsers(urlfunc=None)
         us.attrs = [

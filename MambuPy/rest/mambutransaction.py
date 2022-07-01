@@ -10,11 +10,11 @@ directly. Look at MambuTransaction pydoc for further info.
 
 MambuTransactions holds a list of loan transactions.
 
-Uses mambuutil.gettransactionssurl as default urlfunc
+Uses mambugeturl.gettransactionssurl as default urlfunc
 """
 
 
-from ..mambuutil import gettransactionsurl
+from ..mambugeturl import gettransactionsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = gettransactionsurl

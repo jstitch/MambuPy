@@ -9,11 +9,11 @@ MambuRole holds a user role.
 
 MambuRoles holds a list of user roles.
 
-Uses mambuutil.getrolesurl as default urlfunc
+Uses mambugeturl.getrolesurl as default urlfunc
 """
 
 
-from ..mambuutil import getrolesurl
+from ..mambugeturl import getrolesurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getrolesurl

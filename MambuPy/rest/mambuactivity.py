@@ -10,11 +10,11 @@ directly. Look at MambuActivity pydoc for further info.
 
 MambuActivities holds a list of activities.
 
-Uses mambuutil.getactivitiesurl as default urlfunc
+Uses mambugeturl.getactivitiesurl as default urlfunc
 """
 
 
-from ..mambuutil import getactivitiesurl
+from ..mambugeturl import getactivitiesurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getactivitiesurl

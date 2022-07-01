@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuRepaymentTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getrepaymentsurl
+        from MambuPy.mambugeturl import getrepaymentsurl
 
         self.assertEqual(mamburepayment.mod_urlfunc, getrepaymentsurl)
 
@@ -41,7 +41,7 @@ class MambuRepaymentTests(unittest.TestCase):
     def test___repr__(self):
         from datetime import date
 
-        from MambuPy.mambuutil import getrepaymentsurl
+        from MambuPy.mambugeturl import getrepaymentsurl
 
         def build_mock_rep_1(self, *args, **kwargs):
             self.attrs = {
@@ -75,7 +75,7 @@ class MambuRepaymentsTests(unittest.TestCase):
             self.assertEqual(n, r[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getrepaymentsurl
+        from MambuPy.mambugeturl import getrepaymentsurl
 
         reps = mamburepayment.MambuRepayments(urlfunc=None)
         reps.attrs = [

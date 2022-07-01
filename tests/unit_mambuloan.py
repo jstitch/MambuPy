@@ -33,7 +33,7 @@ class Response(object):
 
 class MambuLoanTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getloansurl
+        from MambuPy.mambugeturl import getloansurl
 
         self.assertEqual(mambuloan.mod_urlfunc, getloansurl)
 
@@ -795,7 +795,7 @@ class MambuLoansTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getloansurl
+        from MambuPy.mambugeturl import getloansurl
 
         ln = mambuloan.MambuLoans(urlfunc=None)
         ln.attrs = [

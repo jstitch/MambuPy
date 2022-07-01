@@ -9,11 +9,11 @@ MambuTansactionChannel holds a transaction channel.
 
 MambuTansactionChannels holds a list of transaction channels.
 
-Uses mambuutil.gettransactionchannelsurl as default urlfunc.
+Uses mambugeturl.gettransactionchannelsurl as default urlfunc.
 """
 
 
-from ..mambuutil import gettransactionchannelsurl
+from ..mambugeturl import gettransactionchannelsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = gettransactionchannelsurl

@@ -10,11 +10,11 @@ directly. Look at MambuSavingFundingRepayment pydoc for further info.
 
 MambuSavingFundingRepayments holds a list of saving account repayments.
 
-Uses mambuutil.getsavingfundingrepaymentsurl as default urlfunc
+Uses mambugeturl.getsavingfundingrepaymentsurl as default urlfunc
 """
 
 
-from ..mambuutil import getsavingfundingrepaymentsurl
+from ..mambugeturl import getsavingfundingrepaymentsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getsavingfundingrepaymentsurl

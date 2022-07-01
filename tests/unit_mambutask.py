@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuTaskTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import gettasksurl
+        from MambuPy.mambugeturl import gettasksurl
 
         self.assertEqual(mambutask.mod_urlfunc, gettasksurl)
 
@@ -41,7 +41,7 @@ class MambuTaskTests(unittest.TestCase):
     def test___repr__(self):
         from datetime import date
 
-        from MambuPy.mambuutil import gettasksurl
+        from MambuPy.mambugeturl import gettasksurl
 
         def build_mock_task_1(self, *args, **kwargs):
             self.attrs = {"task": {"id": args[1]}}
@@ -104,7 +104,7 @@ class MambuTaskTests(unittest.TestCase):
     def test_close(self):
         from datetime import date
 
-        from MambuPy.mambuutil import gettasksurl
+        from MambuPy.mambugeturl import gettasksurl
 
         def connect_mocked(task):
             task.attrs["task"] = task.attrs
@@ -151,7 +151,7 @@ class MambuTasksTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import gettasksurl
+        from MambuPy.mambugeturl import gettasksurl
 
         ts = mambutask.MambuTasks(urlfunc=None)
         ts.attrs = [

@@ -9,11 +9,11 @@ MambuBranch holds a branch.
 
 MambuBranches holds a list of branches.
 
-Uses mambuutil.getbranchesurl as default urlfunc
+Uses mambugeturl.getbranchesurl as default urlfunc
 """
 
 
-from ..mambuutil import getbranchesurl
+from ..mambugeturl import getbranchesurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getbranchesurl

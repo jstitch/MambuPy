@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuTransactionTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import gettransactionsurl
+        from MambuPy.mambugeturl import gettransactionsurl
 
         self.assertEqual(mambutransaction.mod_urlfunc, gettransactionsurl)
 
@@ -41,7 +41,7 @@ class MambuTransactionTests(unittest.TestCase):
     def test___repr__(self):
         from datetime import date
 
-        from MambuPy.mambuutil import gettransactionsurl
+        from MambuPy.mambugeturl import gettransactionsurl
 
         def build_mock_tran_1(self, *args, **kwargs):
             self.attrs = {
@@ -74,7 +74,7 @@ class MambuTransactionsTests(unittest.TestCase):
             self.assertEqual(n, t[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import gettransactionsurl
+        from MambuPy.mambugeturl import gettransactionsurl
 
         trans = mambutransaction.MambuTransactions(urlfunc=None)
         trans.attrs = [

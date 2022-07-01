@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuRoleTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getrolesurl
+        from MambuPy.mambugeturl import getrolesurl
 
         self.assertEqual(mamburoles.mod_urlfunc, getrolesurl)
 
@@ -39,7 +39,7 @@ class MambuRoleTests(unittest.TestCase):
         self.assertEqual(r.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getrolesurl
+        from MambuPy.mambugeturl import getrolesurl
 
         def build_mock_role_1(self, *args, **kwargs):
             self.attrs = {"name": args[1]}
@@ -63,7 +63,7 @@ class MambuRolesTests(unittest.TestCase):
             self.assertEqual(n, r[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getrolesurl
+        from MambuPy.mambugeturl import getrolesurl
 
         rs = mamburoles.MambuRoles(urlfunc=None)
         rs.attrs = [

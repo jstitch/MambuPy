@@ -9,15 +9,15 @@ MambuLoan holds a loan account.
 
 MambuLoans holds a list of loan accounts.
 
-Uses mambuutil.getloans as default urlfunc.
-You can override this and use mambuutil.getgrouploansurl for the loans
+Uses mambugeturl.getloans as default urlfunc.
+You can override this and use mambugeturl.getgrouploansurl for the loans
 of a specific group instead (you should send the Group ID instead of the
 Loan ID as the entid argument in the constructor in that case).
 """
 
 
-from ..mambuutil import (MambuError, getloanscustominformationurl, getloansurl,
-                         getpostdocumentsurl, strip_tags)
+from ..mambugeturl import getloanscustominformationurl, getloansurl, getpostdocumentsurl
+from ..mambuutil import MambuError, strip_tags
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getloansurl

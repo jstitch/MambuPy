@@ -9,12 +9,12 @@ MambuSavingTransaction holds a transaction from one saving account.
 
 MambuSavingTransactions holds a list of saving account transaction.
 
-Uses mambuutil.getsavingstransactionsurl and as default urlfunc and
-mambuutil.getsavingstransactionssearchurl as default url for search.
+Uses mambugeturl.getsavingstransactionsurl and as default urlfunc and
+mambugeturl.getsavingstransactionssearchurl as default url for search.
 """
 
 
-from ..mambuutil import (getsavingstransactionssearchurl,
+from ..mambugeturl import (getsavingstransactionssearchurl,
                          getsavingstransactionsurl)
 from .mambustruct import MambuStruct, MambuStructIterator
 

@@ -1,7 +1,8 @@
 from mambupy.rest.mambuloan import MambuLoan as MambuLoan1, MambuLoans as MambuLoans1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
 from mambupy.rest.mambustruct import MambuStructIterator
-from mambupy.mambuutil import getgrouploansurl, MambuError
+from mambupy.mambugeturl import getgrouploansurl
+from mambupy.mambuutil import MambuError
 
 
 loan_filters = ["accountState", "branchId", "centreId", "creditOfficerUsername"]

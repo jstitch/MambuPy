@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuActivityTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getactivitiesurl
+        from MambuPy.mambugeturl import getactivitiesurl
 
         self.assertEqual(mambuactivity.mod_urlfunc, getactivitiesurl)
 
@@ -39,7 +39,7 @@ class MambuActivityTests(unittest.TestCase):
         self.assertEqual(a.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getactivitiesurl
+        from MambuPy.mambugeturl import getactivitiesurl
 
         def build_mock_act_1(self, *args, **kwargs):
             self.attrs = {"activity": args[1]}
@@ -67,7 +67,7 @@ class MambuActivitiesTests(unittest.TestCase):
             self.assertEqual(n, a[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getactivitiesurl
+        from MambuPy.mambugeturl import getactivitiesurl
 
         acs = mambuactivity.MambuActivities(urlfunc=None)
         acs.attrs = [

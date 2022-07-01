@@ -9,11 +9,11 @@ MambuSaving holds a savings account.
 
 MambuSavings holds a list of savings accounts.
 
-Uses mambuutil.getsavings as default urlfunc.
+Uses mambugeturl.getsavings as default urlfunc.
 """
 
 
-from ..mambuutil import MambuError, getsavingssurl
+from ..mambugeturl import MambuError, getsavingssurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getsavingssurl

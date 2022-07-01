@@ -9,11 +9,11 @@ MambuCentre holds a centre.
 
 MambuCentres holds a list of centres.
 
-Uses mambuutil.getcentresurl as default urlfunc
+Uses mambugeturl.getcentresurl as default urlfunc
 """
 
 
-from ..mambuutil import getcentresurl
+from ..mambugeturl import getcentresurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getcentresurl

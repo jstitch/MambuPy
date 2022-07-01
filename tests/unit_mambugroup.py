@@ -33,7 +33,7 @@ class Response(object):
 
 class MambuGroupTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getgroupurl
+        from MambuPy.mambugeturl import getgroupurl
 
         self.assertEqual(mambugroup.mod_urlfunc, getgroupurl)
 
@@ -46,7 +46,7 @@ class MambuGroupTests(unittest.TestCase):
         self.assertEqual(gr.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getgroupurl
+        from MambuPy.mambugeturl import getgroupurl
 
         def build_mock_grp_1(self, *args, **kwargs):
             self.attrs = {"id": args[1]}
@@ -522,7 +522,7 @@ class MambuGroupsTests(unittest.TestCase):
             self.assertEqual(n, g[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getgroupurl
+        from MambuPy.mambugeturl import getgroupurl
 
         grps = mambugroup.MambuGroups(urlfunc=None)
         grps.attrs = [

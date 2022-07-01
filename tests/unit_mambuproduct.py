@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuProductTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getproductsurl
+        from MambuPy.mambugeturl import getproductsurl
 
         self.assertEqual(mambuproduct.mod_urlfunc, getproductsurl)
 
@@ -39,7 +39,7 @@ class MambuProductTests(unittest.TestCase):
         self.assertEqual(p.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getproductsurl
+        from MambuPy.mambugeturl import getproductsurl
 
         def build_mock_prod_1(self, *args, **kwargs):
             self.attrs = {"id": args[1]}
@@ -126,7 +126,7 @@ class AllMambuProductsTests(unittest.TestCase):
             self.assertEqual(n, p[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getproductsurl
+        from MambuPy.mambugeturl import getproductsurl
 
         prods = mambuproduct.AllMambuProducts(urlfunc=None)
         prods.attrs = [

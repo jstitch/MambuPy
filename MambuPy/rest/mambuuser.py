@@ -9,11 +9,11 @@ MambuUser holds a user.
 
 MambuUsers holds a list of users.
 
-Uses mambuutil.getuserurl as default urlfunc
+Uses mambugeturl.getuserurl as default urlfunc
 """
 
 
-from ..mambuutil import getusercustominformationurl, getuserurl
+from ..mambugeturl import getusercustominformationurl, getuserurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getuserurl

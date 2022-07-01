@@ -26,7 +26,7 @@ except Exception as e:
 
 class MambuBranchTests(unittest.TestCase):
     def test_mod_urlfunc(self):
-        from MambuPy.mambuutil import getbranchesurl
+        from MambuPy.mambugeturl import getbranchesurl
 
         self.assertEqual(mambubranch.mod_urlfunc, getbranchesurl)
 
@@ -39,7 +39,7 @@ class MambuBranchTests(unittest.TestCase):
         self.assertEqual(a.entid, "anything")
 
     def test___repr__(self):
-        from MambuPy.mambuutil import getbranchesurl
+        from MambuPy.mambugeturl import getbranchesurl
 
         def build_mock_brn_1(self, *args, **kwargs):
             self.attrs = {"id": args[1]}
@@ -103,7 +103,7 @@ class MambuBranchesTests(unittest.TestCase):
             self.assertEqual(n, b[str(n)])
 
     def test_convertDict2Attrs(self):
-        from MambuPy.mambuutil import getbranchesurl
+        from MambuPy.mambugeturl import getbranchesurl
 
         brs = mambubranch.MambuBranches(urlfunc=None)
         brs.attrs = [

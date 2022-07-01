@@ -10,11 +10,11 @@ directly. Look at MambuRepayment pydoc for further info.
 
 MambuRepayments holds a list of loan repayments.
 
-Uses mambuutil.getrepaymentsurl as default urlfunc
+Uses mambugeturl.getrepaymentsurl as default urlfunc
 """
 
 
-from ..mambuutil import getrepaymentsurl
+from ..mambugeturl import getrepaymentsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getrepaymentsurl

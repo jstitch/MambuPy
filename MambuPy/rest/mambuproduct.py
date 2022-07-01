@@ -9,11 +9,11 @@ MambuProduct holds a product.
 
 MambuProducts holds a list of products.
 
-Uses mambuutil.getproducturl as default urlfunc
+Uses mambugeturl.getproducturl as default urlfunc
 """
 
 
-from ..mambuutil import getproductsurl
+from ..mambugeturl import getproductsurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 mod_urlfunc = getproductsurl

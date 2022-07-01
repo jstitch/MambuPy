@@ -9,13 +9,13 @@ MambuClient holds a client.
 
 MambuClients holds a list of clients.
 
-Uses mambuutil.getclienturl as default urlfunc
+Uses mambugeturl.getclienturl as default urlfunc
 """
 
 
 from builtins import str as unicode
 
-from ..mambuutil import getclientcustominformationurl, getclienturl
+from ..mambugeturl import getclientcustominformationurl, getclienturl
 from ..mambuutil import strip_consecutive_repeated_char as scrc
 from .mambustruct import MambuStruct, MambuStructIterator
 

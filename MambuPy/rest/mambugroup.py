@@ -9,11 +9,11 @@ MambuGroup holds a group.
 
 MambuGroups holds a list of groups.
 
-Uses mambuutil.getgroupurl as default urlfunc
+Uses mambugeturl.getgroupurl as default urlfunc
 """
 
 
-from ..mambuutil import getgroupcustominformationurl, getgroupurl
+from ..mambugeturl import getgroupcustominformationurl, getgroupurl
 from .mambustruct import MambuStruct, MambuStructIterator
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
