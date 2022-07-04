@@ -53,7 +53,6 @@ class RequestsCounter(object):
     so you may read it on every Mambu object you have per Python
     session you hold.
     """
-
     __instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -448,7 +447,7 @@ class MambuStruct(object):
             self.__debug = kwargs["debug"]
             """Debug flag.
 
-.. todo:: not currently furtherly implemented
+        .. todo:: not currently furtherly implemented
             """
         except KeyError:
             self.__debug = False
@@ -498,8 +497,7 @@ class MambuStruct(object):
 
         try:
             self.custom_field_name = kwargs["custom_field_name"]
-            """custom_field_name attribute.
-            """
+            """custom_field_name attribute."""
         except KeyError:
             pass
 
@@ -523,7 +521,6 @@ class MambuStruct(object):
 
         It's used at the connect() method, when called.
         """
-
         if (
             self.__urlfunc == None
         ):  # Only used when GET returns an array, meaning the MambuStruct must be a list of MambuStucts
@@ -628,7 +625,6 @@ class MambuStruct(object):
                   (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
                   # Reusing impossible-to-reuse code)
         """
-
         self.__args = deepcopy(args)
         for k, v in kwargs.items():
             self.__kwargs[k] = deepcopy(v)
@@ -741,6 +737,15 @@ class MambuStruct(object):
         if ("documents" not in url) and self.__method not in ["PATCH", "DELETE"]:
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
+    def _request_with_method(self, method, data, *args, **kwargs):
+        """Method to do a specific request on the current Mambu entity"""
+        self._MambuStruct__method = method
+        self._MambuStruct__data = data
+        self.connect(*args, **kwargs)
+        self._MambuStruct__method = "GET"
+        self._MambuStruct__data = None
+        return 1
+
     def _process_fields(self):
         """Default info massage to appropiate format/style.
 
@@ -826,7 +831,6 @@ class MambuStruct(object):
         or as-is. There may be nested Mambu objects here!
         This are the recursion base cases!
         """
-
         try:
             d = int(data)
             if (
@@ -858,7 +862,6 @@ class MambuStruct(object):
             "emailAddress",
             "description",
         ]
-
         # Iterators, lists and dictionaries
         # Here comes the recursive calls!
         try:
@@ -890,7 +893,6 @@ class MambuStruct(object):
         Some default constantFields are left as is (strings), because
         they are better treated as strings.
         """
-
         self.attrs = self._convert_dict_to_pytypes(self.attrs)
 
     def util_date_format(self, field, formato=None):
@@ -933,12 +935,7 @@ class MambuStruct(object):
         if self.create.__func__.__module__ != self.__module__:
             raise Exception("Child method not implemented")
 
-        self._MambuStruct__method = "POST"
-        self._MambuStruct__data = data
-        self.connect(*args, **kwargs)
-        self._MambuStruct__method = "GET"
-        self._MambuStruct__data = None
-        return 1
+        return self._request_with_method("POST", data, *args, **kwargs)
 
     def update(self, data, *args, **kwargs):
         """Downloads an update made to an entity in Mambu.
@@ -971,13 +968,7 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to update")
 
-        self._MambuStruct__method = "PATCH"
-        self._MambuStruct__data = data
-        self.connect(*args, **kwargs)
-        self._MambuStruct__method = "GET"
-        self._MambuStruct__data = None
-
-        return 1
+        return self._request_with_method("PATCH", data, *args, **kwargs)
 
     def update_post(self, data, *args, **kwargs):
         """Updates an entity in Mambu
@@ -995,12 +986,7 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to update")
 
-        self._MambuStruct__method = "POST"
-        self._MambuStruct__data = data
-        self.connect(*args, **kwargs)
-        self._MambuStruct__method = "GET"
-        self._MambuStruct__data = None
-        return 1
+        return self._request_with_method("POST", data, *args, **kwargs)
 
     def upload_document(self, data, *args, **kwargs):
         """Uploads a document in Mambu
@@ -1028,13 +1014,7 @@ class MambuStruct(object):
         if not data:
             raise Exception("Requires data to upload")
 
-        self._MambuStruct__method = "POST"
-        self._MambuStruct__data = data
-        self.connect(*args, **kwargs)
-        self._MambuStruct__method = "GET"
-        self._MambuStruct__data = None
-        return 1
-
+        return self._request_with_method("POST", data, *args, **kwargs)
 
 def set_custom_field(mambuentity, customfield="", *args, **kwargs):
     """Modifies the customField field for the given object with
@@ -1060,9 +1040,8 @@ def set_custom_field(mambuentity, customfield="", *args, **kwargs):
             if (l["name"] == customfield or l["id"] == customfield)
         ][0]
     except IndexError:
-        # if no customfield found with the given name, assume it is a
-        # grouped custom field, name must have an index suffix that must
-        # be removed
+        # if no customfield found with the given name, assume it is a grouped
+        # custom field, name must have an index suffix that must be removed
         try:
             # find the dataType customfield by name or id
             datatype = [
@@ -1093,5 +1072,4 @@ def set_custom_field(mambuentity, customfield="", *args, **kwargs):
     else:
         mambuentity[customfield] = customFieldValue
         return 0
-
     return 1

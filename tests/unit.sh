@@ -26,6 +26,7 @@ tests=("unit_mambuconfig.py" \
            "unit_mambutransaction.py" \
            "unit_mambuuser.py" \
            "unit_mambustruct.py" \
+           "unit_mambustruct_methods.py" \
            "unit_mambugroup.py" \
            "unit_mambuclient.py" \
            "unit_mambuutil.py" \
