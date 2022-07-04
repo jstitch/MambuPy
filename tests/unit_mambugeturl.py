@@ -9,7 +9,6 @@ import unittest
 from datetime import datetime
 
 from MambuPy import mambuconfig
-from MambuPy import mambugeturl
 
 for k, v in mambuconfig.default_configs.items():
     setattr(mambuconfig, k, v)
