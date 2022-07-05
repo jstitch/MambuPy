@@ -53,7 +53,7 @@ class MambuRoles(MambuStruct):
     If you wish to specialize other Mambu objects on MambuPy you may
     do that. Mind that if you desire that the iterable version of it
     to have elements of your specialized class, you need to change
-    the logic of the constructor and the convertDict2Attrs method in
+    the logic of the constructor and the convert_dict_to_attrs method in
     the iterable class to use some sort of itemclass there too.
     Don't forget to submit the change on a pull request when done
     ;-)
@@ -71,7 +71,7 @@ class MambuRoles(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def convert_dict_to_attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
         You iterate over each element of the responded List from Mambu,

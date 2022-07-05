@@ -73,7 +73,7 @@ class MambuTransactionsTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in t][0])
             self.assertEqual(n, t[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import gettransactionsurl
 
         trans = mambutransaction.MambuTransactions(urlfunc=None)
@@ -86,7 +86,7 @@ class MambuTransactionsTests(unittest.TestCase):
             "'MambuTransactions' object has no attribute 'mambutransactionclass'",
         ):
             trans.mambutransactionclass
-        trans.convertDict2Attrs()
+        trans.convert_dict_to_attrs()
         self.assertEqual(
             str(trans.mambutransactionclass),
             "<class 'MambuPy.rest.mambutransaction.MambuTransaction'>",

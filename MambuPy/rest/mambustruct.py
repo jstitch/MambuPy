@@ -318,7 +318,7 @@ class MambuStruct(object):
 
         Basically it stores the response on the attrs attribute, then
         runs some customizable preprocess method, then runs
-        convertDict2Attrs method to convert the string elements to an
+        convert_dict_to_attrs method to convert the string elements to an
         adequate python object, then a customizable postprocess method.
 
         It also executes each method on the 'methods' attribute given on
@@ -348,7 +348,7 @@ class MambuStruct(object):
           some Mambu iterable object code and pydoc for more details."""
         self.attrs = attrs
         self.preprocess()
-        self.convertDict2Attrs(*args, **kwargs)
+        self.convert_dict_to_attrs(*args, **kwargs)
         self.postprocess()
         try:
             self.entid = self.id
@@ -886,7 +886,7 @@ class MambuStruct(object):
             raise ex
         return self._convert_data_to_pytype(data)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def convert_dict_to_attrs(self, *args, **kwargs):
         """Each element on the attrs attribute gest converted to a
         proper python object, depending on type.
 

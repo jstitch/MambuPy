@@ -66,7 +66,7 @@ class MambuActivitiesTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getactivitiesurl
 
         acs = mambuactivity.MambuActivities(urlfunc=None)
@@ -79,7 +79,7 @@ class MambuActivitiesTests(unittest.TestCase):
             "'MambuActivities' object has no attribute 'mambuactivityclass'",
         ):
             acs.mambuactivityclass
-        acs.convertDict2Attrs()
+        acs.convert_dict_to_attrs()
         self.assertEqual(
             str(acs.mambuactivityclass),
             "<class 'MambuPy.rest.mambuactivity.MambuActivity'>",

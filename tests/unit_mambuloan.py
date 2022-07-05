@@ -794,7 +794,7 @@ class MambuLoansTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getloansurl
 
         ln = mambuloan.MambuLoans(urlfunc=None)
@@ -806,7 +806,7 @@ class MambuLoansTests(unittest.TestCase):
             AttributeError, "'MambuLoans' object has no attribute 'mambuloanclass'"
         ):
             ln.mambuloanclass
-        ln.convertDict2Attrs()
+        ln.convert_dict_to_attrs()
         self.assertEqual(
             str(ln.mambuloanclass), "<class 'MambuPy.rest.mambuloan.MambuLoan'>"
         )

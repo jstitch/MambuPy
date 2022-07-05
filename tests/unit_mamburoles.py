@@ -62,7 +62,7 @@ class MambuRolesTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in r][0])
             self.assertEqual(n, r[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getrolesurl
 
         rs = mamburoles.MambuRoles(urlfunc=None)
@@ -74,7 +74,7 @@ class MambuRolesTests(unittest.TestCase):
             AttributeError, "'MambuRoles' object has no attribute 'mamburoleclass'"
         ):
             rs.mamburoleclass
-        rs.convertDict2Attrs()
+        rs.convert_dict_to_attrs()
         self.assertEqual(
             str(rs.mamburoleclass), "<class 'MambuPy.rest.mamburoles.MambuRole'>"
         )

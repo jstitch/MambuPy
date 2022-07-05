@@ -27,7 +27,7 @@ class MambuSavingFundingRepayment(MambuStruct):
     MambuSavingFundingRepayments to configure each of its elements as MambuSavingFundingRepayment
     objects. There's no suitable urlfunc to use to retrieve just a
     specific repayment from a loan account. In fact, you can look at the
-    code of MambuSavingFundingRepayments.convertDict2Attrs(), it uses urlfunc and
+    code of MambuSavingFundingRepayments.convert_dict_to_attrs(), it uses urlfunc and
     entid = None , so no connection to Mambu will be made, never, for
     any particular MambuRepayment object.
     """
@@ -64,7 +64,7 @@ class MambuSavingFundingRepayments(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def convert_dict_to_attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
         You iterate over each element of the responded List from Mambu,

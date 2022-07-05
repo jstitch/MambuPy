@@ -150,7 +150,7 @@ class MambuTasksTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import gettasksurl
 
         ts = mambutask.MambuTasks(urlfunc=None)
@@ -162,7 +162,7 @@ class MambuTasksTests(unittest.TestCase):
             AttributeError, "'MambuTasks' object has no attribute 'mambutaskclass'"
         ):
             ts.mambutaskclass
-        ts.convertDict2Attrs()
+        ts.convert_dict_to_attrs()
         self.assertEqual(
             str(ts.mambutaskclass), "<class 'MambuPy.rest.mambutask.MambuTask'>"
         )

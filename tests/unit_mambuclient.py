@@ -263,7 +263,7 @@ class MambuClientsTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in c][0])
             self.assertEqual(n, c[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getclienturl
 
         clns = mambuclient.MambuClients(urlfunc=None)
@@ -276,7 +276,7 @@ class MambuClientsTests(unittest.TestCase):
         ):
             clns.mambuclientclass
         with mock.patch("MambuPy.rest.mambuclient.MambuClient.preprocess"):
-            clns.convertDict2Attrs()
+            clns.convert_dict_to_attrs()
             self.assertEqual(
                 str(clns.mambuclientclass),
                 "<class 'MambuPy.rest.mambuclient.MambuClient'>",

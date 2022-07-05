@@ -22,7 +22,7 @@ class MambuTask(MambuStruct):
     MambuTasks to configure each of its elements as MambuTask
     objects. There's no suitable urlfunc to use to retrieve just a
     specific transaction from a loan account. In fact, you can look at
-    the code of MambuTasks.convertDict2Attrs(), it uses urlfunc
+    the code of MambuTasks.convert_dict_to_attrs(), it uses urlfunc
     and entid = None , so no connection to Mambu will be made, never,
     for any particular MambuTask object.
     """
@@ -92,7 +92,7 @@ class MambuTask(MambuStruct):
         )
         data["task"]["dueDate"] = datetime.strptime(data["task"]["dueDate"], "%Y-%m-%d")
         self.attrs = data["task"]
-        self.convertDict2Attrs()
+        self.convert_dict_to_attrs()
 
         self._MambuStruct__method = "GET"
         self._MambuStruct__urlfunc = None
@@ -108,7 +108,7 @@ class MambuTasks(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def convert_dict_to_attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
         You iterate over each element of the responded List from Mambu,

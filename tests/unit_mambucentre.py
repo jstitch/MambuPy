@@ -62,7 +62,7 @@ class MambuCentresTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in c][0])
             self.assertEqual(n, c[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getcentresurl
 
         cens = mambucentre.MambuCentres(urlfunc=None)
@@ -74,7 +74,7 @@ class MambuCentresTests(unittest.TestCase):
             AttributeError, "'MambuCentres' object has no attribute 'mambucentreclass'"
         ):
             cens.mambucentreclass
-        cens.convertDict2Attrs()
+        cens.convert_dict_to_attrs()
         self.assertEqual(
             str(cens.mambucentreclass), "<class 'MambuPy.rest.mambucentre.MambuCentre'>"
         )

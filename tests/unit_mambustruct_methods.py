@@ -43,24 +43,24 @@ class MambuStructMethodsTests(unittest.TestCase):
     def test_init(self, requests, json, iri_to_uri):
         """Test init method, which is called by the connect method"""
         orig_preprocess = mambustruct.MambuStruct.preprocess
-        orig_convertDict2Attrs = mambustruct.MambuStruct.convertDict2Attrs
+        orig_convert_dict_to_attrs = mambustruct.MambuStruct.convert_dict_to_attrs
         orig_postprocess = mambustruct.MambuStruct.postprocess
         orig_util_date_format = mambustruct.MambuStruct.util_date_format
         orig_serialize_struct = mambustruct.MambuStruct.serialize_struct
 
         mambustruct.MambuStruct.preprocess = mock.Mock()
-        mambustruct.MambuStruct.convertDict2Attrs = mock.Mock()
+        mambustruct.MambuStruct.convert_dict_to_attrs = mock.Mock()
         mambustruct.MambuStruct.postprocess = mock.Mock()
         mambustruct.MambuStruct.util_date_format = mock.Mock()
         mambustruct.MambuStruct.serialize_struct = mock.Mock()
 
-        # init calls preprocess, convertDict2Attrs, postprocess methods, on that order
+        # init calls preprocess, convert_dict_to_attrs, postprocess methods, on that order
         json.loads.return_value = {"hello": "goodbye"}
         mambustruct.MambuStruct(
             urlfunc=lambda entid, limit, offset, *args, **kwargs: ""
         )
         mambustruct.MambuStruct.preprocess.assert_called_with()
-        mambustruct.MambuStruct.convertDict2Attrs.assert_called_with()
+        mambustruct.MambuStruct.convert_dict_to_attrs.assert_called_with()
         mambustruct.MambuStruct.postprocess.assert_called_with()
 
         # 'methods' kwarg makes init call the methods on it
@@ -77,7 +77,7 @@ class MambuStructMethodsTests(unittest.TestCase):
             methods=["blah_method"],
         )
         mambustruct.MambuStruct.preprocess.assert_called_with()
-        mambustruct.MambuStruct.convertDict2Attrs.assert_called_with(
+        mambustruct.MambuStruct.convert_dict_to_attrs.assert_called_with(
             methods=["blah_method"]
         )
         mambustruct.MambuStruct.postprocess.assert_called_with()
@@ -91,7 +91,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         self.assertEqual(ms.prop2, "val2")
 
         mambustruct.MambuStruct.preprocess = orig_preprocess
-        mambustruct.MambuStruct.convertDict2Attrs = orig_convertDict2Attrs
+        mambustruct.MambuStruct.convert_dict_to_attrs = orig_convert_dict_to_attrs
         mambustruct.MambuStruct.postprocess = orig_postprocess
         mambustruct.MambuStruct.util_date_format = orig_util_date_format
         mambustruct.MambuStruct.serialize_struct = orig_serialize_struct
@@ -99,7 +99,7 @@ class MambuStructMethodsTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.iri_to_uri")
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
-    def test_convertDict2Attrs(self, requests, json, iri_to_uri):
+    def test_convert_dict_to_attrs(self, requests, json, iri_to_uri):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         json.loads.return_value = {"hello": "goodbye"}
         ms = mambustruct.MambuStruct(
@@ -108,34 +108,34 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         # string remains string
         ms.attrs = {"prop1": "string"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.prop1, "string")
 
         # integer transforms in to int
         ms.attrs = {"prop2": "1"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.prop2, 1)
 
         # integer with trailing 0's remains as string
         ms.attrs = {"prop2b": "0001"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.prop2b, "0001")
 
         # floating point transforms in to float
         ms.attrs = {"prop3": "3.141592"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.prop3, 3.141592)
 
         # datetime transforms in to datetime object
         from datetime import datetime
 
         ms.attrs = {"prop4": "2017-10-23T00:00:00+0000"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.prop4, datetime.strptime("2017-10-23", "%Y-%m-%d"))
 
         # lists recursively convert each of its elements
         ms.attrs = {"prop5": ["foo", "1", "001", "2.78", "2017-10-23T00:00:00+0000"]}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop5,
             ["foo", 1, "001", 2.78, datetime.strptime("2017-10-23", "%Y-%m-%d")],
@@ -144,7 +144,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         ms.attrs = {
             "prop5": ["foo", "1", "001", "2.78", "2017-10-23T00:00:00+0000", ["bar"]]
         }
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop5,
             [
@@ -167,7 +167,7 @@ class MambuStructMethodsTests(unittest.TestCase):
                 {"foo": "bar"},
             ]
         }
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop5,
             [
@@ -190,7 +190,7 @@ class MambuStructMethodsTests(unittest.TestCase):
                 "e": "foo",
             }
         }
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop6,
             {
@@ -212,7 +212,7 @@ class MambuStructMethodsTests(unittest.TestCase):
                 "f": {"g": "h"},
             }
         }
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop6,
             {
@@ -235,7 +235,7 @@ class MambuStructMethodsTests(unittest.TestCase):
                 "f": ["bar"],
             }
         }
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(
             ms.prop6,
             {
@@ -250,39 +250,39 @@ class MambuStructMethodsTests(unittest.TestCase):
 
         # certain fields remain as-is with no conversion to anything
         ms.attrs = {"id": "12345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.id, "12345")
 
         ms.attrs = {"groupName": "12.34"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.groupName, "12.34")
 
         ms.attrs = {"name": "1979-10-23T10:23:00+0000"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.name, "1979-10-23T10:23:00+0000")
 
         ms.attrs = {"homePhone": "12345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.homePhone, "12345")
 
         ms.attrs = {"mobilePhone1": "12.345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.mobilePhone1, "12.345")
 
         ms.attrs = {"phoneNumber": "1979-10-23T10:23:00+0000"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.phoneNumber, "1979-10-23T10:23:00+0000")
 
         ms.attrs = {"postcode": "12345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.postcode, "12345")
 
         ms.attrs = {"description": "12345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.description, "12345")
 
         ms.attrs = {"emailAddress": "12345"}
-        ms.convertDict2Attrs()
+        ms.convert_dict_to_attrs()
         self.assertEqual(ms.emailAddress, "12345")
 
     def test_RequestsCounter(self):

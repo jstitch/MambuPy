@@ -62,7 +62,7 @@ class MambuProductsTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in p][0])
             self.assertEqual(n, p[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         prods = mambuproduct.MambuProducts(urlfunc=None)
         prods.attrs = [
             {"id": "1", "name": "my_product"},
@@ -73,7 +73,7 @@ class MambuProductsTests(unittest.TestCase):
             "'MambuProducts' object has no attribute 'mambuproductclass'",
         ):
             prods.mambuproductclass
-        prods.convertDict2Attrs()
+        prods.convert_dict_to_attrs()
         self.assertEqual(
             str(prods.mambuproductclass),
             "<class 'MambuPy.rest.mambuproduct.MambuProduct'>",
@@ -125,7 +125,7 @@ class AllMambuProductsTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in p][0])
             self.assertEqual(n, p[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getproductsurl
 
         prods = mambuproduct.AllMambuProducts(urlfunc=None)
@@ -133,7 +133,7 @@ class AllMambuProductsTests(unittest.TestCase):
             {"id": "1", "name": "my_product"},
             {"id": "2", "name": "my_2_product"},
         ]
-        prods.convertDict2Attrs()
+        prods.convert_dict_to_attrs()
         self.assertEqual(
             str(prods.mambuproductclass),
             "<class 'MambuPy.rest.mambuproduct.MambuProduct'>",

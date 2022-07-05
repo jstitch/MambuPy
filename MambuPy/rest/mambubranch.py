@@ -79,7 +79,7 @@ class MambuBranches(MambuStruct):
     def __iter__(self):
         return MambuStructIterator(self.attrs)
 
-    def convertDict2Attrs(self, *args, **kwargs):
+    def convert_dict_to_attrs(self, *args, **kwargs):
         """The trick for iterable Mambu Objects comes here:
 
                 You iterate over each element of the responded List from Mambu,

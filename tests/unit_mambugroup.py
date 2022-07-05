@@ -521,7 +521,7 @@ class MambuGroupsTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in g][0])
             self.assertEqual(n, g[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getgroupurl
 
         grps = mambugroup.MambuGroups(urlfunc=None)
@@ -534,7 +534,7 @@ class MambuGroupsTests(unittest.TestCase):
         ):
             grps.mambugroupclass
         with mock.patch("MambuPy.rest.mambugroup.MambuGroup.preprocess"):
-            grps.convertDict2Attrs()
+            grps.convert_dict_to_attrs()
             self.assertEqual(
                 str(grps.mambugroupclass),
                 "<class 'MambuPy.rest.mambugroup.MambuGroup'>",

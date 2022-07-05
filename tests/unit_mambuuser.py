@@ -276,7 +276,7 @@ class MambuUsersTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in a][0])
             self.assertEqual(n, a[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getuserurl
 
         us = mambuuser.MambuUsers(urlfunc=None)
@@ -288,7 +288,7 @@ class MambuUsersTests(unittest.TestCase):
             AttributeError, "'MambuUsers' object has no attribute 'mambuuserclass'"
         ):
             us.mambuuserclass
-        us.convertDict2Attrs()
+        us.convert_dict_to_attrs()
         self.assertEqual(
             str(us.mambuuserclass), "<class 'MambuPy.rest.mambuuser.MambuUser'>"
         )

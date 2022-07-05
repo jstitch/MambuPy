@@ -102,7 +102,7 @@ class MambuBranchesTests(unittest.TestCase):
             self.assertEqual(str(n), [k for k in b][0])
             self.assertEqual(n, b[str(n)])
 
-    def test_convertDict2Attrs(self):
+    def test_convert_dict_to_attrs(self):
         from MambuPy.mambugeturl import getbranchesurl
 
         brs = mambubranch.MambuBranches(urlfunc=None)
@@ -114,7 +114,7 @@ class MambuBranchesTests(unittest.TestCase):
             AttributeError, "'MambuBranches' object has no attribute 'mambubranchclass'"
         ):
             brs.mambubranchclass
-        brs.convertDict2Attrs()
+        brs.convert_dict_to_attrs()
         self.assertEqual(
             str(brs.mambubranchclass), "<class 'MambuPy.rest.mambubranch.MambuBranch'>"
         )
