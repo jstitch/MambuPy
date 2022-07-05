@@ -209,14 +209,26 @@ class MambuStruct(MambuStruct1):
     def postprocess(self, *args, **kwargs):
         """"""
 
+    def create(self, data, *args, **kwargs):
+        self.wrapped2._attrs = data
+        self.wrapped2.create()
+
+        return 1
+
     def update(self, data, *args, **kwargs):
         fields = []
         for ci in data.get("customInformation", {}):
             self[ci["customFieldID"]] = ci["value"]
             fields.append(ci["customFieldID"])
-        self.wrapped2.patch(fields=fields)
+        if fields:
+            self.wrapped2.patch(fields=fields)
+
+        self.wrapped2.update()
 
         return 1
+
+    def update_post(self, data, *args, **kwargs):
+        return self.update(data, *args, **kwargs)
 
     def update_patch(self, data, *args, **kwargs):
         fields = []

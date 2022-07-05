@@ -1,7 +1,9 @@
 # coding: utf-8
 
+from datetime import datetime
 import os
 import sys
+import unittest
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -9,8 +11,6 @@ try:
     import mock
 except ModuleNotFoundError:
     import unittest.mock as mock
-import unittest
-from datetime import datetime
 
 from MambuPy import mambuconfig
 
