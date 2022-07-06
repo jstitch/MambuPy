@@ -795,7 +795,7 @@ class MambuStruct(object):
                     except KeyError:
                         self[field_name] = custom["linkedEntityKeyValue"]
                         self[field_id] = custom["linkedEntityKeyValue"]
-                        custom["value"] = custom["linkedEntityKeyValue"]            
+                        custom["value"] = custom["linkedEntityKeyValue"]
         try:
             try:
                 massage_appropiate_format()

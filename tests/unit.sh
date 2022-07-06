@@ -32,6 +32,7 @@ tests=("unit_mambuconfig.py" \
            "unit_mambuutil.py" \
            "unit_mambuloan.py" \
            "unit_mambugeturl.py" \
+           "unit_mambutransactionchannel.py" \
            "api/unit_mambuconnector.py" \
            "api/unit_mambustruct.py" \
            "api/unit_mambuloan.py" \
