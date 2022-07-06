@@ -105,7 +105,7 @@ class MambuSavingTransactions(MambuStruct):
             except AttributeError:
                 params = {}
             kwargs.update(params)
-            transaction_channel = self.itemclass_saving(
+            transaction_channel = self.itemclass(
                 urlfunc=None, entid=None, *args, **kwargs
             )
             transaction_channel.init(l_saving, *args, **kwargs)
