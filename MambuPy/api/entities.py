@@ -361,7 +361,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
 
         Allows patching of parts of the entity up to Mambu.
 
-        fields is a list of the values in the _attrs that will be sent to Mambu
+        fields is a list of the keys in the _attrs that will be sent to Mambu
 
         autodetect automatically searches for deleted fields and patches a
         remove in Mambu.
@@ -409,6 +409,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             fields_ops = []
             original_attrs = dict(json.loads(self._resp.decode()))
             self._extractCustomFields(original_attrs)
+            self._updateVOs()
             for field in fields:
                 if field in self._attrs.keys() and field not in original_attrs.keys():
                     path = extract_path(self._attrs, field, self._cf_class)
@@ -436,7 +437,6 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
                         path = extract_path(original_attrs, attr, self._cf_class)
                         fields_ops.append(("REMOVE", path))
 
-            self._updateVOs()
             self._updateCustomFields()
             self._serializeFields()
             self._connector.mambu_patch(self.id, self._prefix, fields_ops)
