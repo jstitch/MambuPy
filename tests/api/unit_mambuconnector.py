@@ -562,7 +562,9 @@ class MambuConnectorREST(unittest.TestCase):
             "PATCH",
             "https://{}/api/prefix/entid".format(apiurl),
             params={},
-            data='[{"op": "add", "path": "/onepath", "value": "12345"}, {"op": "replace", "path": "/otherpath/asubpath", "value": "54321"}, {"op": "remove", "path": "/somepath"}]',
+            data='[{"op": "add", "path": "/onepath", "value": "12345"}, \
+{"op": "replace", "path": "/otherpath/asubpath", "value": "54321"}, \
+{"op": "remove", "path": "/somepath"}]',
             headers=headers,
         )
 

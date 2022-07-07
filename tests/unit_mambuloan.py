@@ -755,7 +755,18 @@ class MambuLoanTests(unittest.TestCase):
         """Test upload"""
         # set data response
         mock_requests.post.return_value = Response(
-            '{"encodedKey":"8a818660727120000172722ce8396e1e","id":48391,"creationDate":"2020-06-01T23:17:25+0000","lastModifiedDate":"2020-06-01T23:17:25+0000","documentHolderKey":"8a818ff870c4d7a30170c6d76ad20fef","documentHolderType":"LOAN_ACCOUNT","name":"otro PDF","type":"pdf","fileSize":718905,"originalFilename":"otro_PDF.pdf","location":"ZLUBRCUJTWKQZFBDRCNCPUVAXXODDW","createdByUserKey":"8a43a79f3664edaa0136a7ab14d4281c"}'
+            '{"encodedKey":"8a818660727120000172722ce8396e1e",\
+"id":48391,\
+"creationDate":"2020-06-01T23:17:25+0000",\
+"lastModifiedDate":"2020-06-01T23:17:25+0000",\
+"documentHolderKey":"8a818ff870c4d7a30170c6d76ad20fef",\
+"documentHolderType":"LOAN_ACCOUNT",\
+"name":"otro PDF",\
+"type":"pdf",\
+"fileSize":718905,\
+"originalFilename":"otro_PDF.pdf",\
+"location":"ZLUBRCUJTWKQZFBDRCNCPUVAXXODDW",\
+"createdByUserKey":"8a43a79f3664edaa0136a7ab14d4281c"}'
         )
 
         l = mambuloan.MambuLoan(connect=False)

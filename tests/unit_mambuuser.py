@@ -227,7 +227,11 @@ class MambuUserTests(unittest.TestCase):
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
         mock_requests.post.return_value = Response(
-            '{"encodedKey":"8a68ae574f707810014f84add84610ef","id":631,"creationDate":"2015-08-31T16:53:50+0000","lastModifiedDate":"2021-05-14T13:28:35+0000","lastLoggedInDate":"2021-04-23T13:31:39+0000"}'
+            '{"encodedKey":"8a68ae574f707810014f84add84610ef",\
+"id":631,\
+"creationDate":"2015-08-31T16:53:50+0000",\
+"lastModifiedDate":"2021-05-14T13:28:35+0000",\
+"lastLoggedInDate":"2021-04-23T13:31:39+0000"}'
         )
         mambuuser.MambuStruct.update = mock.Mock()
         mambuuser.MambuStruct.update.return_value = 1
