@@ -24,3 +24,8 @@ script:
   - python tests/unit_mambutransaction.py
   - python tests/unit_mambugroup.py
   - python tests/unit_mambuproduct.py
+  - unit_mambugeturl.py
+  - unit_mambutransactionchannel.py
+  - unit_mambusavingtransaction.py
+  - unit_mambusaving.py
+  - unit_mambusavingfundingrepayment

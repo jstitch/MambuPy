@@ -13,8 +13,8 @@ Uses mambugeturl.getsavings as default urlfunc.
 """
 
 
-from ..mambugeturl import MambuError, getsavingssurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from ..mambugeturl import getsavingssurl
+from .mambustruct import MambuStruct, MambuStructIterator, MambuError
 
 mod_urlfunc = getsavingssurl
 

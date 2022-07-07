@@ -34,6 +34,8 @@ tests=("unit_mambuconfig.py" \
            "unit_mambugeturl.py" \
            "unit_mambutransactionchannel.py" \
            "unit_mambusavingtransaction.py" \
+           "unit_mambusaving.py" \
+           "unit_mambusavingfundingrepayment.py" \
            "api/unit_mambuconnector.py" \
            "api/unit_mambustruct.py" \
            "api/unit_mambuloan.py" \
