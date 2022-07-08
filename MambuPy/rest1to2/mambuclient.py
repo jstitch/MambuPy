@@ -1,12 +1,25 @@
 from mambupy.rest.mambuclient import MambuClient as MambuClient1, MambuClients as MambuClients1
-from mambupy.rest1to2.mambustruct import MambuStruct
+from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
 from mambupy.rest.mambustruct import MambuStructIterator
 
 from ..mambuutil import strip_consecutive_repeated_char as scrc
 
 
+client_filters = [
+    "branchId",
+    "centreId",
+    "creditOfficerUsername",
+    "firstName",
+    "lastName",
+    "idNumber",
+    "state",
+    "birthDate",
+]
+
+
 class MambuClient(MambuStruct, MambuClient1):
     def __init__(self, *args, **kwargs):
+        process_filters(client_filters, kwargs)
         super().__init__(*args, **kwargs)
 
     def preprocess(self):
@@ -72,18 +85,6 @@ class MambuClient(MambuStruct, MambuClient1):
         except (KeyError, IndexError):
             pass
 
-    def setBranch(self, *args, **kwargs):
-        try:
-            self.mambubranchclass
-        except AttributeError:
-            from mambupy.rest1to2 import mambubranch
-            self.mambubranchclass = mambubranch.MambuBranch
-
-        self.branch = self.mambubranchclass(
-            entid=self.wrapped2.assignedBranchKey, *args, **kwargs)
-        self.assignedBranchName = self.branch.name
-        self.assignedBranch = self.branch
-
     def setGroups(self, *args, **kwargs):
         requests = 0
         groups = []
@@ -120,6 +121,7 @@ class MambuClients(MambuStruct, MambuClients1):
             mambuclass1 = kwargs.pop("mambuclass1")
         else:
             mambuclass1 = MambuClient
+        process_filters(client_filters, kwargs)
         super().__init__(
             mambuclassname=mambuclassname,
             mambuclass1=mambuclass1, *args, **kwargs)

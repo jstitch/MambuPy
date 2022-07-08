@@ -1,10 +1,14 @@
 from mambupy.rest.mambugroup import MambuGroup as MambuGroup1, MambuGroups as MambuGroups1
-from mambupy.rest1to2.mambustruct import MambuStruct
+from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
 from mambupy.rest.mambustruct import MambuStructIterator
+
+
+group_filters = ["branchId", "centreId", "creditOfficerUsername"]
 
 
 class MambuGroup(MambuStruct, MambuGroup1):
     def __init__(self, *args, **kwargs):
+        process_filters(group_filters, kwargs)
         super().__init__(*args, **kwargs)
 
     def preprocess(self):
@@ -92,6 +96,7 @@ class MambuGroups(MambuStruct, MambuGroups1):
             mambuclass1 = kwargs.pop("mambuclass1")
         else:
             mambuclass1 = MambuGroup
+        process_filters(group_filters, kwargs)
         super().__init__(
             mambuclassname=mambuclassname,
             mambuclass1=mambuclass1, *args, **kwargs)

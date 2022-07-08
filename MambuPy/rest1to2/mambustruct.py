@@ -216,16 +216,18 @@ class MambuStruct(MambuStruct1):
         return 1
 
     def update(self, data, *args, **kwargs):
+        requests = 0
         fields = []
         for ci in data.get("customInformation", {}):
             self[ci["customFieldID"]] = ci["value"]
             fields.append(ci["customFieldID"])
         if fields:
             self.wrapped2.patch(fields=fields)
+            requests += 1
 
         self.wrapped2.update()
 
-        return 1
+        return 1 + requests
 
     def update_post(self, data, *args, **kwargs):
         return self.update(data, *args, **kwargs)
@@ -272,7 +274,7 @@ class MambuStruct(MambuStruct1):
             self.mambucentreclass
         except AttributeError:
             from mambupy.rest1to2 import mambucentre
-            self.mambubranchclass = mambucentre.MambuCentre
+            self.mambucentreclass = mambucentre.MambuCentre
 
         self.centre = self.mambucentreclass(
             entid=self.wrapped2.assignedCentreKey, *args, **kwargs)

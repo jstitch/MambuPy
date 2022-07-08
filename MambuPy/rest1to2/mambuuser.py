@@ -1,10 +1,14 @@
 from mambupy.rest.mambuuser import MambuUser as MambuUser1, MambuUsers as MambuUsers1
-from mambupy.rest1to2.mambustruct import MambuStruct
+from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
 from mambupy.rest.mambustruct import MambuStructIterator
+
+
+user_filters = ["branchId"]
 
 
 class MambuUser(MambuStruct, MambuUser1):
     def __init__(self, *args, **kwargs):
+        process_filters(user_filters, kwargs)
         super().__init__(*args, **kwargs)
 
 
@@ -18,6 +22,7 @@ class MambuUsers(MambuStruct, MambuUsers1):
             mambuclass1 = kwargs.pop("mambuclass1")
         else:
             mambuclass1 = MambuUser
+        process_filters(user_filters, kwargs)
         super().__init__(
             mambuclassname=mambuclassname,
             mambuclass1=mambuclass1, *args, **kwargs)
