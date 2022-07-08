@@ -8,6 +8,26 @@ class MambuBranch(MambuStruct, MambuBranch1):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def preprocess(self):
+        from mambupy.rest1to2 import mambuuser
+        self.mambuusersclass = mambuuser.MambuUsers
+
+    def setUsers(self, *args, **kwargs):
+        try:
+            self.mambuusersclass
+        except AttributeError:
+            from .mambuuser import MambuUsers
+            self.mambuusersclass = MambuUsers
+
+        usrs = [
+            us
+            for us in self.mambuusersclass(branchId=self["id"], *args, **kwargs)
+            if us["userState"] == "ACTIVE"
+        ]
+        self["users"] = usrs
+
+        return 1
+
 
 class MambuBranches(MambuStruct, MambuBranches1):
     def __init__(self, *args, **kwargs):
