@@ -29,6 +29,7 @@ def import_class(path, _object):
 class MambuStruct(MambuStruct1):
     DEFAULTS = {}
     attrs = {}
+    entid_fld = "entid"
 
     def __init__(self, *args, **kwargs):
         self.wrapped1 = None
@@ -177,8 +178,8 @@ class MambuStruct(MambuStruct1):
         self.__args = deepcopy(args)
         self.__kwargs.update(kwargs)
 
-        if "entid" in self.__kwargs:
-            self._entid = self.__kwargs["entid"]
+        if self.entid_fld in self.__kwargs:
+            self._entid = self.__kwargs[self.entid_fld]
             self.wrapped2 = self.mambuclass2.get(
                 detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
             self.attrs = self.wrapped2._attrs
