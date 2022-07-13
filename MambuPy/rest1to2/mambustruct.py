@@ -1,8 +1,10 @@
 from base64 import b64decode
 from copy import deepcopy
 import importlib
+import json
 import os
 
+from mambupy.mambuutil import MambuError, MambuPyError
 from mambupy.rest.mambustruct import MambuStruct as MambuStruct1
 
 
@@ -99,6 +101,8 @@ class MambuStruct(MambuStruct1):
     def __getattribute__(self, name):
         try:
             attribute = super().__getattribute__(name)
+            if attribute.__class__.__name__ == "MambuEntityCF":
+                return attribute.value
             return attribute
         except AttributeError:
             try:
@@ -108,7 +112,7 @@ class MambuStruct(MambuStruct1):
                 try:
                     return self.DEFAULTS[name]
                 except KeyError:
-                    if not self.wrapped1 and self._entid and self._entid != "":
+                    if (not self.wrapped1 and self._entid and self._entid != ""):
                         _class_base = import_class(
                             "MambuPy.rest", self.mambuclassname)
                         _class = self.mambuclass1
@@ -283,3 +287,33 @@ class MambuStruct(MambuStruct1):
         self.assignedCentre = self.centre
 
         return 1
+
+
+def set_custom_field(mambuentity, customfield="", *args, **kwargs):
+    from . import mambuclient, mambuuser
+
+    try:
+        customFieldValue = mambuentity[customfield]
+        cf = json.loads(
+            mambuentity.wrapped2._connector.mambu_get_customfield(customfield))
+        datatype = cf["type"]
+    except MambuError as merr:
+        # error if no customfield found with the given name
+        raise merr
+    except KeyError:
+        err = MambuPyError("Object {} does not have the custom field {}".format(
+            repr(mambuentity), customfield))
+        raise err
+
+    if datatype == "USER_LINK":
+        mambuentity[customfield] = mambuuser.MambuUser(
+            entid=customFieldValue, *args, **kwargs
+        )
+    elif datatype == "CLIENT_LINK":
+        mambuentity[customfield] = mambuclient.MambuClient(
+            entid=customFieldValue, *args, **kwargs
+        )
+    else:
+        mambuentity[customfield] = customFieldValue
+        return 0
+    return 1

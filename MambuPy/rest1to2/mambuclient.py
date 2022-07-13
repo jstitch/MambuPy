@@ -63,13 +63,13 @@ class MambuClient(MambuStruct, MambuClient1):
                     self.address[name] = item.strip()
                 except AttributeError:
                     pass
-        except (KeyError, IndexError):
+        except (IndexError, AttributeError):
             pass
 
         try:
             for idDoc in self.idDocuments:
                 self[idDoc.documentType] = idDoc.documentId
-        except KeyError:
+        except AttributeError:
             pass
 
     def postprocess(self):
@@ -82,7 +82,7 @@ class MambuClient(MambuStruct, MambuClient1):
                     self.address[name] = str(self.address[name])
                 except AttributeError:
                     pass
-        except (KeyError, IndexError):
+        except (IndexError, AttributeError):
             pass
 
     def setGroups(self, *args, **kwargs):

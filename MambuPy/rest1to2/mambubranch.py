@@ -12,6 +12,30 @@ class MambuBranch(MambuStruct, MambuBranch1):
         from mambupy.rest1to2 import mambuuser
         self.mambuusersclass = mambuuser.MambuUsers
 
+        try:
+            self.address = self.addresses[0]
+            for name, item in self.addresses[0].items():
+                try:
+                    self.addresses[0][name] = item.strip()
+                    self.address[name] = item.strip()
+                except AttributeError:
+                    pass
+        except (IndexError, AttributeError):
+            pass
+
+    def postprocess(self):
+        try:
+            for name, item in self.addresses[0].items():
+                try:
+                    if name == "indexInList":
+                        continue
+                    self.addresses[0][name] = str(self.addresses[0][name])
+                    self.address[name] = str(self.address[name])
+                except AttributeError:
+                    pass
+        except (IndexError, AttributeError):
+            pass
+
     def setUsers(self, *args, **kwargs):
         try:
             self.mambuusersclass

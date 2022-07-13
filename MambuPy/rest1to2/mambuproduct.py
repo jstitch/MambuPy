@@ -8,6 +8,10 @@ class MambuProduct(MambuStruct, MambuProduct1):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @property
+    def productName(self):
+        return self.wrapped2.name
+
 
 class MambuProducts(MambuStruct, MambuProducts1):
     def __init__(self, *args, **kwargs):

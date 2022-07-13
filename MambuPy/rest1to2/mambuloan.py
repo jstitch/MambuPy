@@ -48,12 +48,28 @@ class MambuLoan(MambuStruct, MambuLoan1):
         return self.wrapped2.balances["feesBalance"]
 
     @property
+    def feesPaid(self):
+        return self.wrapped2.balances["feesPaid"]
+
+    @property
     def penaltyBalance(self):
         return self.wrapped2.balances["penaltyBalance"]
 
     @property
+    def penaltyPaid(self):
+        return self.wrapped2.balances["penaltyPaid"]
+
+    @property
     def repaymentInstallments(self):
         return self.wrapped2.scheduleSettings["repaymentInstallments"]
+
+    @property
+    def repaymentPeriodCount(self):
+        return self.wrapped2.scheduleSettings["repaymentPeriodCount"]
+
+    @property
+    def repaymentPeriodUnit(self):
+        return self.wrapped2.scheduleSettings["repaymentPeriodUnit"]
 
     def _get_roles(self, fullDetails=True, *args, **kwargs):
         requests = 0
