@@ -64,6 +64,16 @@ class MambuConnectorReader(unittest.TestCase):
             mambuconnector.MambuConnectorReader.mambu_loanaccount_getSchedule(
                 None, "")
 
+    def test_mambu_get_customfield(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorReader,
+                    "mambu_get_customfield"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorReader.mambu_get_customfield(
+                None, "")
+
 
 class MambuConnectorWriter(unittest.TestCase):
     def test_mambu_update(self):
@@ -719,6 +729,21 @@ class MambuConnectorREST(unittest.TestCase):
             data='{"action": "APPROVE", "notes": "Prueba"}',
             headers=mcrest._headers
         )
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_get_customfield(self, mock_requests):
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        mcrest.mambu_get_customfield("cfid")
+
+        mock_requests.request.assert_called_with(
+            "GET",
+            "https://{}/api/customfields/{}".format(apiurl, "cfid"),
+            params={},
+            data=None,
+            headers=mcrest._headers)
 
 
 if __name__ == "__main__":

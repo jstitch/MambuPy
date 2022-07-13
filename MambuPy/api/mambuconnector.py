@@ -129,6 +129,14 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
+    def mambu_get_customfield(self, customfieldid):
+        """Retrieves a Custom Field.
+
+        Args:
+          customfieldid (str): the id or encoded key of the custom field
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorWriter(ABC):
     """Interface for Writers.
@@ -636,7 +644,6 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         return self.__request("GET", url)
 
-
     def mambu_change_state(self, entid, prefix, action, notes):
         """change state of mambu entity
 
@@ -652,3 +659,13 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             "notes": notes
         }
         return self.__request("POST", url, data=data)
+
+    def mambu_get_customfield(self, customfieldid):
+        """Retrieves a Custom Field.
+
+        Args:
+          customfieldid (str): the id or encoded key of the custom field
+        """
+        url = "https://{}/api/customfields/{}".format(
+            self._tenant, customfieldid)
+        return self.__request("GET", url)
