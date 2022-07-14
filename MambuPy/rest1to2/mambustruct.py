@@ -33,6 +33,33 @@ class MambuStruct(MambuStruct1):
     attrs = {}
     entid_fld = "entid"
 
+    def __init_props(self, *args, **kwargs):
+        if "mambuclassname" in kwargs:
+            self.mambuclassname = kwargs.pop("mambuclassname")
+        else:
+            self.mambuclassname = self.__class__.__name__
+        if "mambuclass1" in kwargs:
+            self.mambuclass1 = kwargs.pop("mambuclass1")
+        else:
+            self.mambuclass1 = import_class(
+                "MambuPy.rest", self.__class__.__name__)
+        if "mambuclass2" in kwargs:
+            self.mambuclass2 = kwargs.pop("mambuclass2")
+        else:
+            self.mambuclass2 = import_class(
+                "mambupy.api", self.mambuclassname)
+        if "mambuclassson" in kwargs:
+            self.mambuclassson = kwargs.pop("mambuclassson")
+        else:
+            self.mambuclassson = None
+
+        self._entid = None
+        self.__args = ()
+        self.__kwargs = {}
+        self.__args = deepcopy(args)
+        for k, v in kwargs.items():
+            self.__kwargs[k] = deepcopy(v)
+
     def __init__(self, *args, **kwargs):
         self.wrapped1 = None
         self.wrapped2 = None
@@ -48,27 +75,7 @@ class MambuStruct(MambuStruct1):
             object.__setattr__(self, "fullDetails", False)
             object.__setattr__(self, "detailsLevel", "BASIC")
 
-        if "mambuclassname" in kwargs:
-            self.mambuclassname = kwargs.pop("mambuclassname")
-        else:
-            self.mambuclassname = self.__class__.__name__
-        if "mambuclass1" in kwargs:
-            self.mambuclass1 = kwargs.pop("mambuclass1")
-        else:
-            self.mambuclass1 = import_class(
-                "MambuPy.rest", self.__class__.__name__)
-        if "mambuclass2" in kwargs:
-            self.mambuclass2 = kwargs.pop("mambuclass2")
-        else:
-            self.mambuclass2 = import_class(
-                "mambupy.api", self.mambuclassname)
-
-        self._entid = None
-        self.__args = ()
-        self.__kwargs = {}
-        self.__args = deepcopy(args)
-        for k, v in kwargs.items():
-            self.__kwargs[k] = deepcopy(v)
+        self.__init_props(*args, **kwargs)
 
         if "urlfunc" in self.__kwargs and self.__kwargs["urlfunc"] is None:
             self.wrapped2 = self.mambuclass2()
@@ -112,10 +119,16 @@ class MambuStruct(MambuStruct1):
                 try:
                     return self.DEFAULTS[name]
                 except KeyError:
-                    if (not self.wrapped1 and self._entid and self._entid != ""):
+                    if (not self.wrapped1 and
+                        self._entid and self._entid != "" and
+                        name not in [
+                            "_ipython_canary_method_should_not_exist_",
+                            "_ipython_canary_method_should_not_exist_",
+                            "_repr_mimebundle_"]):
                         _class_base = import_class(
                             "MambuPy.rest", self.mambuclassname)
                         _class = self.mambuclass1
+                        print("setting wrapped1 of {} for prop {}".format(repr(self), name))
                         self.wrapped1 = _class(
                             fullDetails=self.fullDetails, entid=self._entid,
                             mambuclassname=self.mambuclassname,
@@ -131,7 +144,7 @@ class MambuStruct(MambuStruct1):
                 "__args", "__kwargs",
                 "_MambuStruct__args", "_MambuStruct__kwargs",
                 "wrapped1", "wrapped2",
-                "mambuclassname", "mambuclass1", "mambuclass2",
+                "mambuclassname", "mambuclass1", "mambuclass2", "mambuclassson",
                 "mambubranchclass", "mambucentreclass", "mambuuserclass",
                 "mambuclientclass", "mambugroupclass",
                 "mamburepaymentclass",
@@ -196,7 +209,10 @@ class MambuStruct(MambuStruct1):
                 detailsLevel=self.detailsLevel, *self.__args, **self.__kwargs)
             self.wrapped2 = []
             self.wrapped1 = None
-            _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
+            if self.mambuclassson:
+                _class2 = self.mambuclassson
+            else:
+                _class2 = import_class("MambuPy.rest1to2", self.mambuclassname)
             for entity in entities:
                 obj = _class2(urlfunc=None, fullDetails=self.fullDetails)
                 obj._entid = entity.id
@@ -204,6 +220,8 @@ class MambuStruct(MambuStruct1):
                 obj.attrs = obj.wrapped2._attrs
                 obj.mambuclassname = self.mambuclassname
                 obj.mambuclass1 = self.mambuclass1
+                obj.mambuclass2 = self.mambuclass2
+                obj.mambuclassson = self.mambuclassson
                 obj.preprocess()
                 obj.postprocess()
                 self.wrapped2.append(obj)
