@@ -285,6 +285,97 @@ class MambuLoan(MambuStruct):
 
         return requests
 
+    def _get_loanclientsdata_from_group_setHolder(self, holder, *args, **kwargs):
+        loanclients = {}
+
+        loanclientsdata = self.getClientDetails(holder=holder, *args, **kwargs)
+
+        for data in loanclientsdata:
+            loanclients[data["id"]] = {
+                "client": data["client"],
+                "name": data["name"],
+                "loan": self,
+                "amount": data["amount"],
+                "montoPago": data["amount"]
+                / float(self["repaymentInstallments"]),
+                "porcentaje": data["amount"] / float(self["loanAmount"]),
+            }
+            # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
+            for k, v in [
+                (key, val)
+                for (key, val) in data.items()
+                if key not in ["amount", "name"]
+            ]:
+                loanclients[data["id"]][k] = v
+
+        return loanclients
+
+    def _get_holder_data_by_group(self, getRoles, fullDetails, getClients, *args, **kwargs):
+        requests = 0
+        self["holderType"] = "Grupo"
+        try:
+            self.mambugroupclass
+        except AttributeError:
+            from .mambugroup import MambuGroup
+
+            self.mambugroupclass = MambuGroup
+
+        holder = self.mambugroupclass(
+            entid=self["accountHolderKey"], fullDetails=True, *args, **kwargs
+        )
+        self["holder"] = holder
+        requests += 1
+
+        if getRoles:
+            requests += self._get_roles(fullDetails, *args, **kwargs)
+
+        if getClients:
+            try:
+                self.mambuclientclass
+            except AttributeError:  # pragma: no cover
+                from .mambuclient import MambuClient
+                self.mambuclientclass = MambuClient
+            requests += holder.setClients(
+                fullDetails=fullDetails,
+                mambuclientclass=self.mambuclientclass,
+                *args,
+                **kwargs
+            )
+
+            self["clients"] = self._get_loanclientsdata_from_group_setHolder(holder, *args, **kwargs)
+
+        return requests
+
+    def _get_holder_data_by_client(self, fullDetails, getClients, *args, **kwargs):
+        requests = 0
+        self["holderType"] = "Cliente"
+        try:
+            self.mambuclientclass
+        except AttributeError:
+            from .mambuclient import MambuClient
+
+            self.mambuclientclass = MambuClient
+
+        holder = self.mambuclientclass(
+            entid=self["accountHolderKey"], fullDetails=fullDetails, *args, **kwargs
+        )
+        self["holder"] = holder
+        requests += 1
+
+        if getClients:
+            monto = float(self["loanAmount"])
+            self["clients"] = {
+                holder["name"]: {
+                    "client": holder,
+                    "loan": self,
+                    "amount": monto,
+                    "montoPago": monto / float(self["repaymentInstallments"]),
+                    "porcentaje": 1.0,
+                }
+            }
+
+        return requests
+
     def setHolder(self, getClients=False, getRoles=False, *args, **kwargs):
         """Adds the "holder" of the loan to a 'holder' field.
 
@@ -364,7 +455,6 @@ class MambuLoan(MambuStruct):
 
         .. todo:: what to do on Hybrid loan accounts?
         """
-        requests = 0
         if "fullDetails" in kwargs:
             fullDetails = kwargs["fullDetails"]
             kwargs.pop("fullDetails")
@@ -372,87 +462,9 @@ class MambuLoan(MambuStruct):
             fullDetails = True
 
         if self["accountHolderType"] == "GROUP":
-
-            self["holderType"] = "Grupo"
-            try:
-                self.mambugroupclass
-            except AttributeError:
-                from .mambugroup import MambuGroup
-
-                self.mambugroupclass = MambuGroup
-
-            holder = self.mambugroupclass(
-                entid=self["accountHolderKey"], fullDetails=True, *args, **kwargs
-            )
-            self["holder"] = holder
-            requests += 1
-
-            if getRoles:
-                requests += self._get_roles(fullDetails, *args, **kwargs)
-
-            if getClients:
-                try:
-                    self.mambuclientclass
-                except AttributeError:  # pragma: no cover
-                    from .mambuclient import MambuClient
-                    self.mambuclientclass = MambuClient
-                requests += holder.setClients(
-                    fullDetails=fullDetails,
-                    mambuclientclass=self.mambuclientclass,
-                    *args,
-                    **kwargs
-                )
-
-                loanclients = {}
-
-                loanclientsdata = self.getClientDetails(holder=holder, *args, **kwargs)
-
-                for data in loanclientsdata:
-                    loanclients[data["id"]] = {
-                        "client": data["client"],
-                        "name": data["name"],
-                        "loan": self,
-                        "amount": data["amount"],
-                        "montoPago": data["amount"]
-                        / float(self["repaymentInstallments"]),
-                        "porcentaje": data["amount"] / float(self["loanAmount"]),
-                    }
-                    # Any extra key,val pair on loannames is plainly assigned to the loanclients[cte] dict
-                    for k, v in [
-                        (key, val)
-                        for (key, val) in data.items()
-                        if key not in ["amount", "name"]
-                    ]:
-                        loanclients[data["id"]][k] = v
-
-                self["clients"] = loanclients
-
+            requests = self._get_holder_data_by_group(getRoles, fullDetails, getClients, *args, **kwargs)
         else:  # "CLIENT"
-            self["holderType"] = "Cliente"
-            try:
-                self.mambuclientclass
-            except AttributeError:
-                from .mambuclient import MambuClient
-
-                self.mambuclientclass = MambuClient
-
-            holder = self.mambuclientclass(
-                entid=self["accountHolderKey"], fullDetails=fullDetails, *args, **kwargs
-            )
-            self["holder"] = holder
-            requests += 1
-
-            if getClients:
-                monto = float(self["loanAmount"])
-                self["clients"] = {
-                    holder["name"]: {
-                        "client": holder,
-                        "loan": self,
-                        "amount": monto,
-                        "montoPago": monto / float(self["repaymentInstallments"]),
-                        "porcentaje": 1.0,
-                    }
-                }
+            requests = self._get_holder_data_by_client(fullDetails, getClients, *args, **kwargs)
 
         return requests
 
