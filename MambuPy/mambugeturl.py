@@ -686,9 +686,9 @@ def gettasksurl(dummyId="", *args, **kwargs):
     if kwargs:
         try:
             getparams.append("status=%s" % kwargs["status"])
+            del kwargs["status"]
         except Exception:
             getparams.append("status=OPEN")
-        del kwargs["status"]
         getparams.extend(_get_parameters_url(kwargs))
 
     url = (
@@ -731,17 +731,16 @@ def getactivitiesurl(dummyId="", *args, **kwargs):
     if kwargs:
         try:
             getparams.append("from=%s" % kwargs["fromDate"])
+            del kwargs["fromDate"]
         except Exception:
             getparams.append("from=%s" % "1900-01-01")
 
         try:
             getparams.append("to=%s" % kwargs["toDate"])
+            del kwargs["toDate"]
         except Exception:
             hoy = datetime.now().strftime("%Y-%m-%d")
             getparams.append("to=%s" % hoy)
-
-        del kwargs["fromDate"]
-        del kwargs["toDate"]
 
         getparams.extend(_get_parameters_url(kwargs))
 
