@@ -6,17 +6,20 @@
 """
 
 from .entities import (MambuEntity, MambuEntityWritable,
-                          MambuEntityAttachable,
-                          MambuEntitySearchable)
+                       MambuEntityAttachable,
+                       MambuEntitySearchable,
+                       MambuEntityCommentable,
+                       )
 from .interfaces import MambuHolder
 
 
 class MambuGroup(
-    MambuEntity,
-    MambuEntityWritable,
-    MambuEntityAttachable,
-    MambuEntitySearchable,
-    MambuHolder
+        MambuEntity,
+        MambuEntityWritable,
+        MambuEntityAttachable,
+        MambuEntitySearchable,
+        MambuEntityCommentable,
+        MambuHolder
 ):
     """MambuGroup entity"""
 
@@ -34,7 +37,7 @@ class MambuGroup(
     """allowed fields for get_all sorting"""
 
     _ownerType = "GROUP"
-    """attachments owner type of this entity"""
+    """owner type of this entity"""
 
     _vos = [("addresses", "MambuAddress"),
             ("groupMembers", "MambuGroupMember")]

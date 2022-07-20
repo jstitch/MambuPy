@@ -137,6 +137,15 @@ class MambuConnectorReader(ABC):
         """
         raise NotImplementedError
 
+    def mambu_get_comments(self, owner_id, owner_type):
+        """Retrieves the comments of entity with owner_id.
+
+        Args:
+          owner_id (str): the id or encoded key of the owner
+          owner_type (str): the type of the entity owning the comments
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorWriter(ABC):
     """Interface for Writers.
@@ -669,3 +678,41 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         url = "https://{}/api/customfields/{}".format(
             self._tenant, customfieldid)
         return self.__request("GET", url)
+
+    def mambu_get_comments(
+            self,
+            owner_id, owner_type,
+            offset=None, limit=None, paginationDetails="OFF"):
+        """Retrieves the comments of entity with owner_id.
+
+        Args:
+          owner_id (str): the id or encoded key of the owner
+          owner_type (str): the type of the entity owning the comments
+        """
+        params = self.__validate_query_params(
+            offset=offset,
+            limit=limit,
+            paginationDetails=paginationDetails,
+        )
+        if owner_type not in [
+                "CLIENT",
+                "GROUP",
+                "LOAN_PRODUCT",
+                "SAVINGS_PRODUCT",
+                "CENTRE",
+                "BRANCH",
+                "USER",
+                "LOAN_ACCOUNT",
+                "DEPOSIT_ACCOUNT",
+                "ID_DOCUMENT",
+                "LINE_OF_CREDIT",
+                "GL_JOURNAL_ENTRY"
+        ]:
+            raise MambuError("Owner {} not allowed".format(owner_type))
+
+        params.update({"ownerType": owner_type})
+        params.update({"ownerKey": owner_id})
+
+        url = "https://{}/api/comments".format(self._tenant)
+
+        return self.__request("GET", url, params=params)

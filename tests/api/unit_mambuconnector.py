@@ -74,6 +74,16 @@ class MambuConnectorReader(unittest.TestCase):
             mambuconnector.MambuConnectorReader.mambu_get_customfield(
                 None, "")
 
+    def test_mambu_get_comments(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorReader,
+                    "mambu_get_comments"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorReader.mambu_get_comments(
+                None, "", "")
+
 
 class MambuConnectorWriter(unittest.TestCase):
     def test_mambu_update(self):
@@ -744,6 +754,43 @@ class MambuConnectorREST(unittest.TestCase):
             params={},
             data=None,
             headers=mcrest._headers)
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    def test_mambu_get_comments(self, mock_requests):
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        for owner_type in [
+                "CLIENT",
+                "GROUP",
+                "LOAN_PRODUCT",
+                "SAVINGS_PRODUCT",
+                "CENTRE",
+                "BRANCH",
+                "USER",
+                "LOAN_ACCOUNT",
+                "DEPOSIT_ACCOUNT",
+                "ID_DOCUMENT",
+                "LINE_OF_CREDIT",
+                "GL_JOURNAL_ENTRY"
+        ]:
+            mock_requests.reset_mock()
+            mcrest.mambu_get_comments(
+                "OWNER_ID", owner_type,
+                offset=1, limit=2, paginationDetails="ON")
+            mock_requests.request.assert_called_with(
+                "GET",
+                "https://{}/api/comments".format(apiurl),
+                params={
+                    "ownerType": owner_type, "ownerKey": "OWNER_ID",
+                    "offset": 1, "limit": 2, "paginationDetails": "ON"},
+                data=None,
+                headers=mcrest._headers)
+
+        with self.assertRaisesRegex(
+                MambuError, r"Owner MY_OWNER_TYPE not allowed"):
+            mcrest.mambu_get_comments("OWNER_ID", "MY_OWNER_TYPE")
 
 
 if __name__ == "__main__":

@@ -6,15 +6,18 @@
 """
 
 from .entities import (MambuEntity, MambuEntityWritable,
-                          MambuEntityAttachable, MambuPyError)
+                       MambuEntityAttachable,
+                       MambuEntityCommentable,
+                       MambuPyError)
 from .interfaces import MambuOwner
 
 
 class MambuUser(
-    MambuEntity,
-    MambuEntityWritable,
-    MambuEntityAttachable,
-    MambuOwner
+        MambuEntity,
+        MambuEntityWritable,
+        MambuEntityAttachable,
+        MambuEntityCommentable,
+        MambuOwner
 ):
     """MambuUser entity"""
 
@@ -31,7 +34,7 @@ class MambuUser(
     """allowed fields for get_all sorting"""
 
     _ownerType = "USER"
-    """attachments owner type of this entity"""
+    """owner type of this entity"""
 
     _vos = [("role", "MambuUserRole")]
     """2-tuples of elements and Value Objects"""

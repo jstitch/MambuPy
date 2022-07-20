@@ -6,10 +6,10 @@
 """
 
 from .entities import MambuEntity
-from .interfaces import MambuOwner
+from .interfaces import MambuOwner, MambuCommentable
 
 
-class MambuCentre(MambuEntity, MambuOwner):
+class MambuCentre(MambuEntity, MambuCommentable, MambuOwner):
     """MambuCentre entity"""
 
     _prefix = "centres"
@@ -27,6 +27,9 @@ class MambuCentre(MambuEntity, MambuOwner):
         "name",
     ]
     """allowed fields for get_all sorting"""
+
+    _ownerType = "CENTRE"
+    """owner type of this entity"""
 
     _vos = [("addresses", "MambuAddress")]
     """2-tuples of elements and Value Objects"""

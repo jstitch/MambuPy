@@ -23,6 +23,12 @@ class MambuAddress(MambuValueObject):
 
 class MambuIDDocument(MambuValueObject):
     """ID Document"""
+    _ownerType = "ID_DOCUMENT"
+    """owner type of this entity"""
+
+
+class MambuComment(MambuValueObject):
+    """Comment"""
 
 
 class MambuDisbursementDetails(MambuValueObject):

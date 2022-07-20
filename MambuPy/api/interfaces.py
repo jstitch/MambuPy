@@ -113,6 +113,27 @@ class MambuSearchable(ABC):
         raise NotImplementedError
 
 
+class MambuCommentable(ABC):
+    """An entity which allows comments endpoints"""
+    def get_comments(self):  # pragma: no cover
+        """Gets comments for this entity
+
+        _comments list is cleaned and set with retrieved comments
+
+        Args:
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+
+        Returns:
+          Mambu's response with retrieved comments
+        """
+        raise NotImplementedError
+
+    def comment(self, comment):  # pragma: no cover
+        raise NotImplementedError
+
+
 class MambuOwner(ABC):
     """"""
 

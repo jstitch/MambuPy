@@ -11,6 +11,7 @@ import json
 from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityAttachable,
                        MambuEntitySearchable,
+                       MambuEntityCommentable,
                        MambuInstallment)
 from MambuPy.mambuutil import MambuPyError
 
@@ -19,6 +20,7 @@ class MambuLoan(
     MambuEntity,
     MambuEntityWritable,
     MambuEntityAttachable,
+    MambuEntityCommentable,
     MambuEntitySearchable
 ):
     """MambuLoan entity"""
@@ -45,7 +47,7 @@ class MambuLoan(
     """allowed fields for get_all sorting"""
 
     _ownerType = "LOAN_ACCOUNT"
-    """attachments owner type of this entity"""
+    """owner type of this entity"""
 
     _vos = [("disbursementDetails", "MambuDisbursementDetails")]
     """2-tuples of elements and Value Objects"""

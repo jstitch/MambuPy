@@ -18,6 +18,7 @@ class MambuClient(unittest.TestCase):
         self.assertTrue(isinstance(mc, interfaces.MambuWritable))
         self.assertTrue(isinstance(mc, interfaces.MambuAttachable))
         self.assertTrue(isinstance(mc, interfaces.MambuSearchable))
+        self.assertTrue(isinstance(mc, interfaces.MambuCommentable))
         self.assertTrue(isinstance(mc, interfaces.MambuHolder))
 
     def test_has_properties(self):

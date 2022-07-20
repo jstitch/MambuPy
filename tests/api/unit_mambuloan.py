@@ -18,6 +18,7 @@ class MambuLoan(unittest.TestCase):
         self.assertTrue(isinstance(ml, mambuloan.MambuEntity))
         self.assertTrue(isinstance(ml, interfaces.MambuWritable))
         self.assertTrue(isinstance(ml, interfaces.MambuAttachable))
+        self.assertTrue(isinstance(ml, interfaces.MambuCommentable))
         self.assertTrue(isinstance(ml, interfaces.MambuSearchable))
 
     def test_has_properties(self):

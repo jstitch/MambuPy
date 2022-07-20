@@ -7,16 +7,19 @@
 
 from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityAttachable,
-                       MambuEntitySearchable)
+                       MambuEntitySearchable,
+                       MambuEntityCommentable,
+                       )
 from .interfaces import MambuHolder
 
 
 class MambuClient(
-    MambuEntity,
-    MambuEntityWritable,
-    MambuEntityAttachable,
-    MambuEntitySearchable,
-    MambuHolder
+        MambuEntity,
+        MambuEntityWritable,
+        MambuEntityAttachable,
+        MambuEntitySearchable,
+        MambuEntityCommentable,
+        MambuHolder
 ):
     """MambuClient entity"""
 
@@ -44,7 +47,7 @@ class MambuClient(
     """allowed fields for get_all sorting"""
 
     _ownerType = "CLIENT"
-    """attachments owner type of this entity"""
+    """owner type of this entity"""
 
     _vos = [("addresses", "MambuAddress"),
             ("idDocuments", "MambuIDDocument")]

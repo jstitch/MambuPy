@@ -989,6 +989,16 @@ class MambuEntityTests(unittest.TestCase):
                 self._attrs = {"id": "12345"}
                 self._attachments = {}
 
+        class child_class_commentable(
+            entities.MambuEntity, entities.MambuEntityCommentable
+        ):
+            _prefix = "un_prefix"
+            _ownerType = "MY_ENTITY"
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self._attrs = {"id": "12345"}
+
         class child_class_searchable(
             entities.MambuEntity, entities.MambuEntitySearchable
         ):
@@ -998,6 +1008,7 @@ class MambuEntityTests(unittest.TestCase):
         self.child_class._assignEntObjs = mock.Mock()
         self.child_class_writable = child_class_writable
         self.child_class_attachable = child_class_attachable
+        self.child_class_commentable = child_class_commentable
         self.child_class_searchable = child_class_searchable
 
     def test_has_properties(self):
@@ -1858,6 +1869,42 @@ class MambuEntityTests(unittest.TestCase):
         child.del_attachment(documentId="75310", documentName="yaImage")
         self.assertEqual(list(child._attachments.keys()), [])
         mock_connector.mambu_delete_document.assert_called_with("75310")
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_get_comments(self, mock_connector):
+        mock_connector.mambu_get_comments.return_value = b"""[{
+        "encodedKey":"my_comment_EK",
+        "ownerKey":"my_owner_Key",
+        "ownerType":"MY_ENTITY",
+        "creationDate":"2022-07-11T12:33:21-05:00",
+        "lastModifiedDate":"2022-07-11T12:33:46-05:00",
+        "text":"LITTLE PIGS LITTLE PIGS LET ME IN!",
+        "userKey":"author_EK"
+        }]"""
+
+        child = self.child_class_commentable()
+        comments = child.get_comments()
+
+        self.assertEqual(len(child._comments), 1)
+        self.assertEqual(
+            child._comments[0]._attrs,
+            {
+                "encodedKey": "my_comment_EK",
+                "ownerKey": "my_owner_Key",
+                "ownerType": "MY_ENTITY",
+                "creationDate": "2022-07-11T12:33:21-05:00",
+                "lastModifiedDate": "2022-07-11T12:33:46-05:00",
+                "text": "LITTLE PIGS LITTLE PIGS LET ME IN!",
+                "userKey": "author_EK"
+            })
+
+        self.assertEqual(
+            comments,
+            json.loads(mock_connector.mambu_get_comments.return_value))
+
+        mock_connector.mambu_get_comments.assert_called_once_with(
+            owner_id="12345", owner_type="MY_ENTITY",
+            limit=None, offset=None, paginationDetails="OFF")
 
 
 class MambuEntityCFTests(unittest.TestCase):

@@ -16,6 +16,7 @@ class MambuCentre(unittest.TestCase):
         mc = mambucentre.MambuCentre()
         self.assertTrue(isinstance(mc, mambucentre.MambuEntity))
         self.assertTrue(isinstance(mc, interfaces.MambuOwner))
+        self.assertTrue(isinstance(mc, interfaces.MambuCommentable))
 
     def test_has_properties(self):
         mc = mambucentre.MambuCentre()
@@ -27,6 +28,7 @@ class MambuCentre(unittest.TestCase):
         self.assertEqual(
             mc._sortBy_fields, ["creationDate", "lastModifiedDate", "id", "name"]
         )
+        self.assertEqual(mc._ownerType, "CENTRE")
         self.assertEqual(mc._vos, [("addresses", "MambuAddress")])
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")

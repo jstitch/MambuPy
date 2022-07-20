@@ -6,13 +6,15 @@
 """
 
 from .entities import (MambuEntity, MambuEntityWritable,
-                          MambuEntityAttachable)
+                       MambuEntityAttachable,
+                       MambuEntityCommentable)
 
 
 class MambuProduct(
-    MambuEntity,
-    MambuEntityWritable,
-    MambuEntityAttachable
+        MambuEntity,
+        MambuEntityWritable,
+        MambuEntityAttachable,
+        MambuEntityCommentable
 ):
     """MambuProduct entity"""
 
@@ -32,7 +34,7 @@ class MambuProduct(
     """allowed fields for get_all sorting"""
 
     _ownerType = "LOAN_PRODUCT"
-    """attachments owner type of this entity"""
+    """owner type of this entity"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

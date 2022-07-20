@@ -9,10 +9,15 @@ import json
 import time
 
 from .classes import GenericClass
-from .interfaces import MambuWritable, MambuAttachable, MambuSearchable
+from .interfaces import (
+    MambuWritable,
+    MambuAttachable,
+    MambuSearchable,
+    MambuCommentable,
+)
 from .mambuconnector import MambuConnectorREST
 from .mambustruct import MambuStruct
-from .vos import MambuDocument, MambuValueObject
+from .vos import MambuDocument, MambuComment, MambuValueObject
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuError,
                          MambuPyError)
 
@@ -605,6 +610,40 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
 
         self._connector.mambu_delete_document(docid)
         self._attachments.pop(docid)
+
+
+class MambuEntityCommentable(MambuStruct, MambuCommentable):
+    """A Mambu object with commenting capabilities."""
+
+    _comments = []
+    """list of comments of an entity"""
+
+    def get_comments(self, offset=None, limit=None, paginationDetails="OFF"):
+        """Gets comments for this entity
+
+        _comments list is cleaned and set with retrieved comments
+
+        Args:
+          offset (int): pagination, index to start searching
+          limit (int): pagination, number of elements to retrieve
+          paginationDetails (str ON/OFF): ask for details on pagination
+
+        Returns:
+          Mambu's response with retrieved comments
+        """
+        self._comments = []
+        response = self._connector.mambu_get_comments(
+            owner_id=self.id,
+            owner_type=self._ownerType,
+            offset=offset, limit=limit, paginationDetails=paginationDetails)
+
+        comments_list = json.loads(response.decode())
+
+        for comment in comments_list:
+            comm = MambuComment(**comment)
+            self._comments.append(comm)
+
+        return comments_list
 
 
 class MambuEntityCF(MambuValueObject):

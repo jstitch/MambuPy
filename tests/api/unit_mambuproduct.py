@@ -22,6 +22,7 @@ class MambuProduct(unittest.TestCase):
         self.assertTrue(isinstance(mp, mambuproduct.MambuEntity))
         self.assertTrue(isinstance(mp, interfaces.MambuWritable))
         self.assertTrue(isinstance(mp, interfaces.MambuAttachable))
+        self.assertTrue(isinstance(mp, interfaces.MambuCommentable))
 
     def test_has_properties(self):
         mc = mambuproduct.MambuProduct()
