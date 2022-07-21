@@ -219,6 +219,16 @@ class MambuConnectorWriter(ABC):
         """
         raise NotImplementedError
 
+    def mambu_comment(self, owner_id, owner_type, text):
+        """Comments an entity with owner_id.
+
+        Args:
+          owner_id (str): the id or encoded key of the owner
+          owner_type (str): the type of the entity owning the comments
+          text (str): the text of the comment
+        """
+        raise NotImplementedError
+
 
 class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
     """A connector for Mambu REST API"""
@@ -716,3 +726,34 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         url = "https://{}/api/comments".format(self._tenant)
 
         return self.__request("GET", url, params=params)
+
+    def mambu_comment(self, owner_id, owner_type, text):
+        """Comments an entity with owner_id.
+
+        Args:
+          owner_id (str): the id or encoded key of the owner
+          owner_type (str): the type of the entity owning the comments
+          text (str): the text of the comment
+        """
+        if owner_type not in [
+                "CLIENT",
+                "GROUP",
+                "LOAN_PRODUCT",
+                "SAVINGS_PRODUCT",
+                "CENTRE",
+                "BRANCH",
+                "USER",
+                "LOAN_ACCOUNT",
+                "DEPOSIT_ACCOUNT",
+                "ID_DOCUMENT",
+                "LINE_OF_CREDIT",
+                "GL_JOURNAL_ENTRY"
+        ]:
+            raise MambuError("Owner {} not allowed".format(owner_type))
+        data = {"ownerKey": owner_id,
+                "ownerType": owner_type,
+                "text": text}
+
+        url = "https://{}/api/comments".format(self._tenant)
+
+        return self.__request("POST", url, data=data)

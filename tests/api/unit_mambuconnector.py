@@ -130,6 +130,16 @@ class MambuConnectorWriter(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorWriter.mambu_change_state(None, "", "", "" , "")
 
+    def test_mambu_comment(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter,
+                    "mambu_comment"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_comment(
+                None, "", "", "")
+
 
 class MambuConnectorREST(unittest.TestCase):
     def test_properties(self):
@@ -791,6 +801,45 @@ class MambuConnectorREST(unittest.TestCase):
         with self.assertRaisesRegex(
                 MambuError, r"Owner MY_OWNER_TYPE not allowed"):
             mcrest.mambu_get_comments("OWNER_ID", "MY_OWNER_TYPE")
+
+    @mock.patch("MambuPy.api.mambuconnector.requests")
+    @mock.patch("MambuPy.api.mambuconnector.uuid")
+    def test_mambu_comment(self, mock_uuid, mock_requests):
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.request().status_code = 200
+
+        mcrest = mambuconnector.MambuConnectorREST()
+
+        for owner_type in [
+                "CLIENT",
+                "GROUP",
+                "LOAN_PRODUCT",
+                "SAVINGS_PRODUCT",
+                "CENTRE",
+                "BRANCH",
+                "USER",
+                "LOAN_ACCOUNT",
+                "DEPOSIT_ACCOUNT",
+                "ID_DOCUMENT",
+                "LINE_OF_CREDIT",
+                "GL_JOURNAL_ENTRY"
+        ]:
+            mock_requests.reset_mock()
+            mcrest.mambu_comment(
+                "OWNER_ID", owner_type, "My Comment")
+            mock_requests.request.assert_called_with(
+                "POST",
+                "https://{}/api/comments".format(apiurl),
+                params={},
+                data=json.dumps(
+                    {"ownerKey": "OWNER_ID",
+                     "ownerType": owner_type,
+                     "text": "My Comment"}),
+                headers=mcrest._headers)
+
+        with self.assertRaisesRegex(
+                MambuError, r"Owner MY_OWNER_TYPE not allowed"):
+            mcrest.mambu_comment("OWNER_ID", "MY_OWNER_TYPE", "My Comment")
 
 
 if __name__ == "__main__":

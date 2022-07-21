@@ -645,6 +645,28 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
 
         return comments_list
 
+    def comment(self, comment):
+        """Comments this entity
+
+        _comments list gets a new entry with comment.
+
+        Args:
+          comment (str): the text of the comment
+
+        Returns:
+          Mambu's response with metadata of the posted comment
+        """
+        response = self._connector.mambu_comment(
+            owner_id=self.id,
+            owner_type=self._ownerType,
+            text=comment
+        )
+
+        comment = MambuComment(**dict(json.loads(response.decode())))
+        self._comments.append(comment)
+
+        return response
+
 
 class MambuEntityCF(MambuValueObject):
     """A Mambu CustomField obtained via an Entity.

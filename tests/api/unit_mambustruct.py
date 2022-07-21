@@ -1906,6 +1906,41 @@ class MambuEntityTests(unittest.TestCase):
             owner_id="12345", owner_type="MY_ENTITY",
             limit=None, offset=None, paginationDetails="OFF")
 
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_comment(self, mock_connector):
+        mock_connector.mambu_comment.return_value = b"""{
+        "encodedKey":"my_new_commentEk",
+        "ownerKey":"my_owner_Key",
+        "ownerType":"MY_ENTITY",
+        "creationDate":"2022-07-21T18:22:19-05:00",
+        "lastModifiedDate":"2022-07-21T18:22:19-05:00",
+        "text":"NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!",
+        "userKey":"author_EK"
+        }"""
+
+        child = self.child_class_commentable()
+        comnt = child.comment("NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!")
+
+        self.assertEqual(len(child._comments), 1)
+        self.assertEqual(
+            child._comments[0]._attrs,
+            {
+                "encodedKey": "my_new_commentEk",
+                "ownerKey": "my_owner_Key",
+                "ownerType": "MY_ENTITY",
+                "text": "NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!",
+                "creationDate": "2022-07-21T18:22:19-05:00",
+                "lastModifiedDate": "2022-07-21T18:22:19-05:00",
+                "userKey": "author_EK"
+            },
+        )
+        self.assertEqual(comnt, mock_connector.mambu_comment.return_value)
+        mock_connector.mambu_comment.assert_called_with(
+            owner_id="12345",
+            owner_type="MY_ENTITY",
+            text="NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!",
+        )
+
 
 class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
