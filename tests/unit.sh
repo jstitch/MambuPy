@@ -36,8 +36,16 @@ tests=("unit_mambuconfig.py" \
            "unit_mambusavingtransaction.py" \
            "unit_mambusaving.py" \
            "unit_mambusavingfundingrepayment.py" \
-           "api/unit_mambuconnector.py" \
+
+           "api/unit_classes.py" \
            "api/unit_mambustruct.py" \
+
+           "api/unit_entities.py" \
+           "api/unit_attachable.py" \
+           "api/unit_commentable.py" \
+           "api/unit_searchable.py" \
+           "api/unit_writable.py" \
+
            "api/unit_mambuloan.py" \
            "api/unit_mambugroup.py" \
            "api/unit_mambuclient.py" \
@@ -47,6 +55,11 @@ tests=("unit_mambuconfig.py" \
            "api/unit_mambuproduct.py" \
            "api/unit_mambutask.py" \
            "api/unit_mambutransaction.py" \
+
+           "api/connector/unit_mambuconnector.py" \
+           "api/connector/unit_rest.py" \
+           "api/connector/unit_rest_reader.py" \
+           "api/connector/unit_rest_writer.py" \
       )
 for test in ${tests[@]}
 do

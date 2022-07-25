@@ -15,7 +15,7 @@ from .interfaces import (
     MambuSearchable,
     MambuCommentable,
 )
-from .mambuconnector import MambuConnectorREST
+from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
 from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuError,
