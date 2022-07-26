@@ -156,3 +156,9 @@ Release Notes
   - First beta of MambuPyv2 release
 * v2.0.0b4
   - changeState endpoint added for Mambu Loans
+* v2.0.0b5
+  - GET customfields endpoints
+  - commentable interface: get and post comments on Mambu entities
+  - rest1to2 (aka restito) adapter to use MambuREST v2 with
+    MambuPy v1 interfaces
+  - solved several codesmells
