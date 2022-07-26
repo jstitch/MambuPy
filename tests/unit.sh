@@ -46,6 +46,7 @@ tests=("unit_mambuconfig.py" \
            "api/unit_searchable.py" \
            "api/unit_writable.py" \
 
+           "api/unit_mambucustomfield.py" \
            "api/unit_mambuloan.py" \
            "api/unit_mambugroup.py" \
            "api/unit_mambuclient.py" \
