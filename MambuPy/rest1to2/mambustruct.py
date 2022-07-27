@@ -102,6 +102,7 @@ class MambuStruct(MambuStruct1):
     def __setitem__(self, key, value):
         try:
             self.wrapped2[key] = value
+            self.attrs[key] = value
         except TypeError:
             self.wrapped1[key] = value
 
@@ -122,9 +123,7 @@ class MambuStruct(MambuStruct1):
                     if (not self.wrapped1 and
                         self._entid and self._entid != "" and
                         name not in [
-                            "_ipython_canary_method_should_not_exist_",
-                            "_ipython_canary_method_should_not_exist_",
-                            "_repr_mimebundle_"]):
+                            "__getstate__"]):
                         _class_base = import_class(
                             "MambuPy.rest", self.mambuclassname)
                         _class = self.mambuclass1
@@ -152,6 +151,7 @@ class MambuStruct(MambuStruct1):
                 "fullDetails", "detailsLevel"]:
             try:
                 self.wrapped2.__setattr__(name, value)
+                self.attrs[name] = value
             except AttributeError:
                 self.wrapped1.__setattr__(name, value)
         else:
@@ -162,6 +162,15 @@ class MambuStruct(MambuStruct1):
             return self.wrapped2.has_key(key)
         except AttributeError:
             return self.wrapped1.has_key(key)
+
+    def __contains__(self, item):
+        return item in self.wrapped2._attrs
+
+    def keys(self):
+        try:
+            return self.wrapped2._attrs.keys()
+        except AttributeError:
+            raise NotImplementedError
 
     def __str__(self):
         return self.wrapped2.__str__()
@@ -190,6 +199,10 @@ class MambuStruct(MambuStruct1):
 
     def __len__(self):
         return self.wrapped2.__len__()
+
+    def init(self, attrs={}, *args, **kwargs):
+        super().init(attrs, *args, **kwargs)
+        self._attrs = self.attrs
 
     def connect(self, *args, **kwargs):
         self.__args = deepcopy(args)

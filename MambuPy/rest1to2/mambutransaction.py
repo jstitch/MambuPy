@@ -8,6 +8,22 @@ class MambuTransaction(MambuStruct, MambuTransaction1):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def __getitem__(self, key):
+        if key=="transactionId":
+            return self.wrapped2.id
+        elif key=="entryDate":
+            return self.wrapped2.valueDate
+        else:
+            return super().__getitem__(key)
+
+    @property
+    def transactionId(self):
+        return self.wrapped2.id
+
+    @property
+    def entryDate(self):
+        return self.wrapped2.valueDate
+
 
 class MambuTransactions(MambuStruct, MambuTransactions1):
     def __init__(self, *args, **kwargs):
