@@ -160,6 +160,45 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         return params
 
+    def __validate_filter_criteria(self, filterCriteria):
+        validated_filterCriteria = []
+        if (
+                not isinstance(filterCriteria, list) or
+                any([criteria for criteria in filterCriteria
+                     if not isinstance(criteria, dict)])
+        ):
+            raise MambuPyError("filterCriteria must be a list of dictionaries")
+        for criteria in filterCriteria:
+            if (
+                "field" not in criteria or
+                "operator" not in criteria or
+                criteria["operator"] not in SEARCH_OPERATORS
+            ):
+                raise MambuPyError(
+                    "a filterCriteria must have a field and an operator, member of {}".format(
+                        SEARCH_OPERATORS
+                    )
+                )
+            validated_filterCriteria.append(criteria)
+
+        return validated_filterCriteria
+
+    def __validate_sorting_criteria(self, sortingCriteria):
+        if not isinstance(sortingCriteria, dict):
+            raise MambuPyError("sortingCriteria must be a dictionary")
+        if (
+            "field" not in sortingCriteria
+            or "order" not in sortingCriteria
+            or sortingCriteria["order"] not in ["ASC", "DESC"]
+        ):
+            raise MambuPyError(
+                "sortingCriteria must have a field and an order, member of {}".format(
+                    ["ASC", "DESC"]
+                )
+            )
+
+        return sortingCriteria
+
     def mambu_get(self, entid, prefix, detailsLevel="BASIC"):
         """get, a single entity, identified by its entid.
 
@@ -268,38 +307,12 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         data = {}
 
         if filterCriteria is not None:
-            if not isinstance(filterCriteria, list):
-                raise MambuPyError("filterCriteria must be a list of dictionaries")
-            data["filterCriteria"] = []
-            for criteria in filterCriteria:
-                if not isinstance(criteria, dict):
-                    raise MambuPyError("each filterCriteria must be a dictionary")
-                if (
-                    "field" not in criteria
-                    or "operator" not in criteria
-                    or criteria["operator"] not in SEARCH_OPERATORS
-                ):
-                    raise MambuPyError(
-                        "a filterCriteria must have a field and an operator, member of {}".format(
-                            SEARCH_OPERATORS
-                        )
-                    )
-                data["filterCriteria"].append(criteria)
+            data["filterCriteria"] = self.__validate_filter_criteria(
+                filterCriteria)
 
         if sortingCriteria is not None:
-            if not isinstance(sortingCriteria, dict):
-                raise MambuPyError("sortingCriteria must be a dictionary")
-            if (
-                "field" not in sortingCriteria
-                or "order" not in sortingCriteria
-                or sortingCriteria["order"] not in ["ASC", "DESC"]
-            ):
-                raise MambuPyError(
-                    "sortingCriteria must have a field and an order, member of {}".format(
-                        ["ASC", "DESC"]
-                    )
-                )
-            data["sortingCriteria"] = sortingCriteria
+            data["sortingCriteria"] = self.__validate_sorting_criteria(
+                sortingCriteria)
 
         url = "https://{}/api/{}:search".format(self._tenant, prefix)
 

@@ -170,7 +170,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             mcrest.mambu_search("someURL", filterCriteria="filterCriteria")
 
         with self.assertRaisesRegex(
-            MambuPyError, r"^each filterCriteria must be a dictionary"
+            MambuPyError, r"^filterCriteria must be a list of dictionaries"
         ):
             mcrest.mambu_search("someURL", filterCriteria=["filterCriteria"])
 
