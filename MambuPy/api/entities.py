@@ -42,6 +42,154 @@ class MambuEntity(MambuStruct):
     def __init__(self, **kwargs):
         super().__init__(cf_class=MambuEntityCF, **kwargs)
 
+    def _extract_field_path(self, field, attrs_dict={}, cf_class=None):
+        """Extracts the path for a given field.
+
+        If the field is a Custom Field, the path is given in a property in its attrs dict.
+        (cf `MambuPy.api.entities.MambuEntityCF`)
+
+        If not, the path is from the "root" of  the object
+
+        Args:
+          attrs (dict): an attrs structure holding the field
+          field (str): a field for which to extract the path
+          cf_class (obj): the class used for custom field VOs. If the field is
+                          a CF in attrs, the path is a property of it. If not,
+                          it lives on the "root" of the attrs
+        """
+        if not cf_class:
+            cf_class = self._cf_class
+        if not attrs_dict:
+            attrs_dict = self._attrs
+        if attrs_dict[field].__class__.__name__ == cf_class.__name__:
+            return attrs_dict[field]["path"]
+        else:
+            return "/" + field
+
+    @classmethod
+    def __build_object(
+            cls,
+            resp,
+            attrs,
+            tzattrs,
+            get_entities=False,
+            detailsLevel="BASIC",
+            debug=False
+    ):
+        """Builds an instance of an Entity object
+
+        Args:
+          cls (obj): the object to build
+          resp (bytes): the raw json that originates the object
+          attrs (dict): the dict with the values to build the object
+          tzattrs (dict): the dict with TZ data for datetimes in attrs
+          get_entities (bool): should MambuPy automatically instantiate other
+                               MambuPy entities found inside the built entity?
+          detailsLevel (str): "BASIC" or "FULL"
+          debug (bool): print debugging info
+        """
+        instance = cls.__call__()
+        instance._resp = resp
+        instance._attrs = attrs
+        instance._tzattrs = tzattrs
+        instance._convertDict2Attrs()
+        instance._extractCustomFields()
+        instance._extractVOs(
+            get_entities=get_entities, debug=debug)
+        entities = copy.deepcopy(instance._entities)
+        if get_entities:
+            instance._assignEntObjs(
+                entities,
+                detailsLevel,
+                get_entities,
+                debug=debug)
+        instance._detailsLevel = detailsLevel
+
+        return instance
+
+    @classmethod
+    def __get_several_args(
+            cls, args, offset=0, ini_limit=0, get_entities=False, debug=False
+    ):
+        """Processes `MambuPy.api.entities.get_several` arguments.
+
+        Args:
+          cls (obj): the object for which the args are built
+          args (dict): optional arguments received by get_several method
+        """
+        if "offset" in args and args["offset"] is not None:
+            offset = args["offset"]
+
+        if "limit" in args and args["limit"] is not None:
+            ini_limit = args["limit"]
+
+        if "prefix" in args and args["prefix"] is not None:
+            prefix = args.pop("prefix")
+        else:
+            prefix = cls._prefix
+
+        if "get_entities" in args and args["get_entities"] is not None:
+            get_entities = args.pop("get_entities")
+
+        if "debug" in args and args["debug"] is not None:
+            debug = args.pop("debug")
+
+        params = copy.copy(args)
+        if "detailsLevel" not in params:
+            params["detailsLevel"] = "BASIC"
+
+        return offset, ini_limit, prefix, get_entities, debug, params
+
+    @classmethod
+    def __window_request(cls, get_func, prefix, ini_limit, offset, params):
+        """Request for a list, appending responses with limit and offset.
+
+        Makes several requests adjusting limits and offsets, appending
+        responses, just as if you have made a single request with a
+        big response.
+
+        Useful for services where you have a Maximum limit of response
+        elements but wish to make a single call as if doing a single
+        request (but not, you make as many as necessary until covering
+        the given limit).
+
+        Args:
+          cls (obj): the object for which the requests are done
+          get_func (function): mambu request function that returns several
+                               entities (json [])
+          prefix (str): prefix for connections to Mambu
+          ini_limit (int): >= 0 If limit=0 or None, the algorithm will retrieve
+                           EVERYTHING according to the given filters, using
+                           several requests to that end.
+          offset (int): >= 0
+          params (dict): params given to the request
+        """
+        window = True
+        attrs = []
+        while window:
+            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
+                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+            else:
+                limit = ini_limit
+
+            params["offset"] = offset
+            params["limit"] = limit if limit != 0 else None
+            resp = get_func(prefix, **params)
+
+            jsonresp = list(json.loads(resp.decode()))
+            if len(jsonresp) < limit:
+                window = False
+            attrs.extend(jsonresp)
+
+            # next window, moving offset...
+            offset = offset + limit
+            if ini_limit:
+                ini_limit -= limit
+                if ini_limit <= 0:
+                    window = False
+
+        return attrs
+
     @classmethod
     def _get_several(cls, get_func, **kwargs):
         """get several entities.
@@ -58,7 +206,7 @@ class MambuEntity(MambuStruct):
 
         Args:
           get_func (function): mambu request function that returns several
-                                entities (json [])
+                               entities (json [])
           kwargs (dict): keyword arguments to pass on to get_func as arguments
 
             - prefix (str): prefix for connections to Mambu
@@ -84,77 +232,29 @@ class MambuEntity(MambuStruct):
         """
         init_t = time.time()
 
-        if "offset" in kwargs and kwargs["offset"] is not None:
-            offset = kwargs["offset"]
-        else:
-            offset = 0
-        if "limit" in kwargs and kwargs["limit"] is not None:
-            ini_limit = kwargs["limit"]
-        else:
-            ini_limit = 0
+        (
+            offset,
+            ini_limit,
+            prefix,
+            get_entities,
+            debug,
+            params
+        ) = cls.__get_several_args(kwargs)
 
-        if "prefix" in kwargs and kwargs["prefix"] is not None:
-            prefix = kwargs.pop("prefix")
-        else:
-            prefix = cls._prefix
-
-        if "get_entities" in kwargs and kwargs["get_entities"] is not None:
-            get_entities = kwargs.pop("get_entities")
-        else:
-            get_entities = False
-
-        if "debug" in kwargs and kwargs["debug"] is not None:
-            debug = kwargs.pop("debug")
-        else:
-            debug = False
-
-        params = copy.copy(kwargs)
-        if "detailsLevel" not in params:
-            params["detailsLevel"] = "BASIC"
-        window = True
-        attrs = []
-        while window:
-            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
-                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
-            else:
-                limit = ini_limit
-
-            params["offset"] = offset
-            params["limit"] = limit if limit != 0 else None
-            resp = get_func(prefix, **params)
-
-            jsonresp = list(json.loads(resp.decode()))
-            if len(jsonresp) < limit:
-                window = False
-            attrs.extend(jsonresp)
-
-            # next window, moving offset...
-            offset = offset + limit
-            if ini_limit:
-                ini_limit -= limit
-                if ini_limit <= 0:
-                    window = False
+        attrs = cls.__window_request(get_func, prefix, ini_limit, offset, params)
 
         elements = []
         for attr in attrs:
-            elem = cls.__call__()
-            elem._resp = json.dumps(attr).encode()
-            elem._attrs = attr
-            elem._tzattrs = copy.deepcopy(attr)
-            elem._convertDict2Attrs()
-            elem._extractCustomFields()
-            elem._extractVOs(
-                get_entities=get_entities, debug=debug)
-            entities = copy.deepcopy(elem._entities)
-            if get_entities:
-                elem._assignEntObjs(
-                    entities,
-                    params["detailsLevel"],
-                    get_entities,
-                    debug=debug)
-            elem._detailsLevel = params["detailsLevel"]
+            # builds the Entity object
+            elem = cls.__build_object(
+                resp=json.dumps(attr).encode(),
+                attrs=attr,
+                tzattrs=copy.deepcopy(attr),
+                get_entities=get_entities,
+                detailsLevel=params["detailsLevel"],
+                debug=debug
+            )
             elements.append(elem)
-
 
         fin_t = time.time()
         interval = fin_t - init_t
@@ -198,22 +298,15 @@ class MambuEntity(MambuStruct):
             entid, prefix=cls._prefix, detailsLevel=detailsLevel
         )
 
-        instance = cls.__call__()
-        instance._resp = resp
-        instance._attrs = dict(json.loads(resp.decode()))
-        instance._tzattrs = dict(json.loads(resp.decode()))
-        instance._convertDict2Attrs()
-        instance._extractCustomFields()
-        instance._extractVOs(
-            get_entities=get_entities, debug=debug)
-        entities = copy.deepcopy(instance._entities)
-        if get_entities:
-            instance._assignEntObjs(
-                entities,
-                detailsLevel,
-                get_entities,
-                debug=debug)
-        instance._detailsLevel = detailsLevel
+        # builds the Entity object
+        instance = cls.__build_object(
+            resp=resp,
+            attrs=dict(json.loads(resp.decode())),
+            tzattrs=dict(json.loads(resp.decode())),
+            get_entities=get_entities,
+            detailsLevel=detailsLevel,
+            debug=debug
+        )
 
         fin_t = time.time()
         interval = fin_t - init_t
@@ -279,24 +372,26 @@ class MambuEntity(MambuStruct):
         Returns:
           list of instances of an entity with data from Mambu
         """
-        if filters and isinstance(filters, dict):
-            for filter_k in filters.keys():
-                if filter_k not in cls._filter_keys:
+        if filters:
+            for filter_k in [
+                    fk for fk in filters.keys()
+                    if fk not in cls._filter_keys]:
+                raise MambuPyError(
+                    "key {} not in allowed _filterkeys: {}".format(
+                        filter_k, cls._filter_keys
+                    )
+                )
+
+        if sortBy:
+            for sort in sortBy.split(","):
+                for num, part in [
+                        (n, p) for n, p in enumerate(sort.split(":"))
+                        if (n == 0 and p not in cls._sortBy_fields)]:
                     raise MambuPyError(
-                        "key {} not in allowed _filterkeys: {}".format(
-                            filter_k, cls._filter_keys
+                        "field {} not in allowed _sortBy_fields: {}".format(
+                            part, cls._sortBy_fields
                         )
                     )
-
-        if sortBy and isinstance(sortBy, str):
-            for sort in sortBy.split(","):
-                for num, part in enumerate(sort.split(":")):
-                    if num == 0 and part not in cls._sortBy_fields:
-                        raise MambuPyError(
-                            "field {} not in allowed _sortBy_fields: {}".format(
-                                part, cls._sortBy_fields
-                            )
-                        )
 
         params = {
             "filters": filters,
@@ -361,6 +456,27 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._extractCustomFields()
             self._extractVOs()
 
+    def __patch_op(self, operation, attrs, field, cf_class):
+        """Returns a patch operation tuple.
+
+        Args:
+          operation (str): One of ADD, REPLACE or REMOVE (MOVE not supproted yet)
+          attrs (dict): the attrs structure holding the field
+          field (str): the field for which to apply a patch operation
+          cf_class (obj): the class used for custom field VOs
+
+        Returns:
+          (tuple): according to the PATCH operation
+        """
+        path = self._extract_field_path(field, attrs, cf_class)
+        if operation == "REMOVE":
+            return (operation, path)
+        try:
+            val = attrs[field]["value"]
+        except TypeError:
+            val = attrs[field]
+        return (operation, path, val)
+
     def patch(self, fields=None, autodetect_remove=False):
         """patches a mambu entity
 
@@ -400,12 +516,6 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         #    just CFset in path (removes entire group)
         #  you cannot add or replace entire CF (like by using just the index)
 
-        def extract_path(attrs_dict, field, cf_class):
-            if attrs_dict[field].__class__.__name__ == cf_class.__name__:
-                return attrs_dict[field]["path"]
-            else:
-                return "/" + field
-
         if not fields:
             fields = []
         try:
@@ -417,30 +527,26 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._updateVOs()
             for field in fields:
                 if field in self._attrs.keys() and field not in original_attrs.keys():
-                    path = extract_path(self._attrs, field, self._cf_class)
-                    try:
-                        val = self._attrs[field]["value"]
-                    except TypeError:
-                        val = self._attrs[field]
-                    fields_ops.append(("ADD", path, val))
+                    fields_ops.append(
+                        self.__patch_op(
+                            "ADD", self._attrs, field, self._cf_class))
 
                 elif field in self._attrs.keys() and field in original_attrs.keys():
-                    path = extract_path(self._attrs, field, self._cf_class)
-                    try:
-                        val = self._attrs[field]["value"]
-                    except TypeError:
-                        val = self._attrs[field]
-                    fields_ops.append(("REPLACE", path, val))
+                    fields_ops.append(
+                        self.__patch_op(
+                            "REPLACE", self._attrs, field, self._cf_class))
                 else:
                     raise MambuPyError(
                         "Unrecognizable field {} for patching".format(field)
                     )
 
             if autodetect_remove:
-                for attr in original_attrs.keys():
-                    if attr not in self._attrs.keys():
-                        path = extract_path(original_attrs, attr, self._cf_class)
-                        fields_ops.append(("REMOVE", path))
+                for attr in [
+                        att for att in original_attrs.keys()
+                        if att not in self._attrs.keys()]:
+                    fields_ops.append(
+                        self.__patch_op(
+                            "REMOVE", original_attrs, attr, self._cf_class))
 
             self._updateCustomFields()
             self._serializeFields()

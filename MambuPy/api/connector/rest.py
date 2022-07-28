@@ -161,6 +161,17 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return params
 
     def __validate_filter_criteria(self, filterCriteria):
+        """Validate search filter criteria
+
+        Args:
+          filterCriteria (list of dicts): filter criteria
+
+        Returns:
+          validated_filterCriteria (list of dicts): validated filter criteria
+
+        Raises:
+          MambuPyError (obj): when invalid filterCriteria
+        """
         validated_filterCriteria = []
         if (
                 not isinstance(filterCriteria, list) or
@@ -184,6 +195,17 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return validated_filterCriteria
 
     def __validate_sorting_criteria(self, sortingCriteria):
+        """Validate search sorting criteria
+
+        Args:
+          sortingCriteria (dict): sorting criteria
+
+        Returns:
+          sortingCriteria (dict): validated sorting criteria
+
+        Raises:
+          MambuPyError (obj): when invalid sortingCriteria
+        """
         if not isinstance(sortingCriteria, dict):
             raise MambuPyError("sortingCriteria must be a dictionary")
         if (

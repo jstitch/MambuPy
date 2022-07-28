@@ -33,6 +33,22 @@ class MambuEntityTests(unittest.TestCase):
         me = entities.MambuEntity()
         self.assertEqual(me._prefix, "")
 
+    def test__extract_field_path(self):
+        me = entities.MambuEntity()
+        self.assertEqual(
+            me._extract_field_path("aField", {"aField": "hello"}, type),
+            "/aField"
+        )
+        myCF = entities.MambuEntityCF("aValue", path="/_mySet/myField")
+        self.assertEqual(
+            me._extract_field_path(
+                "myField", {"myField": myCF}, entities.MambuEntityCF),
+            "/_mySet/myField"
+        )
+        me._attrs = {"myAttrs": "myProp"}
+        me._cf_class = entities.MambuEntityCF
+        self.assertEqual(me._extract_field_path("myAttrs"), "/myAttrs")
+
     @mock.patch("MambuPy.api.entities.print")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
