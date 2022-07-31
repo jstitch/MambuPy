@@ -109,7 +109,7 @@ class MambuEntity(MambuStruct):
 
     @classmethod
     def __get_several_args(
-            cls, args, offset=0, ini_limit=0, get_entities=False, debug=False
+            cls, args, get_entities=False, debug=False
     ):
         """Processes `MambuPy.api.entities.get_several` arguments.
 
@@ -117,12 +117,6 @@ class MambuEntity(MambuStruct):
           cls (obj): the object for which the args are built
           args (dict): optional arguments received by get_several method
         """
-        if "offset" in args and args["offset"] is not None:
-            offset = args["offset"]
-
-        if "limit" in args and args["limit"] is not None:
-            ini_limit = args["limit"]
-
         if "prefix" in args and args["prefix"] is not None:
             prefix = args.pop("prefix")
         else:
@@ -138,57 +132,7 @@ class MambuEntity(MambuStruct):
         if "detailsLevel" not in params:
             params["detailsLevel"] = "BASIC"
 
-        return offset, ini_limit, prefix, get_entities, debug, params
-
-    @classmethod
-    def __window_request(cls, get_func, prefix, ini_limit, offset, params):
-        """Request for a list, appending responses with limit and offset.
-
-        Makes several requests adjusting limits and offsets, appending
-        responses, just as if you have made a single request with a
-        big response.
-
-        Useful for services where you have a Maximum limit of response
-        elements but wish to make a single call as if doing a single
-        request (but not, you make as many as necessary until covering
-        the given limit).
-
-        Args:
-          cls (obj): the object for which the requests are done
-          get_func (function): mambu request function that returns several
-                               entities (json [])
-          prefix (str): prefix for connections to Mambu
-          ini_limit (int): >= 0 If limit=0 or None, the algorithm will retrieve
-                           EVERYTHING according to the given filters, using
-                           several requests to that end.
-          offset (int): >= 0
-          params (dict): params given to the request
-        """
-        window = True
-        attrs = []
-        while window:
-            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
-                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
-            else:
-                limit = ini_limit
-
-            params["offset"] = offset
-            params["limit"] = limit if limit != 0 else None
-            resp = get_func(prefix, **params)
-
-            jsonresp = list(json.loads(resp.decode()))
-            if len(jsonresp) < limit:
-                window = False
-            attrs.extend(jsonresp)
-
-            # next window, moving offset...
-            offset = offset + limit
-            if ini_limit:
-                ini_limit -= limit
-                if ini_limit <= 0:
-                    window = False
-
-        return attrs
+        return prefix, get_entities, debug, params
 
     @classmethod
     def _get_several(cls, get_func, **kwargs):
@@ -233,18 +177,17 @@ class MambuEntity(MambuStruct):
         init_t = time.time()
 
         (
-            offset,
-            ini_limit,
             prefix,
             get_entities,
             debug,
             params
         ) = cls.__get_several_args(kwargs)
 
-        attrs = cls.__window_request(get_func, prefix, ini_limit, offset, params)
+        list_resp = get_func(prefix, **params)
+        jsonresp = list(json.loads(list_resp.decode()))
 
         elements = []
-        for attr in attrs:
+        for attr in jsonresp:
             # builds the Entity object
             elem = cls.__build_object(
                 resp=json.dumps(attr).encode(),

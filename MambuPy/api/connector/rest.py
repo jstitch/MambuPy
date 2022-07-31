@@ -21,6 +21,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from .mambuconnector import MambuConnector, MambuConnectorReader, MambuConnectorWriter
 from MambuPy.mambuutil import (ALLOWED_UPLOAD_MIMETYPES, DETAILSLEVEL,
                                MAX_UPLOAD_SIZE, PAGINATIONDETAILS, SEARCH_OPERATORS,
+                               OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
                                UPLOAD_FILENAME_INVALID_CHARS, MambuCommError,
                                MambuError, MambuPyError, apipwd, apiurl, apiuser)
 
@@ -124,6 +125,77 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             raise MambuCommError("COMM Error: I cannot communicate with Mambu")
 
         return resp.content
+
+    def __list_request_args(self, params):
+        if not params:
+            params = {}
+        if "limit" in params and params["limit"] is not None:
+            ini_limit = params["limit"]
+        else:
+            ini_limit = 0
+        if "offset" in params and params["offset"] is not None:
+            offset = params["offset"]
+        else:
+            offset = 0
+
+        return (params, ini_limit, offset)
+
+    def __list_request_cat_response(self, list_resp, resp):
+        if list_resp == b"":
+            list_resp = resp
+        elif len(json.loads(resp.decode())) > 0:
+            list_resp = list_resp[:-1] + b"," + resp[1:]
+
+        return list_resp
+
+    def __list_request(self, method, url, params=None, data=None):
+        """Request for a list, appending responses with limit and offset.
+
+        Makes several requests adjusting limits and offsets, appending
+        responses, just as if you have made a single request with a
+        big response.
+
+        Useful for services where you have a Maximum limit of response
+        elements but wish to make a single call as if doing a single
+        request (but not, you make as many as necessary until covering
+        the given limit).
+
+        Args:
+          method (str): HTTP method for the request
+          url (str): URL for the request
+          params (dict): query parameters
+          data (serializable list of dicts or dict alone): request body
+        """
+        (params, ini_limit, offset) = self.__list_request_args(params)
+
+        window = True
+        list_resp = b""
+        while window:
+            if not ini_limit or ini_limit > OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE:
+                limit = OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE
+            else:
+                limit = ini_limit
+
+            params["offset"] = offset
+            params["limit"] = limit if limit != 0 else None
+
+            resp = self.__request(
+                method, url, params=copy.copy(params), data=copy.copy(data))
+
+            jsonresp = list(json.loads(resp.decode()))
+            if len(jsonresp) < limit:
+                window = False
+
+            list_resp = self.__list_request_cat_response(list_resp, resp)
+
+            # next window, moving offset...
+            offset = offset + limit
+            if ini_limit:
+                ini_limit -= limit
+                if ini_limit <= 0:
+                    window = False
+
+        return list_resp
 
     def __validate_query_params(self, **kwargs):
         """Validate query params
@@ -291,7 +363,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         url = "https://{}/api/{}".format(self._tenant, prefix)
 
-        return self.__request("GET", url, params=params)
+        return self.__list_request("GET", url, params=params)
 
     def mambu_search(
         self,
@@ -338,7 +410,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         url = "https://{}/api/{}:search".format(self._tenant, prefix)
 
-        return self.__request("POST", url, params=params, data=data)
+        return self.__list_request("POST", url, params=params, data=data)
 
     def mambu_update(self, entid, prefix, attrs):
         """updates a mambu entity

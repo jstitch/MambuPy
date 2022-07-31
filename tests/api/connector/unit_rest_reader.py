@@ -44,6 +44,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get_all(self, mock_requests):
         mock_requests.request().status_code = 200
+        mock_requests.request().content = b"[]"
 
         mcrest = rest.MambuConnectorREST()
 
@@ -52,7 +53,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "GET",
             "https://{}/api/someURL".format(apiurl),
-            params={"paginationDetails": "OFF", "detailsLevel": "BASIC"},
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
+                    "limit": 1000, "offset": 0},
             data=None,
             headers=mcrest._headers,
         )
@@ -80,7 +82,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "GET",
             "https://{}/api/someURL".format(apiurl),
-            params={"paginationDetails": "OFF", "detailsLevel": "BASIC", "someParam": "someValue"},
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC", "someParam": "someValue",
+                    "limit": 1000, "offset": 0},
             data=None,
             headers=mcrest._headers,
         )
@@ -105,7 +108,10 @@ class MambuConnectorReaderREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_search(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
+
         mock_requests.request().status_code = 200
+        mock_requests.request().content = b"[]"
+
         headers = app_json_headers()
         headers["Idempotency-Key"] = "An UUID"
 
@@ -115,7 +121,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
-            params={"paginationDetails": "OFF", "detailsLevel": "BASIC"},
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
+                    "limit": 1000, "offset": 0},
             data="{}",
             headers=headers,
         )
@@ -141,7 +148,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
-            params={"paginationDetails": "OFF", "detailsLevel": "BASIC"},
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
+                    "limit": 1000, "offset": 0},
             data=json.dumps({"filterCriteria": filterCriteria}),
             headers=headers,
         )
@@ -153,7 +161,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mock_requests.request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
-            params={"paginationDetails": "OFF", "detailsLevel": "BASIC"},
+            params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
+                    "limit": 1000, "offset": 0},
             data=json.dumps(
                 {"filterCriteria": filterCriteria, "sortingCriteria": sortingCriteria}
             ),

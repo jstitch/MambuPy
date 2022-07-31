@@ -194,6 +194,219 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mock_requests.request.call_count, mcrest._RETRIES + 1)
         self.assertEqual(mcrest.retries, mcrest._RETRIES)
 
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu___list_request(self, mock_requests):
+        mock_requests.request().status_code = 200
+        mock_requests.request().content = b"""\
+[{"hello":"world"},\
+{"goodbye":"world"}]"""
+        mock_requests.reset_mock()
+
+        mcrest = rest.MambuConnectorREST()
+        resp = mcrest.__list_request("GET", "someURL")
+        mock_requests.request.assert_called_with(
+            "GET",
+            "someURL",
+            params={"limit": 1000, "offset": 0},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        self.assertEqual(mock_requests.request.call_count, 1)
+        self.assertEqual(resp, b'[{"hello":"world"},{"goodbye":"world"}]')
+
+        mcrest.__list_request(
+            "GET", "someURL", params={"limit": 1, "offset": 0})
+        mock_requests.request.assert_called_with(
+            "GET",
+            "someURL",
+            params={"limit": 1, "offset": 0},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+
+        mcrest.__list_request(
+            "GET", "someURL", params={"limit": 1, "offset": 1})
+        mock_requests.request.assert_called_with(
+            "GET",
+            "someURL",
+            params={"limit": 1, "offset": 1},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+
+        mcrest.__list_request("GET", "someURL", data={"some": "data"})
+        mock_requests.request.assert_called_with(
+            "GET",
+            "someURL",
+            params={"limit": 1000, "offset": 0},
+            data='{"some": "data"}',
+            headers=rest.MambuConnectorREST._headers,
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu___list_request_w_limit_even(self, mock_requests):
+        response_content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"},\
+{"my my":"hey hey"},\
+{"hey hey":"my my"},\
+{"rock n' roll":"will never die"},\
+{"there's more to the picture":"than meets the eye"},\
+{"hey hey":"my my"}]"""
+        resp1 = requests.models.Response()
+        resp1.status_code = 200
+        resp1._content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"},\
+{"my my":"hey hey"}]"""
+        resp2 = requests.models.Response()
+        resp2.status_code = 200
+        resp2._content = b"""\
+[{"hey hey":"my my"},\
+{"rock n' roll":"will never die"},\
+{"there's more to the picture":"than meets the eye"},\
+{"hey hey":"my my"}]"""
+        resp3 = requests.models.Response()
+        resp3.status_code = 200
+        resp3._content = b"[]"
+
+        mock_requests.request.side_effect = [resp1, resp2, resp3]
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 4
+
+        mcrest = rest.MambuConnectorREST()
+        resp = mcrest.__list_request("GET", "someURL")
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 4, "offset": 0},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 4, "offset": 4},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 4, "offset": 8},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        self.assertEqual(mock_requests.request.call_count, 3)
+        self.assertEqual(resp, response_content)
+
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu___list_request_w_limit_odd(self, mock_requests):
+        response_content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"},\
+{"my my":"hey hey"},\
+{"hey hey":"my my"},\
+{"rock n' roll":"will never die"},\
+{"there's more to the picture":"than meets the eye"},\
+{"hey hey":"my my"}]"""
+        resp1 = requests.models.Response()
+        resp1.status_code = 200
+        resp1._content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"}]"""
+        resp2 = requests.models.Response()
+        resp2.status_code = 200
+        resp2._content = b"""\
+[{"my my":"hey hey"},\
+{"hey hey":"my my"},\
+{"rock n' roll":"will never die"}]"""
+        resp3 = requests.models.Response()
+        resp3.status_code = 200
+        resp3._content = b"""\
+[{"there's more to the picture":"than meets the eye"},\
+{"hey hey":"my my"}]"""
+
+        mock_requests.request.side_effect = [resp1, resp2, resp3]
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 3
+
+        mcrest = rest.MambuConnectorREST()
+        resp = mcrest.__list_request("GET", "someURL")
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 3, "offset": 0},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 3, "offset": 3},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 3, "offset": 6},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        self.assertEqual(mock_requests.request.call_count, 3)
+        self.assertEqual(resp, response_content)
+
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu___list_request_w_limit_minor(self, mock_requests):
+        response_content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"},\
+{"my my":"hey hey"},\
+{"hey hey":"my my"}]"""
+        resp1 = requests.models.Response()
+        resp1.status_code = 200
+        resp1._content = b"""\
+[{"my my":"hey hey"},\
+{"rock n' roll":"is here to stay"},\
+{"it's better to burnout":"than to fade away"}]"""
+        resp2 = requests.models.Response()
+        resp2.status_code = 200
+        resp2._content = b"""\
+[{"my my":"hey hey"},\
+{"hey hey":"my my"}]"""
+
+        mock_requests.request.side_effect = [resp1, resp2]
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 3
+
+        mcrest = rest.MambuConnectorREST()
+        resp = mcrest.__list_request("GET", "someURL", params={"limit": 5})
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 3, "offset": 0},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        mock_requests.request.assert_any_call(
+            "GET",
+            "someURL",
+            params={"limit": 2, "offset": 3},
+            data=None,
+            headers=rest.MambuConnectorREST._headers,
+        )
+        self.assertEqual(mock_requests.request.call_count, 2)
+        self.assertEqual(resp, response_content)
+
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+
     def test___validate_query_params(self):
         mcrest = rest.MambuConnectorREST()
 

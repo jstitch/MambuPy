@@ -40,8 +40,8 @@ class MambuSearchableEntityTests(unittest.TestCase):
             "",
             filterCriteria={"one": "two"},
             sortingCriteria=None,
-            offset=0,
-            limit=1000,
+            offset=None,
+            limit=None,
             paginationDetails="OFF",
             detailsLevel="BASIC",
             otherParam="random")

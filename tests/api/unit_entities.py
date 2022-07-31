@@ -87,8 +87,6 @@ class MambuEntityTests(unittest.TestCase):
 
         mock_func.assert_called_with(
             "un_prefix",
-            offset=0,
-            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
             detailsLevel="BASIC",
         )
         self.assertEqual(mock_convertDict2Attrs.call_count, 4)
@@ -106,8 +104,6 @@ class MambuEntityTests(unittest.TestCase):
                "debug": True})
         mock_func.assert_called_with(
             "something else",
-            offset=0,
-            limit=OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
             detailsLevel="BASIC"
         )
         mock_print.assert_called_with(
@@ -121,7 +117,7 @@ class MambuEntityTests(unittest.TestCase):
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
         self.child_class._get_several(mock_func, detailsLevel="FULL")
-        mock_func.assert_called_with("un_prefix", offset=0, limit=5, detailsLevel="FULL")
+        mock_func.assert_called_with("un_prefix", detailsLevel="FULL")
 
         self.child_class._get_several(mock_func, offset=20, limit=2)
         mock_func.assert_called_with(
@@ -138,11 +134,8 @@ class MambuEntityTests(unittest.TestCase):
         ]
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
         self.child_class._get_several(mock_func, limit=4)
-        self.assertEqual(mock_func.call_count, 4)
-        mock_func.assert_any_call("un_prefix", offset=0, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=1, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=2, limit=1, detailsLevel="BASIC")
-        mock_func.assert_any_call("un_prefix", offset=3, limit=1, detailsLevel="BASIC")
+        self.assertEqual(mock_func.call_count, 1)
+        mock_func.assert_called_with("un_prefix", limit=4, detailsLevel="BASIC")
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
