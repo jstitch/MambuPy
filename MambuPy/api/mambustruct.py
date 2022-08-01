@@ -85,6 +85,107 @@ class MambuStruct(MambuMapObj):
             else:
                 raise attr
 
+    def __convert_from_dict_to_basic_types(
+            self, it_dict, data, tzdata, constantFields):
+        data_dict = {}
+        for k in it_dict:
+            if k in constantFields or (
+                    len(k) > 2 and k[-3:] == "Key"):
+                data_dict[k] = data[k]
+                if tzdata and k in tzdata:
+                    del tzdata[k]
+            else:
+                try:
+                    data_dict[k] = self.__convert_to_basic_types(
+                        data[k], tzdata[k])
+                    if type(data_dict[k]) not in [dict, list, datetime]:
+                        del tzdata[k]
+                    elif isinstance(data_dict[k], datetime):
+                        tzdata[k] = datetime.fromisoformat(
+                            tzdata[k]).tzname()
+                except (KeyError, ValueError, TypeError):
+                    data_dict[k] = self.__convert_to_basic_types(data[k])
+        return data_dict
+
+    def __convert_from_list_to_basic_types(
+            self, it_list, data, tzdata, constantFields):
+        data_list = []
+        for num, (e, te) in enumerate(zip(it_list, tzdata)):
+            d = self.__convert_to_basic_types(e, te)
+            if type(d) not in [dict, list, datetime]:
+                tzdata[num] = None
+            elif isinstance(d, datetime):
+                tzdata[num] = datetime.fromisoformat(
+                    tzdata[num]).tzname()
+            data_list.append(d)
+        return data_list
+
+    def __convert_to_basic_types_base_cases(self, data):
+        if data in ["TRUE", "true", "FALSE", "false"]:
+            return data.lower() == "true"
+        try:
+            i_data = int(data)
+            if (
+                str(i_data) != data
+            ):  # if string has trailing 0's, leave it as string, to not lose them
+                return data
+            return i_data
+        except (TypeError, ValueError):
+            try:
+                f_data = float(data)
+                return f_data
+            except (TypeError, ValueError):
+                try:
+                    return date_format(data)
+                except (TypeError, ValueError):
+                    return data
+
+        return data
+
+    def __convert_to_basic_types(self, data, tzdata=None, constantFields=None):
+        """Recursively convert the fields on the data given to a python
+        object.
+
+        If data is iterable, iterates its elements and try to convert them.
+
+        If data is a string, tries to convert its value to a basic data type:
+
+        Basic data types supported:
+          - int: an int number
+          - float: a floating point number
+          - datetime: if the string holds a valid datetime in a date_format
+                      specific format
+
+        A list of fields that should stay as-they-come (strings) is supported.
+        All fields whose name ends with "Key" is also ignored.
+
+        Args:
+          data (obj): an object whose value should be converted to a basic
+                      type
+          tzdata (obj): mirror of data, holding only the TZ data for datetimes.
+          constantFields (list): fields that will be ignored for conversion
+        """
+        if not constantFields:
+            constantFields = []
+        # Iterators, lists and dictionaries
+        # Here comes the recursive calls!
+        try:
+            it = iter(data)
+            if type(it) == type(iter({})):
+                data = self.__convert_from_dict_to_basic_types(
+                    it, data, tzdata, constantFields)
+            if type(it) == type(iter([])):
+                data = self.__convert_from_list_to_basic_types(
+                    it, data, tzdata, constantFields)
+        except TypeError:
+            pass
+        except Exception as ex:  # pragma: no cover
+            # unknown exception
+            raise ex
+
+        # Base case!
+        return self.__convert_to_basic_types_base_cases(data)
+
     def _convertDict2Attrs(self, *args, **kwargs):
         """Each element on the atttrs attribute gest converted to a
         proper python object, depending on type.
@@ -106,127 +207,117 @@ class MambuStruct(MambuMapObj):
         ]
         # and any field whose name ends with "Key"
 
-        def convert(data, tzdata=None):
-            """Recursively convert the fields on the data given to a python object."""
-            # Iterators, lists and dictionaries
-            # Here comes the recursive calls!
-            try:
-                it = iter(data)
-                if type(it) == type(iter({})):
-                    d = {}
-                    for k in it:
-                        if k in constantFields or (len(k) > 2 and k[-3:] == "Key"):
-                            d[k] = data[k]
-                            if tzdata and k in tzdata:
-                                del tzdata[k]
-                        else:
-                            try:
-                                d[k] = convert(data[k], tzdata[k])
-                                if type(d[k]) not in [dict, list, datetime]:
-                                    del tzdata[k]
-                                elif isinstance(d[k], datetime):
-                                    tzdata[k] = datetime.fromisoformat(tzdata[k]).tzname()
-                            except (KeyError, ValueError, TypeError):
-                                d[k] = convert(data[k])
-                    data = d
-                if type(it) == type(iter([])):
-                    loan = []
-                    for num, (e, te) in enumerate(zip(it, tzdata)):
-                        d = convert(e, te)
-                        if type(d) not in [dict, list, datetime]:
-                            tzdata[num] = None
-                        elif isinstance(d, datetime):
-                            tzdata[num] = datetime.fromisoformat(tzdata[num]).tzname()
-                        loan.append(d)
-                    data = loan
-            except TypeError:
-                pass
-            except Exception as ex:  # pragma: no cover
-                # unknown exception
-                raise ex
+        self._attrs = self.__convert_to_basic_types(
+            self._attrs, self._tzattrs, constantFields)
 
-            # Python built-in types: ints, floats, or even datetimes. If it
-            # cannot convert it to a built-in type, leave it as string, or
-            # as-is. There may be nested Mambu objects here!
-            # This are the recursion base cases!
-            if data in ["TRUE", "true", "FALSE", "false"]:
-                return data.lower() == "true"
-            try:
-                d = int(data)
-                if (
-                    str(d) != data
-                ):  # if string has trailing 0's, leave it as string, to not lose them
-                    return data
-                return d
-            except (TypeError, ValueError):
-                try:
-                    f_data = float(data)
-                    return f_data
-                except (TypeError, ValueError):
-                    try:
-                        return date_format(data)
-                    except (TypeError, ValueError):
-                        return data
+    def __convert_from_dict_basic_types_to_str(self, it_dict, data, tzdata):
+        d = {}
+        for k in it_dict:
+            if tzdata and k in tzdata:
+                d[k] = self.__convert_basic_types_to_str(
+                    data[k], tzdata[k])
+            else:
+                d[k] = self.__convert_basic_types_to_str(data[k])
+        return d
 
+    def __convert_from_list_basic_types_to_str(self, it_list, data, tzdata):
+        data_list = []
+        if tzdata:
+            for (e, te) in zip(it_list, tzdata):
+                data_list.append(
+                    self.__convert_basic_types_to_str(e, te))
+        else:
+            for e in it_list:
+                data_list.append(
+                    self.__convert_basic_types_to_str(e))
+        return data_list
+
+    def __convert_basic_types_to_str_base_cases(self, data, tzdata):
+        if isinstance(data, datetime):
+            data_asdate = data.isoformat()
+            if tzdata:  # no tzdata means a date (no time) object
+                data_asdate += tzdata[-6:]
+            else:
+                data_asdate = data_asdate[:10]
+            return data_asdate
+        if data in [True, False]:
+            return str(data).lower()
+        return str(data)
+
+    def __convert_basic_types_to_str(self, data, tzdata=None):
+        """Recursively convert the fields on the data given to strings.
+
+        Datetime objects are converted to ISO format, adding TZ info if
+        available on tzdata.
+
+        Skips every MambuMapObj owned by this entity.
+
+        If the object is an iterable one, it goes down to each of its
+        elements and turns its attributes too
+
+        The base case is when it's a MambuMapObj class (this one) so it
+        just 'serializes' the attr atribute.
+
+        Args:
+          data (obj): an object whose value should be converted to string.
+          tzdata (obj): mirror of data, holding only the TZ data for datetimes.
+        """
+        # Base case!
+        if isinstance(data, MambuMapObj):
             return data
+        try:
+            it = iter(data)
+        except TypeError:
+            return self.__convert_basic_types_to_str_base_cases(data, tzdata)
 
-        self._attrs = convert(self._attrs, self._tzattrs)
+        # Recursive calls
+        if type(it) == type(iter([])):
+            return self.__convert_from_list_basic_types_to_str(
+                it, data, tzdata)
+        elif type(it) == type(iter({})):
+            return self.__convert_from_dict_basic_types_to_str(
+                it, data, tzdata)
+        # elif ... tuples? sets?
+        return data
 
     def _serializeFields(self, *args, **kwargs):
         """Every attribute of the Mambu object is turned in to a string
         representation.
 
-        If the object is an iterable one, it goes down to each of its
-        elements and turns its attributes too, recursively.
-
-        The base case is when it's a MambuMapObj class (this one) so it
-        just 'serializes' the attr atribute.
-
-        All datetimes are converted using timezone information stored in the
-        object.
-
-        Skips every MambuMapObj owned by this entity.
+        Args:
+          data (obj): an object whose value should be converted to string.
+          tzdata (obj): mirror of data, holding only the TZ data for datetimes.
         """
+        self._attrs = self.__convert_basic_types_to_str(
+            self._attrs, self._tzattrs)
 
-        def convert(data, tzdata=None):
-            """Recursively convert the fields on the data given to a python object."""
-            if isinstance(data, MambuMapObj):
-                return data
-            try:
-                it = iter(data)
-            except TypeError:
-                if isinstance(data, datetime):
-                    data_asdate = data.isoformat()
-                    if tzdata:  # no tzdata means a date (no time) object
-                        data_asdate += tzdata[-6:]
-                    else:
-                        data_asdate = data_asdate[:10]
-                    return data_asdate
-                if data in [True, False]:
-                    return str(data).lower()
-                return str(data)
+    def __extract_customfields_from_dict(self, val_dict, attr, attrs):
+        for key, value in val_dict.items():
+            attrs[key] = self._cf_class(
+                value, "/{}/{}".format(attr, key), "STANDARD"
+            )
 
-            if type(it) == type(iter([])):
-                loan = []
-                if tzdata:
-                    for (e, te) in zip(it, tzdata):
-                        loan.append(convert(e, te))
-                else:
-                    for e in it:
-                        loan.append(convert(e))
-                return loan
-            elif type(it) == type(iter({})):
-                d = {}
-                for k in it:
-                    if tzdata and k in tzdata:
-                        d[k] = convert(data[k], tzdata[k])
-                    else:
-                        d[k] = convert(data[k])
-                return d
-            # elif ... tuples? sets?
-            return data
-
-        self._attrs = convert(self._attrs, self._tzattrs)
+    def __extract_customfields_from_list(self, val_list, attr, attrs):
+        attrs[attr[1:]] = self._cf_class(
+            copy.deepcopy(val_list), "/{}".format(attr), "GROUPED"
+        )
+        for ind, value in enumerate(val_list):
+            if type(iter(value)) == type(iter({})):
+                for key, subvalue in value.items():
+                    if key[0] != "_":
+                        mecf = self._cf_class(
+                            subvalue,
+                            "/{}/{}/{}".format(attr, ind, key),
+                            "GROUPED",
+                        )
+                        attrs[key + "_" + str(ind)] = mecf
+                        # attrs[attr[1:]][ind][key] = mecf
+            else:
+                raise MambuPyError(
+                    "CustomFieldSet {} is not a list of dictionaries!".format(
+                        attr
+                    )
+                )
 
     def _extractCustomFields(self, attrs=None):
         """Loops through every custom field set and extracts custom field values
@@ -236,39 +327,49 @@ class MambuStruct(MambuMapObj):
           attrs (dict): dictionary of fields from where customfields will be
                         extracted. If None, `self._attrs` will be used
         """
-
         if not attrs:
             attrs = self._attrs
 
         for attr, val in [atr for atr in attrs.items() if atr[0][0] == "_"]:
             if type(iter(val)) == type(iter({})):
-                for key, value in val.items():
-                    attrs[key] = self._cf_class(
-                        value, "/{}/{}".format(attr, key), "STANDARD"
-                    )
+                self.__extract_customfields_from_dict(val, attr, attrs)
             elif type(iter(val)) == type(iter([])):
-                attrs[attr[1:]] = self._cf_class(
-                    copy.deepcopy(val), "/{}".format(attr), "GROUPED"
-                )
-                for ind, value in enumerate(val):
-                    if type(iter(value)) == type(iter({})):
-                        for key, subvalue in value.items():
-                            if key[0] != "_":
-                                mecf = self._cf_class(
-                                    subvalue,
-                                    "/{}/{}/{}".format(attr, ind, key),
-                                    "GROUPED",
-                                )
-                                attrs[key + "_" + str(ind)] = mecf
-                                # attrs[attr[1:]][ind][key] = mecf
-                    else:
-                        raise MambuPyError(
-                            "CustomFieldSet {} is not a list of dictionaries!".format(
-                                attr
-                            )
-                        )
+                self.__extract_customfields_from_list(val, attr, attrs)
             else:
                 raise MambuPyError("CustomFieldSet {} is not a dictionary!".format(attr))
+
+    def __update_customfields_from_dict(self, val_dict, attr, cfs):
+        for key in val_dict.keys():
+            try:
+                if self[key] in [True, False]:
+                    self[key] = str(self[key]).upper()
+                self._attrs[attr][key] = self[key]
+                cfs.append(key)
+            except KeyError:
+                pass
+
+    def __update_customfields_from_list(self, val_list, attr, cfs):
+        for ind, value in [
+                (ind, value) for ind, value in enumerate(val_list)
+                if type(iter(value)) == type(iter({}))]:
+            for key in [k for k in value.keys() if k[0] != "_"]:
+                try:
+                    if self[key + "_" + str(ind)] in [True, False]:
+                        self[key + "_" + str(ind)] = str(
+                            self[key + "_" + str(ind)]
+                        ).upper()
+                    if self[attr][ind][key] != self[key + "_" + str(ind)]:
+                        self[attr[1:]][ind][key] = self[
+                            key + "_" + str(ind)
+                        ]
+                    cfs.append(key + "_" + str(ind))
+                except KeyError:
+                    pass
+        try:
+            self._attrs[attr] = copy.deepcopy(self[attr[1:]])
+            cfs.append(attr[1:])
+        except KeyError:
+            pass
 
     def _updateCustomFields(self):
         """Loops through every custom field set and update custom field values
@@ -278,36 +379,9 @@ class MambuStruct(MambuMapObj):
         # updates customfieldsets
         for attr, val in [atr for atr in self._attrs.items() if atr[0][0] == "_"]:
             if type(iter(val)) == type(iter({})):
-                for key in val.keys():
-                    try:
-                        if self[key] in [True, False]:
-                            self[key] = str(self[key]).upper()
-                        self._attrs[attr][key] = self[key]
-                        cfs.append(key)
-                    except KeyError:
-                        pass
+                self.__update_customfields_from_dict(val, attr, cfs)
             elif type(iter(val)) == type(iter([])):
-                for ind, value in enumerate(val):
-                    if type(iter(value)) == type(iter({})):
-                        for key in value.keys():
-                            if key[0] != "_":
-                                try:
-                                    if self[key + "_" + str(ind)] in [True, False]:
-                                        self[key + "_" + str(ind)] = str(
-                                            self[key + "_" + str(ind)]
-                                        ).upper()
-                                    if self[attr][ind][key] != self[key + "_" + str(ind)]:
-                                        self[attr[1:]][ind][key] = self[
-                                            key + "_" + str(ind)
-                                        ]
-                                    cfs.append(key + "_" + str(ind))
-                                except KeyError:
-                                    pass
-                try:
-                    self._attrs[attr] = copy.deepcopy(self[attr[1:]])
-                    cfs.append(attr[1:])
-                except KeyError:
-                    pass
+                self.__update_customfields_from_list(val, attr, cfs)
             else:
                 raise MambuPyError(
                     "CustomFieldSet {} is not a dictionary or list of dictionaries!".format(
@@ -318,21 +392,58 @@ class MambuStruct(MambuMapObj):
         for field in cfs:
             del self._attrs[field]
 
+    def __extract_vos_from_list(
+            self, vo_data, vos_module, voclass,
+            get_entities=False, debug=False):
+        """Extracts the VOs from a list.
+
+        Given a list of data representing a VO, extract and instantiate each of
+        them.
+
+        Args:
+          vo_data (list): list of VOs to extract
+          vos_module (module): VOs module from MambuPy
+          voclass (class): class of the VOs to instantiate
+          get_entities (bool): should MambuPy automatically instantiate other
+                               MambuPy entities found inside the Value Objects?
+          debug (bool): print debugging info
+
+        Returns:
+          (vo_obj, already) (tuple): (vo obj, bool) a list of instances of VOs
+                                     and if it has already been instantiated
+                                     (bool)
+        """
+        vo_obj = []
+        already = False
+        for item in vo_data:
+            if isinstance(item, getattr(vos_module, voclass)):
+                already = True
+                continue
+            vo_item = getattr(vos_module, voclass)(**item)
+            vo_item._extractVOs()
+            if get_entities:
+                vo_item._assignEntObjs(
+                    vo_item._entities,
+                    get_entities=get_entities,
+                    debug=debug)
+            vo_obj.append(vo_item)
+
+        return vo_obj, already
+
     def _extractVOs(self, get_entities=False, debug=False):
-        """Loops _vos list to instantiate the corresponding Value Objects
+        """Loops _vos list to instantiate the corresponding Value Objects.
 
-           If the element in _attrs happens to be a list, the result will be a
-           list of instantiated Value Objects.
+        If the element in _attrs happens to be a list, the result will be a
+        list of instantiated Value Objects.
 
-           End result, the key with the name of the element will be replaced
-           with the instantiated Value Object. And the original element will
-           change its key name from 'elem' to 'vo_elem'.
+        End result, the key with the name of the element will be replaced with
+        the instantiated Value Object. And the original element will change its
+        key name from 'elem' to 'vo_elem'.
 
-           Args:
-             get_entities (bool): should MambuPy automatically instantiate
-                                  other MambuPy entities found inside the Value
-                                  Objects?
-             debug (bool): print debugging info
+        Args:
+          get_entities (bool): should MambuPy automatically instantiate other
+                               MambuPy entities found inside the Value Objects?
+          debug (bool): print debugging info
         """
         vos_module = import_module(".vos", "mambupy.api")
         for elem, voclass in self._vos:
@@ -340,26 +451,15 @@ class MambuStruct(MambuMapObj):
                 vo_data = self._attrs[elem]
             except KeyError:
                 continue
+
             if isinstance(vo_data, list):
-                vo_obj = []
-                already = False
-                for item in vo_data:
-                    if isinstance(item, getattr(vos_module, voclass)):
-                        already = True
-                        continue
-                    vo_item = getattr(vos_module, voclass)(**item)
-                    vo_item._extractVOs()
-                    if get_entities:
-                        vo_item._assignEntObjs(
-                            vo_item._entities,
-                            get_entities=get_entities,
-                            debug=debug)
-                    vo_obj.append(vo_item)
+                vo_obj, already = self.__extract_vos_from_list(
+                    vo_data, vos_module, voclass, get_entities, debug)
                 if already:
                     continue
+            elif isinstance(vo_data, getattr(vos_module, voclass)):
+                continue
             else:
-                if isinstance(vo_data, getattr(vos_module, voclass)):
-                    continue
                 vo_obj = getattr(vos_module, voclass)(**vo_data)
                 vo_obj._extractVOs()
                 if get_entities:
@@ -367,7 +467,34 @@ class MambuStruct(MambuMapObj):
                         vo_obj._entities,
                         get_entities=get_entities,
                         debug=debug)
+
             self._attrs[elem] = vo_obj
+
+    def __update_vos_from_list(self, vo_obj, vos_module, voclass):
+        """Updates the VOs from a list.
+
+        Given a list of VOs, updates each element's data to the attrs dict.
+
+        Args:
+          vo_obj (obj): the VO which data will be updated at the attrs dict.
+          vos_module (module): VOs module from MambuPy
+          voclass (class): class of the VOs to instantiate
+
+        Returns:
+          (vo_data, already) (tuple): (dict, bool) a list of updated data and
+                                      if it has already been updated (bool)
+        """
+        vo_data = []
+        already = False
+        for item in vo_obj:
+            if not isinstance(item, getattr(vos_module, voclass)):
+                already = True
+                continue
+            item._updateVOs()
+            vo_item = copy.deepcopy(item._attrs)
+            vo_data.append(vo_item)
+
+        return vo_data, already
 
     def _updateVOs(self):
         """Loops _vos list to update the corresponding data in _attrs
@@ -383,20 +510,13 @@ class MambuStruct(MambuMapObj):
             except KeyError:
                 continue
             if isinstance(vo_obj, list):
-                vo_data = []
-                already = False
-                for item in vo_obj:
-                    if not isinstance(item, getattr(vos_module, voclass)):
-                        already = True
-                        continue
-                    item._updateVOs()
-                    vo_item = copy.deepcopy(item._attrs)
-                    vo_data.append(vo_item)
+                vo_data, already = self.__update_vos_from_list(
+                    vo_obj, vos_module, voclass)
                 if already:
                     continue
+            elif not isinstance(vo_obj, getattr(vos_module, voclass)):
+                continue
             else:
-                if not isinstance(vo_obj, getattr(vos_module, voclass)):
-                    continue
                 vo_obj._updateVOs()
                 vo_data = copy.deepcopy(vo_obj._attrs)
             self._attrs[elem] = vo_data
@@ -427,13 +547,14 @@ class MambuStruct(MambuMapObj):
                     entity in self._attrs and
                     isinstance(self._attrs[entity], list)
                 ):  # let the ents undertake the quest to look for the entwives!
-                    for entling in self._attrs[entity]:
-                        if isinstance(entling, MambuStruct):
-                            entling._assignEntObjs(
-                                entities=entling._entities,
-                                detailsLevel=detailsLevel,
-                                get_entities=get_entities,
-                                debug=debug)
+                    for entling in [
+                            entkid for entkid in self._attrs[entity]
+                            if isinstance(entkid, MambuStruct)]:
+                        entling._assignEntObjs(
+                            entities=entling._entities,
+                            detailsLevel=detailsLevel,
+                            get_entities=get_entities,
+                            debug=debug)
                 else:
                     raise MambuPyError(
                         "The name {} is not part of the nested entities".format(
