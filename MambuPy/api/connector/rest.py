@@ -12,11 +12,12 @@ import json
 import mimetypes
 import os
 import re
-import time
 import uuid
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from .mambuconnector import MambuConnector, MambuConnectorReader, MambuConnectorWriter
 from MambuPy.mambuutil import (ALLOWED_UPLOAD_MIMETYPES, DETAILSLEVEL,
@@ -38,6 +39,30 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         ),
     }
 
+    def __request_headers(self, method, content_type):
+        headers = copy.copy(self._headers)
+
+        if method in ["POST", "PATCH", "PUT"]:
+            headers["Content-Type"] = "application/json"
+            headers["Idempotency-Key"] = str(uuid.uuid4())
+        if content_type:
+            headers["Content-Type"] = content_type
+
+        return headers
+
+    def __request_params(self, params):
+        if not params:
+            params = {}
+        return params
+
+    def __request_data(self, data):
+        if data is not None:
+            try:
+                data = json.dumps(data)
+            except TypeError:
+                data = data
+        return data
+
     def __request(self, method, url, params=None, data=None, content_type=None):
         """requests an url.
 
@@ -54,75 +79,63 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         Raises:
           `MambuError`: in case of 400 or 500 response codes
         """
-        if not params:
-            params = {}
+        headers = self.__request_headers(method, content_type)
+        params = self.__request_params(params)
+        data = self.__request_data(data)
 
-        headers = copy.copy(self._headers)
+        retry_strategy = Retry(
+            total=self._RETRIES,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_factor=1,
+            allowed_methods=[
+                "HEAD",
+                "GET",
+                "OPTIONS",
+                "POST",
+                "PUT",
+                "DELETE",
+                "TRACE",
+                "PATCH"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
 
-        if method in ["POST", "PATCH", "PUT"]:
-            headers["Content-Type"] = "application/json"
-            headers["Idempotency-Key"] = str(uuid.uuid4())
-        if content_type:
-            headers["Content-Type"] = content_type
-
-        if data is not None:
+        try:
+            resp = http.request(
+                method, url, params=params, data=data, headers=headers
+            )
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError:
             try:
-                data = json.dumps(data)
-            except TypeError:
-                data = data
-
-        self.retries = 0
-        while self.retries <= self._RETRIES:
-            time.sleep(self.retries)
-            try:
-                resp = requests.request(
-                    method, url, params=params, data=data, headers=headers
+                content = json.loads(resp.content.decode())
+            except ValueError:
+                # in case resp.content doesn't conforms to json
+                content = {
+                    "errors": [
+                        {
+                            "errorCode": "UNKNOWN",
+                            "errorReason": resp.content.decode(),
+                        },
+                    ]
+                }
+            raise MambuError(
+                "{} ({}) - {}{}".format(
+                    content["errors"][0]["errorCode"],
+                    resp.status_code,
+                    content["errors"][0]["errorReason"],
+                    " (" + content["errors"][0]["errorSource"] + ")"
+                    if "errorSource" in content["errors"][0]
+                    else "",
                 )
-            except requests.exceptions.RequestException as req_ex:
-                # possible comm error with Mambu, retrying...
-                if self.retries < self._RETRIES:
-                    self.retries += 1
-                    continue
-                raise MambuCommError("Comm error with Mambu: {}".format(req_ex))
-            except Exception as ex:
-                # unknown exception
-                if self.retries < self._RETRIES:
-                    self.retries += 1
-                    continue
-                raise MambuCommError("Unknown error with Mambu: {}".format(ex))
-
-            if resp.status_code >= 400:
-                # 500 errors retry. 400 errors raise exception immediatly
-                if resp.status_code >= 500 and self.retries < self._RETRIES:
-                    self.retries += 1
-                    continue
-                try:
-                    content = json.loads(resp.content.decode())
-                except ValueError:
-                    # in case resp.content doesn't conforms to json
-                    content = {
-                        "errors": [
-                            {
-                                "errorCode": "UNKNOWN",
-                                "errorReason": resp.content.decode(),
-                            },
-                        ]
-                    }
-                raise MambuError(
-                    "{} ({}) - {}{}".format(
-                        content["errors"][0]["errorCode"],
-                        resp.status_code,
-                        content["errors"][0]["errorReason"],
-                        " (" + content["errors"][0]["errorSource"] + ")"
-                        if "errorSource" in content["errors"][0]
-                        else "",
-                    )
-                )
-            # succesful request done!
-            break  # pragma: no cover
-        else:  # pragma: no cover
-            # reached _RETRIES limit with no successful request
-            raise MambuCommError("COMM Error: I cannot communicate with Mambu")
+            )
+        except requests.exceptions.RetryError as rerr:  # pragma: no cover
+            raise MambuCommError(
+                "COMM Error: I cannot communicate with Mambu: {}".format(rerr))
+        except Exception as ex:
+            raise MambuCommError(
+                "Unknown comm error with Mambu: {}".format(ex))
 
         return resp.content
 

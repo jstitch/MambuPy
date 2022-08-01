@@ -18,7 +18,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_update(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
         headers = app_json_headers()
         headers["Idempotency-Key"] = "An UUID"
 
@@ -26,7 +26,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
         mcrest.mambu_update("entid", "prefix", {"oneattr": "123"})
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "PUT",
             "https://{}/api/prefix/entid".format(apiurl),
             params={},
@@ -38,7 +38,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_create(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
         headers = app_json_headers()
         headers["Idempotency-Key"] = "An UUID"
 
@@ -46,7 +46,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
         mcrest.mambu_create("prefix", {"oneattr": "123"})
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/prefix".format(apiurl),
             params={},
@@ -58,7 +58,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_patch(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
         headers = app_json_headers()
         headers["Idempotency-Key"] = "An UUID"
 
@@ -74,7 +74,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
             ],
         )
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "PATCH",
             "https://{}/api/prefix/entid".format(apiurl),
             params={},
@@ -84,7 +84,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
             headers=headers,
         )
 
-        mock_requests.reset_mock()
+        mock_requests.Session().reset_mock()
         mcrest.mambu_patch("entid", "prefix", [])
         self.assertEqual(mock_requests.request.call_count, 0)
 
@@ -98,7 +98,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
         with open("/tmp/selfie.png", "w") as f:
             f.write("yoda yo yo")
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
         encoder = lambda: None
         encoder.content_type = "multipart/form-data; boundary=outer_rim"
         mock_multipartencoder.return_value = encoder
@@ -112,7 +112,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
         headers = app_json_headers()
         headers["Idempotency-Key"] = "r2d2-n-c3pO"
         headers["Content-Type"] = "multipart/form-data; boundary=outer_rim"
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/documents".format(apiurl),
             params={},
@@ -164,13 +164,13 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_delete_document(self, mock_requests):
-        mock_requests.request().status_code = 204
+        mock_requests.Session().request().status_code = 204
 
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_delete_document("docId")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "DELETE",
             "https://{}/api/documents/{}".format(apiurl, "docId"),
             params={},
@@ -181,7 +181,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.uuid")
     def test_mambu_change_state(self, mock_uuid, mock_requests):
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
         mcrest._headers["Content-Type"] = "application/json"
@@ -194,7 +194,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
             notes="Prueba"
         )
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/loans/12345:changeState".format(apiurl),
             params={},
@@ -206,7 +206,7 @@ class MambuConnectorWriterREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.uuid")
     def test_mambu_comment(self, mock_uuid, mock_requests):
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
@@ -224,10 +224,10 @@ class MambuConnectorWriterREST(unittest.TestCase):
                 "LINE_OF_CREDIT",
                 "GL_JOURNAL_ENTRY"
         ]:
-            mock_requests.reset_mock()
+            mock_requests.Session().reset_mock()
             mcrest.mambu_comment(
                 "OWNER_ID", owner_type, "My Comment")
-            mock_requests.request.assert_called_with(
+            mock_requests.Session().request.assert_called_with(
                 "POST",
                 "https://{}/api/comments".format(apiurl),
                 params={},

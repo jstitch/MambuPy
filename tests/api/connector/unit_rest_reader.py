@@ -17,13 +17,13 @@ from unit_rest import app_json_headers
 class MambuConnectorReaderREST(unittest.TestCase):
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get(self, mock_requests):
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_get("12345", "someURL")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/someURL/12345".format(apiurl),
             params={"detailsLevel": "BASIC"},
@@ -33,7 +33,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
         mcrest.mambu_get("12345", "someURL", "FULL")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/someURL/12345".format(apiurl),
             params={"detailsLevel": "FULL"},
@@ -43,14 +43,14 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get_all(self, mock_requests):
-        mock_requests.request().status_code = 200
-        mock_requests.request().content = b"[]"
+        mock_requests.Session().request().status_code = 200
+        mock_requests.Session().request().content = b"[]"
 
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_get_all("someURL")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/someURL".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
@@ -63,7 +63,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "someURL", filters={"one": "two"}, offset=10, limit=100, sortBy="id:ASC"
         )
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/someURL".format(apiurl),
             params={
@@ -79,7 +79,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
         )
 
         mcrest.mambu_get_all("someURL", **{"someParam": "someValue"})
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/someURL".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC", "someParam": "someValue",
@@ -109,8 +109,8 @@ class MambuConnectorReaderREST(unittest.TestCase):
     def test_mambu_search(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
 
-        mock_requests.request().status_code = 200
-        mock_requests.request().content = b"[]"
+        mock_requests.Session().request().status_code = 200
+        mock_requests.Session().request().content = b"[]"
 
         headers = app_json_headers()
         headers["Idempotency-Key"] = "An UUID"
@@ -118,7 +118,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_search("someURL")
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
@@ -128,7 +128,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
         )
 
         mcrest.mambu_search("someURL", offset=10, limit=100)
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={
@@ -145,7 +145,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             {"field": "someField", "operator": "EQUALS", "value": "someValue"}
         ]
         mcrest.mambu_search("someURL", filterCriteria=filterCriteria)
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
@@ -158,7 +158,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
         mcrest.mambu_search(
             "someURL", filterCriteria=filterCriteria, sortingCriteria=sortingCriteria
         )
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
@@ -203,7 +203,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get_documents_metadata(self, mock_requests):
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
@@ -211,7 +211,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "entID", "MY_OWNER_TYPE",
             offset=1, limit=2, paginationDetails="ON")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/documents/documentsMetadata".format(apiurl),
             params={
@@ -222,13 +222,13 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_loanaccount_getSchedule(self, mock_requests):
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_loanaccount_getSchedule("loanid")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/loans/loanid/schedule".format(apiurl),
             params={},
@@ -237,13 +237,13 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get_customfield(self, mock_requests):
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
         mcrest.mambu_get_customfield("cfid")
 
-        mock_requests.request.assert_called_with(
+        mock_requests.Session().request.assert_called_with(
             "GET",
             "https://{}/api/customfields/{}".format(apiurl, "cfid"),
             params={},
@@ -252,7 +252,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get_comments(self, mock_requests):
-        mock_requests.request().status_code = 200
+        mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
 
@@ -270,11 +270,11 @@ class MambuConnectorReaderREST(unittest.TestCase):
                 "LINE_OF_CREDIT",
                 "GL_JOURNAL_ENTRY"
         ]:
-            mock_requests.reset_mock()
+            mock_requests.Session().reset_mock()
             mcrest.mambu_get_comments(
                 "OWNER_ID", owner_type,
                 offset=1, limit=2, paginationDetails="ON")
-            mock_requests.request.assert_called_with(
+            mock_requests.Session().request.assert_called_with(
                 "GET",
                 "https://{}/api/comments".format(apiurl),
                 params={
