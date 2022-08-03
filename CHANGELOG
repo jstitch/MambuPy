@@ -162,3 +162,10 @@ Release Notes
   - rest1to2 (aka restito) adapter to use MambuREST v2 with
     MambuPy v1 interfaces
   - solved several codesmells
+* v2.0.0b7
+  - MambuCustomField entities with endpoints
+  - rest1to2 adapter improvements on mambustruct
+  - codesmells refactor
+  - v2 requests with retry mechanism
+  - v2 requests with optional list requests for pagination
+  - bugfix: v2 MambuUser filters don't use branchId always
