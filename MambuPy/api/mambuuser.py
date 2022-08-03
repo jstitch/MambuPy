@@ -56,7 +56,7 @@ class MambuUser(
         paginationDetails="OFF",
         detailsLevel="BASIC",
         sortBy=None,
-        branchIdType="ASSIGNED",
+        branchIdType=None,
     ):
         """get_all, several entities, filtering allowed
 
@@ -75,12 +75,18 @@ class MambuUser(
         Returns:
           list of instances of an entity with data from Mambu
         """
-        if branchIdType not in ["ASSIGNED", "MANAGE"]:
+        if branchIdType and (not filters or "branchId" not in filters):
+            raise MambuPyError("branchIdType not allowed if branchId not provided")
+        if branchIdType and branchIdType not in ["ASSIGNED", "MANAGE"]:
             raise MambuPyError("Invalid branchIdType: {}".format(branchIdType))
+
+        params = {}
+        if branchIdType:
+            params["branchIdType"] = branchIdType
 
         return super().get_all(
             filters,
             offset, limit,
             paginationDetails, detailsLevel,
             sortBy,
-            **{"branchIdType": branchIdType})
+            **params)

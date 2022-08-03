@@ -52,10 +52,16 @@ class MambuUser(unittest.TestCase):
         mc = mambuuser.MambuUser.get_all(filters={"branchId": "MyBranch"})
         self.assertEqual(mc, "SupGetSeveral")
 
-        mc = mambuuser.MambuUser.get_all(branchIdType="ASSIGNED")
+        mc = mambuuser.MambuUser.get_all(filters={"branchId": "MyBranch"}, branchIdType="ASSIGNED")
         self.assertEqual(mc, "SupGetSeveral")
-        mc = mambuuser.MambuUser.get_all(branchIdType="MANAGE")
+        mc = mambuuser.MambuUser.get_all(filters={"branchId": "MyBranch"}, branchIdType="MANAGE")
         self.assertEqual(mc, "SupGetSeveral")
+
+        with self.assertRaisesRegex(MambuPyError, r"^branchIdType not allowed if branchId not provided$"):
+            mc = mambuuser.MambuUser.get_all(branchIdType="ASSIGNED")
+
+        with self.assertRaisesRegex(MambuPyError, r"^branchIdType not allowed if branchId not provided$"):
+            mc = mambuuser.MambuUser.get_all(branchIdType="MANAGE")
 
         with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambuuser.MambuUser.get_all(
@@ -66,7 +72,7 @@ class MambuUser(unittest.TestCase):
             mambuuser.MambuUser.get_all(sortBy="field:ASC")
 
         with self.assertRaisesRegex(MambuPyError, r"^Invalid branchIdType: someRandomValue"):
-            mambuuser.MambuUser.get_all(branchIdType="someRandomValue")
+            mambuuser.MambuUser.get_all(filters={"branchId": "BRANCHID"}, branchIdType="someRandomValue")
 
 
 if __name__ == "__main__":
