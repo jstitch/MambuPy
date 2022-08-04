@@ -15,9 +15,9 @@ class MambuUser(unittest.TestCase):
     def test_implements_interfaces(self):
         mu = mambuuser.MambuUser()
         self.assertTrue(isinstance(mu, mambuuser.MambuEntity))
-        self.assertTrue(isinstance(mu, interfaces.MambuWritable))
-        self.assertTrue(isinstance(mu, interfaces.MambuAttachable))
-        self.assertTrue(isinstance(mu, interfaces.MambuCommentable))
+        self.assertTrue(isinstance(mu, mambuuser.MambuEntityWritable))
+        self.assertTrue(isinstance(mu, mambuuser.MambuEntityAttachable))
+        self.assertTrue(isinstance(mu, mambuuser.MambuEntityCommentable))
         self.assertTrue(isinstance(mu, interfaces.MambuOwner))
 
     def test_has_properties(self):

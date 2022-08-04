@@ -5,11 +5,11 @@
    :toctree: _autosummary
 """
 
-from .entities import MambuEntity
-from .interfaces import MambuOwner, MambuCommentable
+from .entities import MambuEntity, MambuEntityCommentable
+from .interfaces import MambuOwner
 
 
-class MambuCentre(MambuEntity, MambuCommentable, MambuOwner):
+class MambuCentre(MambuEntity, MambuEntityCommentable, MambuOwner):
     """MambuCentre entity"""
 
     _prefix = "centres"

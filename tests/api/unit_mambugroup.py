@@ -15,10 +15,10 @@ class MambuGroup(unittest.TestCase):
     def test_implements_interfaces(self):
         mg = mambugroup.MambuGroup()
         self.assertTrue(isinstance(mg, mambugroup.MambuEntity))
-        self.assertTrue(isinstance(mg, interfaces.MambuWritable))
-        self.assertTrue(isinstance(mg, interfaces.MambuAttachable))
-        self.assertTrue(isinstance(mg, interfaces.MambuSearchable))
-        self.assertTrue(isinstance(mg, interfaces.MambuCommentable))
+        self.assertTrue(isinstance(mg, mambugroup.MambuEntityWritable))
+        self.assertTrue(isinstance(mg, mambugroup.MambuEntityAttachable))
+        self.assertTrue(isinstance(mg, mambugroup.MambuEntitySearchable))
+        self.assertTrue(isinstance(mg, mambugroup.MambuEntityCommentable))
         self.assertTrue(isinstance(mg, interfaces.MambuHolder))
 
     def test_has_properties(self):

@@ -6,7 +6,6 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.api import interfaces
 from MambuPy.api import mambuproduct
 from MambuPy.mambuutil import MambuPyError
 
@@ -20,9 +19,9 @@ class MambuProduct(unittest.TestCase):
     def test_implements_interfaces(self):
         mp = mambuproduct.MambuProduct()
         self.assertTrue(isinstance(mp, mambuproduct.MambuEntity))
-        self.assertTrue(isinstance(mp, interfaces.MambuWritable))
-        self.assertTrue(isinstance(mp, interfaces.MambuAttachable))
-        self.assertTrue(isinstance(mp, interfaces.MambuCommentable))
+        self.assertTrue(isinstance(mp, mambuproduct.MambuEntityWritable))
+        self.assertTrue(isinstance(mp, mambuproduct.MambuEntityAttachable))
+        self.assertTrue(isinstance(mp, mambuproduct.MambuEntityCommentable))
 
     def test_has_properties(self):
         mc = mambuproduct.MambuProduct()

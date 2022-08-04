@@ -15,8 +15,8 @@ class MambuCentre(unittest.TestCase):
     def test_implements_interfaces(self):
         mc = mambucentre.MambuCentre()
         self.assertTrue(isinstance(mc, mambucentre.MambuEntity))
+        self.assertTrue(isinstance(mc, mambucentre.MambuEntityCommentable))
         self.assertTrue(isinstance(mc, interfaces.MambuOwner))
-        self.assertTrue(isinstance(mc, interfaces.MambuCommentable))
 
     def test_has_properties(self):
         mc = mambucentre.MambuCentre()

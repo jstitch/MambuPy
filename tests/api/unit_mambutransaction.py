@@ -6,7 +6,6 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.api import interfaces
 from MambuPy.api import mambutransaction
 from MambuPy.mambuutil import MambuPyError
 
@@ -15,7 +14,7 @@ class MambuTransaction(unittest.TestCase):
     def test_implements_interfaces(self):
         ml = mambutransaction.MambuTransaction()
         self.assertTrue(isinstance(ml, mambutransaction.MambuEntity))
-        self.assertTrue(isinstance(ml, interfaces.MambuSearchable))
+        self.assertTrue(isinstance(ml, mambutransaction.MambuEntitySearchable))
 
     def test_has_properties(self):
         ml = mambutransaction.MambuTransaction()

@@ -15,8 +15,8 @@ class MambuBranch(unittest.TestCase):
     def test_implements_interfaces(self):
         mb = mambubranch.MambuBranch()
         self.assertTrue(isinstance(mb, mambubranch.MambuEntity))
+        self.assertTrue(isinstance(mb, mambubranch.MambuEntityCommentable))
         self.assertTrue(isinstance(mb, interfaces.MambuOwner))
-        self.assertTrue(isinstance(mb, interfaces.MambuCommentable))
 
     def test_has_properties(self):
         mb = mambubranch.MambuBranch()
