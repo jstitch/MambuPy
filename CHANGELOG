@@ -169,3 +169,5 @@ Release Notes
   - v2 requests with retry mechanism
   - v2 requests with optional list requests for pagination
   - bugfix: v2 MambuUser filters don't use branchId always
+* v2.0.0b8
+  - Commentable interface bugfix: new comments go to the beginning.

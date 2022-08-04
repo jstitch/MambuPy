@@ -34,5 +34,5 @@ TODOS
           to achive TDD when implementing features or correcting bugs.
 """
 
-__version__ = "2.0.0b7"
+__version__ = "2.0.0b8"
 """The version of this module."""
