@@ -712,7 +712,7 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
         )
 
         comment = MambuComment(**dict(json.loads(response.decode())))
-        self._comments.append(comment)
+        self._comments.insert(0, comment)
 
         return response
 

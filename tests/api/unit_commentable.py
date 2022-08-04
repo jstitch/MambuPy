@@ -73,9 +73,10 @@ class MambuCommentableEntityTests(unittest.TestCase):
         }"""
 
         child = self.child_class_commentable()
+        child._comments=[entities.MambuComment(**{"text": "original comment"})]
         comnt = child.comment("NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!")
 
-        self.assertEqual(len(child._comments), 1)
+        self.assertEqual(len(child._comments), 2)
         self.assertEqual(
             child._comments[0]._attrs,
             {
