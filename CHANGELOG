@@ -171,3 +171,5 @@ Release Notes
   - bugfix: v2 MambuUser filters don't use branchId always
 * v2.0.0b8
   - Commentable interface bugfix: new comments go to the beginning.
+* v2.0.0b9
+  - Commentable bugfix: some entities weren't inheriting from the right place.
