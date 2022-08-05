@@ -127,7 +127,7 @@ class MambuLoan(unittest.TestCase):
             "accountHolderType": "CLIENT",
         }
 
-        ml._assignEntObjs()
+        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(
@@ -142,7 +142,7 @@ class MambuLoan(unittest.TestCase):
             "accountHolderType": "GROUP",
         }
 
-        ml._assignEntObjs()
+        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(
@@ -157,7 +157,7 @@ class MambuLoan(unittest.TestCase):
             "accountHolderType": "",
         }
 
-        ml._assignEntObjs()
+        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(
@@ -171,7 +171,9 @@ class MambuLoan(unittest.TestCase):
             "accountHolderKey": "09876fedcba",
             "accountHolderType": "",
         }
-        ml._assignEntObjs([("accountHolderKey", "", "accountHolder")])
+        self.assertEqual(
+            ml._assignEntObjs([("accountHolderKey", "", "accountHolder")]),
+            mock_assign.return_value)
         mock_assign.assert_any_call(
             [("accountHolderKey", "", "accountHolder")],
             detailsLevel="BASIC",
@@ -187,7 +189,7 @@ class MambuLoan(unittest.TestCase):
             "accountHolderKey": "09876fedcba",
             "accountHolderType": "",
         }
-        ml._assignEntObjs([])
+        self.assertEqual(ml._assignEntObjs([]), mock_assign.return_value)
         mock_assign.assert_any_call(
             [],
             detailsLevel="BASIC",

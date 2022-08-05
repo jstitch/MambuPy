@@ -69,6 +69,24 @@ class MambuStruct(MambuMapObj):
          "name_of_obj_in_attrs")
     """
 
+    def __getattribute_for_cf(self, value, path, mcf, ent_name):
+        if not mcf or isinstance(mcf, str):
+            mcf_mod = import_module("MambuPy.api.mambucustomfield")
+            mcf = mcf_mod.MambuCustomField.get(path.split("/")[-1])
+
+        if isinstance(value, str) and "_LINK" in mcf.type:
+            link_type = mcf.type[:-5]
+            package = "mambu" + link_type.lower()
+            classname = "Mambu" + link_type.capitalize()
+            classpath = package + "." + classname
+
+            return lambda **kwargs: self.getEntities(
+                [ent_name],
+                config_entities=[(ent_name, classpath, ent_name)],
+                **kwargs)[0]
+
+        return lambda **kwargs: value
+
     def __getattribute__(self, name):
         """Object-like get attribute for MambuStructs.
 
@@ -78,12 +96,21 @@ class MambuStruct(MambuMapObj):
         """
         try:
             return super().__getattribute__(name)
-        except AttributeError as attr:
+        except AttributeError as attr_err:
             if name[0:4] == "get_" and len(name) > 4:
                 ent = name[4:]
-                return lambda **kwargs: self.getEntities([ent], **kwargs)
+                if ent in self._attrs.keys():
+                    entity = self._attrs[ent]
+                    if (
+                        entity.__class__.__name__ ==
+                        self._cf_class.__name__
+                    ):
+                        return self.__getattribute_for_cf(
+                            entity.value, entity.path, entity.mcf, ent)
+                    return lambda **kwargs: entity
+                return lambda **kwargs: self.getEntities([ent], **kwargs)[0]
             else:
-                raise attr
+                raise attr_err
 
     def __convert_from_dict_to_basic_types_non_constant_fields(
             self, k, data_dict, data, tzdata):
@@ -343,12 +370,17 @@ class MambuStruct(MambuMapObj):
             else:
                 raise MambuPyError("CustomFieldSet {} is not a dictionary!".format(attr))
 
+    def __get_value_or_ek(self, obj):
+        if isinstance(obj, MambuStruct):
+            return obj.encodedKey
+        return obj
+
     def __update_customfields_from_dict(self, val_dict, attr, cfs):
         for key in val_dict.keys():
             try:
                 if self[key] in [True, False]:
                     self[key] = str(self[key]).upper()
-                self._attrs[attr][key] = self[key]
+                self._attrs[attr][key] = self.__get_value_or_ek(self[key])
                 cfs.append(key)
             except KeyError:
                 pass
@@ -364,9 +396,8 @@ class MambuStruct(MambuMapObj):
                             self[key + "_" + str(ind)]
                         ).upper()
                     if self[attr][ind][key] != self[key + "_" + str(ind)]:
-                        self[attr[1:]][ind][key] = self[
-                            key + "_" + str(ind)
-                        ]
+                        self[attr[1:]][ind][key] = self.__get_value_or_ek(
+                            self[key + "_" + str(ind)])
                     cfs.append(key + "_" + str(ind))
                 except KeyError:
                     pass
@@ -529,6 +560,7 @@ class MambuStruct(MambuMapObj):
     def getEntities(
         self,
         entities,
+        config_entities=None,
         detailsLevel="BASIC",
         get_entities=False,
         debug=False
@@ -538,15 +570,25 @@ class MambuStruct(MambuMapObj):
            Args:
              entities (list): list of strings with the name of the entity to
                               retrieve
+             config_entities (list of tuples): list of tuples with information
+                                               of the entity and property to
+                                               instantiate
+                        :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
              detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
              get_entities (bool): should MambuPy automatically instantiate
                                   other MambuPy entities found inside the
                                   retrieved entities?
              debug (bool): print debugging info
+
+           Returns:
+             MambuPyObject (obj): instantiation of the object from Mambu
         """
+        if not config_entities:
+            config_entities = self._entities
         ents = []  # do not be hasty, that is my motto
+        ent_kids = []
         for entity in entities:
-            entwife = [enti for enti in self._entities if enti[2] == entity]
+            entwife = [enti for enti in config_entities if enti[2] == entity]
             if len(entwife) == 0:  # you see, we lost the entwives
                 if (
                     entity in self._attrs and
@@ -555,11 +597,11 @@ class MambuStruct(MambuMapObj):
                     for entling in [
                             entkid for entkid in self._attrs[entity]
                             if isinstance(entkid, MambuStruct)]:
-                        entling._assignEntObjs(
+                        ent_kids.append(entling._assignEntObjs(
                             entities=entling._entities,
                             detailsLevel=detailsLevel,
                             get_entities=get_entities,
-                            debug=debug)
+                            debug=debug))
                 else:
                     raise MambuPyError(
                         "The name {} is not part of the nested entities".format(
@@ -568,11 +610,35 @@ class MambuStruct(MambuMapObj):
                 ents.extend(entwife)
 
         if len(ents) > 0:
-            self._assignEntObjs(
+            return self._assignEntObjs(
                 entities=ents,
                 detailsLevel=detailsLevel,
                 get_entities=get_entities,
                 debug=debug)
+        return ent_kids
+
+    def __instance_entity_obj(self, encoded_key, ent_mod, ent_class, **kwargs):
+        """Instantiates a single MambuPy object calling its get method.
+        If the object doesn't supports detailsLevel (MambuProduct),
+           omit it.
+        Args:
+             encoded_key (str): encoded key of the entity to retrieve
+                                from Mambu
+             ent_mod (obj): module holding the class to instantiate
+             ent_class (str): class to instantiate
+             kwargs (dict): extra parameters for the get method
+        Returns:
+             MambuPyObject (obj): instantiation of the object from Mambu
+        """
+        try:
+            try:
+                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+            except TypeError:
+                kwargs.pop("detailsLevel")
+                return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
+        except AttributeError:
+            return
+
 
     def _assignEntObjs(
         self,
@@ -596,58 +662,43 @@ class MambuStruct(MambuMapObj):
                                   retrieved entities?
              debug (bool): print debugging info
         """
-        def instance_entity_obj(encoded_key, ent_mod, ent_class, **kwargs):
-            """Instantiates a single MambuPy object calling its get method.
-
-               If the object doesn't supports detailsLevel (MambuProduct),
-               omit it.
-
-               Args:
-                 encoded_key (str): encoded key of the entity to retrieve
-                                    from Mambu
-                 ent_mod (obj): module holding the class to instantiate
-                 ent_class (str): class to instantiate
-                 kwargs (dict): extra parameters for the get method
-
-               Returns:
-                 MambuPyObject (obj): instantiation of the object from Mambu
-            """
-            try:
-                try:
-                    return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
-                except TypeError:
-                    kwargs.pop("detailsLevel")
-                    return getattr(ent_mod, ent_class).get(encoded_key, **kwargs)
-            except AttributeError:
-                return
-
         if entities is None:
             entities = self._entities
 
+        instances = []
         for encodedKey, ent_path, new_property in entities:
             ent_module = ".".join(ent_path.split(".")[:-1])
             ent_class = ent_path.split(".")[-1]
             ent_mod = import_module("." + ent_module, "mambupy.api")
 
             try:
-                enc_key = self._attrs[encodedKey]
-            except KeyError:
+                enc_key = getattr(self, encodedKey)
+            except AttributeError:
                 continue
 
             if isinstance(enc_key, list):
                 ent_item = []
                 for item in enc_key:
                     ent_item.append(
-                        instance_entity_obj(
+                        self.__instance_entity_obj(
                             item, ent_mod, ent_class,
                             detailsLevel=detailsLevel,
                             get_entities=get_entities,
                             debug=debug))
             else:
-                ent_item = instance_entity_obj(
+                ent_item = self.__instance_entity_obj(
                     enc_key, ent_mod, ent_class,
                     detailsLevel=detailsLevel,
                     get_entities=get_entities,
                     debug=debug)
 
-            self[new_property] = ent_item
+            try:
+                entity = self._attrs[new_property]
+                if entity.__class__.__name__ == self._cf_class.__name__:
+                    self._attrs[new_property].value = ent_item
+            except KeyError:
+                self[new_property] = ent_item
+
+            instances.append(ent_item)
+
+        return instances

@@ -58,10 +58,10 @@ class MambuUser(unittest.TestCase):
         self.assertEqual(mc, "SupGetSeveral")
 
         with self.assertRaisesRegex(MambuPyError, r"^branchIdType not allowed if branchId not provided$"):
-            mc = mambuuser.MambuUser.get_all(branchIdType="ASSIGNED")
+            mambuuser.MambuUser.get_all(branchIdType="ASSIGNED")
 
         with self.assertRaisesRegex(MambuPyError, r"^branchIdType not allowed if branchId not provided$"):
-            mc = mambuuser.MambuUser.get_all(branchIdType="MANAGE")
+            mambuuser.MambuUser.get_all(branchIdType="MANAGE")
 
         with self.assertRaisesRegex(MambuPyError, r"^key \w+ not in allowed "):
             mambuuser.MambuUser.get_all(

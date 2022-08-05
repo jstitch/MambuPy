@@ -9,7 +9,7 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.api import entities, mambustruct
+from MambuPy.api import entities, mambucustomfield, mambustruct
 from MambuPy.mambuutil import MambuPyError
 
 
@@ -352,6 +352,14 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(some_external_attr["hello"]["type"], "STANDARD")
 
     def test__updateCustomFields(self):
+        obj0 = mambustruct.MambuStruct()
+        obj0.encodedKey = "someEncodedKey"
+        obj1 = mambustruct.MambuStruct()
+        obj1.encodedKey = "anotherEncodedKey"
+        obj = mambustruct.MambuStruct()
+        obj.encodedKey = "myEncodedKey"
+        obj_new = mambustruct.MambuStruct()
+        obj_new.encodedKey = "newEncodedKey"
         extracted_fields = {
             "aField": "abc123",
             "_customFieldList": [
@@ -360,6 +368,7 @@ class MambuStructTests(unittest.TestCase):
                     "num": 123,
                     "float": 15.56,
                     "bool": True,
+                    "obj": "someEncodedKey",
                     "not_converted": "?",
                     "_index": 0,
                 },
@@ -368,32 +377,37 @@ class MambuStructTests(unittest.TestCase):
                     "num": 456,
                     "float": 23.34,
                     "bool": False,
+                    "obj": "anotherEncodedKey",
                     "not_converted": "?",
                     "_index": 1,
                 },
                 "invalidElement",
             ],
-            "_customFieldDict": {"num": 123, "bool": True, "not_converted": "?"},
+            "_customFieldDict": {"num": 123, "bool": True, "obj": "myEncodedKey", "not_converted": "?"},
             "_notConvertedList": [],
             "num": 123,
             "bool": True,
+            "obj": obj,
             "customFieldList": [
-                {"str": "abc123", "num": 123, "float": 15.56, "_index": 0},
-                {"str": "def456", "num": 456, "float": 23.34, "_index": 1},
+                {"str": "abc123", "num": 123, "float": 15.56, "bool": True, "obj": obj0, "_index": 0},
+                {"str": "def456", "num": 456, "float": 23.34, "bool": True, "obj": obj1, "_index": 1},
             ],
             "str_0": "abc123",
             "num_0": 123,
             "float_0": 15.56,
             "bool_0": True,
+            "obj_0": obj0,
             "str_1": "def456",
             "num_1": 456,
             "float_1": 23.34,
             "bool_1": False,
+            "obj_1": obj1
         }
         ms = mambustruct.MambuStruct()
         ms._attrs = copy.deepcopy(extracted_fields)
 
         ms._attrs["num"] = 321
+        ms._attrs["obj"] = obj_new
         ms._attrs["customFieldList"][0]["num"] = 321
 
         ms._updateCustomFields()
@@ -406,6 +420,7 @@ class MambuStructTests(unittest.TestCase):
                     "num": 321,
                     "float": 15.56,
                     "bool": "TRUE",
+                    "obj": "someEncodedKey",
                     "_index": 0,
                 },
                 {
@@ -413,14 +428,17 @@ class MambuStructTests(unittest.TestCase):
                     "num": 456,
                     "float": 23.34,
                     "bool": "FALSE",
+                    "obj": "anotherEncodedKey",
                     "_index": 1,
                 },
             ],
         )
         self.assertEqual(ms._customFieldDict["num"], 321)
         self.assertEqual(ms._customFieldDict["bool"], "TRUE")
+        self.assertEqual(ms._customFieldDict["obj"], "newEncodedKey")
         self.assertEqual(hasattr(ms, "num"), False)
         self.assertEqual(hasattr(ms, "bool"), False)
+        self.assertEqual(hasattr(ms, "obj"), False)
         self.assertEqual(hasattr(ms, "customFieldList"), False)
 
         # idempotency
@@ -433,6 +451,7 @@ class MambuStructTests(unittest.TestCase):
                     "num": 321,
                     "float": 15.56,
                     "bool": "TRUE",
+                    "obj": "someEncodedKey",
                     "_index": 0,
                 },
                 {
@@ -440,6 +459,7 @@ class MambuStructTests(unittest.TestCase):
                     "num": 456,
                     "float": 23.34,
                     "bool": "FALSE",
+                    "obj": "anotherEncodedKey",
                     "_index": 1,
                 },
             ],
@@ -448,6 +468,7 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(ms._customFieldDict["bool"], "TRUE")
         self.assertEqual(hasattr(ms, "num"), False)
         self.assertEqual(hasattr(ms, "bool"), False)
+        self.assertEqual(hasattr(ms, "obj"), False)
         self.assertEqual(hasattr(ms, "customFieldList"), False)
 
         ms._attrs = copy.deepcopy(extracted_fields)
@@ -559,7 +580,7 @@ class MambuStructTests(unittest.TestCase):
             "a_list_ent_keys": ["fedcba6789", "02468acebdf"],
         }
 
-        ms._assignEntObjs()
+        self.assertEqual(ms._assignEntObjs(), ["Treebeard", ["Quickbeam", "Beechbone"]])
         self.assertEqual(mock_import.call_count, 2)
         mock_import.assert_any_call(".entities", "mambupy.api")
         self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 3)
@@ -592,9 +613,10 @@ class MambuStructTests(unittest.TestCase):
         mock_import.return_value.MambuEntity.get.side_effect = [
             "Treebeard", "Quickbeam", "Beechbone"]
         mock_import.reset_mock()
-        ms._assignEntObjs([
+        ents = ms._assignEntObjs([
             ("an_ent_key", "entities.MambuEntity", "an_ent"),
             ("a_list_ent_keys", "entities.MambuEntity", "ents")])
+        self.assertEqual(ents, ["Treebeard", ["Quickbeam", "Beechbone"]])
         self.assertEqual(ms.an_ent, "Treebeard")
         self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
 
@@ -604,8 +626,9 @@ class MambuStructTests(unittest.TestCase):
         mock_import.return_value.MambuEntity.get.side_effect = [
             "Treebeard", "Quickbeam", "Beechbone"]
         mock_import.reset_mock()
-        ms._assignEntObjs([
+        ents = ms._assignEntObjs([
             ("an_INVALID_ent_key", "entities.MambuEntity", "an_ent")])
+        self.assertEqual(ents, [])
         self.assertEqual(mock_import.call_count, 1)
         self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 0)
 
@@ -615,7 +638,8 @@ class MambuStructTests(unittest.TestCase):
             TypeError(""), "Quickbeam",
             TypeError(""), "Beechbone"]
         mock_import.reset_mock()
-        ms._assignEntObjs()
+        ents = ms._assignEntObjs()
+        self.assertEqual(ents,  ["Treebeard", ["Quickbeam", "Beechbone"]])
         mock_import.return_value.MambuEntity.get.assert_any_call(
             "abcdef12345", get_entities=False, debug=False)
         mock_import.return_value.MambuEntity.get.assert_any_call(
@@ -634,11 +658,33 @@ class MambuStructTests(unittest.TestCase):
         ms._attrs = {
             "an_ent_key": "abcdef12345",
         }
-        ms._assignEntObjs()
+        self.assertEqual(ms._assignEntObjs(), [None])
         self.assertEqual(ms.an_ent, None)
+
+    @mock.patch("MambuPy.api.mambustruct.import_module")
+    def test__assignEntObjs_customfields(self, mock_import):
+        ms = mambustruct.MambuStruct(cf_class=entities.MambuEntityCF)
+        ms._entities = []
+        ms._attrs = {
+            "a_custom_field": "def456",
+            "a_custom_field_ek": entities.MambuEntityCF("abc123"),
+        }
+
+        self.assertEqual(
+            ms._assignEntObjs(
+                entities=[
+                    ("a_custom_field",
+                     "mambuuser.MambuUser",
+                     "a_custom_field"),
+                    ("a_custom_field_ek",
+                     "mambugroup.MambuGroup",
+                     "a_custom_field_ek")]),
+            [mock_import.return_value.MambuUser.get(),
+             mock_import.return_value.MambuGroup.get()])
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
     def test_getEntities(self, mock_assign):
+        mock_assign.return_value = "MY ENTITY"
         ms = mambustruct.MambuStruct()
         ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent"),
                         ("a_list_ent_keys", "entities.MambuEntity", "ents")]
@@ -656,7 +702,7 @@ class MambuStructTests(unittest.TestCase):
         ms.lost_entwives[0]._assignEntObjs = mock.Mock()
         ms.lost_entwives[1]._assignEntObjs = mock.Mock()
 
-        ms.getEntities(["an_ent"])
+        self.assertEqual(ms.getEntities(["an_ent"]), "MY ENTITY")
         mock_assign.assert_called_with(
             entities=[("an_ent_key", "entities.MambuEntity", "an_ent")],
             detailsLevel="BASIC",
@@ -664,10 +710,25 @@ class MambuStructTests(unittest.TestCase):
             debug=False)
         self.assertEqual(mock_assign.call_count, 1)
 
+        # with alternative config_entities
+        mock_assign.reset_mock()
+        ents = ms.getEntities(
+            ["other_ent"],
+            config_entities=[
+                ("other_ent_key", "entities.MambuEntity", "other_ent")])
+        self.assertEqual(ents, "MY ENTITY")
+        mock_assign.assert_called_with(
+            entities=[("other_ent_key", "entities.MambuEntity", "other_ent")],
+            detailsLevel="BASIC",
+            get_entities=False,
+            debug=False)
+        self.assertEqual(mock_assign.call_count, 1)
+
         # optional arguments
         mock_assign.reset_mock()
-        ms.getEntities(
+        ents = ms.getEntities(
             ["ents"], detailsLevel="FULL", get_entities=True, debug=True)
+        self.assertEqual(ents, "MY ENTITY")
         mock_assign.assert_called_with(
             entities=[("a_list_ent_keys", "entities.MambuEntity", "ents")],
             detailsLevel="FULL",
@@ -677,7 +738,11 @@ class MambuStructTests(unittest.TestCase):
 
         # entities for items in a list
         mock_assign.reset_mock()
-        ms.getEntities(["lost_entwives"])
+        ents = ms.getEntities(["lost_entwives"])
+        self.assertEqual(
+            ents,
+            [ms.lost_entwives[0]._assignEntObjs.return_value,
+             ms.lost_entwives[1]._assignEntObjs.return_value])
         ms.lost_entwives[0]._assignEntObjs.assert_called_with(
             entities=[("Fimbrethil", "entwive", "treebeards")],
             detailsLevel="BASIC",
@@ -698,23 +763,71 @@ class MambuStructTests(unittest.TestCase):
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
     def test___getattribute__(self, mock_assign):
-        ms = mambustruct.MambuStruct()
+        my_cf = mambucustomfield.MambuCustomField(**{"type": "CLIENT_LINK"})
+        ms = mambustruct.MambuStruct(cf_class=entities.MambuEntityCF)
         ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent")]
         ms._attrs = {
             "aField": "abc123",
             "an_ent_key": "abcdef12345",
+            "a_custom_field": entities.MambuEntityCF(
+                "value", "_a_custom_field_set/a_custom_field"),
+            "linked_cf": entities.MambuEntityCF(
+                "value", "_a_custom_field_set/linked_cf", mcf=my_cf),
         }
 
+        # get a func to get an entity from default config
         self.assertEqual(inspect.isfunction(ms.get_an_ent), True)
         self.assertEqual(
             inspect.getsource(ms.get_an_ent).strip(),
-            "return lambda **kwargs: self.getEntities([ent], **kwargs)")
+            "return lambda **kwargs: self.getEntities([ent], **kwargs)[0]")
         ms.get_an_ent()
         mock_assign.assert_called_with(
             entities=[("an_ent_key", "entities.MambuEntity", "an_ent")],
             detailsLevel="BASIC",
             get_entities=False,
             debug=False)
+
+        # get a func to get an entity from a normal customfield
+        mock_assign.reset_mock()
+        with mock.patch(
+                "MambuPy.api.mambucustomfield.MambuCustomField.get"
+        ) as mock_get_mcf:
+            self.assertEqual(inspect.isfunction(ms.get_a_custom_field), True)
+            self.assertEqual(
+                inspect.getsource(ms.get_a_custom_field).strip(),
+                "return lambda **kwargs: value")
+            ms.get_a_custom_field()
+            self.assertEqual(mock_assign.call_count, 0)
+            mock_get_mcf.assert_called_with("a_custom_field")
+
+        # get a func to get an entity from a linked customfield
+        mock_assign.reset_mock()
+        with mock.patch(
+                "MambuPy.api.mambucustomfield.MambuCustomField.get"
+        ) as mock_get_mcf:
+            self.assertEqual(inspect.isfunction(ms.get_linked_cf), True)
+            self.assertEqual(
+                inspect.getsource(ms.get_linked_cf).strip(),
+                """return lambda **kwargs: self.getEntities(
+                [ent_name],
+                config_entities=[(ent_name, classpath, ent_name)],
+                **kwargs)[0]""")
+            ms.get_linked_cf()
+            mock_assign.assert_called_with(
+                entities=[("linked_cf", "mambuclient.MambuClient", "linked_cf")],
+                detailsLevel="BASIC",
+                get_entities=False,
+                debug=False)
+            self.assertEqual(mock_get_mcf.call_count, 0)
+
+        # get a func to get any property's value
+        mock_assign.reset_mock()
+        self.assertEqual(inspect.isfunction(ms.get_aField), True)
+        self.assertEqual(
+            inspect.getsource(ms.get_aField).strip(),
+            "return lambda **kwargs: entity")
+        self.assertEqual(ms.get_aField(), "abc123")
+        self.assertEqual(mock_assign.call_count, 0)
 
         # normal getattribute
         self.assertEqual(ms.aField, "abc123")

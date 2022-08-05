@@ -58,15 +58,16 @@ class MambuTask(unittest.TestCase):
             "taskLinkType": "CLIENT",
         }
 
-        mt._assignEntObjs()
+        self.assertEqual(mt._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             mt._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(
             mt._entities[-1],
             ("taskLinkKey", "mambuclient.MambuClient", "taskLink"))
 
-        mt._assignEntObjs(
-            [("assignedUserKey", "mambuuser.MambuUser", "assignedUser")])
+        self.assertEqual(mt._assignEntObjs(
+            [("assignedUserKey", "mambuuser.MambuUser", "assignedUser")]),
+            mock_assign.return_value)
         mock_assign.assert_called_with(
             [("assignedUserKey", "mambuuser.MambuUser", "assignedUser")],
             detailsLevel="BASIC", get_entities=False, debug=False)
@@ -80,7 +81,7 @@ class MambuTask(unittest.TestCase):
             "taskLinkType": "GROUP",
         }
 
-        mt._assignEntObjs()
+        self.assertEqual(mt._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             mt._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(
@@ -96,7 +97,7 @@ class MambuTask(unittest.TestCase):
             "taskLinkType": "",
         }
 
-        mt._assignEntObjs()
+        self.assertEqual(mt._assignEntObjs(), mock_assign.return_value)
         mock_assign.assert_any_call(
             mt._entities, detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(

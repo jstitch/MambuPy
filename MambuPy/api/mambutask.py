@@ -74,7 +74,7 @@ class MambuTask(MambuEntity, MambuEntityWritable):
                 entities[tasklink_index] = (
                     "taskLinkKey", "mambugroup.MambuGroup", "taskLink")
 
-        super()._assignEntObjs(
+        return super()._assignEntObjs(
             entities,
             detailsLevel=detailsLevel,
             get_entities=get_entities,

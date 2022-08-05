@@ -275,21 +275,26 @@ class MambuEntityTests(unittest.TestCase):
 class MambuEntityCFTests(unittest.TestCase):
     def test___init__(self):
         ms = entities.MambuEntityCF("_VALUE_")
-        self.assertEqual(ms._attrs, {"value": "_VALUE_", "path": "", "type": "STANDARD"})
+        self.assertEqual(
+            ms._attrs,
+            {"value": "_VALUE_", "path": "", "type": "STANDARD", "mcf": None})
 
         ms = entities.MambuEntityCF("_VALUE_", "_PATH_")
         self.assertEqual(
-            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
+            ms._attrs,
+            {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD", "mcf": None}
         )
 
         ms = entities.MambuEntityCF("_VALUE_", "_PATH_", "STANDARD")
         self.assertEqual(
-            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD"}
+            ms._attrs,
+            {"value": "_VALUE_", "path": "_PATH_", "type": "STANDARD", "mcf": None}
         )
 
         ms = entities.MambuEntityCF("_VALUE_", "_PATH_", "GROUPED")
         self.assertEqual(
-            ms._attrs, {"value": "_VALUE_", "path": "_PATH_", "type": "GROUPED"}
+            ms._attrs,
+            {"value": "_VALUE_", "path": "_PATH_", "type": "GROUPED", "mcf": None}
         )
 
         with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):

@@ -18,8 +18,7 @@ from .interfaces import (
 from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
-from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuError,
-                         MambuPyError)
+from ..mambuutil import MambuError, MambuPyError
 
 
 class MambuEntity(MambuStruct):
@@ -727,10 +726,11 @@ class MambuEntityCF(MambuValueObject):
     Mambu entity.
     """
 
-    def __init__(self, value, path="", typecf="STANDARD"):
+    def __init__(self, value, path="", typecf="STANDARD", mcf=None):
         if typecf not in ["STANDARD", "GROUPED"]:
             raise MambuPyError("invalid CustomField type!")
-        self._attrs = {"value": value, "path": path, "type": typecf}
+        self._attrs = {
+            "value": value, "path": path, "type": typecf, "mcf": mcf}
         self._cf_class = GenericClass
 
 

@@ -23,7 +23,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
         self.assertEqual(
-            ms._attrs["hello"]._attrs, {"value": "world", "path": "", "type": "STANDARD"}
+            ms._attrs["hello"]._attrs,
+            {"value": "world", "path": "", "type": "STANDARD", "mcf": None}
         )
         self.assertEqual(ms["hello"], "world")
 
@@ -44,7 +45,7 @@ class MagicMethodsTests(unittest.TestCase):
         ms["hello"] = "goodbye"
         self.assertEqual(
             ms._attrs["hello"]._attrs,
-            {"value": "goodbye", "path": "", "type": "STANDARD"},
+            {"value": "goodbye", "path": "", "type": "STANDARD", "mcf": None},
         )
 
     def test___delitem__(self):
@@ -186,7 +187,8 @@ class MagicMethodsTests(unittest.TestCase):
         ms._attrs = {"hello": cf}
         self.assertEqual(ms["hello"], "world")
         self.assertEqual(
-            ms._attrs["hello"]._attrs, {"value": "world", "path": "", "type": "STANDARD"}
+            ms._attrs["hello"]._attrs,
+            {"value": "world", "path": "", "type": "STANDARD", "mcf": None}
         )
         self.assertEqual(ms.hello, "world")
 
@@ -215,7 +217,7 @@ class MagicMethodsTests(unittest.TestCase):
         ms.hello = "goodbye"
         self.assertEqual(
             ms._attrs["hello"]._attrs,
-            {"value": "goodbye", "path": "", "type": "STANDARD"},
+            {"value": "goodbye", "path": "", "type": "STANDARD", "mcf": None},
         )
 
     def test_has_key(self):

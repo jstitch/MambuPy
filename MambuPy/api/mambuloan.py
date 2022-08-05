@@ -107,7 +107,7 @@ class MambuLoan(
                 entities[accountholder_index] = (
                     "accountHolderKey", "mambugroup.MambuGroup", "accountHolder")
 
-        super()._assignEntObjs(
+        return super()._assignEntObjs(
             entities,
             detailsLevel=detailsLevel,
             get_entities=get_entities,
