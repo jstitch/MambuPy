@@ -14,6 +14,7 @@ from .interfaces import (
     MambuAttachable,
     MambuSearchable,
     MambuCommentable,
+    MambuOwnable,
 )
 from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
@@ -743,3 +744,47 @@ class MambuInstallment(MambuStruct):
             self._attrs["number"],
             self._attrs["state"],
             self._attrs["dueDate"].strftime("%Y-%m-%d"))
+
+
+class MambuEntityOwnable(MambuStruct, MambuOwnable):
+    """An entity which allows to be 'owned' by another.
+
+    An owned entity has an 'accountHolderKey' and 'accountHolderType'
+    fields.
+
+    Because of that, you may call get_accountHolder on the owned
+    entity to instantiate the MambuEntity who owns it.
+    """
+    def _assignEntObjs(
+        self,
+        entities=None,
+        detailsLevel="BASIC",
+        get_entities=False,
+        debug=False
+    ):
+        """Overwrites `MambuPy.api.mambustruct._assignEntObjs` for MambuLoan
+
+           Determines the type of account holder and instantiates accordingly
+        """
+        if entities is None:
+            entities = self._entities
+
+        try:
+            accountholder_index = entities.index(
+                ("accountHolderKey", "", "accountHolder"))
+        except ValueError:
+            accountholder_index = None
+
+        if accountholder_index is not None and self.has_key("accountHolderKey"):
+            if self.accountHolderType == "CLIENT":
+                entities[accountholder_index] = (
+                    "accountHolderKey", "mambuclient.MambuClient", "accountHolder")
+            elif self.accountHolderType == "GROUP":
+                entities[accountholder_index] = (
+                    "accountHolderKey", "mambugroup.MambuGroup", "accountHolder")
+
+        return super()._assignEntObjs(
+            entities,
+            detailsLevel=detailsLevel,
+            get_entities=get_entities,
+            debug=debug)

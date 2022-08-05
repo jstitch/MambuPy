@@ -43,6 +43,7 @@ tests=("unit_mambuconfig.py" \
            "api/unit_entities.py" \
            "api/unit_attachable.py" \
            "api/unit_commentable.py" \
+           "api/unit_ownable.py" \
            "api/unit_searchable.py" \
            "api/unit_writable.py" \
 

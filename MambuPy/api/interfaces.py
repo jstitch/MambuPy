@@ -138,5 +138,20 @@ class MambuOwner(ABC):
     """"""
 
 
+class MambuOwnable(ABC):
+    """An entity which allows to be 'owned' by another.
+
+    An owned entity has an 'accountHolderKey' and 'accountHolderType'
+    fields.
+
+    Because of that, you may call get_accountHolder on the owned
+    entity to instantiate the MambuEntity who owns it.
+    """
+    def _assignEntObjs(
+            self, entities, detailsLevel, get_entities, debug
+    ):  # pragma: no cover
+        raise NotImplementedError
+
+
 class MambuHolder(ABC):
     """"""

@@ -18,6 +18,7 @@ class MambuLoan(unittest.TestCase):
         self.assertTrue(isinstance(ml, mambuloan.MambuEntityWritable))
         self.assertTrue(isinstance(ml, mambuloan.MambuEntityAttachable))
         self.assertTrue(isinstance(ml, mambuloan.MambuEntityCommentable))
+        self.assertTrue(isinstance(ml, mambuloan.MambuEntityOwnable))
         self.assertTrue(isinstance(ml, mambuloan.MambuEntitySearchable))
 
     def test_has_properties(self):
@@ -117,83 +118,6 @@ class MambuLoan(unittest.TestCase):
         self.assertEqual(ml.schedule[1]["state"], "PENDING")
         self.assertEqual(ml.schedule[1]["dueDate"].strftime("%Y%m%d"), "20220721")
         self.assertEqual(repr(ml.schedule[1]), "MambuInstallment - #2, PENDING, 2022-07-21")
-
-    @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
-    def test__assignEntObjs(self, mock_assign):
-        # link type CLIENT
-        ml = mambuloan.MambuLoan()
-        ml._attrs = {
-            "accountHolderKey": "09876fedcba",
-            "accountHolderType": "CLIENT",
-        }
-
-        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
-        mock_assign.assert_any_call(
-            ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
-        self.assertEqual(
-            ml._entities[-1],
-            ("accountHolderKey", "mambuclient.MambuClient", "accountHolder"))
-
-        # link type GROUP
-        mock_assign.reset_mock()
-        ml = mambuloan.MambuLoan()
-        ml._attrs = {
-            "accountHolderKey": "09876fedcba",
-            "accountHolderType": "GROUP",
-        }
-
-        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
-        mock_assign.assert_any_call(
-            ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
-        self.assertEqual(
-            ml._entities[-1],
-            ("accountHolderKey", "mambugroup.MambuGroup", "accountHolder"))
-
-        # link type INVALID
-        mock_assign.reset_mock()
-        ml = mambuloan.MambuLoan()
-        ml._attrs = {
-            "accountHolderKey": "09876fedcba",
-            "accountHolderType": "",
-        }
-
-        self.assertEqual(ml._assignEntObjs(), mock_assign.return_value)
-        mock_assign.assert_any_call(
-            ml._entities, detailsLevel="BASIC", get_entities=False, debug=False)
-        self.assertEqual(
-            ml._entities[-1],
-            ("accountHolderKey", "", "accountHolder"))
-
-        # custom entities
-        mock_assign.reset_mock()
-        ml = mambuloan.MambuLoan()
-        ml._attrs = {
-            "accountHolderKey": "09876fedcba",
-            "accountHolderType": "",
-        }
-        self.assertEqual(
-            ml._assignEntObjs([("accountHolderKey", "", "accountHolder")]),
-            mock_assign.return_value)
-        mock_assign.assert_any_call(
-            [("accountHolderKey", "", "accountHolder")],
-            detailsLevel="BASIC",
-            get_entities=False, debug=False)
-        self.assertEqual(
-            ml._entities[-1],
-            ("accountHolderKey", "", "accountHolder"))
-
-        # not looking for account holder
-        mock_assign.reset_mock()
-        ml = mambuloan.MambuLoan()
-        ml._attrs = {
-            "accountHolderKey": "09876fedcba",
-            "accountHolderType": "",
-        }
-        self.assertEqual(ml._assignEntObjs([]), mock_assign.return_value)
-        mock_assign.assert_any_call(
-            [],
-            detailsLevel="BASIC",
-            get_entities=False, debug=False)
 
     @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_set_state(self, mock_connector):
