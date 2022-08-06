@@ -5,6 +5,7 @@
    :toctree: _autosummary
 """
 import copy
+from importlib import import_module
 import json
 import time
 
@@ -19,7 +20,7 @@ from .interfaces import (
 from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
-from ..mambuutil import MambuError, MambuPyError
+from MambuPy.mambuutil import MambuError, MambuPyError
 
 
 class MambuEntity(MambuStruct):
@@ -733,6 +734,27 @@ class MambuEntityCF(MambuValueObject):
         self._attrs = {
             "value": value, "path": path, "type": typecf, "mcf": mcf}
         self._cf_class = GenericClass
+
+    def get_mcf(self):
+        """Instance the MambuCustomField (MCF) of this entityCF.
+
+        The MCF is set in the mcf property of this object.
+
+        If this entityCF is a list, the mcf is set to a dictionary of
+        field-MCFields.
+        """
+        mcf_mod = import_module("MambuPy.api.mambucustomfield")
+        if self.mcf:
+            return
+        if isinstance(self.value, list) and len(self.value) > 0:
+            self.mcf = {}
+            for key in self.value[0].keys():
+                try:
+                    self.mcf[key] = mcf_mod.MambuCustomField.get(key)
+                except MambuError:
+                    self.mcf[key] = None
+            return
+        self.mcf = mcf_mod.MambuCustomField.get(self.path.split("/")[-1])
 
 
 class MambuInstallment(MambuStruct):

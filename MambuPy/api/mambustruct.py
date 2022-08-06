@@ -69,30 +69,41 @@ class MambuStruct(MambuMapObj):
          "name_of_obj_in_attrs")
     """
 
-    def __getattribute_for_cf(self, value, path, mcf, ent_name):
-        if not mcf or isinstance(mcf, str):
-            mcf_mod = import_module("MambuPy.api.mambucustomfield")
-            mcf = mcf_mod.MambuCustomField.get(path.split("/")[-1])
-
-        if isinstance(value, str) and "_LINK" in mcf.type:
+    def __getattribute_for_one_cf(self, ent, value, mcf):
+        if mcf and isinstance(value, str) and "_LINK" in mcf.type:
             link_type = mcf.type[:-5]
             package = "mambu" + link_type.lower()
             classname = "Mambu" + link_type.capitalize()
             classpath = package + "." + classname
 
             return lambda **kwargs: self.getEntities(
-                [ent_name],
-                config_entities=[(ent_name, classpath, ent_name)],
-                **kwargs)[0]
+                [ent], config_entities=[(ent, classpath, ent)], **kwargs
+            )[0]
 
         return lambda **kwargs: value
+
+    def __getattribute_for_loop(self, ent, value, mcf):
+        attributes = []
+        for ind, item in enumerate(value):
+            values = {}
+            for key, val in item.items():
+                values[key] = self.__getattribute_for_one_cf(
+                    ent + "/" + str(ind) + "/" + key, val, mcf[key]
+                )()
+            attributes.append(values)
+        return lambda **kwargs: attributes
+
+    def __getattribute_for_cf(self, ent, entity):
+        if isinstance(entity.value, list):
+            return self.__getattribute_for_loop(ent, entity.value, entity.mcf)
+        return self.__getattribute_for_one_cf(ent, entity.value, entity.mcf)
 
     def __getattribute__(self, name):
         """Object-like get attribute for MambuStructs.
 
-           If the attribute is not present at the _attrs dict, tries to build a
-           function that calls :py:meth:`getEntities`, which in turns will try
-           to instantiate an entity according to the requested attribute name
+        If the attribute is not present at the _attrs dict, tries to build a
+        function that calls :py:meth:`getEntities`, which in turns will try
+        to instantiate an entity according to the requested attribute name
         """
         try:
             return super().__getattribute__(name)
@@ -101,12 +112,9 @@ class MambuStruct(MambuMapObj):
                 ent = name[4:]
                 if ent in self._attrs.keys():
                     entity = self._attrs[ent]
-                    if (
-                        entity.__class__.__name__ ==
-                        self._cf_class.__name__
-                    ):
-                        return self.__getattribute_for_cf(
-                            entity.value, entity.path, entity.mcf, ent)
+                    if entity.__class__.__name__ == self._cf_class.__name__:
+                        entity.get_mcf()
+                        return self.__getattribute_for_cf(ent, entity)
                     return lambda **kwargs: entity
                 return lambda **kwargs: self.getEntities([ent], **kwargs)[0]
             else:
@@ -202,11 +210,11 @@ class MambuStruct(MambuMapObj):
         # Iterators, lists and dictionaries
         # Here comes the recursive calls!
         try:
-            it = iter(data)
-            if type(it) == type(iter({})):
+            it = data
+            if isinstance(it, dict):
                 data = self.__convert_from_dict_to_basic_types(
                     it, data, tzdata, constantFields)
-            if type(it) == type(iter([])):
+            if isinstance(it, list):
                 data = self.__convert_from_list_to_basic_types(
                     it, data, tzdata, constantFields)
         except TypeError:
@@ -303,12 +311,10 @@ class MambuStruct(MambuMapObj):
             return self.__convert_basic_types_to_str_base_cases(data, tzdata)
 
         # Recursive calls
-        if type(it) == type(iter([])):
-            return self.__convert_from_list_basic_types_to_str(
-                it, data, tzdata)
-        elif type(it) == type(iter({})):
-            return self.__convert_from_dict_basic_types_to_str(
-                it, data, tzdata)
+        if isinstance(data, list):
+            return self.__convert_from_list_basic_types_to_str(it, data, tzdata)
+        elif isinstance(data, dict):
+            return self.__convert_from_dict_basic_types_to_str(it, data, tzdata)
         # elif ... tuples? sets?
         return data
 
@@ -334,7 +340,7 @@ class MambuStruct(MambuMapObj):
             copy.deepcopy(val_list), "/{}".format(attr), "GROUPED"
         )
         for ind, value in enumerate(val_list):
-            if type(iter(value)) == type(iter({})):
+            if isinstance(value, dict):
                 for key, subvalue in value.items():
                     if key[0] != "_":
                         mecf = self._cf_class(
@@ -363,9 +369,9 @@ class MambuStruct(MambuMapObj):
             attrs = self._attrs
 
         for attr, val in [atr for atr in attrs.items() if atr[0][0] == "_"]:
-            if type(iter(val)) == type(iter({})):
+            if isinstance(val, dict):
                 self.__extract_customfields_from_dict(val, attr, attrs)
-            elif type(iter(val)) == type(iter([])):
+            elif isinstance(val, list):
                 self.__extract_customfields_from_list(val, attr, attrs)
             else:
                 raise MambuPyError("CustomFieldSet {} is not a dictionary!".format(attr))
@@ -387,8 +393,8 @@ class MambuStruct(MambuMapObj):
 
     def __update_customfields_from_list(self, val_list, attr, cfs):
         for ind, value in [
-                (ind, value) for ind, value in enumerate(val_list)
-                if type(iter(value)) == type(iter({}))]:
+            (ind, value) for ind, value in enumerate(val_list) if isinstance(value, dict)
+        ]:
             for key in [k for k in value.keys() if k[0] != "_"]:
                 try:
                     if self[key + "_" + str(ind)] in [True, False]:
@@ -414,9 +420,9 @@ class MambuStruct(MambuMapObj):
         cfs = []
         # updates customfieldsets
         for attr, val in [atr for atr in self._attrs.items() if atr[0][0] == "_"]:
-            if type(iter(val)) == type(iter({})):
+            if isinstance(val, dict):
                 self.__update_customfields_from_dict(val, attr, cfs)
-            elif type(iter(val)) == type(iter([])):
+            elif isinstance(val, list):
                 self.__update_customfields_from_list(val, attr, cfs)
             else:
                 raise MambuPyError(
@@ -639,6 +645,18 @@ class MambuStruct(MambuMapObj):
         except AttributeError:
             return
 
+    def __assign_new_property(self, new_property, ent_item, encodedKey):
+        try:
+            entity = self._attrs[new_property]
+            if entity.__class__.__name__ == self._cf_class.__name__:
+                self._attrs[new_property].value = ent_item
+        except KeyError:
+            try:
+                proprty, index, key = encodedKey.split("/")
+                index = int(index)
+                getattr(self, proprty)[index][key] = ent_item
+            except ValueError:
+                self[new_property] = ent_item
 
     def _assignEntObjs(
         self,
@@ -674,7 +692,12 @@ class MambuStruct(MambuMapObj):
             try:
                 enc_key = getattr(self, encodedKey)
             except AttributeError:
-                continue
+                try:
+                    proprty, index, key = encodedKey.split("/")
+                    index = int(index)
+                    enc_key = getattr(self, proprty)[index][key]
+                except ValueError:
+                    continue
 
             if isinstance(enc_key, list):
                 ent_item = []
@@ -692,12 +715,7 @@ class MambuStruct(MambuMapObj):
                     get_entities=get_entities,
                     debug=debug)
 
-            try:
-                entity = self._attrs[new_property]
-                if entity.__class__.__name__ == self._cf_class.__name__:
-                    self._attrs[new_property].value = ent_item
-            except KeyError:
-                self[new_property] = ent_item
+            self.__assign_new_property(new_property, ent_item, encodedKey)
 
             instances.append(ent_item)
 

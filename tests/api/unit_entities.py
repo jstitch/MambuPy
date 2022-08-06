@@ -7,8 +7,7 @@ import mock
 sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.api import entities
-from MambuPy.mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-                               MambuPyError)
+from MambuPy.mambuutil import (MambuError, MambuPyError)
 
 
 class MambuConnectorTests(unittest.TestCase):
@@ -299,6 +298,34 @@ class MambuEntityCFTests(unittest.TestCase):
 
         with self.assertRaisesRegex(MambuPyError, r"invalid CustomField type!"):
             entities.MambuEntityCF("_VALUE_", "_PATH_", "_TYPE_")
+
+    @mock.patch("MambuPy.api.entities.import_module")
+    def test_get_mcf(self, mock_import_module):
+        mock_import_module().MambuCustomField.get.return_value = "My_MambuCF"
+
+        ms = entities.MambuEntityCF("_VALUE_", "_a_cf_set/_a_cf", "STANDARD")
+
+        ms.get_mcf()
+
+        self.assertEqual(ms._attrs["mcf"], "My_MambuCF")
+        mock_import_module.assert_called_with("MambuPy.api.mambucustomfield")
+        mock_import_module().MambuCustomField.get.assert_called_with("_a_cf")
+        self.assertEqual(mock_import_module().MambuCustomField.get.call_count, 1)
+
+        ms.get_mcf()
+        self.assertEqual(mock_import_module().MambuCustomField.get.call_count, 1)
+
+        mock_import_module().MambuCustomField.get.side_effect = [
+            "Other_MambuCF",
+            MambuError,
+        ]
+        ms = entities.MambuEntityCF(
+            [{"_KEY_": "_VALUE_", "_OTHER_": "_VAL_"}], "_a_cf_set/_a_cf", "GROUPED"
+        )
+
+        ms.get_mcf()
+
+        self.assertEqual(ms._attrs["mcf"], {"_KEY_": "Other_MambuCF", "_OTHER_": None})
 
 
 if __name__ == "__main__":

@@ -668,19 +668,29 @@ class MambuStructTests(unittest.TestCase):
         ms._attrs = {
             "a_custom_field": "def456",
             "a_custom_field_ek": entities.MambuEntityCF("abc123"),
+            "a_grouped_custom_field_ek": entities.MambuEntityCF(
+                [{"field": "val"}], "a_grouped_custom_field_ek", "GROUPED"
+            ),
         }
 
         self.assertEqual(
             ms._assignEntObjs(
                 entities=[
-                    ("a_custom_field",
-                     "mambuuser.MambuUser",
-                     "a_custom_field"),
-                    ("a_custom_field_ek",
-                     "mambugroup.MambuGroup",
-                     "a_custom_field_ek")]),
-            [mock_import.return_value.MambuUser.get(),
-             mock_import.return_value.MambuGroup.get()])
+                    ("a_custom_field", "mambuuser.MambuUser", "a_custom_field"),
+                    ("a_custom_field_ek", "mambugroup.MambuGroup", "a_custom_field_ek"),
+                    (
+                        "a_grouped_custom_field_ek/0/field",
+                        "mambuclient.MambuClient",
+                        "a_grouped_custom_field_ek/0/field",
+                    ),
+                ]
+            ),
+            [
+                mock_import.return_value.MambuUser.get(),
+                mock_import.return_value.MambuGroup.get(),
+                mock_import.return_value.MambuClient.get(),
+            ],
+        )
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
     def test_getEntities(self, mock_assign):
@@ -764,6 +774,7 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
     def test___getattribute__(self, mock_assign):
         my_cf = mambucustomfield.MambuCustomField(**{"type": "CLIENT_LINK"})
+        int_cf = mambucustomfield.MambuCustomField(**{"type": "Number"})
         ms = mambustruct.MambuStruct(cf_class=entities.MambuEntityCF)
         ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent")]
         ms._attrs = {
@@ -772,7 +783,15 @@ class MambuStructTests(unittest.TestCase):
             "a_custom_field": entities.MambuEntityCF(
                 "value", "_a_custom_field_set/a_custom_field"),
             "linked_cf": entities.MambuEntityCF(
-                "value", "_a_custom_field_set/linked_cf", mcf=my_cf),
+                "abcdef12345", "_a_custom_field_set/linked_cf", mcf=my_cf),
+            "grouped_cf": entities.MambuEntityCF([
+                {"field": 123, "ek": "abcdef12345"},
+                {"field": 456, "ek": "fedcba67890"},
+            ],
+                "_other_custom_field_set/grouped_cf",
+                "GROUPED",
+                mcf={"field": int_cf, "ek": my_cf},
+            ),
         }
 
         # get a func to get an entity from default config
@@ -809,12 +828,29 @@ class MambuStructTests(unittest.TestCase):
             self.assertEqual(
                 inspect.getsource(ms.get_linked_cf).strip(),
                 """return lambda **kwargs: self.getEntities(
-                [ent_name],
-                config_entities=[(ent_name, classpath, ent_name)],
-                **kwargs)[0]""")
+                [ent], config_entities=[(ent, classpath, ent)], **kwargs
+            )[0]""")
             ms.get_linked_cf()
             mock_assign.assert_called_with(
                 entities=[("linked_cf", "mambuclient.MambuClient", "linked_cf")],
+                detailsLevel="BASIC",
+                get_entities=False,
+                debug=False)
+            self.assertEqual(mock_get_mcf.call_count, 0)
+
+        # get a func to get a entities from grouped linked customfields
+        mock_assign.reset_mock()
+        with mock.patch(
+            "MambuPy.api.mambucustomfield.MambuCustomField.get"
+        ) as mock_get_mcf:
+            self.assertEqual(inspect.isfunction(ms.get_grouped_cf), True)
+            self.assertEqual(
+                inspect.getsource(ms.get_grouped_cf).strip(),
+                """return lambda **kwargs: attributes""")
+            ms.get_grouped_cf()
+            mock_assign.assert_called_with(
+                entities=[
+                    ("grouped_cf/1/ek", "mambuclient.MambuClient", "grouped_cf/1/ek")],
                 detailsLevel="BASIC",
                 get_entities=False,
                 debug=False)
