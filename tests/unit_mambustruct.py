@@ -11,6 +11,7 @@ try:
 except ModuleNotFoundError:
     import unittest.mock as mock
 
+import requests as rqsts
 import unittest
 
 from MambuPy import mambuconfig
@@ -29,6 +30,9 @@ class Response(object):
     def __init__(self, text):
         self.text = json.dumps(text)
         self.content = text
+
+    def raise_for_status(self):
+        return
 
 
 class RequestsCounterTests(unittest.TestCase):
@@ -325,6 +329,9 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_keys(self, requests, json, iri_to_uri):
         """Dictionary-like keys method"""
+        requests.exceptions.HTTPError = rqsts.exceptions.HTTPError
+        requests.exceptions.RequestException = rqsts.exceptions.RequestException
+        requests.exceptions.RetryError = rqsts.exceptions.RetryError
         # when no attrs or not dict-like, raises NotImplementedError
         with self.assertRaises(NotImplementedError):
             self.ms.keys()
@@ -385,6 +392,10 @@ class MambuStructConnectTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.json")
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_connect(self, requests, json, iri_to_uri):
+        requests.exceptions.HTTPError = rqsts.exceptions.HTTPError
+        requests.exceptions.RequestException = rqsts.exceptions.RequestException
+        requests.exceptions.RetryError = rqsts.exceptions.RetryError
+
         # urlfunc=None -> returns immediately
         ms = mambustruct.MambuStruct(entid="", urlfunc=None)
         self.assertIsNone(ms.connect())
@@ -393,11 +404,11 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertFalse(json.loads.called)
 
         # normal load
-        requests.reset_mock()
+        requests.Session().reset_mock()
         rc_cnt = ms.rc.cnt
         iri_to_uri.return_value = "http://example.com"
-        requests.get.return_value = mock.Mock()
-        requests.get.return_value.content = "my raw response"
+        requests.Session().get.return_value = mock.Mock()
+        requests.Session().get.return_value.content = "my raw response"
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         ms = mambustruct.MambuStruct(
             entid="12345",
@@ -405,7 +416,7 @@ class MambuStructConnectTests(unittest.TestCase):
             user="my_user",
             pwd="my_password",
         )
-        requests.get.assert_called_with(
+        requests.Session().get.assert_called_with(
             "http://example.com",
             headers={"Accept": "application/vnd.mambu.v1+json"},
             auth=("my_user", "my_password"),
@@ -419,18 +430,18 @@ class MambuStructConnectTests(unittest.TestCase):
             ms._MambuStruct__kwargs, {"user": "my_user", "pwd": "my_password"}
         )
         ms.connect()
-        requests.get.assert_called_with(
+        requests.Session().get.assert_called_with(
             "http://example.com",
             headers={"Accept": "application/vnd.mambu.v1+json"},
             auth=("my_user", "my_password"),
         )
 
         # POST data
-        requests.reset_mock()
+        requests.Session().reset_mock()
         data = {"data1": "value1"}
         iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
-        requests.post.return_value = mock.Mock()
+        requests.Session().post.return_value = mock.Mock()
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         ms = mambustruct.MambuStruct(
             entid="12345",
@@ -439,7 +450,7 @@ class MambuStructConnectTests(unittest.TestCase):
             user="my_user",
             pwd="my_password",
         )
-        requests.post.assert_called_with(
+        requests.Session().post.assert_called_with(
             "http://example.com",
             headers={
                 "Content-Type": "application/json",
@@ -453,13 +464,13 @@ class MambuStructConnectTests(unittest.TestCase):
 
         from MambuPy.mambuutil import apipwd, apiuser
 
-        requests.reset_mock()
+        requests.Session().reset_mock()
         mambustruct.MambuStruct(
             entid="12345",
             urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
             data=data,
         )
-        requests.post.assert_called_with(
+        requests.Session().post.assert_called_with(
             "http://example.com",
             headers={
                 "Content-Type": "application/json",
@@ -470,11 +481,11 @@ class MambuStructConnectTests(unittest.TestCase):
         )
 
         # PATCH data
-        requests.reset_mock()
+        requests.Session().reset_mock()
         data = {"data1": "value1"}
         iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
-        requests.patch.return_value = mock.Mock()
+        requests.Session().patch.return_value = mock.Mock()
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         ms = mambustruct.MambuStruct(
             entid="12345",
@@ -484,7 +495,7 @@ class MambuStructConnectTests(unittest.TestCase):
             user="my_user",
             pwd="my_password",
         )
-        requests.patch.assert_called_with(
+        requests.Session().patch.assert_called_with(
             "http://example.com",
             headers={
                 "Content-Type": "application/json",
@@ -500,10 +511,10 @@ class MambuStructConnectTests(unittest.TestCase):
         )
 
         # DELETE data
-        requests.reset_mock()
+        requests.Session().reset_mock()
         iri_to_uri.return_value = "http://example.com"
         json.dumps.return_value = data
-        requests.delete.return_value = Response(
+        requests.Session().delete.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
         ms = mambustruct.MambuStruct(
@@ -513,7 +524,7 @@ class MambuStructConnectTests(unittest.TestCase):
             user="my_user",
             pwd="my_password",
         )
-        requests.delete.assert_called_with(
+        requests.Session().delete.assert_called_with(
             "http://example.com",
             headers={"Accept": "application/vnd.mambu.v1+json"},
             auth=("my_user", "my_password"),
@@ -529,8 +540,9 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # normal load with error
         iri_to_uri.return_value = ""
-        requests.get.return_value = mock.Mock()
+        requests.Session().get.return_value = mock.Mock()
         json.loads.return_value = {"returnCode": "500", "returnStatus": "TEST ERROR"}
+        requests.Session().get().raise_for_status.side_effect = rqsts.exceptions.HTTPError("")
         with self.assertRaisesRegexp(mambustruct.MambuError, r"^TEST ERROR$"):
             mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
@@ -538,7 +550,7 @@ class MambuStructConnectTests(unittest.TestCase):
 
         # load list
         iri_to_uri.return_value = ""
-        requests.get.return_value = mock.Mock()
+        requests.Session().get.return_value = mock.Mock()
         json.loads.return_value = [
             {"field1": "value1", "field2": "value2"},
             {"field1": "value3", "field2": "value4"},
@@ -557,7 +569,7 @@ class MambuStructConnectTests(unittest.TestCase):
         # retries mechanism
         # one Comm Error, but retrying solves it
         iri_to_uri.return_value = ""
-        requests.get.side_effect = [
+        requests.Session().get.side_effect = [
             ValueError("TESTING RETRIES %s" % i) for i in range(1)
         ].extend([mock.Mock()])
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
@@ -571,21 +583,22 @@ class MambuStructConnectTests(unittest.TestCase):
 
         mambustruct.requests.exceptions = reqs.exceptions
         iri_to_uri.return_value = ""
-        requests.get.side_effect = [
-            reqs.exceptions.RequestException("TESTING RETRIES")
+        requests.Session().get.side_effect = [
+            rqsts.exceptions.RetryError("TESTING RETRIES")
             for _ in range(mambustruct.MambuStruct.RETRIES)
         ]
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         with self.assertRaisesRegexp(
-            mambustruct.MambuCommError, r"^ERROR I can't communicate with Mambu"
+            mambustruct.MambuCommError, r"^ERROR I can't communicate with Mambu: TESTING RETRIES$"
         ):
             mambustruct.MambuStruct(
                 entid="12345", urlfunc=lambda entid, limit, offset: ""
             )
 
         # MambuError
+        requests.Session().get.side_effect = None
         iri_to_uri.return_value = ""
-        requests.get.side_effect = [mock.Mock()]
+        requests.Session().get().raise_for_status.side_effect = rqsts.exceptions.HTTPError("")
         json.loads.side_effect = [Exception("TEST ERROR")]
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^JSON Error: Exception\('TEST ERROR'"
@@ -595,10 +608,11 @@ class MambuStructConnectTests(unittest.TestCase):
             )
 
         # MambuError
-        requests.get.side_effect = None
+        requests.Session().get.side_effect = None
         iri_to_uri.return_value = ""
-        requests.get().content = b"""<html>\n<head><title>Oh My</title></head>
+        requests.Session().get().content = b"""<html>\n<head><title>Oh My</title></head>
 <body>\n<h1>One error</h1>\n<p>Watcha gonna do?</p></body></html>"""
+        requests.Session().get().raise_for_status.side_effect = rqsts.exceptions.HTTPError("")
         json.loads.side_effect = [ValueError("TEST ERROR")]
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^Oh My: One error. Watcha gonna do?"
@@ -608,27 +622,27 @@ class MambuStructConnectTests(unittest.TestCase):
             )
 
         # Mambu 500 Error
-        requests.get.side_effect = None
+        requests.Session().get.side_effect = None
         iri_to_uri.return_value = ""
-        requests.get().content = b"""<html>\n<head><title>502 gateway error</title></head>
+        requests.Session().get().content = b"""<html>\n<head><title>502 gateway error</title></head>
 <body>\n<h1>502 gateway error</h1>\n<p>Should retry!</p></body></html>"""
+        requests.Session().get().raise_for_status.side_effect = rqsts.exceptions.HTTPError("")
         json.loads.side_effect = ValueError("TEST ERROR")
-        requests.get.reset_mock()
+        requests.Session().get.reset_mock()
         with self.assertRaisesRegexp(
-            mambustruct.MambuError, r"^ERROR I can't communicate with Mambu"
+            mambustruct.MambuError, r"^502 gateway error: 502 gateway error. Should retry!"
         ):
-            with mock.patch("MambuPy.rest.mambustruct.time"):
-                mambustruct.MambuStruct(
-                    entid="12345", urlfunc=lambda entid, limit, offset: ""
-                )
-        self.assertEqual(requests.get.call_count, mambustruct.MambuStruct.RETRIES)
+            mambustruct.MambuStruct(
+                entid="12345", urlfunc=lambda entid, limit, offset: ""
+            )
+        self.assertEqual(requests.get.call_count, 1)
 
         # pagination mechanism
         mambustruct.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = (
             1  # simulate as if Mambu could only returns one element per request
         )
         iri_to_uri.return_value = ""
-        requests.get.side_effect = [
+        requests.Session().get.side_effect = [
             mock.Mock(),
             mock.Mock(),
             mock.Mock(),
@@ -650,7 +664,7 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertEqual(len(ms.attrs), 4)
 
         # only get first 3 elements
-        requests.get.side_effect = [
+        requests.Session().get.side_effect = [
             mock.Mock(),
             mock.Mock(),
             mock.Mock(),

@@ -11,6 +11,7 @@ try:
 except ModuleNotFoundError:
     import unittest.mock as mock
 
+import requests
 import unittest
 
 from MambuPy import mambuconfig
@@ -29,6 +30,9 @@ class Response(object):
     def __init__(self, text):
         self.text = json.dumps(text)
         self.content = text
+
+    def raise_for_status(self):
+        return
 
 
 class MambuLoanTests(unittest.TestCase):
@@ -730,7 +734,11 @@ class MambuLoanTests(unittest.TestCase):
     def test_update(self, mock_requests):
         """Test update"""
         # set data response
-        mock_requests.patch.return_value = Response(
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
+
+        mock_requests.Session().patch.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
         mambuloan.MambuStruct.update = mock.Mock()
@@ -742,9 +750,11 @@ class MambuLoanTests(unittest.TestCase):
         lData["customInformation"] = {"f1": "v1"}
         self.assertEqual(l.update(lData), 2)
 
-        mock_requests.patch.return_value = Response(
+        mock_requests.Session().patch.return_value = Response(
             '{"returnCode":903,"returnStatus":"INVALID_CUSTOM_FIELD_ID"}'
         )
+        mock_requests.Session().patch().raise_for_status = mock.Mock()
+        mock_requests.Session().patch().raise_for_status.side_effect = requests.exceptions.HTTPError("")
         with self.assertRaisesRegexp(mambuloan.MambuError, "INVALID_CUSTOM_FIELD_ID"):
             l.update(lData)
 
@@ -753,8 +763,11 @@ class MambuLoanTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_upload_document(self, mock_requests):
         """Test upload"""
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
         # set data response
-        mock_requests.post.return_value = Response(
+        mock_requests.Session().post.return_value = Response(
             '{"encodedKey":"8a818660727120000172722ce8396e1e",\
 "id":48391,\
 "creationDate":"2020-06-01T23:17:25+0000",\
@@ -785,9 +798,11 @@ class MambuLoanTests(unittest.TestCase):
         self.assertEqual(l.id, "ABC123")
 
         # exception
-        mock_requests.post.return_value = Response(
+        mock_requests.Session().post.return_value = Response(
             '{"returnCode":4,"returnStatus":"INVALID_PARAMETERS","errorSource":"OwnerType"}'
         )
+        mock_requests.Session().post().raise_for_status = mock.Mock()
+        mock_requests.Session().post().raise_for_status.side_effect = requests.exceptions.HTTPError("")
         with self.assertRaisesRegexp(mambuloan.MambuError, "INVALID_PARAMETERS"):
             l.upload_document(lData)
 

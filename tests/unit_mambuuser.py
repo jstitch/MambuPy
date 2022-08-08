@@ -11,6 +11,7 @@ try:
 except ModuleNotFoundError:
     import unittest.mock as mock
 
+import requests
 import unittest
 
 from MambuPy import mambuconfig
@@ -29,6 +30,8 @@ class Response(object):
     def __init__(self, text):
         self.text = json.dumps(text)
         self.content = text
+    def raise_for_status(self):
+        return
 
 
 class MambuUserTests(unittest.TestCase):
@@ -223,10 +226,13 @@ class MambuUserTests(unittest.TestCase):
         """Test update"""
 
         # set data response
-        mock_requests.patch.return_value = Response(
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
+        mock_requests.Session().patch.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
-        mock_requests.post.return_value = Response(
+        mock_requests.Session().post.return_value = Response(
             '{"encodedKey":"8a68ae574f707810014f84add84610ef",\
 "id":631,\
 "creationDate":"2015-08-31T16:53:50+0000",\

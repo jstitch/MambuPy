@@ -11,6 +11,7 @@ try:
 except ModuleNotFoundError:
     import unittest.mock as mock
 
+import requests
 import unittest
 
 from MambuPy import mambuconfig
@@ -29,6 +30,9 @@ class Response(object):
     def __init__(self, text):
         self.text = json.dumps(text)
         self.content = text
+
+    def raise_for_status(self):
+        return
 
 
 class MambuGroupTests(unittest.TestCase):
@@ -254,8 +258,11 @@ class MambuGroupTests(unittest.TestCase):
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_create(self, mock_requests):
         """Test create"""
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
         # set data response
-        mock_requests.post.return_value = Response(
+        mock_requests.Session().post.return_value = Response(
             '{"group":{"encodedKey":"8a8186c46edd2297016edd5871271060","id":"RV982",\
 "creationDate":"2019-12-06T22:49:25+0000","lastModifiedDate":"2019-12-06T22:49:25+0000",\
 "groupName":"NUEVO AMANECER I(COPIA)","notes":"<div id=\\":2da\\" class=\\"ii gt adP adO\\" style=\\"direction: ltr; \
@@ -365,11 +372,14 @@ rgb(34, 34, 34); font-family: arial, sans-serif; background-color: rgb(255, 255,
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_update(self, mock_requests):
         """Test update"""
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
         # set data response
-        mock_requests.patch.return_value = Response(
+        mock_requests.Session().patch.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
-        mock_requests.post.return_value = Response(
+        mock_requests.Session().post.return_value = Response(
             '{"group":{"encodedKey":"8a10ca994b09d039014b145049e94892","id":"JB324",\
 "creationDate":"2015-01-23T01:03:01+0000","lastModifiedDate":"2019-12-11T18:26:46+0000",\
 "groupName":"ZAFIRO","notes":"Mapa de Ubicaci\xc3\xb3n<br>\
@@ -427,9 +437,12 @@ https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing
     @mock.patch("MambuPy.rest.mambustruct.requests")
     def test_addMember(self, mock_requests):
         """Test add member to group"""
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
         # set data response
-        mock_requests.get.return_value = Response("{}")
-        mock_requests.patch.return_value = Response(
+        mock_requests.Session().get.return_value = Response("{}")
+        mock_requests.Session().patch.return_value = Response(
             '{"returnCode":0,"returnStatus":"SUCCESS"}'
         )
         g = mambugroup.MambuGroup(
@@ -465,7 +478,7 @@ https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing
         ]
         # call method
         g.addMembers(["idDeIntegranteNueva"])
-        mock_requests.patch.assert_called_with(
+        mock_requests.Session().patch.assert_called_with(
             "urlMambu",
             auth=("fakeUser", "fakePwd"),
             headers={
@@ -477,7 +490,7 @@ https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing
 {"clientKey": "idDeIntegranteNueva"}]}',
         )
         # get called when connect()
-        mock_requests.get.assert_called_with(
+        mock_requests.Session().get.assert_called_with(
             "urlMambu",
             auth=("fakeUser", "fakePwd"),
             headers={
@@ -488,7 +501,7 @@ https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing
 
         # GROUP whithout members
         g.addMembers(["idDeIntegranteNueva"])
-        mock_requests.patch.assert_called_with(
+        mock_requests.Session().patch.assert_called_with(
             "urlMambu",
             auth=("fakeUser", "fakePwd"),
             headers={
@@ -498,7 +511,7 @@ https://www.google.com/maps/d/edit?mid=zWpa0weFfb88.kelST7bG9wjU&amp;usp=sharing
             data='{"group": {}, "groupMembers": [{"clientKey": "idDeIntegranteNueva"}]}',
         )
         # get called when connect()
-        mock_requests.get.assert_called_with(
+        mock_requests.Session().get.assert_called_with(
             "urlMambu",
             auth=("fakeUser", "fakePwd"),
             headers={

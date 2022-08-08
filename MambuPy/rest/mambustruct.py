@@ -31,11 +31,12 @@ Some basic definitions:
   relational database but the term table is preferred in this case.
 """
 import json
-import time
 from builtins import str as unicode
 from datetime import datetime
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from future.utils import implements_iterator
 from copy import deepcopy
 
@@ -388,6 +389,11 @@ class MambuStruct(object):
         serial = MambuStruct.serialize_fields(self.attrs)
         return serial
 
+    def __copy_args(self, args, kwargs):
+        self.__args = deepcopy(args)
+        for k, v in kwargs.items():
+            self.__kwargs[k] = deepcopy(v)
+
     def __init__(self, urlfunc, entid="", *args, **kwargs):
         """Initializes a new Mambu object.
 
@@ -512,9 +518,7 @@ class MambuStruct(object):
         self.__args = ()
         self.__kwargs = {}
 
-        self.__args = deepcopy(args)
-        for k, v in kwargs.items():
-            self.__kwargs[k] = deepcopy(v)
+        self.__copy_args(args, kwargs)
 
         self.__urlfunc = urlfunc
         """The given urlfunc argument is saved here.
@@ -529,7 +533,7 @@ class MambuStruct(object):
         if connect:
             self.connect(*args, **kwargs)
 
-    def _make_request(self, url, user, pwd):
+    def __request(self, url, user, pwd):
         """Method used in connect, for make the request.
 
         Uses self.__data dictionary to feed the body for POST and PATCH requests.
@@ -543,31 +547,120 @@ class MambuStruct(object):
         Returns:
             The response of the request (json)
         """
+        retry_strategy = Retry(
+            total=MambuStruct.RETRIES,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_factor=1,
+            allowed_methods=[
+                "PUT",
+                "DELETE",
+                "POST",
+                "PATCH"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+
         if self.__data:
             data = json.dumps(encoded_dict(self.__data))
             self.__headers["Content-Type"] = "application/json"
             # PATCH
             if self.__method == "PATCH":
-                resp = requests.patch(
+                resp = http.patch(
                     url, data=data, headers=self.__headers, auth=(user, pwd)
                 )
             # POST
             else:
-                resp = requests.post(
+                resp = http.post(
                     url, data=data, headers=self.__headers, auth=(user, pwd)
                 )
         else:
             # DELETE
             if self.__method == "DELETE":
-                resp = requests.delete(
+                resp = http.delete(
                     url, headers=self.__headers, auth=(user, pwd)
                 )
             # GET
             else:
-                resp = requests.get(
+                resp = http.get(
                     url, headers=self.__headers, auth=(user, pwd)
                 )
+        # Always count a new request when done!
+        self.rc.add(datetime.now())
+
         return resp
+
+    def __process_jsonresp(self, jsonresp, limit, jsresp):
+        window = True
+        # Returns list: extend list for offset
+        if type(jsonresp) == list:
+            try:
+                jsresp.extend(jsonresp)
+            except AttributeError:
+                # First window, forget that jsresp was a dict, turn it in to a list
+                jsresp = jsonresp
+            if len(jsonresp) < limit:
+                window = False
+        # Returns dict: in theory Mambu REST API doesn't takes limit/offset in to account
+        else:
+            jsresp = jsonresp
+            self._is_mambu_error(jsresp)
+            window = False
+
+        return jsresp, window
+
+    def __request_and_process(self, jsresp, url, apiuser, apipwd, limit, offset):
+        try:
+            # Basic authentication
+            user = self.__kwargs.get("user", apiuser)
+            pwd = self.__kwargs.get("pwd", apipwd)
+
+            # Return a response, default Get
+            resp = self.__request(url, user, pwd)
+            resp.raise_for_status()
+
+            self._raw_response_data = resp.content
+            jsonresp = json.loads(resp.content)
+            jsresp, window = self.__process_jsonresp(jsonresp, limit, jsresp)
+        except requests.exceptions.HTTPError:
+            try:
+                jsresp = json.loads(resp.content)
+            except ValueError:
+                # json.loads invalid data argument
+                cont = resp.content
+                raise MambuError(
+                    strip_tags(cont.decode())
+                    .strip()
+                    .replace("\n\n", ": ", 1)
+                    .replace("\n", ". ", 1)
+                    .replace("\n", " ")
+                    )
+            except Exception as ex:
+                # any other json error
+                raise MambuError("JSON Error: %s" % repr(ex))
+
+            try:
+                self._is_mambu_error(jsresp)
+            except AttributeError:  # pragma: no cover
+                pass
+        except requests.exceptions.RetryError as rerr:  # pragma: no cover
+            raise MambuCommError(
+                "ERROR I can't communicate with Mambu: {}".format(str(rerr)))
+        except Exception as ex:
+            """unknown exception"""
+            raise ex
+
+        return jsresp, window
+
+    def _is_mambu_error(self, jsresp):
+        if (
+            "returnCode" in jsresp and
+            "returnStatus" in jsresp and
+            jsresp["returnCode"] != 0
+        ):
+            raise MambuError(jsresp["returnStatus"])
+        return False
 
     def connect(self, *args, **kwargs):
         """Connect to Mambu, make the request to the REST API.
@@ -625,11 +718,7 @@ class MambuStruct(object):
                   (https://www.oreilly.com/ideas/5-reasons-you-need-to-learn-to-write-python-decorators
                   # Reusing impossible-to-reuse code)
         """
-        self.__args = deepcopy(args)
-        for k, v in kwargs.items():
-            self.__kwargs[k] = deepcopy(v)
-
-        jsresp = {}
+        self.__copy_args(args, kwargs)
 
         if not self.__urlfunc:
             return
@@ -644,77 +733,19 @@ class MambuStruct(object):
             else:
                 limit = self.__limit
 
-            # Retry mechanism, for awful connections
-            retries = 0
-            while retries < MambuStruct.RETRIES:
-                try:
-                    # Basic authentication
-                    user = self.__kwargs.get("user", apiuser)
-                    pwd = self.__kwargs.get("pwd", apipwd)
-                    url = iri_to_uri(
-                        self.__urlfunc(
-                            str(self.entid),
-                            limit=limit,
-                            offset=offset,
-                            *self.__args,
-                            **self.__kwargs
-                        )
-                    )
-                    self.__url = url
+            url = iri_to_uri(
+                self.__urlfunc(
+                    str(self.entid),
+                    limit=limit,
+                    offset=offset,
+                    *self.__args,
+                    **self.__kwargs
+                )
+            )
+            self.__url = url
 
-                    # Return a response, default Get
-                    resp = self._make_request(url, user, pwd)
-
-                    # Always count a new request when done!
-                    self.rc.add(datetime.now())
-                    try:
-                        self._raw_response_data = resp.content
-                        jsonresp = json.loads(resp.content)
-                        # Returns list: extend list for offset
-                        if type(jsonresp) == list:
-                            try:
-                                jsresp.extend(jsonresp)
-                            except AttributeError:
-                                # First window, forget that jsresp was a dict, turn it in to a list
-                                jsresp = jsonresp
-                            if len(jsonresp) < limit:
-                                window = False
-                        # Returns dict: in theory Mambu REST API doesn't takes limit/offset in to account
-                        else:
-                            jsresp = jsonresp
-                            window = False
-                    except ValueError as ex:
-                        # json.loads invalid data argument
-                        try:
-                            cont = str(resp.content, "utf-8")
-                        except TypeError:
-                            cont = resp.content
-                        if "502" in cont or "503" in cont or "504" in cont:
-                            time.sleep(1)
-                            retries += 1
-                        else:
-                            raise MambuError(
-                                strip_tags(cont)
-                                .strip()
-                                .replace("\n\n", ": ", 1)
-                                .replace("\n", ". ", 1)
-                                .replace("\n", " ")
-                            )
-                    except Exception as ex:
-                        # any other json error
-                        raise MambuError("JSON Error: %s" % repr(ex))
-                    else:
-                        # if we reach here, we're done and safe
-                        break
-                except MambuError as merr:
-                    raise merr
-                except requests.exceptions.RequestException:
-                    retries += 1
-                except Exception as ex:
-                    """unknown exception"""
-                    raise ex
-            else:
-                raise MambuCommError("ERROR I can't communicate with Mambu")
+            jsresp, window = self.__request_and_process(
+                jsresp, url, apiuser, apipwd, limit, offset)
 
             # next window, moving offset...
             offset = offset + limit
@@ -723,16 +754,6 @@ class MambuStruct(object):
                 if self.__limit <= 0:
                     window = False
                     self.__limit = self.__inilimit
-
-        try:
-            if (
-                "returnCode" in jsresp
-                and "returnStatus" in jsresp
-                and jsresp["returnCode"] != 0
-            ):
-                raise MambuError(jsresp["returnStatus"])
-        except AttributeError:
-            pass
 
         if ("documents" not in url) and self.__method not in ["PATCH", "DELETE"]:
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
@@ -745,6 +766,29 @@ class MambuStruct(object):
         self._MambuStruct__method = "GET"
         self._MambuStruct__data = None
         return 1
+
+    def __massage_appropiate_format(self):
+        if self.has_key(self.custom_field_name):
+            self[self.custom_field_name] = [
+                c
+                for c in self[self.custom_field_name]
+                if c["customField"]["state"] != "DEACTIVATED"
+            ]
+            for custom in self[self.custom_field_name]:
+                field_name = custom["customField"]["name"]
+                field_id = custom["customField"]["id"]
+                if custom["customFieldSetGroupIndex"] != -1:
+                    field_name += "_" + str(custom["customFieldSetGroupIndex"])
+                    field_id += "_" + str(custom["customFieldSetGroupIndex"])
+                custom["name"] = field_name
+                custom["id"] = field_id
+                try:
+                    self[field_name] = custom["value"]
+                    self[field_id] = custom["value"]
+                except KeyError:
+                    self[field_name] = custom["linkedEntityKeyValue"]
+                    self[field_id] = custom["linkedEntityKeyValue"]
+                    custom["value"] = custom["linkedEntityKeyValue"]
 
     def _process_fields(self):
         """Default info massage to appropiate format/style.
@@ -774,31 +818,9 @@ class MambuStruct(object):
         classes you should call this method too, or else you lose the
         effect of the tasks done here.
         """
-        def massage_appropiate_format():
-            if self.has_key(self.custom_field_name):
-                self[self.custom_field_name] = [
-                    c
-                    for c in self[self.custom_field_name]
-                    if c["customField"]["state"] != "DEACTIVATED"
-                ]
-                for custom in self[self.custom_field_name]:
-                    field_name = custom["customField"]["name"]
-                    field_id = custom["customField"]["id"]
-                    if custom["customFieldSetGroupIndex"] != -1:
-                        field_name += "_" + str(custom["customFieldSetGroupIndex"])
-                        field_id += "_" + str(custom["customFieldSetGroupIndex"])
-                    custom["name"] = field_name
-                    custom["id"] = field_id
-                    try:
-                        self[field_name] = custom["value"]
-                        self[field_id] = custom["value"]
-                    except KeyError:
-                        self[field_name] = custom["linkedEntityKeyValue"]
-                        self[field_id] = custom["linkedEntityKeyValue"]
-                        custom["value"] = custom["linkedEntityKeyValue"]
         try:
             try:
-                massage_appropiate_format()
+                self.__massage_appropiate_format()
             # in case you don't have any custom_field_name, don't do anything here
             except (AttributeError, TypeError):
                 pass
@@ -881,7 +903,7 @@ class MambuStruct(object):
                 data = l
         except TypeError:
             pass
-        except Exception as ex:
+        except Exception as ex:  # pragma: no cover
             """unknown exception"""
             raise ex
         return self._convert_data_to_pytype(data)
