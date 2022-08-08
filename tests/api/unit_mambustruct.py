@@ -669,8 +669,10 @@ class MambuStructTests(unittest.TestCase):
             "a_custom_field": "def456",
             "a_custom_field_ek": entities.MambuEntityCF("abc123"),
             "a_grouped_custom_field_ek": entities.MambuEntityCF(
-                [{"field": "val"}], "a_grouped_custom_field_ek", "GROUPED"
+                [{"field": "ghi789"}], "a_grouped_custom_field_ek", "GROUPED",
             ),
+            "field_0": entities.MambuEntityCF(
+                "ghi789", "/_a_grouped_custom_field_ek/0/field"),
         }
 
         self.assertEqual(
@@ -686,11 +688,42 @@ class MambuStructTests(unittest.TestCase):
                 ]
             ),
             [
-                mock_import.return_value.MambuUser.get(),
-                mock_import.return_value.MambuGroup.get(),
-                mock_import.return_value.MambuClient.get(),
+                mock_import.return_value.MambuUser.get.return_value,
+                mock_import.return_value.MambuGroup.get.return_value,
+                mock_import.return_value.MambuClient.get.return_value,
             ],
         )
+        self.assertEqual(
+            ms._attrs["field_0"].value,
+            mock_import.return_value.MambuClient.get.return_value)
+        mock_import.return_value.MambuUser.get.assert_called_once_with(
+            "def456", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import.return_value.MambuGroup.get.assert_called_once_with(
+            "abc123", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import.return_value.MambuClient.get.assert_called_once_with(
+            "ghi789", detailsLevel="BASIC", get_entities=False, debug=False)
+
+        # some field from grouped CF, updates also field at index in group
+        mock_import.return_value.MambuClient.get.reset_mock()
+        ms = mambustruct.MambuStruct(cf_class=entities.MambuEntityCF)
+        ms._entities = []
+        ms._attrs = {
+            "a_grouped_custom_field_ek": entities.MambuEntityCF(
+                [{"field": "ghi789"}], "a_grouped_custom_field_ek", "GROUPED",
+            ),
+            "field_0": entities.MambuEntityCF(
+                "ghi789", "/_a_grouped_custom_field_ek/0/field"),
+        }
+        self.assertEqual(
+            ms._assignEntObjs(
+                entities=[("field_0", "mambuclient.MambuClient", "field_0")]),
+            [mock_import.return_value.MambuClient.get.return_value]
+        )
+        self.assertEqual(
+            ms._attrs["a_grouped_custom_field_ek"].value[0]["field"],
+            mock_import.return_value.MambuClient.get.return_value)
+        mock_import.return_value.MambuClient.get.assert_called_once_with(
+            "ghi789", detailsLevel="BASIC", get_entities=False, debug=False)
 
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._assignEntObjs")
     def test_getEntities(self, mock_assign):

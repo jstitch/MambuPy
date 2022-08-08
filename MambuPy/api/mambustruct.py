@@ -650,11 +650,16 @@ class MambuStruct(MambuMapObj):
             entity = self._attrs[new_property]
             if entity.__class__.__name__ == self._cf_class.__name__:
                 self._attrs[new_property].value = ent_item
+                try:
+                    proprty, index, key = entity.path[2:].split("/")
+                    getattr(self, proprty)[int(index)][key] = ent_item
+                except ValueError:
+                    pass
         except KeyError:
             try:
                 proprty, index, key = encodedKey.split("/")
-                index = int(index)
-                getattr(self, proprty)[index][key] = ent_item
+                getattr(self, proprty)[int(index)][key] = ent_item
+                setattr(self, key + "_" + index, ent_item)
             except ValueError:
                 self[new_property] = ent_item
 
@@ -694,8 +699,7 @@ class MambuStruct(MambuMapObj):
             except AttributeError:
                 try:
                     proprty, index, key = encodedKey.split("/")
-                    index = int(index)
-                    enc_key = getattr(self, proprty)[index][key]
+                    enc_key = getattr(self, proprty)[int(index)][key]
                 except ValueError:
                     continue
 
