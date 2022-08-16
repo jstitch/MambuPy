@@ -54,6 +54,7 @@ tests=("unit_mambuconfig.py" \
            "api/unit_mambubranch.py" \
            "api/unit_mambucentre.py" \
            "api/unit_mambuuser.py" \
+           "api/unit_mamburole.py" \
            "api/unit_mambuproduct.py" \
            "api/unit_mambutask.py" \
            "api/unit_mambutransaction.py" \
