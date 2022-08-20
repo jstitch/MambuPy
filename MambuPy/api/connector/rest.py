@@ -31,13 +31,17 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
     """A connector for Mambu REST API"""
 
     _RETRIES = 5
-    _tenant = apiurl
-    _headers = {
-        "Accept": "application/vnd.mambu.v2+json",
-        "Authorization": "Basic {}".format(
-            base64.b64encode(bytes("{}:{}".format(apiuser, apipwd), "utf-8")).decode()
-        ),
-    }
+    _tenant = ""
+    _headers = {}
+
+    def __init__(self, user=apiuser, pwd=apipwd, url=apiurl):
+        self._headers = {
+            "Accept": "application/vnd.mambu.v2+json",
+            "Authorization": "Basic {}".format(
+                base64.b64encode(bytes("{}:{}".format(user, pwd), "utf-8")).decode()
+            ),
+        }
+        self._tenant = url
 
     def __request_headers(self, method, content_type):
         headers = copy.copy(self._headers)

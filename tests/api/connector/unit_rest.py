@@ -14,8 +14,13 @@ from MambuPy.mambuutil import (MambuCommError, MambuError,
 
 
 def app_json_headers():
-    headers = copy.copy(rest.MambuConnectorREST._headers)
+    headers = copy.copy(rest.MambuConnectorREST()._headers)
     headers["Content-Type"] = "application/json"
+    return headers
+
+
+def app_default_headers():
+    headers = copy.copy(rest.MambuConnectorREST()._headers)
     return headers
 
 
@@ -39,7 +44,7 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         self.assertEqual(resp, b"Execute order 66")
 
@@ -66,7 +71,7 @@ class MambuConnectorREST(unittest.TestCase):
     def test_mambu___request_content_type(self, mock_requests):
         mock_requests.Session().request().status_code = 200
 
-        headers = copy.deepcopy(rest.MambuConnectorREST._headers)
+        headers = app_default_headers()
         headers["Content-Type"] = "application/light-saber"
         mock_requests.Session().request().content = b"""Execute order 66"""
 
@@ -208,7 +213,7 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 1000, "offset": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         self.assertEqual(mock_requests.Session().request.call_count, 1)
         self.assertEqual(resp, b'[{"hello":"world"},{"goodbye":"world"}]')
@@ -220,7 +225,7 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 1, "offset": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
 
         mcrest.__list_request(
@@ -230,7 +235,7 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 1, "offset": 1},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
 
         mcrest.__list_request("GET", "someURL", data={"some": "data"})
@@ -239,7 +244,7 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 1000, "offset": 0},
             data='{"some": "data"}',
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
 
     @mock.patch("MambuPy.api.connector.rest.requests")
@@ -281,21 +286,21 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 4, "offset": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         mock_requests.Session().request.assert_any_call(
             "GET",
             "someURL",
             params={"limit": 4, "offset": 4},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         mock_requests.Session().request.assert_any_call(
             "GET",
             "someURL",
             params={"limit": 4, "offset": 8},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         self.assertEqual(mock_requests.Session().request.call_count, 3)
         self.assertEqual(resp, response_content)
@@ -341,21 +346,21 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 3, "offset": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         mock_requests.Session().request.assert_any_call(
             "GET",
             "someURL",
             params={"limit": 3, "offset": 3},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         mock_requests.Session().request.assert_any_call(
             "GET",
             "someURL",
             params={"limit": 3, "offset": 6},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         self.assertEqual(mock_requests.Session().request.call_count, 3)
         self.assertEqual(resp, response_content)
@@ -392,14 +397,14 @@ class MambuConnectorREST(unittest.TestCase):
             "someURL",
             params={"limit": 3, "offset": 0},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         mock_requests.Session().request.assert_any_call(
             "GET",
             "someURL",
             params={"limit": 2, "offset": 3},
             data=None,
-            headers=rest.MambuConnectorREST._headers,
+            headers=app_default_headers(),
         )
         self.assertEqual(mock_requests.Session().request.call_count, 2)
         self.assertEqual(resp, response_content)

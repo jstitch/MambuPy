@@ -209,6 +209,9 @@ class MambuConnectorWriterREST(unittest.TestCase):
         mock_requests.Session().request().status_code = 200
 
         mcrest = rest.MambuConnectorREST()
+        mcrest._headers.update(
+            {"Content-Type": "application/json",
+             "Idempotency-Key": "r2d2-n-c3pO-BB8"})
 
         for owner_type in [
                 "CLIENT",
