@@ -139,7 +139,7 @@ class MambuStruct(MambuStruct1):
 
     def __setattr__(self, name, value):
         if name not in [
-                "_class", "_entid", "attrs",
+                "_class", "_entid", "attrs", "_attrs",
                 "__args", "__kwargs",
                 "_MambuStruct__args", "_MambuStruct__kwargs",
                 "wrapped1", "wrapped2",
@@ -148,6 +148,7 @@ class MambuStruct(MambuStruct1):
                 "mambuclientclass", "mambugroupclass",
                 "mamburepaymentclass",
                 "mamburepaymentsclass", "mambutransactionclass",
+                "mambuloanclass",
                 "fullDetails", "detailsLevel"]:
             try:
                 self.wrapped2.__setattr__(name, value)
@@ -203,6 +204,7 @@ class MambuStruct(MambuStruct1):
     def init(self, attrs={}, *args, **kwargs):
         super().init(attrs, *args, **kwargs)
         self._attrs = self.attrs
+        self.wrapped2._attrs = self.attrs
 
     def connect(self, *args, **kwargs):
         self.__args = deepcopy(args)
