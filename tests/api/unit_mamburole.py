@@ -28,6 +28,13 @@ class MambuRole(unittest.TestCase):
             [],
         )
 
+    def test___repr__(self):
+        mr = mamburole.MambuRole(**{"name": "MY ROLE"})
+        self.assertEqual(repr(mr), "MambuRole - name: MY ROLE")
+
+        mr = mamburole.MambuRole(**{"id": "123456789"})
+        self.assertEqual(repr(mr), "MambuRole - id: 123456789")
+
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"

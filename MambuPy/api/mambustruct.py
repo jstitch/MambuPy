@@ -623,6 +623,37 @@ class MambuStruct(MambuMapObj):
                 debug=debug)
         return ent_kids
 
+    def __get_enc_key(self, proprty):
+        """Gets a property from the obj, supposedly holding an encodedKey to
+        return.
+
+        Args:
+          proprty (str): a property to get, supposedly an encodedKey.
+
+        Returns:
+          encodedKey (str) or None
+        """
+        try:
+            enc_key = getattr(self, proprty)
+            if (
+                    not isinstance(enc_key, str) and
+                    not isinstance(enc_key, list)
+            ):
+                try:
+                    enc_key = enc_key["encodedKey"]
+                except KeyError:
+                    enc_key = enc_key["id"]
+        except AttributeError:
+            try:
+                prop, index, key = proprty.split("/")
+                enc_key = getattr(self, prop)[int(index)][key]
+            except ValueError:
+                return None
+        except KeyError:
+            return None
+
+        return enc_key
+
     def __instance_entity_obj(self, encoded_key, ent_mod, ent_class, **kwargs):
         """Instantiates a single MambuPy object calling its get method.
         If the object doesn't supports detailsLevel (MambuProduct),
@@ -645,7 +676,16 @@ class MambuStruct(MambuMapObj):
         except AttributeError:
             return
 
-    def __assign_new_property(self, new_property, ent_item, encodedKey):
+    def __assign_new_property(self, new_property, ent_item, default_prop_path):
+        """Assigns the value ent_item to a new property in the obj.
+
+        Args:
+          new_property (str): a new property to be assigned in  the obj.
+          ent_item (obj): the value to assign
+          default_prop_path (str): a / divided string with the path of the
+                                   property, in case that new_property doesn't
+                                   exists originally in the obj
+        """
         try:
             entity = self._attrs[new_property]
             if entity.__class__.__name__ == self._cf_class.__name__:
@@ -655,9 +695,11 @@ class MambuStruct(MambuMapObj):
                     getattr(self, proprty)[int(index)][key] = ent_item
                 except ValueError:
                     pass
+            self["_" + new_property] = entity
+            self[new_property] = ent_item
         except KeyError:
             try:
-                proprty, index, key = encodedKey.split("/")
+                proprty, index, key = default_prop_path.split("/")
                 getattr(self, proprty)[int(index)][key] = ent_item
                 setattr(self, key + "_" + index, ent_item)
             except ValueError:
@@ -694,14 +736,9 @@ class MambuStruct(MambuMapObj):
             ent_class = ent_path.split(".")[-1]
             ent_mod = import_module("." + ent_module, "mambupy.api")
 
-            try:
-                enc_key = getattr(self, encodedKey)
-            except AttributeError:
-                try:
-                    proprty, index, key = encodedKey.split("/")
-                    enc_key = getattr(self, proprty)[int(index)][key]
-                except ValueError:
-                    continue
+            enc_key = self.__get_enc_key(encodedKey)
+            if not enc_key:
+                continue
 
             if isinstance(enc_key, list):
                 ent_item = []

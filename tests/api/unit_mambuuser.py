@@ -1,3 +1,4 @@
+import inspect
 import os
 import sys
 import unittest
@@ -34,10 +35,43 @@ class MambuUser(unittest.TestCase):
             [],
         )
         self.assertEqual(mu._ownerType, "USER")
-        self.assertEqual(mu._vos, [("role", "MambuUserRole")])
         self.assertEqual(
             mu._entities,
-            [("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch")])
+            [("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+             ("role", "mamburole.MambuRole", "role")])
+
+    def test___repr__(self):
+        mu = mambuuser.MambuUser(**{"username": "charlie.brown"})
+        self.assertEqual(repr(mu), "MambuUser - username: charlie.brown")
+
+        mu = mambuuser.MambuUser(**{"id": "123456789"})
+        self.assertEqual(repr(mu), "MambuUser - id: 123456789")
+
+    @mock.patch("MambuPy.api.mambuuser.MambuUser.getEntities")
+    def test___getattribute__(self, mock_getEntities):
+        mu = mambuuser.MambuUser(
+            **{"role": {"encodedKey": "0123456789abcdef"}})
+
+        self.assertEqual(inspect.isfunction(mu.get_role), True)
+        self.assertEqual(
+            inspect.getsource(mu.get_role).strip(),
+            """return lambda **kwargs: self.getEntities(
+                entities=["role"],
+                **kwargs)[0]""")
+        mu.get_role()
+        mock_getEntities.assert_called_with(entities=["role"])
+
+    def test__updateVOs(self):
+        mu = mambuuser.MambuUser(
+            **{"role": {
+                "encodedKey": "0123456789abcdef",
+                "id": "123456",
+                "name": "MY ROLE"}})
+
+        mu._updateVOs()
+        self.assertEqual(
+            mu.role,
+            {"encodedKey": "0123456789abcdef", "id": "123456"})
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

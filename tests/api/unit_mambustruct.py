@@ -569,35 +569,54 @@ class MambuStructTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.import_module")
     def test__assignEntObjs(self, mock_import):
         mock_import.return_value.MambuEntity.get.side_effect = [
-            "Treebeard", "Quickbeam", "Beechbone"]
+            "Treebeard", "Quickbeam", "Beechbone", "Old Man Willow", "Grey Willow"]
 
         ms = mambustruct.MambuStruct()
         ms._entities = [("an_ent_key", "entities.MambuEntity", "an_ent"),
-                        ("a_list_ent_keys", "entities.MambuEntity", "ents")]
+                        ("a_list_ent_keys", "entities.MambuEntity", "ents"),
+                        ("a_dict_ent_key", "entities.MambuEntity", "huorns"),
+                        ("a_dict_ent_key_id", "entities.MambuEntity", "a_huorn"),
+                        ("an_alien_dict_ent", "entities.MambuEntity", "bombadil")]
         ms._attrs = {
             "aField": "abc123",
             "an_ent_key": "abcdef12345",
             "a_list_ent_keys": ["fedcba6789", "02468acebdf"],
+            "a_dict_ent_key": {"encodedKey": "fedcba54321"},
+            "a_dict_ent_key_id": {"id": "12345"},
+            "an_alien_dict_ent": {"something": "in the way"},
         }
 
-        self.assertEqual(ms._assignEntObjs(), ["Treebeard", ["Quickbeam", "Beechbone"]])
-        self.assertEqual(mock_import.call_count, 2)
+        self.assertEqual(
+            ms._assignEntObjs(),
+            ["Treebeard",
+             ["Quickbeam", "Beechbone"],
+             "Old Man Willow",
+             "Grey Willow"])
+        self.assertEqual(mock_import.call_count, 5)
         mock_import.assert_any_call(".entities", "mambupy.api")
-        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 3)
+        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 5)
         mock_import().MambuEntity.get.assert_any_call(
             "abcdef12345", detailsLevel="BASIC", get_entities=False, debug=False)
         mock_import().MambuEntity.get.assert_any_call(
             "fedcba6789", detailsLevel="BASIC", get_entities=False, debug=False)
         mock_import().MambuEntity.get.assert_any_call(
             "02468acebdf", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import().MambuEntity.get.assert_any_call(
+            "fedcba54321", detailsLevel="BASIC", get_entities=False, debug=False)
+        mock_import().MambuEntity.get.assert_any_call(
+            "12345", detailsLevel="BASIC", get_entities=False, debug=False)
         self.assertEqual(ms.an_ent, "Treebeard")
         self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
+        self.assertEqual(ms.huorns, "Old Man Willow")
+        self.assertEqual(ms.a_huorn, "Grey Willow")
 
         # optional arguments
         del ms._attrs["an_ent"]
         del ms._attrs["ents"]
+        del ms._attrs["huorns"]
+        del ms._attrs["a_huorn"]
         mock_import.return_value.MambuEntity.get.side_effect = [
-            "Treebeard", "Quickbeam", "Beechbone"]
+            "Treebeard", "Quickbeam", "Beechbone", "Old Man Willow", "Grey Willow"]
         mock_import.reset_mock()
         ms._assignEntObjs(detailsLevel="FULL", get_entities=True, debug=True)
         mock_import().MambuEntity.get.assert_any_call(
@@ -606,10 +625,16 @@ class MambuStructTests(unittest.TestCase):
             "fedcba6789", detailsLevel="FULL", get_entities=True, debug=True)
         mock_import().MambuEntity.get.assert_any_call(
             "02468acebdf", detailsLevel="FULL", get_entities=True, debug=True)
+        mock_import().MambuEntity.get.assert_any_call(
+            "fedcba54321", detailsLevel="FULL", get_entities=True, debug=True)
+        mock_import().MambuEntity.get.assert_any_call(
+            "12345", detailsLevel="FULL", get_entities=True, debug=True)
 
         # explicit entities list argument
         del ms._attrs["an_ent"]
         del ms._attrs["ents"]
+        del ms._attrs["huorns"]
+        del ms._attrs["a_huorn"]
         mock_import.return_value.MambuEntity.get.side_effect = [
             "Treebeard", "Quickbeam", "Beechbone"]
         mock_import.reset_mock()
@@ -624,7 +649,7 @@ class MambuStructTests(unittest.TestCase):
         del ms._attrs["an_ent"]
         del ms._attrs["ents"]
         mock_import.return_value.MambuEntity.get.side_effect = [
-            "Treebeard", "Quickbeam", "Beechbone"]
+            "Treebeard", "Quickbeam", "Beechbone", "Old Man Willow", "Grey Willow"]
         mock_import.reset_mock()
         ents = ms._assignEntObjs([
             ("an_INVALID_ent_key", "entities.MambuEntity", "an_ent")])
@@ -636,18 +661,26 @@ class MambuStructTests(unittest.TestCase):
         mock_import.return_value.MambuEntity.get.side_effect = [
             TypeError(""), "Treebeard",
             TypeError(""), "Quickbeam",
-            TypeError(""), "Beechbone"]
+            TypeError(""), "Beechbone",
+            TypeError(""), "Old Man Willow",
+            TypeError(""), "Grey Willow"]
         mock_import.reset_mock()
         ents = ms._assignEntObjs()
-        self.assertEqual(ents,  ["Treebeard", ["Quickbeam", "Beechbone"]])
+        self.assertEqual(
+            ents,
+            ["Treebeard", ["Quickbeam", "Beechbone"], "Old Man Willow", "Grey Willow"])
         mock_import.return_value.MambuEntity.get.assert_any_call(
             "abcdef12345", get_entities=False, debug=False)
         mock_import.return_value.MambuEntity.get.assert_any_call(
             "fedcba6789", get_entities=False, debug=False)
         mock_import.return_value.MambuEntity.get.assert_any_call(
             "02468acebdf", get_entities=False, debug=False)
-        self.assertEqual(mock_import.call_count, 2)
-        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 6)
+        mock_import.return_value.MambuEntity.get.assert_any_call(
+            "fedcba54321", get_entities=False, debug=False)
+        mock_import.return_value.MambuEntity.get.assert_any_call(
+            "12345", get_entities=False, debug=False)
+        self.assertEqual(mock_import.call_count, 5)
+        self.assertEqual(mock_import.return_value.MambuEntity.get.call_count, 10)
         self.assertEqual(ms.an_ent, "Treebeard")
         self.assertEqual(ms.ents, ["Quickbeam", "Beechbone"])
 

@@ -36,16 +36,38 @@ class MambuUser(
     _ownerType = "USER"
     """owner type of this entity"""
 
-    _vos = [("role", "MambuUserRole")]
-    """2-tuples of elements and Value Objects"""
-
     _entities = [
-        ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch")]
+        ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+        ("role", "mamburole.MambuRole", "role")]
     """3-tuples of elements and Mambu Entities"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}
+
+    def __repr__(self):
+        """Prints class and name of role"""
+        try:
+            return self.__class__.__name__ + " - username: %s" % self._attrs["username"]
+        except Exception:
+            return super().__repr__()
+
+    def __getattribute__(self, name):
+        """Object-like get attribute for MambuUsers.
+        """
+        if name == "get_role":
+            return lambda **kwargs: self.getEntities(
+                entities=["role"],
+                **kwargs)[0]
+        else:
+            return super().__getattribute__(name)
+
+    def _updateVOs(self):
+        """Updates role, and the loops _vos list to update corresponding data
+        """
+        self._attrs["role"] = {"encodedKey": self.role["encodedKey"],
+                               "id": self.role["id"]}
+        super()._updateVOs()
 
     @classmethod
     def get_all(
