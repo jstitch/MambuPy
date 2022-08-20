@@ -1,6 +1,6 @@
 from mambupy.rest.mambutask import MambuTask as MambuTask1, MambuTasks as MambuTasks1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 task_filters = ["username", "clientId", "groupId", "status"]

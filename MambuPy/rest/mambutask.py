@@ -10,7 +10,8 @@ MambuTask holds a task. Look at MambuTask pydoc for further info.
 Uses mambugeturl.gettasksurl as default urlfunc
 """
 from ..mambugeturl import gettasksurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = gettasksurl
 

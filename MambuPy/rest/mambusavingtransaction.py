@@ -15,11 +15,13 @@ mambugeturl.getsavingstransactionssearchurl as default url for search.
 
 
 from ..mambugeturl import (getsavingstransactionssearchurl,
-                         getsavingstransactionsurl)
-from .mambustruct import MambuStruct, MambuStructIterator
+                           getsavingstransactionsurl)
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc_saving = getsavingstransactionsurl
 mod_urlfunc_search = getsavingstransactionssearchurl
+
 
 # Objeto con una Cuenta desde Mambu
 class MambuSavingTransaction(MambuStruct):

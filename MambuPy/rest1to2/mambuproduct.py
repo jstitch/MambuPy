@@ -1,7 +1,7 @@
 from mambupy.rest.mambuproduct import MambuProduct as MambuProduct1
 from mambupy.rest.mambuproduct import MambuProducts as MambuProducts1
 from mambupy.rest1to2.mambustruct import MambuStruct
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 class MambuProduct(MambuStruct, MambuProduct1):

@@ -15,7 +15,8 @@ Uses mambugeturl.gettransactionssurl as default urlfunc
 
 
 from ..mambugeturl import gettransactionsurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = gettransactionsurl
 

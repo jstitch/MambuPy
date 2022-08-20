@@ -1,6 +1,6 @@
 from mambupy.rest.mambuuser import MambuUser as MambuUser1, MambuUsers as MambuUsers1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 user_filters = ["branchId"]

@@ -14,7 +14,8 @@ Uses mambugeturl.getgroupurl as default urlfunc
 
 
 from ..mambugeturl import getgroupcustominformationurl, getgroupurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 # Other options include getgrouploansurl and getgroupcustominformationurl
 mod_urlfunc = getgroupurl

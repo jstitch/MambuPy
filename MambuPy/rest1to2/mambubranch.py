@@ -1,7 +1,7 @@
 from mambupy.rest.mambubranch import MambuBranch as MambuBranch1
 from mambupy.rest.mambubranch import MambuBranches as MambuBranches1
 from mambupy.rest1to2.mambustruct import MambuStruct
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 class MambuBranch(MambuStruct, MambuBranch1):

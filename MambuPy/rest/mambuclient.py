@@ -17,7 +17,8 @@ from builtins import str as unicode
 
 from ..mambugeturl import getclientcustominformationurl, getclienturl
 from ..mambuutil import strip_consecutive_repeated_char as scrc
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getclienturl
 

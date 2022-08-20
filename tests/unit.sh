@@ -36,6 +36,7 @@ tests=("unit_mambuconfig.py" \
            "unit_mambusavingtransaction.py" \
            "unit_mambusaving.py" \
            "unit_mambusavingfundingrepayment.py" \
+           "unit_mamburestutils.py" \
 
            "api/unit_classes.py" \
            "api/unit_mambustruct.py" \

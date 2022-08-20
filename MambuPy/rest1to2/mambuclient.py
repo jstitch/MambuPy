@@ -1,6 +1,6 @@
 from mambupy.rest.mambuclient import MambuClient as MambuClient1, MambuClients as MambuClients1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 from ..mambuutil import strip_consecutive_repeated_char as scrc
 

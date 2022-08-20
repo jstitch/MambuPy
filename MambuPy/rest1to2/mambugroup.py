@@ -1,6 +1,6 @@
 from mambupy.rest.mambugroup import MambuGroup as MambuGroup1, MambuGroups as MambuGroups1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 group_filters = ["branchId", "centreId", "creditOfficerUsername"]

@@ -15,7 +15,8 @@ Uses mambugeturl.getrepaymentsurl as default urlfunc
 
 
 from ..mambugeturl import getrepaymentsurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getrepaymentsurl
 

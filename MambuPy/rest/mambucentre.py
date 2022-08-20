@@ -14,7 +14,8 @@ Uses mambugeturl.getcentresurl as default urlfunc
 
 
 from ..mambugeturl import getcentresurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getcentresurl
 

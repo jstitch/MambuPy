@@ -14,9 +14,11 @@ Uses mambugeturl.getsavings as default urlfunc.
 
 
 from ..mambugeturl import getsavingssurl
-from .mambustruct import MambuStruct, MambuStructIterator, MambuError
+from .mambustruct import MambuStruct, MambuError
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getsavingssurl
+
 
 # Objeto con una Cuenta desde Mambu
 class MambuSaving(MambuStruct):

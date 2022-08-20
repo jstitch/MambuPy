@@ -18,9 +18,11 @@ Loan ID as the entid argument in the constructor in that case).
 
 from ..mambugeturl import getloanscustominformationurl, getloansurl, getpostdocumentsurl
 from ..mambuutil import MambuError, strip_tags
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getloansurl
+
 
 # Objeto con una Cuenta desde Mambu
 class MambuLoan(MambuStruct):

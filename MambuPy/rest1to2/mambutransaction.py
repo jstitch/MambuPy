@@ -1,7 +1,7 @@
 from mambupy.rest.mambutransaction import MambuTransaction as MambuTransaction1
 from mambupy.rest.mambutransaction import MambuTransactions as MambuTransactions1
 from mambupy.rest1to2.mambustruct import MambuStruct
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 class MambuTransaction(MambuStruct, MambuTransaction1):

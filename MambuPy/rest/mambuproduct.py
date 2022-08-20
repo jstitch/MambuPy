@@ -14,7 +14,8 @@ Uses mambugeturl.getproducturl as default urlfunc
 
 
 from ..mambugeturl import getproductsurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = getproductsurl
 

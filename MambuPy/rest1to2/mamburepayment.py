@@ -2,7 +2,7 @@ from mambupy.api.entities import MambuInstallment
 from mambupy.rest.mamburepayment import MambuRepayment as MambuRepayment1
 from mambupy.rest.mamburepayment import MambuRepayments as MambuRepayments1
 from mambupy.rest1to2.mambustruct import MambuStruct
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 class MambuRepayment(MambuStruct, MambuRepayment1):

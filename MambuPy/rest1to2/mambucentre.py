@@ -1,7 +1,7 @@
 from mambupy.rest.mambucentre import MambuCentre as MambuCentre1
 from mambupy.rest.mambucentre import MambuCentres as MambuCentres1
 from mambupy.rest1to2.mambustruct import MambuStruct, process_filters
-from mambupy.rest.mambustruct import MambuStructIterator
+from mambupy.rest.mamburestutils import MambuStructIterator
 
 
 centre_filters = ["branchId"]

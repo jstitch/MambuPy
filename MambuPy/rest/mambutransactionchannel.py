@@ -14,9 +14,11 @@ Uses mambugeturl.gettransactionchannelsurl as default urlfunc.
 
 
 from ..mambugeturl import gettransactionchannelsurl
-from .mambustruct import MambuStruct, MambuStructIterator
+from .mambustruct import MambuStruct
+from .mamburestutils import MambuStructIterator
 
 mod_urlfunc = gettransactionchannelsurl
+
 
 # Objeto con una Cuenta desde Mambu
 class MambuTransactionChannel(MambuStruct):
