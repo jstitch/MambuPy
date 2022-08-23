@@ -29,7 +29,7 @@ class MambuEntity(MambuStruct):
     _prefix = ""
     """prefix constant for connections to Mambu"""
 
-    _connector = MambuConnectorREST()
+    _connector = None
     """Default connector (REST)"""
 
     _filter_keys = [
@@ -70,6 +70,7 @@ class MambuEntity(MambuStruct):
     @classmethod
     def __build_object(
             cls,
+            connector,
             resp,
             attrs,
             tzattrs,
@@ -81,6 +82,7 @@ class MambuEntity(MambuStruct):
 
         Args:
           cls (obj): the object to build
+          connector(obj): connector object to Mambu
           resp (bytes): the raw json that originates the object
           attrs (dict): the dict with the values to build the object
           tzattrs (dict): the dict with TZ data for datetimes in attrs
@@ -90,6 +92,7 @@ class MambuEntity(MambuStruct):
           debug (bool): print debugging info
         """
         instance = cls.__call__()
+        instance._connector = connector
         instance._resp = resp
         instance._attrs = attrs
         instance._tzattrs = tzattrs
@@ -136,7 +139,7 @@ class MambuEntity(MambuStruct):
         return prefix, get_entities, debug, params
 
     @classmethod
-    def _get_several(cls, get_func, **kwargs):
+    def _get_several(cls, get_func, connector, **kwargs):
         """get several entities.
 
         Using certain mambu connector function and its particular arguments.
@@ -152,6 +155,7 @@ class MambuEntity(MambuStruct):
         Args:
           get_func (function): mambu request function that returns several
                                entities (json [])
+          connector (obj): connector object to Mambu
           kwargs (dict): keyword arguments to pass on to get_func as arguments
 
             - prefix (str): prefix for connections to Mambu
@@ -191,6 +195,7 @@ class MambuEntity(MambuStruct):
         for attr in jsonresp:
             # builds the Entity object
             elem = cls.__build_object(
+                connector=connector,
                 resp=json.dumps(attr).encode(),
                 attrs=attr,
                 tzattrs=copy.deepcopy(attr),
@@ -224,7 +229,8 @@ class MambuEntity(MambuStruct):
           get_entities (bool): should MambuPy automatically instantiate other
                                MambuPy entities found inside the retrieved
                                entity?
-          kwargs (dict): keyword arguments for this method
+          kwargs (dict): keyword arguments for this method.
+                         May include a user, pwd and url to connect to Mambu.
 
             - debug (bool): print debugging info
 
@@ -238,12 +244,14 @@ class MambuEntity(MambuStruct):
         else:
             debug = False
 
-        resp = cls._connector.mambu_get(
+        connector = MambuConnectorREST(**kwargs)
+        resp = connector.mambu_get(
             entid, prefix=cls._prefix, detailsLevel=detailsLevel
         )
 
         # builds the Entity object
         instance = cls.__build_object(
+            connector=connector,
             resp=resp,
             attrs=dict(json.loads(resp.decode())),
             tzattrs=dict(json.loads(resp.decode())),
@@ -311,7 +319,8 @@ class MambuEntity(MambuStruct):
           sortBy (str): ``field1:ASC,field2:DESC``, sorting criteria for
                         results (fields must be one of the _sortBy_fields)
           kwargs (dict): extra parameters that a specific entity may receive in
-                         its get_all method
+                         its get_all method. May include a user, pwd and url to
+                         connect to Mambu.
 
         Returns:
           list of instances of an entity with data from Mambu
@@ -348,7 +357,8 @@ class MambuEntity(MambuStruct):
         if kwargs:
             params.update(kwargs)
 
-        return cls._get_several(cls._connector.mambu_get_all, **params)
+        connector = MambuConnectorREST(**kwargs)
+        return cls._get_several(connector.mambu_get_all, connector, **params)
 
 
 class MambuEntityWritable(MambuStruct, MambuWritable):
@@ -544,7 +554,8 @@ class MambuEntitySearchable(MambuStruct, MambuSearchable):
         if kwargs:
             params.update(kwargs)
 
-        return cls._get_several(cls._connector.mambu_search, **params)
+        connector = MambuConnectorREST(**kwargs)
+        return cls._get_several(connector.mambu_search, connector, **params)
 
 
 class MambuEntityAttachable(MambuStruct, MambuAttachable):

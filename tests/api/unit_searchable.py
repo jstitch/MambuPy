@@ -18,15 +18,19 @@ class MambuSearchableEntityTests(unittest.TestCase):
 
         self.child_class_searchable = child_class_searchable
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_search(self, mock_connector):
-        mock_connector.mambu_search.return_value = b"""[
+    # @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
+    def test_search(self, mock_connector_rest):
+        mock_connector_rest.return_value.mambu_search.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
         {"encodedKey":"def456","id":"67890"}
         ]"""
 
-        ms = self.child_class_searchable.search()
+        ms = self.child_class_searchable.search(
+            user="myuser", pwd="mypwd", url="myurl")
 
+        mock_connector_rest.assert_called_with(
+            user="myuser", pwd="mypwd", url="myurl")
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class_searchable")
         self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
@@ -36,7 +40,7 @@ class MambuSearchableEntityTests(unittest.TestCase):
         ms = self.child_class_searchable.search(
             filterCriteria={"one": "two"}, otherParam="random")
 
-        mock_connector.mambu_search.assert_called_with(
+        mock_connector_rest.return_value.mambu_search.assert_called_with(
             "",
             filterCriteria={"one": "two"},
             sortingCriteria=None,

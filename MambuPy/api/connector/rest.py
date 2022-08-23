@@ -34,7 +34,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
     _tenant = ""
     _headers = {}
 
-    def __init__(self, user=apiuser, pwd=apipwd, url=apiurl):
+    def __init__(self, user=apiuser, pwd=apipwd, url=apiurl, **kwargs):
         self._headers = {
             "Accept": "application/vnd.mambu.v2+json",
             "Authorization": "Basic {}".format(

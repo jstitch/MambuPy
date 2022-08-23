@@ -13,7 +13,7 @@ from MambuPy.mambuutil import (MambuError, MambuPyError)
 class MambuConnectorTests(unittest.TestCase):
     def test_has_mambuconnector(self):
         ms = entities.MambuEntity()
-        self.assertEqual(ms._connector.__class__.__name__, "MambuConnectorREST")
+        self.assertEqual(ms._connector, None)
 
 
 class MambuEntityTests(unittest.TestCase):
@@ -49,6 +49,7 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(me._extract_field_path("myAttrs"), "/myAttrs")
 
     @mock.patch("MambuPy.api.entities.print")
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
@@ -57,6 +58,7 @@ class MambuEntityTests(unittest.TestCase):
         mock_extractVOs,
         mock_extractCustomFields,
         mock_convertDict2Attrs,
+        mock_connector_rest,
         mock_print
     ):
         mock_func = mock.Mock()
@@ -68,7 +70,8 @@ class MambuEntityTests(unittest.TestCase):
         {"encodedKey":"jkl012","id":"09876"}
         ]"""
 
-        ms = self.child_class._get_several(mock_func)
+        ms = self.child_class._get_several(
+            mock_func, mock_connector_rest.return_value)
 
         self.assertEqual(len(ms), 4)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
@@ -98,6 +101,7 @@ class MambuEntityTests(unittest.TestCase):
 
         elems = self.child_class._get_several(
             mock_func,
+            mock_connector_rest.return_value,
             **{"prefix": "something else",
                "get_entities": True,
                "debug": True})
@@ -115,10 +119,12 @@ class MambuEntityTests(unittest.TestCase):
                 [], "BASIC", True, debug=True)
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 5
-        self.child_class._get_several(mock_func, detailsLevel="FULL")
+        self.child_class._get_several(
+            mock_func, mock_connector_rest.return_value, detailsLevel="FULL")
         mock_func.assert_called_with("un_prefix", detailsLevel="FULL")
 
-        self.child_class._get_several(mock_func, offset=20, limit=2)
+        self.child_class._get_several(
+            mock_func, mock_connector_rest.return_value, offset=20, limit=2)
         mock_func.assert_called_with(
             "un_prefix", offset=20, limit=2, detailsLevel="BASIC"
         )
@@ -132,31 +138,36 @@ class MambuEntityTests(unittest.TestCase):
             b"""[]""",
         ]
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1
-        self.child_class._get_several(mock_func, limit=4)
+        self.child_class._get_several(
+            mock_func, mock_connector_rest.return_value, limit=4)
         self.assertEqual(mock_func.call_count, 1)
         mock_func.assert_called_with("un_prefix", limit=4, detailsLevel="BASIC")
 
         entities.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
 
     @mock.patch("MambuPy.api.entities.print")
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_get(
         self,
-        mock_connector,
         mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs,
+        mock_connector_rest,
         mock_print
     ):
+        mock_connector = mock_connector_rest.return_value
         mock_connector.mambu_get.return_value = b'{"encodedKey":"abc123","id":"12345"}'
 
-        ms = self.child_class.get("12345")
+        ms = self.child_class.get(
+            "12345", user="myuser", pwd="mypwd", url="myurl")
 
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
         self.assertEqual(ms._detailsLevel, "BASIC")
-        mock_connector.mambu_get.assert_called_with(
+        mock_connector_rest.assert_called_with(
+            user="myuser", pwd="mypwd", url="myurl")
+        mock_connector_rest.return_value.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="BASIC"
         )
         mock_convertDict2Attrs.assert_called_once_with()
@@ -168,7 +179,7 @@ class MambuEntityTests(unittest.TestCase):
 
         self.assertEqual(ms.__class__.__name__, "child_class")
         self.assertEqual(ms._attrs, {"encodedKey": "abc123", "id": "12345"})
-        mock_connector.mambu_get.assert_called_with(
+        mock_connector_rest.return_value.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="FULL"
         )
 
@@ -183,42 +194,44 @@ class MambuEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._extractVOs")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
     def test_refresh(
-        self, mock_connector,
+        self, mock_connector_rest,
         mock_extractVOs, mock_extractCustomFields, mock_convertDict2Attrs
     ):
-        mock_connector.mambu_get.return_value = (
+        mock_connector_rest.return_value.mambu_get.return_value = (
             b'{"encodedKey":"abc123","id":"12345","someAttribute":"someValue"}'
         )
         ms = self.child_class.get("12345", detailsLevel="FULL")
         ms.test_prop = "testing"
         ms.someAttribute = "anotherValue"
 
-        mock_connector.reset_mock()
+        mock_connector_rest.return_value.reset_mock()
         ms.refresh()
 
-        mock_connector.mambu_get.assert_called_with(
+        mock_connector_rest.return_value.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="FULL"
         )
         self.assertEqual(ms.test_prop, "testing")
         self.assertEqual(ms.someAttribute, "someValue")
 
-        mock_connector.reset_mock()
+        mock_connector_rest.return_value.reset_mock()
         ms.refresh(detailsLevel="BASIC")
-        mock_connector.mambu_get.assert_called_with(
+        mock_connector_rest.return_value.mambu_get.assert_called_with(
             "12345", prefix="un_prefix", detailsLevel="BASIC"
         )
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_get_all(self, mock_connector):
-        mock_connector.mambu_get_all.return_value = b"""[
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
+    def test_get_all(self, mock_connector_rest):
+        mock_connector_rest.return_value.mambu_get_all.return_value = b"""[
         {"encodedKey":"abc123","id":"12345"},
         {"encodedKey":"def456","id":"67890"}
         ]"""
 
-        ms = self.child_class.get_all()
+        ms = self.child_class.get_all(user="myuser", pwd="mypwd", url="myurl")
 
+        mock_connector_rest.assert_called_with(
+            user="myuser", pwd="mypwd", url="myurl")
         self.assertEqual(len(ms), 2)
         self.assertEqual(ms[0].__class__.__name__, "child_class")
         self.assertEqual(ms[0]._attrs, {"encodedKey": "abc123", "id": "12345"})
@@ -259,11 +272,13 @@ class MambuEntityTests(unittest.TestCase):
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             self.child_class.get_all(sortBy="field:ASC")
 
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
-    def test_get_all_kwargs(self, mock_get_several):
+    def test_get_all_kwargs(self, mock_get_several, mock_connector_rest):
         self.child_class.get_all(**{"hello": "world"})
         mock_get_several.assert_any_call(
-            self.child_class._connector.mambu_get_all,
+            mock_connector_rest.return_value.mambu_get_all,
+            mock_connector_rest.return_value,
             filters=None,
             offset=None, limit=None,
             paginationDetails="OFF", detailsLevel="BASIC",

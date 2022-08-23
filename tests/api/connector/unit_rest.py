@@ -1,3 +1,4 @@
+import base64
 import copy
 import os
 import sys
@@ -31,6 +32,27 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mcrest._tenant, apiurl)
         self.assertEqual(mcrest._headers["Accept"], "application/vnd.mambu.v2+json")
         self.assertEqual(mcrest._headers["Authorization"][:6], "Basic ")
+
+    @mock.patch("MambuPy.mambuutil")
+    def test___init__(self, mock_mambuutil):
+        basic_auth = base64.b64encode(
+            bytes("{}:{}".format(rest.apiuser, rest.apipwd), "utf-8")).decode()
+        mcrest = rest.MambuConnectorREST()
+        self.assertEqual(
+            mcrest._headers,
+            {'Accept': 'application/vnd.mambu.v2+json',
+             'Authorization': 'Basic {}'.format(basic_auth)})
+        self.assertEqual(mcrest._tenant, rest.apiurl)
+
+        basic_auth = base64.b64encode(
+            bytes("{}:{}".format("my_user", "my_pwd"), "utf-8")).decode()
+        mcrest = rest.MambuConnectorREST(
+            user="my_user", pwd="my_pwd", url="my_url")
+        self.assertEqual(
+            mcrest._headers,
+            {'Accept': 'application/vnd.mambu.v2+json',
+             'Authorization': 'Basic {}'.format(basic_auth)})
+        self.assertEqual(mcrest._tenant, "my_url")
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu___request_GET(self, mock_requests):
