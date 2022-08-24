@@ -173,3 +173,8 @@ Release Notes
   - Commentable interface bugfix: new comments go to the beginning.
 * v2.0.0b9
   - Commentable bugfix: some entities weren't inheriting from the right place.
+* v2.0.0b10
+  - CustomFields getEntities support
+  - Linked type CustomFields getEntities instantiates MambuEntity
+  - MambuRole entity
+  - REST connector user credentials to mambu, besides default, supported
