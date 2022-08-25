@@ -9,7 +9,6 @@ Objects using `Mambu REST API <https://api.mambu.com/?python>`_
     MambuPy.api.entities
     MambuPy.api.interfaces
     MambuPy.api.vos
-    MambuPy.api.mambuconnector
     MambuPy.api.mambustruct
     MambuPy.api.mambuloan
     MambuPy.api.mambugroup

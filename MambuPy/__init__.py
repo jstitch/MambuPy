@@ -8,6 +8,7 @@
     MambuPy.rest
     MambuPy.orm
     MambuPy.api
+    MambuPy.api.connector
     MambuPy.rest1to2
 
 

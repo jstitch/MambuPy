@@ -121,6 +121,7 @@ Table of Contents
    :maxdepth: 3
 
    mambu_rest
+   mambu_rest_v2
    mambu_orm
    mambupy
    CHANGELOG

@@ -46,6 +46,7 @@ dictionaries, lists, and of course plain data)
 
 .. image:: /_static/mambupyv1_single_and_iterable_entities.png
 
+.. _mambu_rest_single_entities:
 Single entities from Mambu
 ++++++++++++++++++++++++++
 
