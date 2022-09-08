@@ -427,7 +427,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             return (operation, path)
         try:
             val = attrs[field]["value"]
-        except TypeError:
+        except (TypeError, KeyError):
             val = attrs[field]
         return (operation, path, val)
 

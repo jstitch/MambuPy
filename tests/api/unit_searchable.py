@@ -26,6 +26,10 @@ class MambuSearchableEntityTests(unittest.TestCase):
         {"encodedKey":"def456","id":"67890"}
         ]"""
 
+        ms = self.child_class_searchable.search()
+        mock_connector_rest.assert_called_with()
+        self.assertEqual(len(ms), 2)
+
         ms = self.child_class_searchable.search(
             user="myuser", pwd="mypwd", url="myurl")
 

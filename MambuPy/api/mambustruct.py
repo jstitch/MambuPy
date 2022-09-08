@@ -64,9 +64,9 @@ class MambuStruct(MambuMapObj):
     """List of Entities in the struct's _attrs.
 
     Each element must be a 3-tuple:
-        ("name_of_key_in_attrs",
-         "module.class to instantiate",
-         "name_of_obj_in_attrs")
+        ("name_of_key_in_attrs", # element in attrs to obtain the key
+         "module.class to instantiate", # class to instantiate for the given key
+         "name_of_obj_in_attrs") # where in attrs to update with instantiated obj
     """
 
     def __getattribute_for_one_cf(self, ent, value, mcf):
@@ -419,7 +419,11 @@ class MambuStruct(MambuMapObj):
         deletes the property at root"""
         cfs = []
         # updates customfieldsets
-        for attr, val in [atr for atr in self._attrs.items() if atr[0][0] == "_"]:
+        for attr, val in [
+                atr for atr in self._attrs.items()
+                if atr[0][0] == "_" and
+                atr[0][1:] not in
+                [ent_config[2] for ent_config in self._entities]]:
             if isinstance(val, dict):
                 self.__update_customfields_from_dict(val, attr, cfs)
             elif isinstance(val, list):
