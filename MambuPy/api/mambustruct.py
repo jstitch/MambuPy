@@ -304,6 +304,7 @@ class MambuStruct(MambuMapObj):
         """
         # Base case!
         if isinstance(data, MambuMapObj):
+            data._serializeFields()
             return data
         try:
             it = iter(data)
@@ -439,7 +440,7 @@ class MambuStruct(MambuMapObj):
             del self._attrs[field]
 
     def __extract_vos_from_list(
-            self, vo_data, vos_module, voclass,
+            self, vo_data, vos_module, voclass, elem,
             get_entities=False, debug=False):
         """Extracts the VOs from a list.
 
@@ -450,6 +451,7 @@ class MambuStruct(MambuMapObj):
           vo_data (list): list of VOs to extract
           vos_module (module): VOs module from MambuPy
           voclass (class): class of the VOs to instantiate
+          elem (obj): elem at attrs where the list comes from
           get_entities (bool): should MambuPy automatically instantiate other
                                MambuPy entities found inside the Value Objects?
           debug (bool): print debugging info
@@ -461,11 +463,12 @@ class MambuStruct(MambuMapObj):
         """
         vo_obj = []
         already = False
-        for item in vo_data:
+        for ind, item in enumerate(vo_data):
             if isinstance(item, getattr(vos_module, voclass)):
                 already = True
                 continue
             vo_item = getattr(vos_module, voclass)(**item)
+            vo_item._tzattrs = self._tzattrs[elem][ind]
             vo_item._extractVOs()
             if get_entities:
                 vo_item._assignEntObjs(
@@ -500,13 +503,14 @@ class MambuStruct(MambuMapObj):
 
             if isinstance(vo_data, list):
                 vo_obj, already = self.__extract_vos_from_list(
-                    vo_data, vos_module, voclass, get_entities, debug)
+                    vo_data, vos_module, voclass, elem, get_entities, debug)
                 if already:
                     continue
             elif isinstance(vo_data, getattr(vos_module, voclass)):
                 continue
             else:
                 vo_obj = getattr(vos_module, voclass)(**vo_data)
+                vo_obj._tzattrs = self._tzattrs[elem]
                 vo_obj._extractVOs()
                 if get_entities:
                     vo_obj._assignEntObjs(

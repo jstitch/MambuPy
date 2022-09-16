@@ -482,6 +482,9 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct()
         ms._vos = [("a_vo", "MambuValueObject"),
                    ("a_list_vo", "MambuValueObject")]
+        ms._tzattrs = {"a_vo": {"hello": "world"},
+                       "a_list_vo": [{"tzAProp1": "tzAVal1"},
+                                     {"tzAProp2": "tzAVal2"}]}
         ms._attrs = {
             "aField": "abc123",
             "a_vo": {"aProp": "aVal"},
@@ -491,8 +494,11 @@ class MambuStructTests(unittest.TestCase):
         ms._extractVOs()
 
         self.assertEqual(ms.a_vo.__class__.__name__, "MambuValueObject")
+        self.assertEqual(ms.a_vo._tzattrs, {"hello": "world"})
         for ind, elem in enumerate(ms.a_list_vo):
             self.assertEqual(elem.__class__.__name__, "MambuValueObject")
+        self.assertEqual(ms.a_list_vo[0]._tzattrs, {"tzAProp1": "tzAVal1"})
+        self.assertEqual(ms.a_list_vo[1]._tzattrs, {"tzAProp2": "tzAVal2"})
 
         # idempotency
         ms._extractVOs()
@@ -517,6 +523,7 @@ class MambuStructTests(unittest.TestCase):
         ms = mambustruct.MambuStruct()
         ms._vos = [("a_vo", "MambuValueObject"),
                    ("a_list_vo", "MambuValueObject")]
+        ms._tzattrs = {"a_vo": {}, "a_list_vo": [{}, {}]}
         ms._attrs = {
             "aField": "abc123",
             "a_vo": {"aProp": "aVal"},

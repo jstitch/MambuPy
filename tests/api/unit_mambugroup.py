@@ -67,6 +67,10 @@ class MambuGroup(unittest.TestCase):
 class MambuGroupMember(unittest.TestCase):
     def test__extractVOs(self):
         mg = mambugroup.MambuGroup()
+        mg._tzattrs = {
+            "groupMembers": [
+                {"clientKey": "", "roles": []},
+                {"clientKey": "", "roles": [{}]}]}
         mg._attrs = {
             "groupMembers": [
                 {"clientKey": "abc123", "roles": []},
