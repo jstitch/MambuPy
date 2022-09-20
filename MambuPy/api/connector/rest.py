@@ -676,3 +676,29 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         url = "https://{}/api/comments".format(self._tenant)
 
         return self.__request("POST", url, data=data)
+
+    def mambu_make_disbursement(
+            self,
+            loan_id, notes, firstRepaymentDate, valueDate,
+            allowed_fields, **kwargs):
+        """Make a disbursement transacton on a loan account.
+
+        Args:
+          loan_id (str): loan account id  to disburse
+          firstRepaymentDate (str): first repayment date in ISO format
+          notes (str): notes for the disbursement transaction
+          valueDate (str): entrydate for disbursement transaction in ISO format
+          allowed_fields (list): extra fields allowed for the transaction
+          kwargs (dict): key-values of extra fields for the transaction
+        """
+        data = {"firstRepaymentDate": firstRepaymentDate,
+                "notes": notes,
+                "valueDate": valueDate}
+        for k, v in kwargs.items():
+            if k in allowed_fields:
+                data[k] = v
+
+        url = "https://{}/api/loans/{}/disbursement-transactions".format(
+            self._tenant, loan_id)
+
+        return self.__request("POST", url, data=data)

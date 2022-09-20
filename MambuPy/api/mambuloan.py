@@ -14,6 +14,7 @@ from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityCommentable,
                        MambuEntityOwnable,
                        MambuInstallment)
+from MambuPy.api.vos import MambuDisbursementLoanTransactionInput
 from MambuPy.mambuutil import MambuPyError
 
 
@@ -96,7 +97,7 @@ class MambuLoan(
             self.schedule.append(installment_entity)
 
     def set_state(self, action, notes):
-        """Change status of mambu loan
+        """Request to change status of a MambuLoan
 
         Args:
             action (str): specify the action state
@@ -117,3 +118,48 @@ class MambuLoan(
                     action, self._accepted_actions
                 )
             )
+
+    def approve(self, notes):
+        """Request to approve a loan account.
+
+        Args:
+          notes (str): notes to attach to the approval operation.
+        """
+        self.set_state("APPROVE", notes)
+
+    def disburse(
+            self,
+            notes,
+            firstRepaymentDate=None, disbursementDate=None,
+            **kwargs
+    ):
+        """Request to disburse a loan account.
+
+        Args:
+          notes (str): notes to attach to the disbursement transaction.
+          firstRepaymentDate (:py:obj:`datetime`): first repayment date for the
+                             loan account. If None, value is fetched from
+                             disbursement details.
+          disbursementDate (:py:obj:`datetime`): disbursement date for the loan
+                           account. If None, value is fetched from disbursement
+                           details, expected disbursement date
+          kwargs (dict): allowed extra params for the disbursement transaction
+                 request. :py:obj:`MambuPy.api.vos.MambuDisbursementLoanTransactionInput._schema_fields`
+                 has the allowed fields permitted for this operation
+        """
+        self._serializeFields()
+
+        if firstRepaymentDate:
+            firstRepaymentDate = firstRepaymentDate.isoformat()
+        else:
+            firstRepaymentDate = self.disbursementDetails.firstRepaymentDate
+        if disbursementDate:
+            disbursementDate = disbursementDate.isoformat()
+        else:
+            disbursementDate = self.disbursementDetails.expectedDisbursementDate
+
+        self.disbursement_tr_resp = self._connector.mambu_make_disbursement(
+            self.id, notes, firstRepaymentDate, disbursementDate,
+            MambuDisbursementLoanTransactionInput._schema_fields, **kwargs)
+
+        self.refresh()

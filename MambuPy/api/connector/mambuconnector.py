@@ -216,3 +216,20 @@ class MambuConnectorWriter(ABC):
           text (str): the text of the comment
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def mambu_make_disbursement(
+            self,
+            loan_id, firstRepaymentDate, notes, valueDate,
+            allowed_fields, **kwargs):
+        """Make a disbursement transacton on a loan account.
+
+        Args:
+          loan_id (str): loan account id  to disburse
+          firstRepaymentDate (str): first repayment date in ISO format
+          notes (str): notes for the disbursement transaction
+          valueDate (str): entry date for the disbursement transaction
+          allowed_fields (list): extra fields allowed for the transaction
+          kwargs (dict): key-values of extra fields for the transaction
+        """
+        raise NotImplementedError

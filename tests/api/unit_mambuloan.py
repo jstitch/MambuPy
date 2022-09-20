@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 import unittest
@@ -8,6 +9,10 @@ sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.api import entities
 from MambuPy.api import mambuloan
+from MambuPy.api.vos import (
+    MambuDisbursementDetails,
+    MambuDisbursementLoanTransactionInput,
+)
 from MambuPy.mambuutil import MambuPyError
 
 
@@ -146,6 +151,75 @@ class MambuLoan(unittest.TestCase):
                 notes="PRUEBA 66"
             )
             mock_connector.mambu_change_state.assert_not_called()
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_approve(self, mock_connector):
+        mock_connector.mambu_change_state.return_value = '{"accountState": "APPROVED"}'
+        ml = mambuloan.MambuLoan(id=1)
+
+        ml.approve(notes="Smells like teen spirit")
+
+        mock_connector.mambu_change_state.assert_called_with(
+            action="APPROVE",
+            entid=1,
+            notes="Smells like teen spirit",
+            prefix="loans"
+        )
+        self.assertEqual(ml.accountState, "APPROVED")
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_disburse_implicit_dates(self, mock_connector):
+        mock_connector.mambu_make_disbursement.return_value = '{"encodedKey": "abc123"}'
+        ml = mambuloan.MambuLoan(id='12345', accountState="APPROVED")
+        ml.refresh = mock.Mock()
+
+        # implicit firstrepaymentdate and valuedate
+        firstRepaymentDate = datetime.datetime.now()
+        valueDate = datetime.datetime.now()
+        ml.disbursementDetails = MambuDisbursementDetails(**{
+            "firstRepaymentDate": firstRepaymentDate,
+            "expectedDisbursementDate": valueDate})
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC-05:00",
+            "expectedDisbursementDate": "UTC-05:00"}
+        ml.disburse(
+            notes="A denial",
+            **{"something": "else"})
+
+        mock_connector.mambu_make_disbursement.assert_called_with(
+            '12345',
+            "A denial",
+            firstRepaymentDate.isoformat() + "-05:00",
+            valueDate.isoformat() + "-05:00",
+            MambuDisbursementLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        ml.refresh.assert_called_once()
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_disburse_explicit_dates(self, mock_connector):
+        mock_connector.mambu_make_disbursement.return_value = '{"encodedKey": "abc123"}'
+        ml = mambuloan.MambuLoan(id='12345', accountState="APPROVED")
+        ml.refresh = mock.Mock()
+
+        # explicit firstrepaymentdate and valuedate
+        firstRepaymentDate = datetime.datetime.now()
+        valueDate = datetime.datetime.now()
+        ml.disburse(
+            notes="A denial",
+            firstRepaymentDate=firstRepaymentDate,
+            disbursementDate=valueDate,
+            **{"something": "else"})
+
+        mock_connector.mambu_make_disbursement.assert_called_with(
+            '12345',
+            "A denial",
+            firstRepaymentDate.isoformat(),
+            valueDate.isoformat(),
+            MambuDisbursementLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        ml.refresh.assert_called_once()
 
 
 if __name__ == "__main__":

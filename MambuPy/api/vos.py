@@ -50,3 +50,18 @@ class MambuGroupMember(MambuValueObject):
 
 class MambuGroupRole(MambuValueObject):
     """Group member role"""
+
+
+class MambuDisbursementLoanTransactionInput(MambuValueObject):
+    """Disbursment Loan Transaction body"""
+    _schema_fields = [
+        "amount",
+        "bookingDate",
+        "externalId",
+        "firstRepaymentDate",
+        "notes",
+        "originalCurrencyCode",
+        "shiftAdjustableInterestPeriods",
+        "valueDate",
+    ]
+    """List of schema fields for a loan disbursement transaction."""

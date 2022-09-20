@@ -127,6 +127,16 @@ class MambuConnectorWriter(unittest.TestCase):
             mambuconnector.MambuConnectorWriter.mambu_comment(
                 None, "", "", "")
 
+    def test_mambu_make_disbursement(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter,
+                    "mambu_make_disbursement"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_make_disbursement(
+                None, "", "", "", "", "")
+
 
 if __name__ == "__main__":
     unittest.main()
