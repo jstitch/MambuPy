@@ -227,7 +227,7 @@ class MambuStruct(MambuMapObj):
         return self.__convert_to_basic_types_base_cases(data)
 
     def _convertDict2Attrs(self, *args, **kwargs):
-        """Each element on the atttrs attribute gest converted to a
+        """Each element on the attrs attribute gets converted to a
         proper python object, depending on type.
 
         Some default constantFields are left as is (strings), because they are
