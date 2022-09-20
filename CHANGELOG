@@ -178,3 +178,8 @@ Release Notes
   - Linked type CustomFields getEntities instantiates MambuEntity
   - MambuRole entity
   - REST connector user credentials to mambu, besides default, supported
+* v2.0.0b11
+  - MambuLoans approval and disbursement methods.
+  - bugfix: tzattrs for VOs
+  - utils directory for scripts using MambuPy for certain use cases
+  - updating CFs' values shouldn't touch entities.
