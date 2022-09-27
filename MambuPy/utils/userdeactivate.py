@@ -80,8 +80,37 @@ def deactivate_user(username):
         return False
 
 
-def main(csv_file, mambu_user=apiuser, mambu_pwd=apipwd, mambu_url=apiurl):
-    """"""
+def main(csv_file):
+    users = []
+    with open(csv_file) as f:
+        reader = csv.reader(f, delimiter=',')
+        for us in reader:
+            users.append(tuple(us))
+
+    usersCanNotDeactivate = []
+    for user in users:
+        if deactivate_user(user):
+            print('{0} usuario desactivado.'.format(user))
+        else:
+            usersCanNotDeactivate.append(user)
+
+    if usersCanNotDeactivate:
+        print('Usuarios que no pudieron ser desactivados.')
+        print(usersCanNotDeactivate)
+
 
 if __name__ == "__main__":
-    """"""
+    argparser = argparse.ArgumentParser(
+        description='Desactiva usuarios de una lista.'
+    )
+    argparser.add_argument(
+        'users_list',
+        help='CSV con los nombres de usuario.'
+        '(col1: username)'
+    )
+
+    args = argparser.parse_args()
+
+    csv_file = args.users_list
+
+    main(csv_file)
