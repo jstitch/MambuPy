@@ -3,27 +3,26 @@
 import argparse
 import csv
 
-from mambupy.mambuconfig import apiuser, apipwd, apiurl
 from mambupy.api import mambuloan
 from mambupy.api import mambuuser
 from mambupy.api import mambugroup
 
 def verify_loans(username):
-    """Verify the loans wallet of given username. 
-    
-    If user does meet the conditions: 
-    User has loans with state equal to 'ACTIVE' or 'ACTIVE_IN_ARREARS' and its 
+    """Verify the loans wallet of given username.
+
+    If user does meet the conditions:
+    User has loans with state equal to 'ACTIVE' or 'ACTIVE_IN_ARREARS' and its
     loans balance are mayor than 0 the method returns False, if not returns True.
 
     Args:
         username (str): the username of the user to deactivate.
-    
+
     Returns:
         (bool): depending on user's loans satisfying or not the given conditions.
     """
-    
+
     loans = mambuloan.MambuLoan().get_all(
-        filters={'creditOfficerUsername':username}, 
+        filters={'creditOfficerUsername':username},
         detailsLevel='FULL')
 
     balanceSum = 0
@@ -32,11 +31,11 @@ def verify_loans(username):
         balanceSum += loan.balances['principalBalance'] \
                     + loan.balances['interestBalance'] \
                     + loan.balances['feesBalance'] \
-                    + loan.balances['penaltyBalance'] 
+                    + loan.balances['penaltyBalance']
         if loan.accountState in ['ACTIVE', 'ACTIVE_IN_ARREARS']:
             accountState = True
-    
-    if balanceSum > 0 and accountState:
+
+    if balanceSum > 0 or accountState:
         return False
     else:
         return True
@@ -45,10 +44,10 @@ def verify_loans(username):
 def deactivate_user(username):
     """Deactivate the given username.
 
-    Calls to verify_loans to check if the user is deactivatable. If it not 
+    Calls to verify_loans to check if the user is deactivatable. If it not
     returns False.
 
-    Unassign user's groups by changing the assignedCentreKey and assignedUserKey 
+    Unassign user's groups by changing the assignedCentreKey and assignedUserKey
     fields to None for each group that user has.
 
     Change userState field value to INACTIVE to deactivate user and returns True.
@@ -62,7 +61,7 @@ def deactivate_user(username):
     if verify_loans(username=username):
 
         groups = mambugroup.MambuGroup().get_all(
-            filters={'creditOfficerUsername':username}, 
+            filters={'creditOfficerUsername':username},
             detailsLevel='FULL')
 
         for group in groups:
@@ -99,7 +98,7 @@ def main(csv_file):
         print(usersCanNotDeactivate)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     argparser = argparse.ArgumentParser(
         description='Desactiva usuarios de una lista.'
     )

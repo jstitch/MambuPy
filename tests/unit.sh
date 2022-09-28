@@ -64,11 +64,13 @@ tests=("unit_mambuconfig.py" \
            "api/connector/unit_rest.py" \
            "api/connector/unit_rest_reader.py" \
            "api/connector/unit_rest_writer.py" \
+           
+           "utils/unit_userdeactivate.py" \
       )
 for test in ${tests[@]}
 do
     test_prefix=`cut -c 1-3 <<< $test`
-    [ $apiv2 != "apiv2" ] && [ $test_prefix == "api" ] && continue
+    [ $apiv2 != "apiv2" ] && [[ $test_prefix =~ ^(api|uti) ]] && continue
     echo $test
     coverage run --append --rcfile=./.coveragerc tests/$test
     out=$?
