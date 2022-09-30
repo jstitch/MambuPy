@@ -6,10 +6,12 @@ import mock
 
 sys.path.insert(0, os.path.abspath("."))
 
-from MambuPy.utils import userdeactivate
 from MambuPy.api import mambuloan
 from MambuPy.api import mambugroup
 from MambuPy.api import mambuuser
+
+from MambuPy.utils import userdeactivate
+
 
 class UserDeactivate(unittest.TestCase):
     @mock.patch('MambuPy.utils.userdeactivate.mambuloan.MambuLoan.get_all')
@@ -29,7 +31,7 @@ class UserDeactivate(unittest.TestCase):
 
         self.assertTrue(userdeactivate.verify_loans('b.miranda'))
         mock_get_all.assert_called_with(
-            filters={'creditOfficerUsername':'b.miranda'},
+            filters={'creditOfficerUsername': 'b.miranda'},
             detailsLevel='FULL'
         )
 
@@ -82,7 +84,7 @@ class UserDeactivate(unittest.TestCase):
 
         self.assertTrue(userdeactivate.deactivate_user('amlo'))
         mock_group_get_all.assert_called_with(
-            filters={'creditOfficerUsername':'amlo'},
+            filters={'creditOfficerUsername': 'amlo'},
             detailsLevel='FULL'
         )
         self.assertEqual(mock_group_patch.call_count, 3)

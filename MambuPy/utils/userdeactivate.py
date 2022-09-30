@@ -1,11 +1,11 @@
-"""Deactivate multiple users in a csv list.
-"""
+"""Deactivate multiple users in a csv list."""
 import argparse
 import csv
 
+from mambupy.api import mambugroup
 from mambupy.api import mambuloan
 from mambupy.api import mambuuser
-from mambupy.api import mambugroup
+
 
 def verify_loans(username):
     """Verify the loans wallet of given username.
@@ -22,16 +22,16 @@ def verify_loans(username):
     """
 
     loans = mambuloan.MambuLoan().get_all(
-        filters={'creditOfficerUsername':username},
+        filters={'creditOfficerUsername': username},
         detailsLevel='FULL')
 
     balanceSum = 0
     accountState = False
     for loan in loans:
         balanceSum += loan.balances['principalBalance'] \
-                    + loan.balances['interestBalance'] \
-                    + loan.balances['feesBalance'] \
-                    + loan.balances['penaltyBalance']
+            + loan.balances['interestBalance'] \
+            + loan.balances['feesBalance'] \
+            + loan.balances['penaltyBalance']
         if loan.accountState in ['ACTIVE', 'ACTIVE_IN_ARREARS']:
             accountState = True
 
@@ -61,7 +61,7 @@ def deactivate_user(username):
     if verify_loans(username=username):
 
         groups = mambugroup.MambuGroup().get_all(
-            filters={'creditOfficerUsername':username},
+            filters={'creditOfficerUsername': username},
             detailsLevel='FULL')
 
         for group in groups:
@@ -89,22 +89,22 @@ def main(csv_file):
     usersCanNotDeactivate = []
     for user in users:
         if deactivate_user(user):
-            print('{0} usuario desactivado.'.format(user))
+            print('{0} user deactivated.'.format(user))
         else:
             usersCanNotDeactivate.append(user)
 
     if usersCanNotDeactivate:
-        print('Usuarios que no pudieron ser desactivados.')
+        print("Users that could not be deactivated:")
         print(usersCanNotDeactivate)
 
 
 if __name__ == "__main__":  # pragma: no cover
     argparser = argparse.ArgumentParser(
-        description='Desactiva usuarios de una lista.'
+        description='Deactivates users from a list.'
     )
     argparser.add_argument(
         'users_list',
-        help='CSV con los nombres de usuario.'
+        help='CSV holding the usernames to deactivate.'
         '(col1: username)'
     )
 
