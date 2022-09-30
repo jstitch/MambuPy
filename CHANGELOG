@@ -183,3 +183,6 @@ Release Notes
   - bugfix: tzattrs for VOs
   - utils directory for scripts using MambuPy for certain use cases
   - updating CFs' values shouldn't touch entities.
+* v2.0.0b12
+  - utils module for utility scripts that user MambuPy
+  - utils deactivate users script
