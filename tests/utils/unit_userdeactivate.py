@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 import unittest
@@ -94,6 +95,30 @@ class UserDeactivate(unittest.TestCase):
 
         mock_verify_loans.return_value = False
         self.assertFalse(userdeactivate.deactivate_user('amlo'))
+
+    @mock.patch('MambuPy.utils.userdeactivate.deactivate_user')
+    def test_main(self, mock_deactivate_user):
+        mock_deactivate_user.return_value = True
+        userNames = [
+            ['j.novoa'],
+            ['b.miranda'],
+            ['amlo']
+        ]
+
+        csv_file = open('test_csv.csv', 'w', newline='')
+        writer = csv.writer(csv_file)
+        writer.writerows(userNames)
+        csv_file.mode = 'r'
+        csv_file.close()
+
+        userdeactivate.main('test_csv.csv')
+        self.assertEqual(mock_deactivate_user.call_count, 3)
+
+        mock_deactivate_user.return_value = False
+        userdeactivate.main('test_csv.csv')
+        self.assertEqual(mock_deactivate_user.call_count, 6)
+
+        os.remove('test_csv.csv')
 
 
 if __name__ == '__main__':
