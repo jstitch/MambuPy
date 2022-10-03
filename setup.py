@@ -45,7 +45,7 @@ packages=[
     "mambupy/rest",
     "mambupy/orm",
     ]
-if int(__version__[0]) > 2:
+if int(__version__[0]) >= 2:
     packages.extend(
         ["MambuPy/api",
          "mambupy/api",
