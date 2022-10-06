@@ -6,6 +6,7 @@
 """
 
 import copy
+import datetime
 import json
 
 from .entities import (MambuEntity, MambuEntityWritable,
@@ -139,10 +140,12 @@ class MambuLoan(
           notes (str): notes to attach to the disbursement transaction.
           firstRepaymentDate (:py:obj:`datetime`): first repayment date for the
                              loan account. If None, value is fetched from
-                             disbursement details.
+                             disbursement details. If naive datetime, use TZ
+                             info from tzattrs
           disbursementDate (:py:obj:`datetime`): disbursement date for the loan
                            account. If None, value is fetched from disbursement
-                           details, expected disbursement date
+                           details, expected disbursement date. If naive
+                           datetime, use TZ info from tzattrs
           kwargs (dict): allowed extra params for the disbursement transaction
                  request. :py:obj:`MambuPy.api.vos.MambuDisbursementLoanTransactionInput._schema_fields`
                  has the allowed fields permitted for this operation
@@ -150,10 +153,25 @@ class MambuLoan(
         self._serializeFields()
 
         if firstRepaymentDate:
+            if not firstRepaymentDate.tzinfo:
+                timezone_firstRepaymentDate = datetime.timezone(
+                    datetime.timedelta(
+                        hours=int(self.disbursementDetails._tzattrs[
+                            "firstRepaymentDate"][-6:-3])))
+                firstRepaymentDate = firstRepaymentDate.astimezone(
+                    timezone_firstRepaymentDate)
             firstRepaymentDate = firstRepaymentDate.isoformat()
         else:
             firstRepaymentDate = self.disbursementDetails.firstRepaymentDate
+
         if disbursementDate:
+            if not disbursementDate.tzinfo:
+                timezone_disbursementDate = datetime.timezone(
+                    datetime.timedelta(
+                        hours=int(self.disbursementDetails._tzattrs[
+                            "expectedDisbursementDate"][-6:-3])))
+                disbursementDate = disbursementDate.astimezone(
+                    timezone_disbursementDate)
             disbursementDate = disbursementDate.isoformat()
         else:
             disbursementDate = self.disbursementDetails.expectedDisbursementDate

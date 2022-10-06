@@ -98,8 +98,9 @@ class UserDeactivate(unittest.TestCase):
         mock_verify_loans.return_value = False
         self.assertFalse(userdeactivate.deactivate_user('amlo'))
 
+    @mock.patch('MambuPy.utils.userdeactivate.print')
     @mock.patch('MambuPy.utils.userdeactivate.deactivate_user')
-    def test_main(self, mock_deactivate_user):
+    def test_main(self, mock_deactivate_user, mock_print):
         mock_deactivate_user.return_value = True
         userNames = [
             ['j.novoa'],

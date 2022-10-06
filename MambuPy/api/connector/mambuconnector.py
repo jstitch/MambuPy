@@ -225,7 +225,7 @@ class MambuConnectorWriter(ABC):
         """Make a disbursement transacton on a loan account.
 
         Args:
-          loan_id (str): loan account id  to disburse
+          loan_id (str): loan account id to disburse
           firstRepaymentDate (str): first repayment date in ISO format
           notes (str): notes for the disbursement transaction
           valueDate (str): entry date for the disbursement transaction

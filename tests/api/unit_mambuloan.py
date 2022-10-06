@@ -203,8 +203,16 @@ class MambuLoan(unittest.TestCase):
         ml.refresh = mock.Mock()
 
         # explicit firstrepaymentdate and valuedate
-        firstRepaymentDate = datetime.datetime.now()
-        valueDate = datetime.datetime.now()
+        firstRepaymentDate = datetime.datetime.now(
+            tz=datetime.timezone(datetime.timedelta(0)))
+        valueDate = datetime.datetime.now(
+            tz=datetime.timezone(datetime.timedelta(0)))
+        ml.disbursementDetails = MambuDisbursementDetails(**{
+            "firstRepaymentDate": firstRepaymentDate,
+            "expectedDisbursementDate": valueDate})
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC+00:00",
+            "expectedDisbursementDate": "UTC+00:00"}
         ml.disburse(
             notes="A denial",
             firstRepaymentDate=firstRepaymentDate,
@@ -216,6 +224,33 @@ class MambuLoan(unittest.TestCase):
             "A denial",
             firstRepaymentDate.isoformat(),
             valueDate.isoformat(),
+            MambuDisbursementLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        ml.refresh.assert_called_once()
+
+        mock_connector.reset_mock()
+        ml.refresh.reset_mock()
+        firstRepaymentDate = datetime.datetime.now()
+        valueDate = datetime.datetime.now()
+        ml.disbursementDetails = MambuDisbursementDetails(**{
+            "firstRepaymentDate": firstRepaymentDate,
+            "expectedDisbursementDate": valueDate})
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC+00:00",
+            "expectedDisbursementDate": "UTC+00:00"}
+        ml.disburse(
+            notes="A denial",
+            firstRepaymentDate=firstRepaymentDate,
+            disbursementDate=valueDate,
+            **{"something": "else"})
+        mock_connector.mambu_make_disbursement.assert_called_with(
+            '12345',
+            "A denial",
+            firstRepaymentDate.astimezone(
+                datetime.timezone(datetime.timedelta(0))).isoformat(),
+            valueDate.astimezone(
+                datetime.timezone(datetime.timedelta(0))).isoformat(),
             MambuDisbursementLoanTransactionInput._schema_fields,
             **{"something": "else"}
         )
