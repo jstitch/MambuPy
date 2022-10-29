@@ -43,29 +43,80 @@ class MambuEntity(MambuStruct):
     def __init__(self, **kwargs):
         super().__init__(cf_class=MambuEntityCF, **kwargs)
 
-    def _extract_field_path(self, field, attrs_dict={}, cf_class=None):
-        """Extracts the path for a given field.
+    def __search_field_in_cfsets(self, field):
+        """Search for a field in custom field sets for the entity.
 
-        If the field is a Custom Field, the path is given in a property in its attrs dict.
-        (cf `MambuPy.api.entities.MambuEntityCF`)
+        Retrieves all the customfieldsets for this entity and looks if the
+        field lives there.
 
-        If not, the path is from the "root" of  the object
+        If field is found, returns the path going through the set.
 
         Args:
-          attrs (dict): an attrs structure holding the field
+          field (str): the field to search in customfieldsets
+
+        Returns:
+          (str): the path for the field when found or None if not found.
+        """
+        if not hasattr(self, "_mcfs"):
+            from .mambucustomfield import MambuCustomFieldSet
+            owner_type = getattr(self, "_ownerType", "")
+            self._mcfs = MambuCustomFieldSet.get_all(availableFor=owner_type)
+        for cfs in self._mcfs:
+            for cf in cfs.customFields:
+                if field == cf["id"]:
+                    return "/" + cfs.id + "/" + field
+
+    def _extract_field_path(
+            self,
+            field,
+            attrs_dict={}, original_keys=[],
+            cf_class=None
+    ):
+        """Extracts the path for a given field.
+
+        If the field is a Custom Field, the path is given in a property in its
+        attrs dict. (cf `MambuPy.api.entities.MambuEntityCF`)
+
+        If not, first it looks at the original keys in attrs to look if it
+        lives in the root (/) of the entity.
+
+        If not, looks for the field in the custom field sets of the entity.
+
+        If not, the path does not exists, the field is not part of the entity.
+
+        Args:
           field (str): a field for which to extract the path
+          attrs (dict): an attrs structure holding the field
+          original_keys (list): keys for entity original attrs
           cf_class (obj): the class used for custom field VOs. If the field is
                           a CF in attrs, the path is a property of it. If not,
                           it lives on the "root" of the attrs
+
+        Returns:
+          (str): the path to the field.
+                 Empty string in case the field is not a valid attribute
+
         """
         if not cf_class:
             cf_class = self._cf_class
         if not attrs_dict:
             attrs_dict = self._attrs
+
         if attrs_dict[field].__class__.__name__ == cf_class.__name__:
             return attrs_dict[field]["path"]
         else:
-            return "/" + field
+            # perhaps its a field from the original root attributes
+            if field in original_keys:
+                return "/" + field
+
+            # perhaps its a custom field, search in all CustomFieldSets for
+            # this type of entity
+            path_from_sets = self.__search_field_in_cfsets(field)
+            if path_from_sets:
+                return path_from_sets
+
+            # not a CF, not a root property, it has no path
+            return ""
 
     @classmethod
     def __build_object(
@@ -410,19 +461,23 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._extractCustomFields()
             self._extractVOs()
 
-    def __patch_op(self, operation, attrs, field, cf_class):
+    def __patch_op(self, operation, attrs, original_keys, field, cf_class):
         """Returns a patch operation tuple.
 
         Args:
           operation (str): One of ADD, REPLACE or REMOVE (MOVE not supproted yet)
           attrs (dict): the attrs structure holding the field
+          original_keys (list): original keys for the entity attrs
           field (str): the field for which to apply a patch operation
           cf_class (obj): the class used for custom field VOs
 
         Returns:
           (tuple): according to the PATCH operation
+          None: in case the field is not a valid attribute to patch
         """
-        path = self._extract_field_path(field, attrs, cf_class)
+        path = self._extract_field_path(field, attrs, original_keys, cf_class)
+        if not path:
+            return
         if operation == "REMOVE":
             return (operation, path)
         try:
@@ -430,6 +485,27 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         except (TypeError, KeyError):
             val = attrs[field]
         return (operation, path, val)
+
+    def __patch_field_op(self, field, original_attrs):
+        """Returns a valid ADD or REPLACE operation tuple for a field in attrs."""
+        if field in self._attrs.keys() and field not in original_attrs.keys():
+            # op says if this is an actual field or CF to
+            # patch. If it's not, DO NOHTING
+            op = self.__patch_op(
+                "ADD",
+                self._attrs, original_attrs.keys(),
+                field, self._cf_class)
+            if op:
+                return op
+        elif field in self._attrs.keys() and field in original_attrs.keys():
+            return self.__patch_op(
+                "REPLACE",
+                self._attrs, original_attrs.keys(),
+                field, self._cf_class)
+        else:
+            raise MambuPyError(
+                "Unrecognizable field {} for patching".format(field)
+            )
 
     def patch(self, fields=None, autodetect_remove=False):
         """patches a mambu entity
@@ -480,31 +556,28 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._extractCustomFields(original_attrs)
             self._updateVOs()
             for field in fields:
-                if field in self._attrs.keys() and field not in original_attrs.keys():
-                    fields_ops.append(
-                        self.__patch_op(
-                            "ADD", self._attrs, field, self._cf_class))
-
-                elif field in self._attrs.keys() and field in original_attrs.keys():
-                    fields_ops.append(
-                        self.__patch_op(
-                            "REPLACE", self._attrs, field, self._cf_class))
+                field_op = self.__patch_field_op(field, original_attrs)
+                if field_op:
+                    fields_ops.append(field_op)
                 else:
                     raise MambuPyError(
-                        "Unrecognizable field {} for patching".format(field)
-                    )
-
+                        "You cannot patch {} field".format(field))
             if autodetect_remove:
                 for attr in [
                         att for att in original_attrs.keys()
                         if att not in self._attrs.keys()]:
                     fields_ops.append(
                         self.__patch_op(
-                            "REMOVE", original_attrs, attr, self._cf_class))
+                            "REMOVE",
+                            original_attrs,
+                            original_attrs,
+                            attr,
+                            self._cf_class))
 
             self._updateCustomFields()
             self._serializeFields()
-            self._connector.mambu_patch(self.id, self._prefix, fields_ops)
+            if fields_ops:
+                self._connector.mambu_patch(self.id, self._prefix, fields_ops)
             # should I refresh _attrs? (needs get request from Mambu)
         except MambuError:
             raise

@@ -7,7 +7,16 @@ import mock
 sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.api import entities
-from MambuPy.mambuutil import (MambuError, MambuPyError)
+from MambuPy.mambuutil import MambuError, MambuPyError
+
+
+class mock_mambucustomfieldset:
+    def __init__(self, id, customFields=None):
+        self.id = id
+        if not customFields:
+            self.customFields = []
+        else:
+            self.customFields = customFields
 
 
 class MambuConnectorTests(unittest.TestCase):
@@ -33,20 +42,46 @@ class MambuEntityTests(unittest.TestCase):
         self.assertEqual(me._prefix, "")
 
     def test__extract_field_path(self):
-        me = entities.MambuEntity()
-        self.assertEqual(
-            me._extract_field_path("aField", {"aField": "hello"}, type),
-            "/aField"
-        )
-        myCF = entities.MambuEntityCF("aValue", path="/_mySet/myField")
-        self.assertEqual(
-            me._extract_field_path(
-                "myField", {"myField": myCF}, entities.MambuEntityCF),
-            "/_mySet/myField"
-        )
-        me._attrs = {"myAttrs": "myProp"}
-        me._cf_class = entities.MambuEntityCF
-        self.assertEqual(me._extract_field_path("myAttrs"), "/myAttrs")
+        with mock.patch(
+                "MambuPy.api.mambucustomfield.MambuCustomFieldSet"
+        ) as mock_mcf:
+            me = entities.MambuEntity()
+            me._mcfs = []
+            me.aField = ""
+            self.assertEqual(
+                me._extract_field_path(
+                    "aField", {"aField": "hello"}, {}, type),
+                ""
+            )
+            self.assertEqual(
+                me._extract_field_path(
+                    "aField", {"aField": "hello"}, {"aField": "hello"}, type),
+                "/aField"
+            )
+
+            myCF = entities.MambuEntityCF("aValue", path="/_mySet/myField")
+            self.assertEqual(
+                me._extract_field_path(
+                    "myField",
+                    {"myField": myCF},
+                    {"myField": myCF},
+                    entities.MambuEntityCF),
+                "/_mySet/myField"
+            )
+
+            mock_mcf.get_all.return_value = [
+                mock_mambucustomfieldset(
+                    "_otherCFSet",
+                    [{"id": "someAttrs"}, {"id": "otherAttrs"}, ]),
+                mock_mambucustomfieldset("_myCFSet", [{"id": "myAttrs"}])
+            ]
+            me = entities.MambuEntity()
+            me._ownerType = "MyType"
+            me._attrs = {"myAttrs": "myProp"}
+            me._cf_class = entities.MambuEntityCF
+            self.assertEqual(
+                me._extract_field_path("myAttrs"), "/_myCFSet/myAttrs")
+            mock_mcf.get_all.assert_called_once_with(availableFor="MyType")
 
     @mock.patch("MambuPy.api.entities.print")
     @mock.patch("MambuPy.api.entities.MambuConnectorREST")
