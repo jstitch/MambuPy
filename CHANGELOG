@@ -188,3 +188,5 @@ Release Notes
   - utils deactivate users script
 * v2.0.0b14
   - MambuLoan disbursement uses tzattrs for default TimeZone
+* v2.0.0b15
+  - bugfix: apiv2 patch when adding nonexistent field in entity.
