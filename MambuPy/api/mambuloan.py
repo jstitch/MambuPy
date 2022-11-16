@@ -181,3 +181,19 @@ class MambuLoan(
             MambuDisbursementLoanTransactionInput._schema_fields, **kwargs)
 
         self.refresh()
+
+    def reject(self, notes):
+        """Request to reject a loan account.
+
+        Args:
+          notes (str): notes to attach to the reject operation.
+        """
+        self.set_state("REJECT", notes)
+
+    def close(self, notes):
+        """Request to close a loan account.
+
+        Args:
+          notes (str): notes to attach to the closing operation.
+        """
+        self.set_state("CLOSE", notes)

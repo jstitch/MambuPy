@@ -256,6 +256,36 @@ class MambuLoan(unittest.TestCase):
         )
         ml.refresh.assert_called_once()
 
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_reject(self, mock_connector):
+        mock_connector.mambu_change_state.return_value = '{"accountState": "REJECTED"}'
+        ml = mambuloan.MambuLoan(id=1)
+
+        ml.reject(notes="Black hole sun")
+
+        mock_connector.mambu_change_state.assert_called_with(
+            action="REJECT",
+            entid=1,
+            notes="Black hole sun",
+            prefix="loans"
+        )
+        self.assertEqual(ml.accountState, "REJECTED")
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_close(self, mock_connector):
+        mock_connector.mambu_change_state.return_value = '{"accountState": "CLOSED"}'
+        ml = mambuloan.MambuLoan(id=1)
+
+        ml.close(notes="Jeremy spoke in class again")
+
+        mock_connector.mambu_change_state.assert_called_with(
+            action="CLOSE",
+            entid=1,
+            notes="Jeremy spoke in class again",
+            prefix="loans"
+        )
+        self.assertEqual(ml.accountState, "CLOSED")
+
 
 if __name__ == "__main__":
     unittest.main()
