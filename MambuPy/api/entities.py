@@ -7,6 +7,7 @@
 import copy
 from importlib import import_module
 import json
+import logging
 import time
 
 from .classes import GenericClass
@@ -21,6 +22,10 @@ from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
 from MambuPy.mambuutil import MambuError, MambuPyError
+
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class MambuEntity(MambuStruct):
@@ -239,6 +244,7 @@ class MambuEntity(MambuStruct):
             params
         ) = cls.__get_several_args(kwargs)
 
+        logger.info("request several entities %s", cls.__name__)
         list_resp = get_func(prefix, **params)
         jsonresp = list(json.loads(list_resp.decode()))
 
@@ -296,6 +302,7 @@ class MambuEntity(MambuStruct):
             debug = False
 
         connector = MambuConnectorREST(**kwargs)
+        logger.info("request entity %s %s", cls.__name__, entid)
         resp = connector.mambu_get(
             entid, prefix=cls._prefix, detailsLevel=detailsLevel
         )

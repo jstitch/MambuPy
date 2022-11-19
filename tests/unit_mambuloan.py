@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import json
+import logging
 import os
 import sys
 
@@ -24,6 +25,9 @@ try:
     unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
+
+
+logging.disable(logging.CRITICAL)
 
 
 class Response(object):

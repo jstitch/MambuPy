@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import json
+import logging
 import os
 import sys
 
@@ -24,6 +25,9 @@ try:
     unittest.TestCase.assertRaisesRegexp = unittest.TestCase.assertRaisesRegex  # python3
 except Exception as e:
     pass  # DeprecationWarning: Please use assertRaisesRegex instead
+
+
+logging.disable(logging.CRITICAL)
 
 
 class Response(object):
@@ -605,7 +609,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.Session().get().content = b"""<html>\n<head><title>502 gateway error</title></head>
 <body>\n<h1>502 gateway error</h1>\n<p>Should retry!</p></body></html>"""
         requests.Session().get().raise_for_status.side_effect = rqsts.exceptions.HTTPError("")
-        json.loads.side_effect = ValueError("TEST ERROR")
+        json.loads.side_effect = [ValueError("TEST ERROR")]
         requests.Session().get.reset_mock()
         with self.assertRaisesRegexp(
             mambustruct.MambuError, r"^502 gateway error: 502 gateway error. Should retry!"

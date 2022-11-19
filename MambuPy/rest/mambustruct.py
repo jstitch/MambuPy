@@ -33,6 +33,7 @@ Some basic definitions:
 import json
 from builtins import str as unicode
 from datetime import datetime
+import logging
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -43,6 +44,10 @@ from ..mambuutil import (OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE, MambuCommError,
                          MambuError, apipwd, apiuser, encoded_dict, iri_to_uri,
                          strip_tags)
 from .mamburestutils import RequestsCounter
+
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class MambuStruct(object):
@@ -505,6 +510,11 @@ class MambuStruct(object):
         http.mount("https://", adapter)
         http.mount("http://", adapter)
 
+        logger.debug(
+            "%s %s, about to make %s request: url %s, data %s, headers %s",
+            self.__class__.__name__, self.entid,
+            self.__method, url, self.__data,
+            [(k, v) for k, v in self.__headers.items()])
         if self.__data:
             data = json.dumps(encoded_dict(self.__data))
             self.__headers["Content-Type"] = "application/json"
@@ -531,6 +541,17 @@ class MambuStruct(object):
                 )
         # Always count a new request when done!
         self.rc.add(datetime.now())
+
+        logger.debug(
+            "%s %s,response code to %s: %s",
+            self.__class__.__name__, self.entid,
+            self.__method, resp
+        )
+        logger.debug(
+            "%s %s,response to %s: %s",
+            self.__class__.__name__, self.entid,
+            self.__method, resp.content
+        )
 
         return resp
 
@@ -566,7 +587,19 @@ class MambuStruct(object):
             self._raw_response_data = resp.content
             jsonresp = json.loads(resp.content)
             jsresp, window = self.__process_jsonresp(jsonresp, limit, jsresp)
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.HTTPError as httpex:
+            logger.error(
+                "%s %s, HTTPError on %s request: url %s, data %s, headers %s",
+                self.__class__.__name__, self.entid,
+                self.__method, url, self.__data,
+                [(k, v) for k, v in self.__headers.items()])
+            logger.exception(
+                "%s %s, %s\nHTTPError: %s",
+                self.__class__.__name__, self.entid, resp, str(httpex))
+            if hasattr(resp, "content"):
+                logger.error(
+                    "%s %s, HTTPError, resp content: %s",
+                    self.__class__.__name__, self.entid, resp.content)
             try:
                 jsresp = json.loads(resp.content)
             except ValueError:
@@ -588,10 +621,30 @@ class MambuStruct(object):
             except AttributeError:  # pragma: no cover
                 pass
         except requests.exceptions.RetryError as rerr:  # pragma: no cover
+            logger.error(
+                "%s %s, MambuCommError on %s request: url %s, data %s, headers %s",
+                self.__class__.__name__, self.entid,
+                self.__method, url, self.__data,
+                [(k, v) for k, v in self.__headers.items()])
+            logger.error(
+                "%s %s, MambuCommError: %s",
+                self.__class__.__name__, self.entid, str(rerr))
             raise MambuCommError(
                 "ERROR I can't communicate with Mambu: {}".format(str(rerr)))
         except Exception as ex:
             """unknown exception"""
+            logger.error(
+                "%s %s, Exception on %s request: url %s, data %s, headers %s",
+                self.__class__.__name__, self.entid,
+                self.__method, url, self.__data,
+                [(k, v) for k, v in self.__headers.items()])
+            logger.exception(
+                "%s %s, %s\nException: %s",
+                self.__class__.__name__, self.entid, resp, str(ex))
+            if hasattr(resp, "content"):
+                logger.error(
+                    "%s %s, Exception, resp content: %s",
+                    self.__class__.__name__, self.entid, resp.content)
             raise ex
 
         return jsresp, window

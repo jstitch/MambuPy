@@ -9,6 +9,7 @@ Currently supports REST.
 import base64
 import copy
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -25,6 +26,10 @@ from MambuPy.mambuutil import (ALLOWED_UPLOAD_MIMETYPES, DETAILSLEVEL,
                                OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
                                UPLOAD_FILENAME_INVALID_CHARS, MambuCommError,
                                MambuError, MambuPyError, apipwd, apiurl, apiuser)
+
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
@@ -107,6 +112,11 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         http.mount("http://", adapter)
 
         try:
+            logger.debug(
+                "about to make %s request: \
+url %s, params %s, data %s, headers %s",
+                method, url, params, data,
+                [(k, v) for k, v in headers.items() if k != 'Authorization'])
             resp = http.request(
                 method, url, params=params, data=data, headers=headers
             )
