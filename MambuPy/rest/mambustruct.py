@@ -398,7 +398,7 @@ class MambuStruct(object):
         """Default value connect"""
 
         try:
-            self.__debug = kwargs["debug"]
+            self.__debug = kwargs.pop("debug")
             """Debug flag.
 
         .. todo:: not currently furtherly implemented
@@ -407,7 +407,7 @@ class MambuStruct(object):
             self.__debug = False
 
         try:
-            self.__formato_fecha = kwargs["date_format"]
+            self.__formato_fecha = kwargs.pop("date_format")
             """The default date format to be used for any datettime elements on the attrs attribute.
 
             Remember to use valid Python datetime strftime formats.
@@ -416,13 +416,13 @@ class MambuStruct(object):
             self.__formato_fecha = "%Y-%m-%dT%H:%M:%S+0000"
 
         try:
-            self.__data = kwargs["data"]
+            self.__data = kwargs.pop("data")
             """JSON data to be sent to Mambu for POST/PATCH requests."""
         except KeyError:
             self.__data = None
 
         try:
-            self.__method = kwargs["method"]
+            self.__method = kwargs.pop("method")
             """REST method to use when calling connect"""
         except KeyError:
             self.__method = "GET"
@@ -450,10 +450,20 @@ class MambuStruct(object):
             self.__offset = 0
 
         try:
-            self.custom_field_name = kwargs["custom_field_name"]
+            self.custom_field_name = kwargs.pop("custom_field_name")
             """custom_field_name attribute."""
         except KeyError:
             pass
+
+        # Basic authentication
+        try:
+            self.__user = kwargs.pop("user")
+        except (KeyError, AttributeError):
+            self.__user = apiuser
+        try:
+            self.__pwd = kwargs.pop("pwd")
+        except (KeyError, AttributeError):
+            self.__pwd = apipwd
 
         self.__headers = {"Accept": "application/vnd.mambu.v1+json"}
 
@@ -574,12 +584,9 @@ class MambuStruct(object):
 
         return jsresp, window
 
-    def __request_and_process(self, jsresp, url, apiuser, apipwd, limit, offset):
+    def __request_and_process(self, jsresp, url, user, pwd, limit, offset):
+        resp = ""
         try:
-            # Basic authentication
-            user = self.__kwargs.get("user", apiuser)
-            pwd = self.__kwargs.get("pwd", apipwd)
-
             # Return a response, default Get
             resp = self.__request(url, user, pwd)
             resp.raise_for_status()
@@ -658,6 +665,20 @@ class MambuStruct(object):
             raise MambuError(jsresp["returnStatus"])
         return False
 
+    def __credentials(self):
+        try:
+            user = self.__user
+        except AttributeError:
+            self.__user = apiuser
+            user = self.__user
+        try:
+            pwd = self.__pwd
+        except AttributeError:
+            self.__pwd = apipwd
+            pwd = self.__pwd
+
+        return user, pwd
+
     def connect(self, *args, **kwargs):
         """Connect to Mambu, make the request to the REST API.
 
@@ -729,6 +750,8 @@ class MambuStruct(object):
             else:
                 limit = self.__limit
 
+            user, pwd = self.__credentials()
+
             url = iri_to_uri(
                 self.__urlfunc(
                     str(self.entid),
@@ -741,7 +764,7 @@ class MambuStruct(object):
             self.__url = url
 
             jsresp, window = self.__request_and_process(
-                jsresp, url, apiuser, apipwd, limit, offset)
+                jsresp, url, user, pwd, limit, offset)
 
             # next window, moving offset...
             offset = offset + limit

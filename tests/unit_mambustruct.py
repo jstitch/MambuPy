@@ -385,6 +385,33 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertFalse(requests.get().called)
         self.assertFalse(json.loads.called)
 
+        # default auth
+        requests.Session().reset_mock()
+        iri_to_uri.return_value = "http://example.com"
+        requests.Session().get.return_value = mock.Mock()
+        requests.Session().get.return_value.content = "my raw response"
+        json.loads.return_value = {"field1": "value1", "field2": "value2"}
+        ms = mambustruct.MambuStruct(
+            entid="12345",
+            urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
+        )
+        requests.Session().get.assert_called_with(
+            "http://example.com",
+            headers={"Accept": "application/vnd.mambu.v1+json"},
+            auth=(mambuconfig.apiuser, mambuconfig.apipwd),
+        )
+
+        # default auth in connect
+        requests.Session().reset_mock()
+        del ms._MambuStruct__user
+        del ms._MambuStruct__pwd
+        ms.connect()
+        requests.Session().get.assert_called_with(
+            "http://example.com",
+            headers={"Accept": "application/vnd.mambu.v1+json"},
+            auth=(mambuconfig.apiuser, mambuconfig.apipwd),
+        )
+
         # normal load
         requests.Session().reset_mock()
         rc_cnt = ms.rc.cnt
@@ -407,10 +434,8 @@ class MambuStructConnectTests(unittest.TestCase):
         self.assertIsNone(ms.connect())
         self.assertEqual(ms.attrs, {"field1": "value1", "field2": "value2"})
         self.assertEqual(ms._raw_response_data, "my raw response")
-        # connect saves old parameter calls
-        self.assertEqual(
-            ms._MambuStruct__kwargs, {"user": "my_user", "pwd": "my_password"}
-        )
+        self.assertEqual(ms._MambuStruct__user, "my_user")
+        self.assertEqual(ms._MambuStruct__pwd, "my_password")
         ms.connect()
         requests.Session().get.assert_called_with(
             "http://example.com",
