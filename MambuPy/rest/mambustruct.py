@@ -600,8 +600,8 @@ class MambuStruct(object):
                 self.__class__.__name__, self.entid,
                 self.__method, url, self.__data,
                 [(k, v) for k, v in self.__headers.items()])
-            logger.exception(
-                "%s %s, %s\nHTTPError: %s",
+            logger.error(
+                "%s %s, %s: HTTPError: %s",
                 self.__class__.__name__, self.entid, resp, str(httpex))
             if hasattr(resp, "content"):
                 logger.error(
