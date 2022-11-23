@@ -30,6 +30,15 @@ class UrlFuncTests(unittest.TestCase):
     def test_getmambuurl(self):
         self.assertEqual(mambugeturl.getmambuurl(), self.prefix + "/api/")
 
+    def test_omit_extra_parameters(self):
+        result_getbranchesurl = mambugeturl.getbranchesurl(
+            idbranch="CCCC", fullDetails=True, limit=0, offset=2,
+            user="user", pwd="pwd")
+        self.assertTrue("fullDetails=true" in result_getbranchesurl)
+        self.assertTrue("limit=0" in result_getbranchesurl)
+        self.assertTrue("offset=2" in result_getbranchesurl)
+        self.assertEqual(len(result_getbranchesurl.split("&")), 3)
+
     def test_getbranchesurl(self):
         result_getbranchesurl = mambugeturl.getbranchesurl(idbranch="CCCC", fullDetails=True, limit=0, offset=2)
         self.assertEqual(

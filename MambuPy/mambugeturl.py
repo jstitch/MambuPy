@@ -29,12 +29,14 @@ def _get_parameters_url(dict_kwargs):
 
     for key in dict_kwargs.keys():
         if key == "fullDetails":
-            if dict_kwargs[key] == True:
+            if dict_kwargs[key] is True:
                 getparams_list.append("fullDetails=true")
             else:
                 getparams_list.append("fullDetails=false")
+        elif key in ["user", "pwd"]:
+            continue
         else:
-            getparams_list.append(key+'=%s' % dict_kwargs[key])
+            getparams_list.append(key + '=%s' % dict_kwargs[key])
 
     return getparams_list
 
