@@ -111,6 +111,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         http.mount("https://", adapter)
         http.mount("http://", adapter)
 
+        resp = ""
         try:
             logger.debug(
                 "about to make %s request: \
@@ -121,7 +122,13 @@ url %s, params %s, data %s, headers %s",
                 method, url, params=params, data=data, headers=headers
             )
             resp.raise_for_status()
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.HTTPError as httperr:
+            logger.error(
+                "%s on %s request: params %s, data %s, headers %s",
+                str(httperr), method, params, data,
+                [(k, v) for k, v in headers.items()])
+            if hasattr(resp, "content"):
+                logger.error("HTTPError, resp content: %s", resp.content)
             try:
                 content = json.loads(resp.content.decode())
             except ValueError:
@@ -145,11 +152,23 @@ url %s, params %s, data %s, headers %s",
                 )
             )
         except requests.exceptions.RetryError as rerr:  # pragma: no cover
+            logger.error(
+                "%s MambuCommError on %s request: url %s, params %s, data %s, headers %s",
+                str(rerr), method, url, params, data,
+                [(k, v) for k, v in headers.items()])
             raise MambuCommError(
                 "COMM Error: I cannot communicate with Mambu: {}".format(rerr))
         except Exception as ex:
+            logger.exception(
+                "%s Exception (%s) on %s request: url %s, params %s, data %s, headers %s",
+                str(ex), resp, method, url, params, data,
+                [(k, v) for k, v in headers.items()])
+            if hasattr(resp, "content"):
+                logger.error("Exception, resp content: %s", resp.content)
             raise MambuCommError(
                 "Unknown comm error with Mambu: {}".format(ex))
+
+        logger.debug("response %s to %s:\n%s", resp, method, resp.content)
 
         return resp.content
 

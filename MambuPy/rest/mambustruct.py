@@ -646,7 +646,7 @@ class MambuStruct(object):
                 self.__method, url, self.__data,
                 [(k, v) for k, v in self.__headers.items()])
             logger.exception(
-                "%s %s, %s\nException: %s",
+                "%s %s, %s: Exception: %s",
                 self.__class__.__name__, self.entid, resp, str(ex))
             if hasattr(resp, "content"):
                 logger.error(
