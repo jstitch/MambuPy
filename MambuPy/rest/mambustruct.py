@@ -775,6 +775,11 @@ class MambuStruct(object):
                     self.__limit = self.__inilimit
 
         if ("documents" not in url) and self.__method not in ["PATCH", "DELETE"]:
+            if type(iter(jsresp)) == type(iter([])):
+                logger.info(
+                    "%s, url %s, %s retrieved",
+                    self.__class__.__name__, url, len(jsresp)
+                )
             self.init(attrs=jsresp, *self.__args, **self.__kwargs)
 
     def _request_with_method(self, method, data, *args, **kwargs):

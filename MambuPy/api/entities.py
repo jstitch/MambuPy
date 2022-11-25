@@ -244,9 +244,10 @@ class MambuEntity(MambuStruct):
             params
         ) = cls.__get_several_args(kwargs)
 
-        logger.info("request several entities %s", cls.__name__)
+        logger.debug("request several entities %s", cls.__name__)
         list_resp = get_func(prefix, **params)
         jsonresp = list(json.loads(list_resp.decode()))
+        logger.debug("%s, %s retrieved", cls.__name__, len(jsonresp))
 
         elements = []
         for attr in jsonresp:
@@ -302,7 +303,7 @@ class MambuEntity(MambuStruct):
             debug = False
 
         connector = MambuConnectorREST(**kwargs)
-        logger.info("request entity %s %s", cls.__name__, entid)
+        logger.debug("request entity %s %s", cls.__name__, entid)
         resp = connector.mambu_get(
             entid, prefix=cls._prefix, detailsLevel=detailsLevel
         )
