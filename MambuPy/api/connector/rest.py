@@ -127,7 +127,7 @@ url %s, params %s, data %s, headers %s",
                 "%s on %s request: params %s, data %s, headers %s",
                 str(httperr), method, params, data,
                 [(k, v) for k, v in headers.items()])
-            if hasattr(resp, "content"):
+            if hasattr(resp, "content"):  # pragma: no cover
                 logger.error("HTTPError, resp content: %s", resp.content)
             try:
                 content = json.loads(resp.content.decode())
@@ -163,7 +163,7 @@ url %s, params %s, data %s, headers %s",
                 "%s Exception (%s) on %s request: url %s, params %s, data %s, headers %s",
                 str(ex), resp, method, url, params, data,
                 [(k, v) for k, v in headers.items()])
-            if hasattr(resp, "content"):
+            if hasattr(resp, "content"):  # pragma: no cover
                 logger.error("Exception, resp content: %s", resp.content)
             raise MambuCommError(
                 "Unknown comm error with Mambu: {}".format(ex))
@@ -729,5 +729,32 @@ url %s, params %s, data %s, headers %s",
 
         url = "https://{}/api/loans/{}/disbursement-transactions".format(
             self._tenant, loan_id)
+
+        return self.__request("POST", url, data=data)
+
+    def mambu_make_repayment(
+            self,
+            loan_id, amount, notes, valueDate,
+            allowed_fields, **kwargs):
+        """Make a repayment transaction on a loan account.
+
+        Args:
+          loan_id (str): loan account id to make a repayment
+          amount (float): the amount of the repayment
+          notes (str): notes for the repayment transaction
+          valueDate (str): date for the repayment transaction in ISO format
+          allowed_fields (list): extra fields allowed for the transaction
+          kwargs (dict): key-values of extra fields for the transaction
+        """
+        data = {"amount": amount,
+                "notes": notes,
+                "valueDate": valueDate}
+        for k, v in kwargs.items():
+            if k in allowed_fields:
+                data[k] = v
+
+        url = "https://{}/api/loans/{}/repayment-transactions".format(
+            self._tenant, loan_id
+        )
 
         return self.__request("POST", url, data=data)

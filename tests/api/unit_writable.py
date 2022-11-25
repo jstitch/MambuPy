@@ -506,6 +506,36 @@ class MambuWritableEntityTests(unittest.TestCase):
         with self.assertRaisesRegex(MambuError, r"A Mambu Error"):
             child.patch(["myProp"])
 
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
+    @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_patch_empty(
+        self,
+        mock_connector,
+        mock_efp,
+        mock_updateVOs,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+    ):
+        child = self.child_class_writable()
+        child._resp = b"""{
+        "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
+        }"""
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["myProp"] = "myVal2"
+
+        child.patch([])
+
+        self.assertEqual(mock_connector.mambu_patch.call_count, 0)
+        mock_updateVOs.assert_called_once_with()
+        mock_updateCustomFields.assert_called_once_with()
+        mock_serializeFields.assert_called_once_with()
+        mock_convertDict2Attrs.assert_called_once_with()
+
 
 if __name__ == "__main__":
     unittest.main()

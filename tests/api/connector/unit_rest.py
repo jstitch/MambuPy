@@ -1,5 +1,6 @@
 import base64
 import copy
+import logging
 import os
 import sys
 import unittest
@@ -12,6 +13,9 @@ sys.path.insert(0, os.path.abspath("."))
 from MambuPy.api.connector import rest
 from MambuPy.mambuutil import (MambuCommError, MambuError,
                                MambuPyError, apiurl)
+
+
+logging.disable(logging.CRITICAL)
 
 
 def app_json_headers():

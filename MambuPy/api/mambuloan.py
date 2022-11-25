@@ -9,13 +9,16 @@ import copy
 import datetime
 import json
 
+from dateutil.tz import tzlocal
+
 from .entities import (MambuEntity, MambuEntityWritable,
                        MambuEntityAttachable,
                        MambuEntitySearchable,
                        MambuEntityCommentable,
                        MambuEntityOwnable,
                        MambuInstallment)
-from MambuPy.api.vos import MambuDisbursementLoanTransactionInput
+from MambuPy.api.vos import (MambuDisbursementLoanTransactionInput,
+                             MambuRepaymentLoanTransactionInput)
 from MambuPy.mambuutil import MambuPyError
 
 
@@ -197,3 +200,25 @@ class MambuLoan(
           notes (str): notes to attach to the closing operation.
         """
         self.set_state("CLOSE", notes)
+
+    def repay(self, amount, notes, valueDate, **kwargs):
+        """Request to repay a loan account.
+
+        Args:
+          amount (float): the amount of the repayment
+          notes (str): notes to attach to the repayment transaction.
+          valueDate (:py:obj:`datetime`): value date for the repayment
+                    operation. If naive datetime, use TZ info from tzattrs.
+          kwargs (dict): allowed extra params for the repayment transaction
+                 request. :py:obj:`MambuPy.api.vos.MambuRepaymentLoanTransactionInput._schema_fields`
+                 has the allowed fields permitted for this operation
+        """
+        valueDate = datetime.datetime.strptime(
+            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
+        valueDate = valueDate.astimezone(tzlocal()).isoformat()
+
+        self._connector.mambu_make_repayment(
+            self.id, amount, notes, valueDate,
+            MambuRepaymentLoanTransactionInput._schema_fields, **kwargs)
+
+        self.refresh()

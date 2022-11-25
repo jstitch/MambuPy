@@ -65,3 +65,18 @@ class MambuDisbursementLoanTransactionInput(MambuValueObject):
         "valueDate",
     ]
     """List of schema fields for a loan disbursement transaction."""
+
+
+class MambuRepaymentLoanTransactionInput(MambuValueObject):
+    """Repayment Loan Transaction body"""
+    _schema_fields = [
+        "amount",
+        "bookingDate",
+        "externalId",
+        "installmentEncodedKey",
+        "notes",
+        "originalCurrencyCode",
+        "prepaymentRecalculationMethod",
+        "valueDate",
+    ]
+    """List of schema fields for a loan repayment transaction."""

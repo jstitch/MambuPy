@@ -3,6 +3,7 @@ import os
 import sys
 import unittest
 
+from dateutil.tz import tzlocal
 import mock
 
 sys.path.insert(0, os.path.abspath("."))
@@ -12,6 +13,7 @@ from MambuPy.api import mambuloan
 from MambuPy.api.vos import (
     MambuDisbursementDetails,
     MambuDisbursementLoanTransactionInput,
+    MambuRepaymentLoanTransactionInput,
 )
 from MambuPy.mambuutil import MambuPyError
 
@@ -285,6 +287,34 @@ class MambuLoan(unittest.TestCase):
             prefix="loans"
         )
         self.assertEqual(ml.accountState, "CLOSED")
+
+    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
+    def test_repay(self, mock_connector):
+        mock_connector.mambu_make_repayment.return_value = '{"encodedKey": "abc123"}'
+        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE")
+        ml.refresh = mock.Mock()
+
+        valueDate = datetime.datetime.now()
+        valueDateAssert = datetime.datetime.strptime(
+            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
+        timezone = datetime.datetime.now().astimezone(tzlocal()).isoformat()[-6:]
+        valueDateAssert = valueDateAssert.isoformat() + timezone
+
+        ml.repay(
+            amount=100.0,
+            notes="STP",
+            valueDate=valueDate,
+            **{"something": "else"})
+
+        mock_connector.mambu_make_repayment.assert_called_with(
+            '12345',
+            100.0,
+            "STP",
+            valueDateAssert,
+            MambuRepaymentLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        ml.refresh.assert_called_once()
 
 
 if __name__ == "__main__":
