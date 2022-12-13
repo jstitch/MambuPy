@@ -237,7 +237,7 @@ class MambuConnectorREST(unittest.TestCase):
         mock_requests.Session().request.assert_called_with(
             "GET",
             "someURL",
-            params={"limit": 1000, "offset": 0},
+            params={"limit": 50, "offset": 0},
             data=None,
             headers=app_default_headers(),
         )
@@ -268,7 +268,7 @@ class MambuConnectorREST(unittest.TestCase):
         mock_requests.Session().request.assert_called_with(
             "GET",
             "someURL",
-            params={"limit": 1000, "offset": 0},
+            params={"limit": 50, "offset": 0},
             data='{"some": "data"}',
             headers=app_default_headers(),
         )
@@ -331,7 +331,7 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mock_requests.Session().request.call_count, 3)
         self.assertEqual(resp, response_content)
 
-        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 50
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu___list_request_w_limit_odd(self, mock_requests):
@@ -391,7 +391,7 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mock_requests.Session().request.call_count, 3)
         self.assertEqual(resp, response_content)
 
-        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 50
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu___list_request_w_limit_minor(self, mock_requests):
@@ -435,7 +435,7 @@ class MambuConnectorREST(unittest.TestCase):
         self.assertEqual(mock_requests.Session().request.call_count, 2)
         self.assertEqual(resp, response_content)
 
-        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+        rest.OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 50
 
     def test___validate_query_params(self):
         mcrest = rest.MambuConnectorREST()

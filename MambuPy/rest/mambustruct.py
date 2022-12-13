@@ -776,7 +776,7 @@ class MambuStruct(object):
 
         if ("documents" not in url) and self.__method not in ["PATCH", "DELETE"]:
             if type(iter(jsresp)) == type(iter([])):
-                logger.info(
+                logger.debug(
                     "%s, url %s, %s retrieved",
                     self.__class__.__name__, url, len(jsresp)
                 )

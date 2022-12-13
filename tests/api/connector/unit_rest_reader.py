@@ -54,13 +54,13 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "GET",
             "https://{}/api/someURL".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
-                    "limit": 1000, "offset": 0},
+                    "limit": 50, "offset": 0},
             data=None,
             headers=mcrest._headers,
         )
 
         mcrest.mambu_get_all(
-            "someURL", filters={"one": "two"}, offset=10, limit=100, sortBy="id:ASC"
+            "someURL", filters={"one": "two"}, offset=10, limit=10, sortBy="id:ASC"
         )
 
         mock_requests.Session().request.assert_called_with(
@@ -70,7 +70,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
                 "paginationDetails": "OFF",
                 "detailsLevel": "BASIC",
                 "offset": 10,
-                "limit": 100,
+                "limit": 10,
                 "sortBy": "id:ASC",
                 "one": "two",
             },
@@ -83,7 +83,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "GET",
             "https://{}/api/someURL".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC", "someParam": "someValue",
-                    "limit": 1000, "offset": 0},
+                    "limit": 50, "offset": 0},
             data=None,
             headers=mcrest._headers,
         )
@@ -122,12 +122,12 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
-                    "limit": 1000, "offset": 0},
+                    "limit": 50, "offset": 0},
             data="{}",
             headers=headers,
         )
 
-        mcrest.mambu_search("someURL", offset=10, limit=100)
+        mcrest.mambu_search("someURL", offset=10, limit=10)
         mock_requests.Session().request.assert_called_with(
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
@@ -135,7 +135,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
                 "paginationDetails": "OFF",
                 "detailsLevel": "BASIC",
                 "offset": 10,
-                "limit": 100,
+                "limit": 10,
             },
             data="{}",
             headers=headers,
@@ -149,7 +149,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
-                    "limit": 1000, "offset": 0},
+                    "limit": 50, "offset": 0},
             data=json.dumps({"filterCriteria": filterCriteria}),
             headers=headers,
         )
@@ -162,7 +162,7 @@ class MambuConnectorReaderREST(unittest.TestCase):
             "POST",
             "https://{}/api/someURL:search".format(apiurl),
             params={"paginationDetails": "OFF", "detailsLevel": "BASIC",
-                    "limit": 1000, "offset": 0},
+                    "limit": 50, "offset": 0},
             data=json.dumps(
                 {"filterCriteria": filterCriteria, "sortingCriteria": sortingCriteria}
             ),

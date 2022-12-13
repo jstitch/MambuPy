@@ -190,3 +190,10 @@ Release Notes
   - MambuLoan disbursement uses tzattrs for default TimeZone
 * v2.0.0b15
   - bugfix: apiv2 patch when adding nonexistent field in entity.
+* v2.0.0b16
+  - reject loan accounts
+  - close loan accounts
+  - repay loan accounts
+  - logging enabled propagating logs to whomever uses MambuPy
+  - MambuPyv1 prevent user and password leaked on request URL when sent via kwargs
+  - apipagination configuration added. Defaults to 50 as per "Optimizing data extraction from Mambu via APIs" analysis

@@ -21,7 +21,8 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
 
 .. todo:: status API V2: testing of EVERYTHING is required """
 from .mambugeturl import getmambuurl
-from .mambuconfig import (apipwd, apiurl, apiuser, dbeng, dbhost, dbname,
+from .mambuconfig import (apipwd, apiurl, apiuser, apipagination,
+                          dbeng, dbhost, dbname,
                           dbport, dbpwd, dbuser)
 
 try:
@@ -54,7 +55,7 @@ API_RETURN_CODES = {
 """
 
 
-OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = 1000
+OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE = int(apipagination)
 """Current maximum number of response elements Mambu returns"""
 
 

@@ -51,6 +51,10 @@ Another=BrickInTheWall
             mambuconfig.apipwd
         except AttributeError:
             self.fail("No apipwd attribute in mambuconfig")
+        try:
+            mambuconfig.apipagination
+        except AttributeError:
+            self.fail("No apipagination attribute in mambuconfig")
 
     def test_db_attrs(self):
         try:
@@ -82,6 +86,7 @@ Another=BrickInTheWall
         self.assertEqual(mambuconfig.default_configs.get("apiurl"), "domain.mambu.com")
         self.assertEqual(mambuconfig.default_configs.get("apiuser"), "mambu_api_user")
         self.assertEqual(mambuconfig.default_configs.get("apipwd"), "mambu_api_password")
+        self.assertEqual(mambuconfig.default_configs.get("apipagination"), "50")
         self.assertEqual(mambuconfig.default_configs.get("dbname"), "mambu_db")
         self.assertEqual(mambuconfig.default_configs.get("dbuser"), "mambu_db_user")
         self.assertEqual(mambuconfig.default_configs.get("dbpwd"), "mambu_db_pwd")

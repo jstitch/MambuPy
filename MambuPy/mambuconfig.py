@@ -23,6 +23,7 @@ RC files must have the following format:
     apiurl=url_to_mambu_domain
     apiuser=API_user
     apipwd=API_password
+    apipagination=API_pagination_limit
     [DB]
     dbname=Database_name
     dbuser=Database_user
@@ -79,6 +80,7 @@ default_configs = {
     "apiurl": "domain.mambu.com",
     "apiuser": "mambu_api_user",
     "apipwd": "mambu_api_password",
+    "apipagination": "50",
     # Mambu DB configurations
     "dbname": "mambu_db",
     "dbuser": "mambu_db_user",
@@ -115,6 +117,7 @@ argparser.add_argument("--mambupy_rcfile")
 argparser.add_argument("--mambupy_apiurl")
 argparser.add_argument("--mambupy_apiuser")
 argparser.add_argument("--mambupy_apipwd")
+argparser.add_argument("--mambupy_apipagination")
 argparser.add_argument("--mambupy_dbname")
 argparser.add_argument("--mambupy_dbuser")
 argparser.add_argument("--mambupy_dbpwd")
@@ -173,6 +176,8 @@ apiuser = get_conf(config, "API", "apiuser")
 """Username to access Mambu API"""
 apipwd = get_conf(config, "API", "apipwd")
 """Password to access Mambu API"""
+apipagination = get_conf(config, "API", "apipagination")
+"""Pagination default limit for requests to Mambu API"""
 dbname = get_conf(config, "DB", "dbname")
 """Name of the DB with a backup of Mambu's DB"""
 dbuser = get_conf(config, "DB", "dbuser")
