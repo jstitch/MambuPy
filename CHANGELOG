@@ -197,3 +197,5 @@ Release Notes
   - logging enabled propagating logs to whomever uses MambuPy
   - MambuPyv1 prevent user and password leaked on request URL when sent via kwargs
   - apipagination configuration added. Defaults to 50 as per "Optimizing data extraction from Mambu via APIs" analysis
+* v2.0.0b17
+  - bugfix: new entities need a default connector
