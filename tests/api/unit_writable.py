@@ -17,9 +17,10 @@ class MambuWritableEntityTests(unittest.TestCase):
             entities.MambuEntity, entities.MambuEntityWritable
         ):
             _prefix = "un_prefix"
+            _connector = mock.Mock()
 
             def __init__(self, **kwargs):
-                super().__init__(**kwargs)
+                super().__init__(connector=self._connector, **kwargs)
                 self._attrs = {"id": "12345"}
 
         self.child_class_writable = child_class_writable
@@ -30,10 +31,8 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_update(
         self,
-        mock_connector,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
@@ -41,10 +40,12 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_extractCustomFields,
         mock_extractVOs
     ):
+        child = self.child_class_writable()
+        mock_connector = child._connector
         mock_connector.mambu_update.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
-        child = self.child_class_writable()
+
         child._attrs["myProp"] = "myVal"
 
         child.update()
@@ -82,10 +83,8 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_create(
         self,
-        mock_connector,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
@@ -93,10 +92,12 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_extractCustomFields,
         mock_extractVOs,
     ):
+        child = self.child_class_writable()
+        mock_connector = child._connector
+
         mock_connector.mambu_create.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
-        child = self.child_class_writable()
         child._attrs = {}
         child._attrs["myProp"] = "myVal"
         child._detailsLevel = "BASIC"
@@ -149,18 +150,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -190,18 +192,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
@@ -223,18 +226,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
@@ -256,18 +260,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_standard(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/_myCFSet/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/_myCFSet/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -290,10 +295,8 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_standard(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
@@ -301,7 +304,10 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_convertDict2Attrs,
     ):
         mock_efp.return_value = "/_myCFSet/myProp"
+
         child = self.child_class_writable()
+        mock_connector = child._connector
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
         }"""
@@ -324,18 +330,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_standard(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/_myCFSet/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/_myCFSet/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":{"myProp":"myVal"}
         }"""
@@ -359,18 +366,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_add_cf_grouped(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/_myCFSet/0/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/_myCFSet/0/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345"
         }"""
@@ -396,18 +404,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_replace_cf_grouped(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/_myCFSet/1/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/_myCFSet/1/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
         }"""
@@ -439,18 +448,19 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_remove_cf_grouped(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
         mock_serializeFields,
         mock_convertDict2Attrs,
     ):
-        mock_efp.return_value = "/_myCFSet/0/myProp"
         child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_efp.return_value = "/_myCFSet/0/myProp"
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","_myCFSet":[{"myProp":"myVal"},{"myProp":"myVal2"}]
         }"""
@@ -480,10 +490,8 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_exceptions(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
@@ -491,6 +499,8 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_convertDict2Attrs,
     ):
         child = self.child_class_writable()
+        mock_connector = child._connector
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""
@@ -511,10 +521,8 @@ class MambuWritableEntityTests(unittest.TestCase):
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
     @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
     def test_patch_empty(
         self,
-        mock_connector,
         mock_efp,
         mock_updateVOs,
         mock_updateCustomFields,
@@ -522,6 +530,8 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_convertDict2Attrs,
     ):
         child = self.child_class_writable()
+        mock_connector = child._connector
+
         child._resp = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","myProp":"myVal"
         }"""

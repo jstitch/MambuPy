@@ -47,6 +47,10 @@ class MambuEntity(MambuStruct):
 
     def __init__(self, **kwargs):
         super().__init__(cf_class=MambuEntityCF, **kwargs)
+        if "connector" not in kwargs:
+            self._connector = MambuConnectorREST(**kwargs)
+        else:
+            self._connector = kwargs["connector"]
 
     def __search_field_in_cfsets(self, field):
         """Search for a field in custom field sets for the entity.
@@ -147,8 +151,7 @@ class MambuEntity(MambuStruct):
           detailsLevel (str): "BASIC" or "FULL"
           debug (bool): print debugging info
         """
-        instance = cls.__call__()
-        instance._connector = connector
+        instance = cls.__call__(connector=connector)
         instance._resp = resp
         instance._attrs = attrs
         instance._tzattrs = tzattrs

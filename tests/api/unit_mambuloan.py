@@ -78,8 +78,10 @@ class MambuLoan(unittest.TestCase):
         with self.assertRaisesRegex(MambuPyError, r"^field \w+ not in allowed "):
             mambuloan.MambuLoan.get_all(sortBy="field:ASC")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_get_schedule(self, mock_connector):
+    def test_get_schedule(self):
+        ml = mambuloan.MambuLoan(**{"id": "12345", "connector": mock.Mock()})
+        mock_connector = ml._connector
+
         mock_connector.mambu_loanaccount_getSchedule.return_value = b"""{"installments": [
         {"encodedKey":"54321dcba",
          "parentAccountKey":"abcd12345",
@@ -106,7 +108,6 @@ class MambuLoan(unittest.TestCase):
         "currency": {"code": "MXN"}}
         """
 
-        ml = mambuloan.MambuLoan(**{"id": "12345"})
         ml.get_schedule()
 
         mock_connector.mambu_loanaccount_getSchedule.assert_called_with("12345")
@@ -126,10 +127,10 @@ class MambuLoan(unittest.TestCase):
         self.assertEqual(ml.schedule[1]["dueDate"].strftime("%Y%m%d"), "20220721")
         self.assertEqual(repr(ml.schedule[1]), "MambuInstallment - #2, PENDING, 2022-07-21")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_set_state(self, mock_connector):
+    def test_set_state(self):
+        ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_change_state.return_value = '{"accountState": "APPROVED"}'
-        ml = mambuloan.MambuLoan(id=1)
 
         ml.set_state(
             action="APPROVE",
@@ -154,10 +155,10 @@ class MambuLoan(unittest.TestCase):
             )
             mock_connector.mambu_change_state.assert_not_called()
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_approve(self, mock_connector):
+    def test_approve(self):
+        ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_change_state.return_value = '{"accountState": "APPROVED"}'
-        ml = mambuloan.MambuLoan(id=1)
 
         ml.approve(notes="Smells like teen spirit")
 
@@ -169,10 +170,11 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml.accountState, "APPROVED")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_disburse_implicit_dates(self, mock_connector):
+    def test_disburse_implicit_dates(self):
+        ml = mambuloan.MambuLoan(
+            id='12345', accountState="APPROVED", connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_make_disbursement.return_value = '{"encodedKey": "abc123"}'
-        ml = mambuloan.MambuLoan(id='12345', accountState="APPROVED")
         ml.refresh = mock.Mock()
 
         # implicit firstrepaymentdate and valuedate
@@ -198,10 +200,11 @@ class MambuLoan(unittest.TestCase):
         )
         ml.refresh.assert_called_once()
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_disburse_explicit_dates(self, mock_connector):
+    def test_disburse_explicit_dates(self):
+        ml = mambuloan.MambuLoan(
+            id='12345', accountState="APPROVED", connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_make_disbursement.return_value = '{"encodedKey": "abc123"}'
-        ml = mambuloan.MambuLoan(id='12345', accountState="APPROVED")
         ml.refresh = mock.Mock()
 
         # explicit firstrepaymentdate and valuedate
@@ -258,10 +261,10 @@ class MambuLoan(unittest.TestCase):
         )
         ml.refresh.assert_called_once()
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_reject(self, mock_connector):
+    def test_reject(self):
+        ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_change_state.return_value = '{"accountState": "REJECTED"}'
-        ml = mambuloan.MambuLoan(id=1)
 
         ml.reject(notes="Black hole sun")
 
@@ -273,10 +276,10 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml.accountState, "REJECTED")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_close(self, mock_connector):
+    def test_close(self):
+        ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_change_state.return_value = '{"accountState": "CLOSED"}'
-        ml = mambuloan.MambuLoan(id=1)
 
         ml.close(notes="Jeremy spoke in class again")
 
@@ -288,10 +291,10 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml.accountState, "CLOSED")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_repay(self, mock_connector):
+    def test_repay(self):
+        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
+        mock_connector = ml._connector
         mock_connector.mambu_make_repayment.return_value = '{"encodedKey": "abc123"}'
-        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE")
         ml.refresh = mock.Mock()
 
         valueDate = datetime.datetime.now()

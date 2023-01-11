@@ -17,4 +17,6 @@ Objects using `Mambu REST API <https://api.mambu.com/?python>`_
     MambuPy.api.mambucentre
     MambuPy.api.mambuuser
     MambuPy.api.mambuproduct
+
+Entities use the Mixin pattern to acquire functionality.
 """

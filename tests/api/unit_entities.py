@@ -20,9 +20,10 @@ class mock_mambucustomfieldset:
 
 
 class MambuConnectorTests(unittest.TestCase):
-    def test_has_mambuconnector(self):
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
+    def test_has_mambuconnector(self, mock_mcrest):
         ms = entities.MambuEntity()
-        self.assertEqual(ms._connector, None)
+        self.assertEqual(ms._connector, mock_mcrest.return_value)
 
 
 class MambuEntityTests(unittest.TestCase):
@@ -40,6 +41,16 @@ class MambuEntityTests(unittest.TestCase):
     def test_has_properties(self):
         me = entities.MambuEntity()
         self.assertEqual(me._prefix, "")
+
+    @mock.patch("MambuPy.api.entities.MambuConnectorREST")
+    def test_default_connector(self, mock_mcrest):
+        ent = entities.MambuEntity()
+        self.assertEqual(ent._connector, mock_mcrest.return_value)
+
+    def test_some_connector(self):
+        mock_other_connector = mock.Mock()
+        ent = entities.MambuEntity(connector=mock_other_connector())
+        self.assertEqual(ent._connector, mock_other_connector.return_value)
 
     def test__extract_field_path(self):
         with mock.patch(

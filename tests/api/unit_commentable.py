@@ -17,15 +17,17 @@ class MambuCommentableEntityTests(unittest.TestCase):
         ):
             _prefix = "un_prefix"
             _ownerType = "MY_ENTITY"
+            _connector = mock.Mock()
 
             def __init__(self, **kwargs):
-                super().__init__(**kwargs)
+                super().__init__(connector=self._connector, **kwargs)
                 self._attrs = {"id": "12345"}
 
         self.child_class_commentable = child_class_commentable
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_get_comments(self, mock_connector):
+    def test_get_comments(self):
+        child = self.child_class_commentable()
+        mock_connector = child._connector
         mock_connector.mambu_get_comments.return_value = b"""[{
         "encodedKey":"my_comment_EK",
         "ownerKey":"my_owner_Key",
@@ -36,7 +38,6 @@ class MambuCommentableEntityTests(unittest.TestCase):
         "userKey":"author_EK"
         }]"""
 
-        child = self.child_class_commentable()
         comments = child.get_comments()
 
         self.assertEqual(len(child._comments), 1)
@@ -60,8 +61,10 @@ class MambuCommentableEntityTests(unittest.TestCase):
             owner_id="12345", owner_type="MY_ENTITY",
             limit=None, offset=None, paginationDetails="OFF")
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_comment(self, mock_connector):
+    def test_comment(self):
+        child = self.child_class_commentable()
+        mock_connector = child._connector
+
         mock_connector.mambu_comment.return_value = b"""{
         "encodedKey":"my_new_commentEk",
         "ownerKey":"my_owner_Key",
@@ -72,7 +75,6 @@ class MambuCommentableEntityTests(unittest.TestCase):
         "userKey":"author_EK"
         }"""
 
-        child = self.child_class_commentable()
         child._comments=[entities.MambuComment(**{"text": "original comment"})]
         comnt = child.comment("NOT BY THE HAIR OF MY CHINNY, CHIN, CHIN!")
 

@@ -17,21 +17,23 @@ class MambuAttachableEntityTests(unittest.TestCase):
         ):
             _prefix = "un_prefix"
             _ownerType = "MY_ENTITY"
+            _connector = mock.Mock()
 
             def __init__(self, **kwargs):
-                super().__init__(**kwargs)
+                super().__init__(connector=self._connector, **kwargs)
                 self._attrs = {"id": "12345"}
                 self._attachments = {}
 
         self.child_class_attachable = child_class_attachable
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_attach_document(self, mock_connector):
+    def test_attach_document(self):
+        child = self.child_class_attachable()
+        mock_connector = child._connector
         mock_connector.mambu_upload_document.return_value = b"""{
         "encodedKey":"0123456789abcdef","id":"12345","ownerType":"MY_ENTITY",
         "type":"png","fileName":"someImage.png"
         }"""
-        child = self.child_class_attachable()
+
         upl = child.attach_document("/tmp/someImage.png", "MyImage", "this is a test")
 
         self.assertEqual(list(child._attachments.keys()), ["12345"])
@@ -54,8 +56,9 @@ class MambuAttachableEntityTests(unittest.TestCase):
             notes="this is a test",
         )
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_get_attachments_metadata(self, mock_connector):
+    def test_get_attachments_metadata(self):
+        child = self.child_class_attachable()
+        mock_connector = child._connector
         mock_connector.mambu_get_documents_metadata.return_value = b"""[{
         "encodedKey":"0123456789abcdef","id":"67890","ownerType":"MY_ENTITY",
         "type":"png","fileName":"someImage.png"
@@ -65,7 +68,6 @@ class MambuAttachableEntityTests(unittest.TestCase):
         "type":"png","fileName":"anotherImage.png"
         }]"""
 
-        child = self.child_class_attachable()
         metadata = child.get_attachments_metadata()
 
         self.assertEqual(list(child._attachments.keys()), ["67890", "09876"])
@@ -103,11 +105,11 @@ class MambuAttachableEntityTests(unittest.TestCase):
             limit=None, offset=None, paginationDetails="OFF"
         )
 
-    @mock.patch("MambuPy.api.entities.MambuEntity._connector")
-    def test_del_attachment(self, mock_connector):
+    def test_del_attachment(self):
+        child = self.child_class_attachable()
+        mock_connector = child._connector
         mock_connector.mambu_delete_document.return_value = None
 
-        child = self.child_class_attachable()
         child._attachments = {
             "67890": {
                 "encodedKey": "0123456789abcdef",
