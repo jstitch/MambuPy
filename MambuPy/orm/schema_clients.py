@@ -36,6 +36,7 @@ class Client(Base):
     lastName = Column(String)
     homePhone = Column(String)
     mobilePhone1 = Column(String)
+    mobilePhone2 = Column(String)
     emailAddress = Column(String)
     gender = Column(String)
     state = Column(String)
