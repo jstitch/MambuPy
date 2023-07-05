@@ -25,6 +25,14 @@ class MambuClient(unittest.TestCase):
         mc = mambuclient.MambuClient()
         self.assertEqual(mc._prefix, "clients")
         self.assertEqual(
+            mc._default_tzattrs,
+            {
+                "birthDate": None,
+                "groupKeys": [None],
+                "addresses": [{}],
+                "idDocuments": [{}],
+            })
+        self.assertEqual(
             mc._filter_keys,
             [
                 "branchId",

@@ -199,3 +199,7 @@ Release Notes
   - apipagination configuration added. Defaults to 50 as per "Optimizing data extraction from Mambu via APIs" analysis
 * v2.0.0b17
   - bugfix: new entities need a default connector
+* v2.0.0b18
+  - provide default tzattrs in entities init
+  - allow more tzattrs to be appended to the default ones
+  - mambuclient already has default_tzattrs (useful for blank client creation)

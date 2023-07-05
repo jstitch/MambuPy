@@ -11,6 +11,18 @@ class MagicMethodsTests(unittest.TestCase):
     def test___init__(self):
         ms = classes.MambuMapObj(some="value")
         self.assertEqual(ms._attrs, {"some": "value"})
+        self.assertEqual(ms._tzattrs, {})
+
+        ms = classes.MambuMapObj(some="value", tzattrs={"hello": {}})
+        self.assertEqual(ms._attrs, {"some": "value"})
+        self.assertEqual(ms._tzattrs, {"hello": {}})
+
+        classes.MambuMapObj._default_tzattrs = {"goodbye": {}}
+        ms = classes.MambuMapObj(some="value", tzattrs={"hello": {}})
+        self.assertEqual(ms._attrs, {"some": "value"})
+        self.assertEqual(ms._tzattrs, {"hello": {}, "goodbye": {}})
+
+        del classes.MambuMapObj._default_tzattrs
 
     def test___getitem__(self):
         ms = classes.MambuMapObj()

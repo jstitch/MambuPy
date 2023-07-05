@@ -5,6 +5,8 @@
    :toctree: _autosummary
 """
 
+import copy
+
 
 class GenericClass:  # pragma: no coverage
     """Generic class for init of MambuMapObj"""
@@ -19,6 +21,12 @@ class MambuMapObj:
     def __init__(self, cf_class=GenericClass, **kwargs):
         self._attrs = {}
         self._cf_class = cf_class
+        if hasattr(self, "_default_tzattrs"):
+            self._tzattrs = copy.deepcopy(self._default_tzattrs)
+        else:
+            self._tzattrs = {}
+        if "tzattrs" in kwargs:
+            self._tzattrs.update(copy.deepcopy(kwargs.pop("tzattrs")))
         if kwargs:
             for key, val in kwargs.items():
                 self._attrs[key] = val

@@ -26,6 +26,13 @@ class MambuClient(
     _prefix = "clients"
     """prefix constant for connections to Mambu"""
 
+    _default_tzattrs = {
+        "birthDate": None,
+        "groupKeys": [None],
+        "addresses": [{}],
+        "idDocuments": [{}],
+    }
+
     _filter_keys = [
         "branchId",
         "centreId",
