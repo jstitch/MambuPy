@@ -203,3 +203,5 @@ Release Notes
   - provide default tzattrs in entities init
   - allow more tzattrs to be appended to the default ones
   - mambuclient already has default_tzattrs (useful for blank client creation)
+* v2.0.0b19
+  - requests library upgrade
