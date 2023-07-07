@@ -59,7 +59,7 @@ if int(__version__[0]) >= 2:
 
 install_requires=[
     "future",
-    "requests==2.26.0",
+    "requests==2.31.0",
     "requests_toolbelt==0.9.1",
     "SQLAlchemy>=1.3.6",
     ]
