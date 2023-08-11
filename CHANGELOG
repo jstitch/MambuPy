@@ -205,3 +205,5 @@ Release Notes
   - mambuclient already has default_tzattrs (useful for blank client creation)
 * v2.0.0b20
   - requests library upgrade
+* v2.0.0b21
+  - mambugroup already has default_tzattrs (useful for blank group creation)

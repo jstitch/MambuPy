@@ -26,6 +26,11 @@ class MambuGroup(
     _prefix = "groups"
     """prefix constant for connections to Mambu"""
 
+    _default_tzattrs = {
+        "addresses": [{}],
+        "groupMembers": [],
+    }
+
     _filter_keys = ["branchId", "centreId", "creditOfficerUsername"]
     """allowed filters for get_all filtering"""
 

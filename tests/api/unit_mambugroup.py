@@ -25,6 +25,12 @@ class MambuGroup(unittest.TestCase):
         mg = mambugroup.MambuGroup()
         self.assertEqual(mg._prefix, "groups")
         self.assertEqual(
+            mg._default_tzattrs,
+            {
+                "addresses": [{}],
+                "groupMembers": [],
+            })
+        self.assertEqual(
             mg._filter_keys, ["branchId", "centreId", "creditOfficerUsername"]
         )
         self.assertEqual(
