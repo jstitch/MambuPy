@@ -207,3 +207,5 @@ Release Notes
   - requests library upgrade
 * v2.0.0b21
   - mambugroup already has default_tzattrs (useful for blank group creation)
+* v2.0.0b22
+  - upgrade request-toolbelt requirement
