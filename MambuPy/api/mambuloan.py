@@ -45,6 +45,14 @@ class MambuLoan(
     ]
     """allowed filters for get_all filtering"""
 
+    _default_tzattrs = {
+        "disbursementDetails": {
+            "expectedDisbursementDate": None,
+            "disbursementDate": None,
+            "firstRepaymentDate": None,
+        },
+    }
+
     _sortBy_fields = [
         "creationDate",
         "lastModifiedDate",
