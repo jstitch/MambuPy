@@ -209,6 +209,15 @@ class MambuLoan(
         """
         self.set_state("CLOSE", notes)
 
+    def writeoff(self, notes):
+        """Request to writeoff a loan account.
+
+        Args:
+          notes (str): notes to attach to the writting off operation.
+        """
+        self._connector.mambu_loanaccount_writeoff(self.id, notes)
+        self.refresh()
+
     def repay(self, amount, notes, valueDate, **kwargs):
         """Request to repay a loan account.
 

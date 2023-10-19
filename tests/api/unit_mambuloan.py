@@ -291,6 +291,26 @@ class MambuLoan(unittest.TestCase):
         )
         self.assertEqual(ml.accountState, "CLOSED")
 
+    def test_writeoff(self):
+        def write_off(loan):
+            loan.accountState = 'CLOSED'
+            loan.accountSubState = 'WRITTEN_OFF'
+        ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_loanaccount_writeoff.return_value = ''
+
+        ml.refresh = mock.Mock()
+        ml.refresh.side_effect = write_off(ml)
+
+        ml.writeoff(notes="Smells like teen spirit")
+
+        mock_connector.mambu_loanaccount_writeoff.assert_called_with(
+            1,
+            "Smells like teen spirit",
+        )
+        self.assertEqual(ml.accountState, "CLOSED")
+        self.assertEqual(ml.accountSubState, "WRITTEN_OFF")
+
     def test_repay(self):
         ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
         mock_connector = ml._connector

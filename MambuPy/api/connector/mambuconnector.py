@@ -249,3 +249,13 @@ class MambuConnectorWriter(ABC):
           kwargs (dict): key-values of extra fields for the transaction
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def mambu_loanaccount_writeoff(self, loanid, notes):
+        """Writesoff a loan account
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+          notes (str): notes to associate to the writeoff operation in Mambu
+        """
+        raise NotImplementedError

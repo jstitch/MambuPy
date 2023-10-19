@@ -211,3 +211,5 @@ Release Notes
   - upgrade request-toolbelt requirement
 * v2.0.0b23
   - mambuloan already has default_tzattrs (useful for blank loan creation)
+* v2.0.0b24
+  - mambuloan writeoff method

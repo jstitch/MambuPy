@@ -304,6 +304,29 @@ class MambuConnectorWriterREST(unittest.TestCase):
             headers=mcrest._headers
         )
 
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    @mock.patch("MambuPy.api.connector.rest.uuid")
+    def test_mambu_loanaccount_writeoff(self, mock_uuid, mock_requests):
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.Session().request().status_code = 200
+
+        mcrest = rest.MambuConnectorREST()
+        mcrest._headers["Content-Type"] = "application/json"
+        mcrest._headers["Idempotency-Key"] = "r2d2-n-c3pO-BB8"
+
+        mcrest.mambu_loanaccount_writeoff(
+            loanid="12345",
+            notes="My Notes"
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "POST",
+            "https://{}/api/loans/12345:writeOff".format(apiurl),
+            params={},
+            data='{"notes": "My Notes"}',
+            headers=mcrest._headers
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

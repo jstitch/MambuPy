@@ -611,6 +611,20 @@ url %s, params %s, data %s, headers %s",
 
         return self.__request("GET", url)
 
+    def mambu_loanaccount_writeoff(self, loanid, notes):
+        """Writesoff a loan account
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+          notes (str): notes to associate to the writeoff operation in Mambu
+        """
+        url = "https://{}/api/{}/{}:writeOff".format(
+            self._tenant, "loans", loanid)
+        data = {
+            "notes": notes
+        }
+        return self.__request("POST", url, data=data)
+
     def mambu_change_state(self, entid, prefix, action, notes):
         """change state of mambu entity
 
