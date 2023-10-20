@@ -21,9 +21,7 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
 
 .. todo:: status API V2: testing of EVERYTHING is required """
 from .mambugeturl import getmambuurl
-from .mambuconfig import (apipwd, apiurl, apiuser, apipagination,
-                          dbeng, dbhost, dbname,
-                          dbport, dbpwd, dbuser)
+from .mambuconfig import apipwd, apiurl, apiuser, apipagination
 
 try:
     # python2
@@ -157,35 +155,6 @@ class MambuError(MambuPyError):
 
 class MambuCommError(MambuError):
     """Thrown when communication issues with Mambu arise"""
-
-
-# Connects to DB
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-
-
-def connect_db(
-    engine=dbeng,
-    user=dbuser,
-    password=dbpwd,
-    host=dbhost,
-    port=dbport,
-    database=dbname,
-    params="?charset=utf8&use_unicode=1",
-    echoopt=False,
-):
-    """Connect to database utility function.
-
-    Uses SQLAlchemy ORM library.
-
-    Useful when using schema modules in MambuPy
-    """
-    return create_engine(
-        "%s://%s:%s@%s:%s/%s%s" % (engine, user, password, host, port, database, params),
-        poolclass=NullPool,
-        isolation_level="READ UNCOMMITTED",
-        echo=echoopt,
-    )
 
 
 ### More utility functions follow ###
@@ -347,6 +316,7 @@ from time import sleep
 
 import requests
 
+
 def _backup_db_previous_prep(callback, kwargs):
     list_ret = []
     try:
@@ -401,7 +371,6 @@ def _backup_db_previous_prep(callback, kwargs):
 def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
     try:
         if not justbackup:
-
             posturl = iri_to_uri(getmambuurl() + "database/backup")
             if verbose:
                 log.write("open url: " + posturl + "\n")
@@ -417,10 +386,30 @@ def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
                 auth=(user, pwd),
             )
             if verbose:
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.content) + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.url + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + resp.request.body + "\n")
-                log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - " + str(resp.request.headers) + "\n")
+                log.write(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    + " - "
+                    + str(resp.content)
+                    + "\n"
+                )
+                log.write(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    + " - "
+                    + resp.request.url
+                    + "\n"
+                )
+                log.write(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    + " - "
+                    + resp.request.body
+                    + "\n"
+                )
+                log.write(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    + " - "
+                    + str(resp.request.headers)
+                    + "\n"
+                )
                 log.flush()
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
@@ -436,7 +425,10 @@ def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
             log.close()
         raise MambuCommError(mess)
 
-def _backup_db_timeout_mechanism(justbackup, retries, bool_func, force_download_latest,verbose=None, log=None):
+
+def _backup_db_timeout_mechanism(
+    justbackup, retries, bool_func, force_download_latest, verbose=None, log=None
+):
     value_to_latest = True
     while not justbackup and retries and not bool_func():
         if verbose:
@@ -461,6 +453,7 @@ def _backup_db_timeout_mechanism(justbackup, retries, bool_func, force_download_
 
     return value_to_latest
 
+
 def _backup_db_request_download_backup(user, pwd, headers, verbose=None, log=None):
     geturl = iri_to_uri(getmambuurl() + "database/backup/LATEST")
     if verbose:
@@ -477,12 +470,14 @@ def _backup_db_request_download_backup(user, pwd, headers, verbose=None, log=Non
 
     return resp
 
+
 def _backup_db_post_processing(resp, output_fname, verbose=None, log=None):
     if verbose:
         log.write("saving...\n")
         log.flush()
     with open(output_fname, "wb") as fw:
         fw.write(resp.content)
+
 
 def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     """Backup Mambu Database via REST API.
@@ -528,17 +523,28 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         -latest     boolean flag, if the db downloaded was the latest or not
 
     .. todo:: status API V2: compatible
-   """
+    """
 
     # previous preparation
-    verbose, retries, justbackup, force_download_latest, headers, log, user, pwd, data = \
-    _backup_db_previous_prep(callback, kwargs)
+    (
+        verbose,
+        retries,
+        justbackup,
+        force_download_latest,
+        headers,
+        log,
+        user,
+        pwd,
+        data,
+    ) = _backup_db_previous_prep(callback, kwargs)
 
     # POST to request Mambu to prepare backup of its own DB
     _backup_db_request(justbackup, data, user, pwd, verbose, log)
 
     # wait & timeout mechanism
-    data["latest"] = _backup_db_timeout_mechanism(justbackup, retries, bool_func, force_download_latest,verbose, log)
+    data["latest"] = _backup_db_timeout_mechanism(
+        justbackup, retries, bool_func, force_download_latest, verbose, log
+    )
 
     # GET request to download LATEST Mambu's DB backup
     resp = _backup_db_request_download_backup(user, pwd, headers, verbose, log)

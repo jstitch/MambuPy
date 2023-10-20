@@ -213,3 +213,7 @@ Release Notes
   - mambuloan already has default_tzattrs (useful for blank loan creation)
 * v2.0.0b24
   - mambuloan writeoff method
+* v2.0.0b25
+  - odd patch versions are lite that only supports REST API, no ORM
+* v2.0.0b26
+  - even patch versions are full that supports REST API and ORM

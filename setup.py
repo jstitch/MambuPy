@@ -5,6 +5,7 @@
 """
 
 import os
+import re
 import sys
 
 import setuptools
@@ -37,40 +38,74 @@ class VerifyVersionCommand:
             )
             sys.exit(info)
 
-packages=[
-    "MambuPy",
-    "MambuPy/rest",
-    "MambuPy/orm",
-    "mambupy",
-    "mambupy/rest",
-    "mambupy/orm",
-    ]
-if int(__version__[0]) >= 2:
-    packages.extend(
-        ["MambuPy/api",
-         "mambupy/api",
-         "MambuPy/api/connector",
-         "mambupy/api/connector",
-         "MambuPy/rest1to2",
-         "mambupy/rest1to2",
-         "MambuPy/utils",
-         "mambupy/utils",
-         ])
 
-install_requires=[
+packages = [
+    "MambuPy",
+    "mambupy",
+]
+
+major_ver, minor_ver, patch_ver = re.findall(r"([\d]+).([\d]+).([\w]+)", __version__)[0]
+prefix_patch, patch = re.findall(r"^([\d]*[\D]+|[\D]*)([\d]+)$", patch_ver)[0]
+lite = int(patch) % 2 != 0
+
+if int(major_ver) >= 2:
+    packages.extend(
+        [
+            "MambuPy/api",
+            "mambupy/api",
+            "MambuPy/api/connector",
+            "mambupy/api/connector",
+        ]
+    )
+    if not lite:
+        packages.extend(
+            [
+                "MambuPy/rest1to2",
+                "mambupy/rest1to2",
+                "MambuPy/utils",
+                "mambupy/utils",
+            ]
+        )
+else:
+    packages.extend(
+        [
+            "MambuPy/rest",
+            "mambupy/rest",
+        ]
+    )
+
+if not lite:
+    packages.extend(
+        [
+            "MambuPy/orm",
+            "mambupy/orm",
+        ]
+    )
+
+install_requires = [
     "future",
     "requests==2.31.0",
     "requests_toolbelt==1.0.0",
-    "SQLAlchemy>=1.3.6",
-    ]
-if int(__version__[0]) <= 3:
+    "dateutils==0.6.12",
+]
+if not lite:
     install_requires.extend(
-        ["mysqlclient",
-         ])
-else:
-    install_requires.extend(
-        ["mysqlclient==2.1.0",
-         ])
+        [
+            "SQLAlchemy>=1.3.6",
+        ]
+    )
+    if int(major_ver) <= 3:
+        install_requires.extend(
+            [
+                "mysqlclient",
+            ]
+        )
+    else:
+        install_requires.extend(
+            [
+                "mysqlclient==2.1.0",
+            ]
+        )
 
 setuptools.setup(
     name="MambuPy",

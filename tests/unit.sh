@@ -64,7 +64,9 @@ tests=("unit_mambuconfig.py" \
            "api/connector/unit_rest.py" \
            "api/connector/unit_rest_reader.py" \
            "api/connector/unit_rest_writer.py" \
-           
+
+           "orm/unit_schema_orm.py" \
+
            "utils/unit_userdeactivate.py" \
       )
 for test in ${tests[@]}

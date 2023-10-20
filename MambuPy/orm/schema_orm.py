@@ -28,7 +28,36 @@ from __future__ import absolute_import
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from ..mambuutil import connect_db, dbname
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
+
+from ..mambuconfig import dbeng, dbhost, dbname, dbport, dbpwd, dbuser
+
+
+# Connects to DB
+def connect_db(
+    engine=dbeng,
+    user=dbuser,
+    password=dbpwd,
+    host=dbhost,
+    port=dbport,
+    database=dbname,
+    params="?charset=utf8&use_unicode=1",
+    echoopt=False,
+):
+    """Connect to database utility function.
+
+    Uses SQLAlchemy ORM library.
+
+    Useful when using schema modules in MambuPy
+    """
+    return create_engine(
+        "%s://%s:%s@%s:%s/%s%s" % (engine, user, password, host, port, database, params),
+        poolclass=NullPool,
+        isolation_level="READ UNCOMMITTED",
+        echo=echoopt,
+    )
+
 
 engine = connect_db()
 """Database engine, connecting with default parameters by default.

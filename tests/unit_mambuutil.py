@@ -31,12 +31,6 @@ class MambuUtilTests(unittest.TestCase):
         for atr in ["apiurl",
                     "apiuser",
                     "apipwd",
-                    "dbname",
-                    "dbuser",
-                    "dbpwd",
-                    "dbhost",
-                    "dbport",
-                    "dbeng",
                     "OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE",
                     "PAGINATIONDETAILS", "DETAILSLEVEL",
                     "MAX_UPLOAD_SIZE",
@@ -61,67 +55,6 @@ class MambuUtilTests(unittest.TestCase):
                          (mambuutil.MambuPyError,))
         self.assertEqual(mambuutil.MambuCommError.__bases__,
                          (mambuutil.MambuError,))
-
-    @mock.patch("MambuPy.mambuutil.create_engine")
-    def test_connect_dB(self, mock_create_engine):
-        mock_create_engine.return_value = "test_connect_dB"
-        en = mambuutil.connect_db()
-        self.assertEqual(en, "test_connect_dB")
-        mock_create_engine.assert_called_once_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db?charset=utf8&use_unicode=1",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(echoopt=True, params="")
-        mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=True,
-        )
-        mambuutil.connect_db(engine="myeng", params="")
-        mock_create_engine.assert_called_with(
-            "myeng://mambu_db_user:mambu_db_pwd@localhost:3306/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(user="myuser", params="")
-        mock_create_engine.assert_called_with(
-            "mysql://myuser:mambu_db_pwd@localhost:3306/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(password="mypass", params="")
-        mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mypass@localhost:3306/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(host="myhost", params="")
-        mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@myhost:3306/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(port="myport", params="")
-        mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:myport/mambu_db",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
-        mambuutil.connect_db(database="mydb", params="")
-        mock_create_engine.assert_called_with(
-            "mysql://mambu_db_user:mambu_db_pwd@localhost:3306/mydb",
-            poolclass=mambuutil.NullPool,
-            isolation_level="READ UNCOMMITTED",
-            echo=False,
-        )
 
     def test_strip_tags(self):
         self.assertEqual(mambuutil.strip_tags(
@@ -176,7 +109,6 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_date_format(self):
         """Test date_format"""
-        from datetime import datetime
         if sys.version_info < (3, 0):
             format = "%Y-%m-%dT%H:%M:%S+0000"
         else:
