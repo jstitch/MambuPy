@@ -381,12 +381,28 @@ class MambuEntityCFTests(unittest.TestCase):
             MambuError,
         ]
         ms = entities.MambuEntityCF(
-            [{"_KEY_": "_VALUE_", "_OTHER_": "_VAL_"}], "_a_cf_set/_a_cf", "GROUPED"
+            [{"_KEY_": "_VALUE_", "_OTHER_": "_VAL_", "_index": 0}], "_a_cf_set/_a_cf", "GROUPED"
         )
-
         ms.get_mcf()
+        self.assertEqual(ms._attrs["mcf"], {"_KEY_": "Other_MambuCF", "_OTHER_": None, "_index": None})
 
-        self.assertEqual(ms._attrs["mcf"], {"_KEY_": "Other_MambuCF", "_OTHER_": None})
+        mock_import_module().MambuCustomField.get.side_effect = [
+            "Other_MambuCF",
+            MambuError,
+            "AnOther_MambuCF",
+            MambuError,
+        ]
+        ms = entities.MambuEntityCF(
+            [
+                {"_KEY_": "_VALUE_", "_OTHER_": "_VAL_", "_index": 0},
+                {"_OTHER_KEY_": "_VALUE_", "_OTHER_": "_VAL_", "_index": 1},
+            ],
+            "_a_cf_set/_a_cf", "GROUPED"
+        )
+        ms.get_mcf()
+        self.assertEqual(
+            ms._attrs["mcf"],
+            {"_KEY_": "Other_MambuCF", "_OTHER_": None, "_OTHER_KEY_": "AnOther_MambuCF", "_index": None})
 
 
 if __name__ == "__main__":

@@ -843,11 +843,13 @@ class MambuEntityCF(MambuValueObject):
             return
         if isinstance(self.value, list) and len(self.value) > 0:
             self.mcf = {}
-            for key in self.value[0].keys():
-                try:
-                    self.mcf[key] = mcf_mod.MambuCustomField.get(key)
-                except MambuError:
-                    self.mcf[key] = None
+            for item in self.value:
+                self.mcf['_index'] = None
+                for key in [ k for k in item.keys() if k not in self.mcf and k != '_index']:
+                    try:
+                        self.mcf[key] = mcf_mod.MambuCustomField.get(key)
+                    except MambuError:
+                        self.mcf[key] = None
             return
         self.mcf = mcf_mod.MambuCustomField.get(self.path.split("/")[-1])
 

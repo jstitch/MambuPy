@@ -217,3 +217,11 @@ Release Notes
   - odd patch versions are lite that only supports REST API, no ORM
 * v2.0.0b26
   - even patch versions are full that supports REST API and ORM
+* v2.0.0b27
+- MambuEntityCF list (GROUPED) cfs may have values with different
+  sets of CFs, all allowed in the group. This version traverses all
+  values searching for all the CFs in the Group, instantiating the
+  correspondent MambuCF. It ignores the _index key, since it's not
+  part of a CF, it's just part of the GROUP meta-information
+* v2.0.0b28
+  - ORM support with v2.0.0b27 features included in REST API
