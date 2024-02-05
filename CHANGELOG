@@ -110,6 +110,8 @@ Release Notes
   - Codesmells fixes
 * v1.8.10 2021-06-29
   - MambuStruct connect() retries on Mambu 500 errors, throwing MambuCommError on RETRIES limit
+* v1.9.0 2024-02-05
+  - MambuCentre setBranch() method to get the MambuBranch to which the Centre belongs
 * v2.0.0a1 2022-02-18
   - support for Mambu API REST v2, work in progress... check api directory
   - using a loan account as a sample for all development...

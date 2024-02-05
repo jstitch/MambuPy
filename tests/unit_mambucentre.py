@@ -48,6 +48,45 @@ class MambuCentreTests(unittest.TestCase):
             cn = mambucentre.MambuCentre(urlfunc=getcentresurl, entid="mockcentre")
             self.assertRegexpMatches(repr(cn), r"^MambuCentre - id: mockcentre")
 
+    def test_setBranch(self):
+        def mock_connect(*args, **kwargs):
+            args[0].attrs = {
+                "id": "myCentre_12345",
+                "assignedBranchKey": "dummyBranchId",
+            }
+
+        class my_branch(object):
+            def __init__(self, id, name):
+                self.attrs = {"id": id, "name": name}
+
+            def __getitem__(self, item):
+                return self.attrs[item]
+
+        with mock.patch.object(
+            mambucentre.MambuStruct, "connect", mock_connect
+        ), mock.patch("MambuPy.rest.mambubranch.MambuBranch") as mock_mambubranch:
+            my_branch_instance = my_branch(
+                id="dummyBranchId",
+                name="myBranchName",
+            )
+            mock_mambubranch.return_value = my_branch_instance
+
+            # no mambubranchclass yet
+            c = mambucentre.MambuCentre(urlfunc=lambda x: x)
+            self.assertFalse(c.has_key("branch"))
+            c.setBranch()
+            self.assertTrue(c.has_key("branch"))
+            mock_mambubranch.assert_called_once_with(entid="dummyBranchId")
+            self.assertEqual(
+                c["branch"], my_branch_instance,
+            )
+
+            # already with mambuuserclass
+            mock_mambubranch.reset_mock()
+            c.setBranch()
+            self.assertTrue(c.has_key("branch"))
+            mock_mambubranch.assert_called_once_with(entid="dummyBranchId")
+
 
 class MambuCentresTests(unittest.TestCase):
     def test_class(self):

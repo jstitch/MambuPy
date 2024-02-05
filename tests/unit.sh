@@ -85,5 +85,5 @@ done
 if [ $fails -ne 0 ];then
     exit 1
 else
-    coverage report --precision=2
+    coverage report --precision=2 -m
 fi

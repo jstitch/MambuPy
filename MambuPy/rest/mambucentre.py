@@ -36,6 +36,23 @@ class MambuCentre(MambuStruct):
             self, urlfunc, entid, custom_field_name="customFieldValues", *args, **kwargs
         )
 
+    def setBranch(self, *args, **kwargs):
+        """Adds the branch for this centre to a 'branch' field.
+
+                Returns the number of requests done to Mambu.
+        """
+        try:
+            self.mambubranchclass
+        except AttributeError:
+            from .mambubranch import MambuBranch
+
+            self.mambubranchclass = MambuBranch
+
+        brnch = self.mambubranchclass(entid=self["assignedBranchKey"], *args, **kwargs)
+        self["branch"] = brnch
+
+        return 1
+
 
 class MambuCentres(MambuStruct):
     """A list of Centres from Mambu.
