@@ -742,7 +742,10 @@ class MambuStruct(MambuMapObj):
         for encodedKey, ent_path, new_property in entities:
             ent_module = ".".join(ent_path.split(".")[:-1])
             ent_class = ent_path.split(".")[-1]
-            ent_mod = import_module("." + ent_module, "mambupy.api")
+            try:
+                ent_mod = import_module("." + ent_module, "mambupy.api")
+            except ModuleNotFoundError:
+                ent_mod = import_module(ent_module)
 
             enc_key = self.__get_enc_key(encodedKey)
             if not enc_key:

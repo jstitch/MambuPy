@@ -227,3 +227,5 @@ Release Notes
   part of a CF, it's just part of the GROUP meta-information
 * v2.0.0b28
   - ORM support with v2.0.0b27 features included in REST API
+* v2.0.0b30
+  - MambuCentre v2 assignedBranch field allows get_assignedBranch() method

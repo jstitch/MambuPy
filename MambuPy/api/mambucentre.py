@@ -33,3 +33,8 @@ class MambuCentre(MambuEntity, MambuEntityCommentable, MambuOwner):
 
     _vos = [("addresses", "MambuAddress")]
     """2-tuples of elements and Value Objects"""
+
+    _entities = [
+        ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
+    ]
+    """3-tuples of elements and Mambu Entities"""
