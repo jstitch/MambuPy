@@ -1,7 +1,10 @@
 # coding: utf-8
 
+import json
 import os
 import sys
+
+import requests
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -24,7 +27,30 @@ except Exception as e:
     pass  # DeprecationWarning: Please use assertRegex instead
 
 
+class Response(object):
+    def __init__(self, text):
+        self.text = json.dumps(text)
+        self.content = text
+
+    def raise_for_status(self):
+        return
+
+
 class MambuTaskTests(unittest.TestCase):
+    var_response = '{"task":{"encodedKey":"",\
+"id":50221,\
+"creationDate":"2024-03-05T00:00:00",\
+"lastModifiedDate":"2024-03-05T00:00:00",\
+"dueDate":"2024-03-06T00:00:00",\
+"title":"MY_TASK",\
+"description":"This is a task",\
+"createdByUserKey":"",\
+"status":"OPEN",\
+"taskLinkKey":"",\
+"taskLinkType":"GROUP",\
+"daysUntilDue":0,\
+"assignedUserKey":""}}'
+
     def test_mod_urlfunc(self):
         from MambuPy.mambugeturl import gettasksurl
 
@@ -100,6 +126,20 @@ class MambuTaskTests(unittest.TestCase):
             self.assertRegexpMatches(
                 repr(t), r"^MambuTask - taskid: '', \d+-\d+-\d+, OPEN"
             )
+
+    @mock.patch("MambuPy.rest.mambustruct.requests")
+    def test_create(self, mock_requests):
+        mock_requests.exceptions.HTTPError = requests.exceptions.HTTPError
+        mock_requests.exceptions.RequestException = requests.exceptions.RequestException
+        mock_requests.exceptions.RetryError = requests.exceptions.RetryError
+        # set data response
+        mock_requests.Session().post.return_value = Response(self.var_response)
+        t = mambutask.MambuTask(connect=False)
+        # since we mock requests.post, send any data
+        self.assertEqual(t.create({"task": "data"}), 1)
+        # at the end of MambuStruct.connect() are stablished all fields with the init() method
+        self.assertEqual(t["title"], "MY_TASK")
+        self.assertEqual(t["description"], "This is a task")
 
     def test_close(self):
         from datetime import date

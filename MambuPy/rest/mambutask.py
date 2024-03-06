@@ -58,6 +58,32 @@ class MambuTask(MambuStruct):
                 except KeyError:
                     return self.__class__.__name__ + " - taskid: '%s'" % self["id"]
 
+    def preprocess(self):
+        """Preprocessing.
+
+        Flattens the object. When .creat[ed]() the data comes on the
+        'task' dictionary inside of the response. Instead, every
+        element of the 'task' dictionary is taken out to the main
+        attrs dictionary, since GET response comes in that format.
+        """
+        super(MambuTask, self).preprocess()
+
+        try:
+            for k, v in self["task"].items():
+                self[k] = v
+            del self.attrs["task"]
+        except Exception:
+            pass
+
+    def create(self, data, *args, **kwargs):
+        """Create a task in Mambu
+
+        Parameters
+        -data       dictionary with data to send
+
+        """
+        return super(MambuTask, self).create(data)
+
     def close(self, *args, **kwargs):
         """"""
         from datetime import datetime
