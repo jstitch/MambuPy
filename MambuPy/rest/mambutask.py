@@ -113,7 +113,7 @@ class MambuTask(MambuStruct):
         self._MambuStruct__data = data
         self.connect(*args, **kwargs)
 
-        data["task"]["id"] = self["task"]["id"]
+        data["task"]["id"] = self["id"]
         data["task"]["completionDate"] = datetime.strptime(
             data["task"]["completionDate"], "%Y-%m-%d"
         )

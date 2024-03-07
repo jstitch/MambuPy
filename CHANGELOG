@@ -114,6 +114,8 @@ Release Notes
   - MambuCentre setBranch() method to get the MambuBranch to which the Centre belongs
 * v1.10.0 2024-03-05
   - MambuTask create() method to create a MambuTask
+* v1.10.1 2024-03-06
+  - bugfix MambuTask close method, there's no 'task' in the attrs of a MambuTask
 * v2.0.0a1 2022-02-18
   - support for Mambu API REST v2, work in progress... check api directory
   - using a loan account as a sample for all development...
