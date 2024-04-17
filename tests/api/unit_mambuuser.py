@@ -55,9 +55,7 @@ class MambuUser(unittest.TestCase):
         self.assertEqual(inspect.isfunction(mu.get_role), True)
         self.assertEqual(
             inspect.getsource(mu.get_role).strip(),
-            """return lambda **kwargs: self.getEntities(
-                entities=["role"],
-                **kwargs)[0]""")
+            """return lambda **kwargs: self.getEntities(entities=["role"], **kwargs)[0]""")
         mu.get_role()
         mock_getEntities.assert_called_with(entities=["role"])
 

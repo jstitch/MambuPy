@@ -152,6 +152,31 @@ class MambuConnectorREST(unittest.TestCase):
         ):
             mcrest.__request("GET", "someURL")
 
+    @mock.patch("MambuPy.api.connector.rest.requests.Session")
+    def test_mambu___request_404(self, mock_request_session):
+        mock_request_session().request().status_code = 404
+        mock_request_session().request().content = b"""
+{"returnCode": "66",
+ "returnStatus": "Kill the Jedi"}
+"""
+        mock_request_session().request().raise_for_status.side_effect = \
+            requests.exceptions.HTTPError("404 not found")
+
+        mcrest = rest.MambuConnectorREST()
+        with self.assertRaisesRegex(MambuError, r"66 \(404\) - Kill the Jedi"):
+            mcrest.__request("GET", "someURL")
+
+        mock_request_session().request().content = b"""
+{"returnCode": "66",
+ "returnStatus": "Kill the Jedi",
+ "errorSource": "Palpatine"}
+"""
+        mcrest = rest.MambuConnectorREST()
+        with self.assertRaisesRegex(
+            MambuError, r"^66 \(404\) - Kill the Jedi \(Palpatine\)$"
+        ):
+            mcrest.__request("GET", "someURL")
+
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu___request_retries(self, mock_requests):
         # everything OK! no retries done

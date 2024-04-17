@@ -233,3 +233,6 @@ Release Notes
   - ORM support with v2.0.0b27 features included in REST API
 * v2.0.0b30
   - MambuCentre v2 assignedBranch field allows get_assignedBranch() method
+* v2.0.0b32
+  - REST connector httperror raises MambuError, different Mambu error responses.
+  - v2 code black linting

@@ -159,14 +159,20 @@ url %s, params %s, data %s, headers %s",
                         },
                     ]
                 }
+            try:
+                error = content["errors"][0]
+            except KeyError:
+                error = content
             raise MambuError(
                 "{} ({}) - {}{}".format(
-                    content["errors"][0]["errorCode"],
+                    error["errorCode"] if "errorCode" in error else error["returnCode"],
                     resp.status_code,
-                    content["errors"][0]["errorReason"],
-                    " (" + content["errors"][0]["errorSource"] + ")"
-                    if "errorSource" in content["errors"][0]
-                    else "",
+                    (
+                        error["errorReason"]
+                        if "errorReason" in error
+                        else error["returnStatus"]
+                    ),
+                    " (" + error["errorSource"] + ")" if "errorSource" in error else "",
                 )
             )
         except requests.exceptions.RetryError as rerr:  # pragma: no cover
