@@ -95,6 +95,7 @@ You may edit this to your own liking. But beware of pricking eyes!
 """
 
 import os
+
 # import ConfigParser depending on Python version
 import sys
 

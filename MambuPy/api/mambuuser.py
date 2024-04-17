@@ -5,19 +5,22 @@
    :toctree: _autosummary
 """
 
-from .entities import (MambuEntity, MambuEntityWritable,
-                       MambuEntityAttachable,
-                       MambuEntityCommentable,
-                       MambuPyError)
+from .entities import (
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntityCommentable,
+    MambuPyError,
+)
 from .interfaces import MambuOwner
 
 
 class MambuUser(
-        MambuEntity,
-        MambuEntityWritable,
-        MambuEntityAttachable,
-        MambuEntityCommentable,
-        MambuOwner
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntityCommentable,
+    MambuOwner,
 ):
     """MambuUser entity"""
 
@@ -29,8 +32,7 @@ class MambuUser(
     ]
     """allowed filters for get_all filtering"""
 
-    _sortBy_fields = [
-    ]
+    _sortBy_fields = []
     """allowed fields for get_all sorting"""
 
     _ownerType = "USER"
@@ -38,7 +40,8 @@ class MambuUser(
 
     _entities = [
         ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
-        ("role", "mamburole.MambuRole", "role")]
+        ("role", "mamburole.MambuRole", "role"),
+    ]
     """3-tuples of elements and Mambu Entities"""
 
     def __init__(self, **kwargs):
@@ -53,20 +56,18 @@ class MambuUser(
             return super().__repr__()
 
     def __getattribute__(self, name):
-        """Object-like get attribute for MambuUsers.
-        """
+        """Object-like get attribute for MambuUsers."""
         if name == "get_role":
-            return lambda **kwargs: self.getEntities(
-                entities=["role"],
-                **kwargs)[0]
+            return lambda **kwargs: self.getEntities(entities=["role"], **kwargs)[0]
         else:
             return super().__getattribute__(name)
 
     def _updateVOs(self):
-        """Updates role, and the loops _vos list to update corresponding data
-        """
-        self._attrs["role"] = {"encodedKey": self.role["encodedKey"],
-                               "id": self.role["id"]}
+        """Updates role, and the loops _vos list to update corresponding data"""
+        self._attrs["role"] = {
+            "encodedKey": self.role["encodedKey"],
+            "id": self.role["id"],
+        }
         super()._updateVOs()
 
     @classmethod
@@ -107,8 +108,5 @@ class MambuUser(
             params["branchIdType"] = branchIdType
 
         return super().get_all(
-            filters,
-            offset, limit,
-            paginationDetails, detailsLevel,
-            sortBy,
-            **params)
+            filters, offset, limit, paginationDetails, detailsLevel, sortBy, **params
+        )

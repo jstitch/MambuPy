@@ -5,24 +5,23 @@
    :toctree: _autosummary
 """
 
-from .entities import (MambuEntity, MambuEntityWritable,
-                       MambuEntityAttachable,
-                       MambuEntityCommentable)
+from .entities import (
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntityCommentable,
+)
 
 
 class MambuProduct(
-        MambuEntity,
-        MambuEntityWritable,
-        MambuEntityAttachable,
-        MambuEntityCommentable
+    MambuEntity, MambuEntityWritable, MambuEntityAttachable, MambuEntityCommentable
 ):
     """MambuProduct entity"""
 
     _prefix = "loanproducts"
     """prefix constant for connections to Mambu"""
 
-    _filter_keys = [
-    ]
+    _filter_keys = []
     """allowed filters for get_all filtering"""
 
     _sortBy_fields = [
@@ -56,7 +55,8 @@ class MambuProduct(
         if "detailsLevel" in kwargs:
             kwargs.pop("detailsLevel")
         return super().get(
-            entid, detailsLevel="FULL", get_entities=get_entities, **kwargs)
+            entid, detailsLevel="FULL", get_entities=get_entities, **kwargs
+        )
 
     def refresh(self):
         """get again this single entity, identified by its entid.
@@ -69,12 +69,7 @@ class MambuProduct(
 
     @classmethod
     def get_all(
-        cls,
-        filters=None,
-        offset=None,
-        limit=None,
-        paginationDetails="OFF",
-        sortBy=None
+        cls, filters=None, offset=None, limit=None, paginationDetails="OFF", sortBy=None
     ):
         """get_all, several entities, filtering allowed
 
@@ -91,7 +86,5 @@ class MambuProduct(
           list of instances of an entity with data from Mambu
         """
         return super().get_all(
-            filters,
-            offset, limit,
-            paginationDetails, detailsLevel="FULL",
-            sortBy=sortBy)
+            filters, offset, limit, paginationDetails, detailsLevel="FULL", sortBy=sortBy
+        )

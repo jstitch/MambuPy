@@ -6,6 +6,7 @@ Currently supports REST.
    :nosignatures:
    :toctree: _autosummary
 """
+
 import base64
 import copy
 import json
@@ -21,11 +22,21 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from .mambuconnector import MambuConnector, MambuConnectorReader, MambuConnectorWriter
-from MambuPy.mambuutil import (ALLOWED_UPLOAD_MIMETYPES, DETAILSLEVEL,
-                               MAX_UPLOAD_SIZE, PAGINATIONDETAILS, SEARCH_OPERATORS,
-                               OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
-                               UPLOAD_FILENAME_INVALID_CHARS, MambuCommError,
-                               MambuError, MambuPyError, apipwd, apiurl, apiuser)
+from MambuPy.mambuutil import (
+    ALLOWED_UPLOAD_MIMETYPES,
+    DETAILSLEVEL,
+    MAX_UPLOAD_SIZE,
+    PAGINATIONDETAILS,
+    SEARCH_OPERATORS,
+    OUT_OF_BOUNDS_PAGINATION_LIMIT_VALUE,
+    UPLOAD_FILENAME_INVALID_CHARS,
+    MambuCommError,
+    MambuError,
+    MambuPyError,
+    apipwd,
+    apiurl,
+    apiuser,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -104,7 +115,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
                 "PUT",
                 "DELETE",
                 "TRACE",
-                "PATCH"]
+                "PATCH",
+            ],
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         http = requests.Session()
@@ -116,17 +128,23 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
             logger.debug(
                 "about to make %s request: \
 url %s, params %s, data %s, headers %s",
-                method, url, params, data,
-                [(k, v) for k, v in headers.items() if k != 'Authorization'])
-            resp = http.request(
-                method, url, params=params, data=data, headers=headers
+                method,
+                url,
+                params,
+                data,
+                [(k, v) for k, v in headers.items() if k != "Authorization"],
             )
+            resp = http.request(method, url, params=params, data=data, headers=headers)
             resp.raise_for_status()
         except requests.exceptions.HTTPError as httperr:
             logger.error(
                 "%s on %s request: params %s, data %s, headers %s",
-                str(httperr), method, params, data,
-                [(k, v) for k, v in headers.items()])
+                str(httperr),
+                method,
+                params,
+                data,
+                [(k, v) for k, v in headers.items()],
+            )
             if hasattr(resp, "content"):  # pragma: no cover
                 logger.error("HTTPError, resp content: %s", resp.content)
             try:
@@ -154,19 +172,30 @@ url %s, params %s, data %s, headers %s",
         except requests.exceptions.RetryError as rerr:  # pragma: no cover
             logger.error(
                 "%s MambuCommError on %s request: url %s, params %s, data %s, headers %s",
-                str(rerr), method, url, params, data,
-                [(k, v) for k, v in headers.items()])
+                str(rerr),
+                method,
+                url,
+                params,
+                data,
+                [(k, v) for k, v in headers.items()],
+            )
             raise MambuCommError(
-                "COMM Error: I cannot communicate with Mambu: {}".format(rerr))
+                "COMM Error: I cannot communicate with Mambu: {}".format(rerr)
+            )
         except Exception as ex:
             logger.exception(
                 "%s Exception (%s) on %s request: url %s, params %s, data %s, headers %s",
-                str(ex), resp, method, url, params, data,
-                [(k, v) for k, v in headers.items()])
+                str(ex),
+                resp,
+                method,
+                url,
+                params,
+                data,
+                [(k, v) for k, v in headers.items()],
+            )
             if hasattr(resp, "content"):  # pragma: no cover
                 logger.error("Exception, resp content: %s", resp.content)
-            raise MambuCommError(
-                "Unknown comm error with Mambu: {}".format(ex))
+            raise MambuCommError("Unknown comm error with Mambu: {}".format(ex))
 
         logger.debug("response %s to %s:\n%s", resp, method, resp.content)
 
@@ -226,7 +255,8 @@ url %s, params %s, data %s, headers %s",
             params["limit"] = limit if limit != 0 else None
 
             resp = self.__request(
-                method, url, params=copy.copy(params), data=copy.copy(data))
+                method, url, params=copy.copy(params), data=copy.copy(data)
+            )
 
             jsonresp = list(json.loads(resp.decode()))
             if len(jsonresp) < limit:
@@ -291,17 +321,15 @@ url %s, params %s, data %s, headers %s",
           MambuPyError (obj): when invalid filterCriteria
         """
         validated_filterCriteria = []
-        if (
-                not isinstance(filterCriteria, list) or
-                any([criteria for criteria in filterCriteria
-                     if not isinstance(criteria, dict)])
+        if not isinstance(filterCriteria, list) or any(
+            [criteria for criteria in filterCriteria if not isinstance(criteria, dict)]
         ):
             raise MambuPyError("filterCriteria must be a list of dictionaries")
         for criteria in filterCriteria:
             if (
-                "field" not in criteria or
-                "operator" not in criteria or
-                criteria["operator"] not in SEARCH_OPERATORS
+                "field" not in criteria
+                or "operator" not in criteria
+                or criteria["operator"] not in SEARCH_OPERATORS
             ):
                 raise MambuPyError(
                     "a filterCriteria must have a field and an operator, member of {}".format(
@@ -447,12 +475,10 @@ url %s, params %s, data %s, headers %s",
         data = {}
 
         if filterCriteria is not None:
-            data["filterCriteria"] = self.__validate_filter_criteria(
-                filterCriteria)
+            data["filterCriteria"] = self.__validate_filter_criteria(filterCriteria)
 
         if sortingCriteria is not None:
-            data["sortingCriteria"] = self.__validate_sorting_criteria(
-                sortingCriteria)
+            data["sortingCriteria"] = self.__validate_sorting_criteria(sortingCriteria)
 
         url = "https://{}/api/{}:search".format(self._tenant, prefix)
 
@@ -565,8 +591,12 @@ url %s, params %s, data %s, headers %s",
         )
 
     def mambu_get_documents_metadata(
-        self, entid, owner_type,
-        offset=None, limit=None, paginationDetails="OFF",
+        self,
+        entid,
+        owner_type,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
     ):
         """Gets metadata for all the documents attached to an entity
 
@@ -606,8 +636,7 @@ url %s, params %s, data %s, headers %s",
         Args:
           loanid (str): the id or encoded key of the loan account
         """
-        url = "https://{}/api/{}/{}/schedule".format(
-            self._tenant, "loans", loanid)
+        url = "https://{}/api/{}/{}/schedule".format(self._tenant, "loans", loanid)
 
         return self.__request("GET", url)
 
@@ -618,11 +647,8 @@ url %s, params %s, data %s, headers %s",
           loanid (str): the id or encoded key of the loan account
           notes (str): notes to associate to the writeoff operation in Mambu
         """
-        url = "https://{}/api/{}/{}:writeOff".format(
-            self._tenant, "loans", loanid)
-        data = {
-            "notes": notes
-        }
+        url = "https://{}/api/{}/{}:writeOff".format(self._tenant, "loans", loanid)
+        data = {"notes": notes}
         return self.__request("POST", url, data=data)
 
     def mambu_change_state(self, entid, prefix, action, notes):
@@ -635,10 +661,7 @@ url %s, params %s, data %s, headers %s",
           notes (str): notes to associate to the change of status
         """
         url = "https://{}/api/{}/{}:changeState".format(self._tenant, prefix, entid)
-        data = {
-            "action": action,
-            "notes": notes
-        }
+        data = {"action": action, "notes": notes}
         return self.__request("POST", url, data=data)
 
     def mambu_get_customfield(self, customfieldid):
@@ -647,14 +670,12 @@ url %s, params %s, data %s, headers %s",
         Args:
           customfieldid (str): the id or encoded key of the custom field
         """
-        url = "https://{}/api/customfields/{}".format(
-            self._tenant, customfieldid)
+        url = "https://{}/api/customfields/{}".format(self._tenant, customfieldid)
         return self.__request("GET", url)
 
     def mambu_get_comments(
-            self,
-            owner_id, owner_type,
-            offset=None, limit=None, paginationDetails="OFF"):
+        self, owner_id, owner_type, offset=None, limit=None, paginationDetails="OFF"
+    ):
         """Retrieves the comments of entity with owner_id.
 
         Args:
@@ -667,18 +688,18 @@ url %s, params %s, data %s, headers %s",
             paginationDetails=paginationDetails,
         )
         if owner_type not in [
-                "CLIENT",
-                "GROUP",
-                "LOAN_PRODUCT",
-                "SAVINGS_PRODUCT",
-                "CENTRE",
-                "BRANCH",
-                "USER",
-                "LOAN_ACCOUNT",
-                "DEPOSIT_ACCOUNT",
-                "ID_DOCUMENT",
-                "LINE_OF_CREDIT",
-                "GL_JOURNAL_ENTRY"
+            "CLIENT",
+            "GROUP",
+            "LOAN_PRODUCT",
+            "SAVINGS_PRODUCT",
+            "CENTRE",
+            "BRANCH",
+            "USER",
+            "LOAN_ACCOUNT",
+            "DEPOSIT_ACCOUNT",
+            "ID_DOCUMENT",
+            "LINE_OF_CREDIT",
+            "GL_JOURNAL_ENTRY",
         ]:
             raise MambuError("Owner {} not allowed".format(owner_type))
 
@@ -698,32 +719,29 @@ url %s, params %s, data %s, headers %s",
           text (str): the text of the comment
         """
         if owner_type not in [
-                "CLIENT",
-                "GROUP",
-                "LOAN_PRODUCT",
-                "SAVINGS_PRODUCT",
-                "CENTRE",
-                "BRANCH",
-                "USER",
-                "LOAN_ACCOUNT",
-                "DEPOSIT_ACCOUNT",
-                "ID_DOCUMENT",
-                "LINE_OF_CREDIT",
-                "GL_JOURNAL_ENTRY"
+            "CLIENT",
+            "GROUP",
+            "LOAN_PRODUCT",
+            "SAVINGS_PRODUCT",
+            "CENTRE",
+            "BRANCH",
+            "USER",
+            "LOAN_ACCOUNT",
+            "DEPOSIT_ACCOUNT",
+            "ID_DOCUMENT",
+            "LINE_OF_CREDIT",
+            "GL_JOURNAL_ENTRY",
         ]:
             raise MambuError("Owner {} not allowed".format(owner_type))
-        data = {"ownerKey": owner_id,
-                "ownerType": owner_type,
-                "text": text}
+        data = {"ownerKey": owner_id, "ownerType": owner_type, "text": text}
 
         url = "https://{}/api/comments".format(self._tenant)
 
         return self.__request("POST", url, data=data)
 
     def mambu_make_disbursement(
-            self,
-            loan_id, notes, firstRepaymentDate, valueDate,
-            allowed_fields, **kwargs):
+        self, loan_id, notes, firstRepaymentDate, valueDate, allowed_fields, **kwargs
+    ):
         """Make a disbursement transacton on a loan account.
 
         Args:
@@ -734,22 +752,24 @@ url %s, params %s, data %s, headers %s",
           allowed_fields (list): extra fields allowed for the transaction
           kwargs (dict): key-values of extra fields for the transaction
         """
-        data = {"firstRepaymentDate": firstRepaymentDate,
-                "notes": notes,
-                "valueDate": valueDate}
+        data = {
+            "firstRepaymentDate": firstRepaymentDate,
+            "notes": notes,
+            "valueDate": valueDate,
+        }
         for k, v in kwargs.items():
             if k in allowed_fields:
                 data[k] = v
 
         url = "https://{}/api/loans/{}/disbursement-transactions".format(
-            self._tenant, loan_id)
+            self._tenant, loan_id
+        )
 
         return self.__request("POST", url, data=data)
 
     def mambu_make_repayment(
-            self,
-            loan_id, amount, notes, valueDate,
-            allowed_fields, **kwargs):
+        self, loan_id, amount, notes, valueDate, allowed_fields, **kwargs
+    ):
         """Make a repayment transaction on a loan account.
 
         Args:
@@ -760,9 +780,7 @@ url %s, params %s, data %s, headers %s",
           allowed_fields (list): extra fields allowed for the transaction
           kwargs (dict): key-values of extra fields for the transaction
         """
-        data = {"amount": amount,
-                "notes": notes,
-                "valueDate": valueDate}
+        data = {"amount": amount, "notes": notes, "valueDate": valueDate}
         for k, v in kwargs.items():
             if k in allowed_fields:
                 data[k] = v

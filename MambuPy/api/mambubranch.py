@@ -15,8 +15,7 @@ class MambuBranch(MambuEntity, MambuEntityCommentable, MambuOwner):
     _prefix = "branches"
     """prefix constant for connections to Mambu"""
 
-    _filter_keys = [
-    ]
+    _filter_keys = []
     """allowed filters for get_all filtering"""
 
     _sortBy_fields = [

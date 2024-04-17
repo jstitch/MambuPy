@@ -6,6 +6,7 @@ Currently supports REST.
    :nosignatures:
    :toctree: _autosummary
 """
+
 from abc import ABC, abstractmethod
 
 
@@ -91,8 +92,12 @@ class MambuConnectorReader(ABC):
 
     @abstractmethod
     def mambu_get_documents_metadata(
-        self, entid, owner_type,
-        offset=None, limit=None, paginationDetails="OFF",
+        self,
+        entid,
+        owner_type,
+        offset=None,
+        limit=None,
+        paginationDetails="OFF",
     ):
         """Gets metadata for all the documents attached to an entity
 
@@ -219,9 +224,8 @@ class MambuConnectorWriter(ABC):
 
     @abstractmethod
     def mambu_make_disbursement(
-            self,
-            loan_id, firstRepaymentDate, notes, valueDate,
-            allowed_fields, **kwargs):
+        self, loan_id, firstRepaymentDate, notes, valueDate, allowed_fields, **kwargs
+    ):
         """Make a disbursement transacton on a loan account.
 
         Args:
@@ -236,8 +240,8 @@ class MambuConnectorWriter(ABC):
 
     @abstractmethod
     def mambu_make_repayment(
-            self, loan_id, amount, notes, valueDate,
-            allowed_fields, **kwargs):
+        self, loan_id, amount, notes, valueDate, allowed_fields, **kwargs
+    ):
         """Make a repayment transaction on a loan account.
 
         Args:

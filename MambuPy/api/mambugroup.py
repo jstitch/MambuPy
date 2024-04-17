@@ -5,21 +5,23 @@
    :toctree: _autosummary
 """
 
-from .entities import (MambuEntity, MambuEntityWritable,
-                       MambuEntityAttachable,
-                       MambuEntitySearchable,
-                       MambuEntityCommentable,
-                       )
+from .entities import (
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntitySearchable,
+    MambuEntityCommentable,
+)
 from .interfaces import MambuHolder
 
 
 class MambuGroup(
-        MambuEntity,
-        MambuEntityWritable,
-        MambuEntityAttachable,
-        MambuEntitySearchable,
-        MambuEntityCommentable,
-        MambuHolder
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntitySearchable,
+    MambuEntityCommentable,
+    MambuHolder,
 ):
     """MambuGroup entity"""
 
@@ -44,14 +46,14 @@ class MambuGroup(
     _ownerType = "GROUP"
     """owner type of this entity"""
 
-    _vos = [("addresses", "MambuAddress"),
-            ("groupMembers", "MambuGroupMember")]
+    _vos = [("addresses", "MambuAddress"), ("groupMembers", "MambuGroupMember")]
     """2-tuples of elements and Value Objects"""
 
     _entities = [
         ("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
         ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
-        ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre")]
+        ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre"),
+    ]
     """3-tuples of elements and Mambu Entities"""
 
     def __init__(self, **kwargs):

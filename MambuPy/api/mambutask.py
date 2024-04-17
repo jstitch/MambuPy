@@ -4,9 +4,10 @@
    :nosignatures:
    :toctree: _autosummary
 """
+
 import copy
 
-from .entities import (MambuEntity, MambuEntityWritable)
+from .entities import MambuEntity, MambuEntityWritable
 
 
 class MambuTask(MambuEntity, MambuEntityWritable):
@@ -23,8 +24,7 @@ class MambuTask(MambuEntity, MambuEntityWritable):
     ]
     """allowed filters for get_all filtering"""
 
-    _sortBy_fields = [
-    ]
+    _sortBy_fields = []
     """allowed fields for get_all sorting"""
 
     _taskLinkTypes = [
@@ -36,11 +36,13 @@ class MambuTask(MambuEntity, MambuEntityWritable):
         "DEPOSIT_ACCOUNT",
         "ID_DOCUMENT",
         "LINE_OF_CREDIT",
-        "GL_JOURNAL_ENTRY"]
+        "GL_JOURNAL_ENTRY",
+    ]
 
     _entities = [
         ("assignedUserKey", "mambuuser.MambuUser", "assignedUser"),
-        ("taskLinkKey", "", "taskLink")]
+        ("taskLinkKey", "", "taskLink"),
+    ]
     """3-tuples of elements and Mambu Entities"""
 
     def __init__(self, **kwargs):
@@ -48,15 +50,11 @@ class MambuTask(MambuEntity, MambuEntityWritable):
         super().__init__(**kwargs)
 
     def _assignEntObjs(
-        self,
-        entities=None,
-        detailsLevel="BASIC",
-        get_entities=False,
-        debug=False
+        self, entities=None, detailsLevel="BASIC", get_entities=False, debug=False
     ):
         """Overwrites `MambuPy.api.mambustruct._assignEntObjs` for MambuTask
 
-           Determines the type of task link and instantiates accordingly
+        Determines the type of task link and instantiates accordingly
         """
         if entities is None:
             entities = self._entities
@@ -69,16 +67,20 @@ class MambuTask(MambuEntity, MambuEntityWritable):
         if tasklink_index is not None and self.has_key("taskLinkKey"):
             if self.taskLinkType == "CLIENT":
                 entities[tasklink_index] = (
-                    "taskLinkKey", "mambuclient.MambuClient", "taskLink")
+                    "taskLinkKey",
+                    "mambuclient.MambuClient",
+                    "taskLink",
+                )
             elif self.taskLinkType == "GROUP":
                 entities[tasklink_index] = (
-                    "taskLinkKey", "mambugroup.MambuGroup", "taskLink")
+                    "taskLinkKey",
+                    "mambugroup.MambuGroup",
+                    "taskLink",
+                )
 
         return super()._assignEntObjs(
-            entities,
-            detailsLevel=detailsLevel,
-            get_entities=get_entities,
-            debug=debug)
+            entities, detailsLevel=detailsLevel, get_entities=get_entities, debug=debug
+        )
 
     @classmethod
     def get(cls, taskId, **kwargs):

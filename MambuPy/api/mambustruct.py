@@ -121,42 +121,38 @@ class MambuStruct(MambuMapObj):
                 raise attr_err
 
     def __convert_from_dict_to_basic_types_non_constant_fields(
-            self, k, data_dict, data, tzdata):
+        self, k, data_dict, data, tzdata
+    ):
         try:
-            data_dict[k] = self.__convert_to_basic_types(
-                data[k], tzdata[k])
+            data_dict[k] = self.__convert_to_basic_types(data[k], tzdata[k])
             if type(data_dict[k]) not in [dict, list, datetime]:
                 del tzdata[k]
             elif isinstance(data_dict[k], datetime):
-                tzdata[k] = datetime.fromisoformat(
-                    tzdata[k]).tzname()
+                tzdata[k] = datetime.fromisoformat(tzdata[k]).tzname()
         except (KeyError, ValueError, TypeError):
             data_dict[k] = self.__convert_to_basic_types(data[k])
 
-    def __convert_from_dict_to_basic_types(
-            self, it_dict, data, tzdata, constantFields):
+    def __convert_from_dict_to_basic_types(self, it_dict, data, tzdata, constantFields):
         data_dict = {}
         for k in it_dict:
-            if k in constantFields or (
-                    len(k) > 2 and k[-3:] == "Key"):
+            if k in constantFields or (len(k) > 2 and k[-3:] == "Key"):
                 data_dict[k] = data[k]
                 if tzdata and k in tzdata:
                     del tzdata[k]
             else:
                 self.__convert_from_dict_to_basic_types_non_constant_fields(
-                    k, data_dict, data, tzdata)
+                    k, data_dict, data, tzdata
+                )
         return data_dict
 
-    def __convert_from_list_to_basic_types(
-            self, it_list, data, tzdata, constantFields):
+    def __convert_from_list_to_basic_types(self, it_list, data, tzdata, constantFields):
         data_list = []
         for num, (e, te) in enumerate(zip(it_list, tzdata)):
             d = self.__convert_to_basic_types(e, te)
             if type(d) not in [dict, list, datetime]:
                 tzdata[num] = None
             elif isinstance(d, datetime):
-                tzdata[num] = datetime.fromisoformat(
-                    tzdata[num]).tzname()
+                tzdata[num] = datetime.fromisoformat(tzdata[num]).tzname()
             data_list.append(d)
         return data_list
 
@@ -213,10 +209,12 @@ class MambuStruct(MambuMapObj):
             it = data
             if isinstance(it, dict):
                 data = self.__convert_from_dict_to_basic_types(
-                    it, data, tzdata, constantFields)
+                    it, data, tzdata, constantFields
+                )
             if isinstance(it, list):
                 data = self.__convert_from_list_to_basic_types(
-                    it, data, tzdata, constantFields)
+                    it, data, tzdata, constantFields
+                )
         except TypeError:
             pass
         except Exception as ex:  # pragma: no cover
@@ -248,14 +246,14 @@ class MambuStruct(MambuMapObj):
         # and any field whose name ends with "Key"
 
         self._attrs = self.__convert_to_basic_types(
-            self._attrs, self._tzattrs, constantFields)
+            self._attrs, self._tzattrs, constantFields
+        )
 
     def __convert_from_dict_basic_types_to_str(self, it_dict, data, tzdata):
         d = {}
         for k in it_dict:
             if tzdata and k in tzdata:
-                d[k] = self.__convert_basic_types_to_str(
-                    data[k], tzdata[k])
+                d[k] = self.__convert_basic_types_to_str(data[k], tzdata[k])
             else:
                 d[k] = self.__convert_basic_types_to_str(data[k])
         return d
@@ -263,13 +261,11 @@ class MambuStruct(MambuMapObj):
     def __convert_from_list_basic_types_to_str(self, it_list, data, tzdata):
         data_list = []
         if tzdata:
-            for (e, te) in zip(it_list, tzdata):
-                data_list.append(
-                    self.__convert_basic_types_to_str(e, te))
+            for e, te in zip(it_list, tzdata):
+                data_list.append(self.__convert_basic_types_to_str(e, te))
         else:
             for e in it_list:
-                data_list.append(
-                    self.__convert_basic_types_to_str(e))
+                data_list.append(self.__convert_basic_types_to_str(e))
         return data_list
 
     def __convert_basic_types_to_str_base_cases(self, data, tzdata):
@@ -327,14 +323,11 @@ class MambuStruct(MambuMapObj):
           data (obj): an object whose value should be converted to string.
           tzdata (obj): mirror of data, holding only the TZ data for datetimes.
         """
-        self._attrs = self.__convert_basic_types_to_str(
-            self._attrs, self._tzattrs)
+        self._attrs = self.__convert_basic_types_to_str(self._attrs, self._tzattrs)
 
     def __extract_customfields_from_dict(self, val_dict, attr, attrs):
         for key, value in val_dict.items():
-            attrs[key] = self._cf_class(
-                value, "/{}/{}".format(attr, key), "STANDARD"
-            )
+            attrs[key] = self._cf_class(value, "/{}/{}".format(attr, key), "STANDARD")
 
     def __extract_customfields_from_list(self, val_list, attr, attrs):
         attrs[attr[1:]] = self._cf_class(
@@ -353,9 +346,7 @@ class MambuStruct(MambuMapObj):
                         # attrs[attr[1:]][ind][key] = mecf
             else:
                 raise MambuPyError(
-                    "CustomFieldSet {} is not a list of dictionaries!".format(
-                        attr
-                    )
+                    "CustomFieldSet {} is not a list of dictionaries!".format(attr)
                 )
 
     def _extractCustomFields(self, attrs=None):
@@ -404,7 +395,8 @@ class MambuStruct(MambuMapObj):
                         ).upper()
                     if self[attr][ind][key] != self[key + "_" + str(ind)]:
                         self[attr[1:]][ind][key] = self.__get_value_or_ek(
-                            self[key + "_" + str(ind)])
+                            self[key + "_" + str(ind)]
+                        )
                     cfs.append(key + "_" + str(ind))
                 except KeyError:
                     pass
@@ -421,10 +413,11 @@ class MambuStruct(MambuMapObj):
         cfs = []
         # updates customfieldsets
         for attr, val in [
-                atr for atr in self._attrs.items()
-                if atr[0][0] == "_" and
-                atr[0][1:] not in
-                [ent_config[2] for ent_config in self._entities]]:
+            atr
+            for atr in self._attrs.items()
+            if atr[0][0] == "_"
+            and atr[0][1:] not in [ent_config[2] for ent_config in self._entities]
+        ]:
             if isinstance(val, dict):
                 self.__update_customfields_from_dict(val, attr, cfs)
             elif isinstance(val, list):
@@ -440,8 +433,8 @@ class MambuStruct(MambuMapObj):
             del self._attrs[field]
 
     def __extract_vos_from_list(
-            self, vo_data, vos_module, voclass, elem,
-            get_entities=False, debug=False):
+        self, vo_data, vos_module, voclass, elem, get_entities=False, debug=False
+    ):
         """Extracts the VOs from a list.
 
         Given a list of data representing a VO, extract and instantiate each of
@@ -472,9 +465,8 @@ class MambuStruct(MambuMapObj):
             vo_item._extractVOs()
             if get_entities:
                 vo_item._assignEntObjs(
-                    vo_item._entities,
-                    get_entities=get_entities,
-                    debug=debug)
+                    vo_item._entities, get_entities=get_entities, debug=debug
+                )
             vo_obj.append(vo_item)
 
         return vo_obj, already
@@ -503,7 +495,8 @@ class MambuStruct(MambuMapObj):
 
             if isinstance(vo_data, list):
                 vo_obj, already = self.__extract_vos_from_list(
-                    vo_data, vos_module, voclass, elem, get_entities, debug)
+                    vo_data, vos_module, voclass, elem, get_entities, debug
+                )
                 if already:
                     continue
             elif isinstance(vo_data, getattr(vos_module, voclass)):
@@ -514,9 +507,8 @@ class MambuStruct(MambuMapObj):
                 vo_obj._extractVOs()
                 if get_entities:
                     vo_obj._assignEntObjs(
-                        vo_obj._entities,
-                        get_entities=get_entities,
-                        debug=debug)
+                        vo_obj._entities, get_entities=get_entities, debug=debug
+                    )
 
             self._attrs[elem] = vo_obj
 
@@ -549,9 +541,9 @@ class MambuStruct(MambuMapObj):
     def _updateVOs(self):
         """Loops _vos list to update the corresponding data in _attrs
 
-           End result, the element with the original element in _attr will have
-           its data updated, the Value Object will dissappear and the key name
-           of the original element will return to be from 'vo_elem' to 'elem'
+        End result, the element with the original element in _attr will have
+        its data updated, the Value Object will dissappear and the key name
+        of the original element will return to be from 'vo_elem' to 'elem'
         """
         vos_module = import_module(".vos", "mambupy.api")
         for elem, voclass in self._vos:
@@ -561,7 +553,8 @@ class MambuStruct(MambuMapObj):
                 continue
             if isinstance(vo_obj, list):
                 vo_data, already = self.__update_vos_from_list(
-                    vo_obj, vos_module, voclass)
+                    vo_obj, vos_module, voclass
+                )
                 if already:
                     continue
             elif not isinstance(vo_obj, getattr(vos_module, voclass)):
@@ -577,25 +570,25 @@ class MambuStruct(MambuMapObj):
         config_entities=None,
         detailsLevel="BASIC",
         get_entities=False,
-        debug=False
+        debug=False,
     ):
         """Retrieve certain entities from the properties of this MambuEntity.
 
-           Args:
-             entities (list): list of strings with the name of the entity to
-                              retrieve
-             config_entities (list of tuples): list of tuples with information
-                                               of the entity and property to
-                                               instantiate
-                        :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
-             detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
-             get_entities (bool): should MambuPy automatically instantiate
-                                  other MambuPy entities found inside the
-                                  retrieved entities?
-             debug (bool): print debugging info
+        Args:
+          entities (list): list of strings with the name of the entity to
+                           retrieve
+          config_entities (list of tuples): list of tuples with information
+                                            of the entity and property to
+                                            instantiate
+                     :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
+          detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
+          get_entities (bool): should MambuPy automatically instantiate
+                               other MambuPy entities found inside the
+                               retrieved entities?
+          debug (bool): print debugging info
 
-           Returns:
-             MambuPyObject (obj): instantiation of the object from Mambu
+        Returns:
+          MambuPyObject (obj): instantiation of the object from Mambu
         """
         if not config_entities:
             config_entities = self._entities
@@ -604,22 +597,26 @@ class MambuStruct(MambuMapObj):
         for entity in entities:
             entwife = [enti for enti in config_entities if enti[2] == entity]
             if len(entwife) == 0:  # you see, we lost the entwives
-                if (
-                    entity in self._attrs and
-                    isinstance(self._attrs[entity], list)
+                if entity in self._attrs and isinstance(
+                    self._attrs[entity], list
                 ):  # let the ents undertake the quest to look for the entwives!
                     for entling in [
-                            entkid for entkid in self._attrs[entity]
-                            if isinstance(entkid, MambuStruct)]:
-                        ent_kids.append(entling._assignEntObjs(
-                            entities=entling._entities,
-                            detailsLevel=detailsLevel,
-                            get_entities=get_entities,
-                            debug=debug))
+                        entkid
+                        for entkid in self._attrs[entity]
+                        if isinstance(entkid, MambuStruct)
+                    ]:
+                        ent_kids.append(
+                            entling._assignEntObjs(
+                                entities=entling._entities,
+                                detailsLevel=detailsLevel,
+                                get_entities=get_entities,
+                                debug=debug,
+                            )
+                        )
                 else:
                     raise MambuPyError(
-                        "The name {} is not part of the nested entities".format(
-                            entity))
+                        "The name {} is not part of the nested entities".format(entity)
+                    )
             else:  # come back to me and say my land is best!
                 ents.extend(entwife)
 
@@ -628,7 +625,8 @@ class MambuStruct(MambuMapObj):
                 entities=ents,
                 detailsLevel=detailsLevel,
                 get_entities=get_entities,
-                debug=debug)
+                debug=debug,
+            )
         return ent_kids
 
     def __get_enc_key(self, proprty):
@@ -643,10 +641,7 @@ class MambuStruct(MambuMapObj):
         """
         try:
             enc_key = getattr(self, proprty)
-            if (
-                    not isinstance(enc_key, str) and
-                    not isinstance(enc_key, list)
-            ):
+            if not isinstance(enc_key, str) and not isinstance(enc_key, list):
                 try:
                     enc_key = enc_key["encodedKey"]
                 except KeyError:
@@ -714,26 +709,22 @@ class MambuStruct(MambuMapObj):
                 self[new_property] = ent_item
 
     def _assignEntObjs(
-        self,
-        entities=None,
-        detailsLevel="BASIC",
-        get_entities=False,
-        debug=False
+        self, entities=None, detailsLevel="BASIC", get_entities=False, debug=False
     ):
         """Loops entities list of tuples to instantiate MambuPy entities from Mambu.
 
-           End result: new properties will appear on the MambuPy object other
-           :py:obj:`MambuPy.api.entities.MambuEntity` objects retrieved from Mambu
+        End result: new properties will appear on the MambuPy object other
+        :py:obj:`MambuPy.api.entities.MambuEntity` objects retrieved from Mambu
 
-           Args:
-             entities (list): list of tuples with information of the entity and
-                              property to instantiate. Look at
-                              :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
-             detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
-             get_entities (bool): should MambuPy automatically instantiate
-                                  other MambuPy entities found inside the
-                                  retrieved entities?
-             debug (bool): print debugging info
+        Args:
+          entities (list): list of tuples with information of the entity and
+                           property to instantiate. Look at
+                           :py:obj:`MambuPy.api.mambustruct.MambuStruct._entities`
+          detailsLevel (str): "BASIC" or "FULL" for the retrieved entities
+          get_entities (bool): should MambuPy automatically instantiate
+                               other MambuPy entities found inside the
+                               retrieved entities?
+          debug (bool): print debugging info
         """
         if entities is None:
             entities = self._entities
@@ -756,16 +747,23 @@ class MambuStruct(MambuMapObj):
                 for item in enc_key:
                     ent_item.append(
                         self.__instance_entity_obj(
-                            item, ent_mod, ent_class,
+                            item,
+                            ent_mod,
+                            ent_class,
                             detailsLevel=detailsLevel,
                             get_entities=get_entities,
-                            debug=debug))
+                            debug=debug,
+                        )
+                    )
             else:
                 ent_item = self.__instance_entity_obj(
-                    enc_key, ent_mod, ent_class,
+                    enc_key,
+                    ent_mod,
+                    ent_class,
                     detailsLevel=detailsLevel,
                     get_entities=get_entities,
-                    debug=debug)
+                    debug=debug,
+                )
 
             self.__assign_new_property(new_property, ent_item, encodedKey)
 

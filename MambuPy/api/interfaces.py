@@ -115,6 +115,7 @@ class MambuSearchable(ABC):
 
 class MambuCommentable(ABC):
     """An entity which allows comments endpoints"""
+
     def get_comments(self):  # pragma: no cover
         """Gets comments for this entity
 
@@ -147,8 +148,9 @@ class MambuOwnable(ABC):
     Because of that, you may call get_accountHolder on the owned
     entity to instantiate the MambuEntity who owns it.
     """
+
     def _assignEntObjs(
-            self, entities, detailsLevel, get_entities, debug
+        self, entities, detailsLevel, get_entities, debug
     ):  # pragma: no cover
         raise NotImplementedError
 

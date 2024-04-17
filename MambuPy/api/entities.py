@@ -4,6 +4,7 @@
    :nosignatures:
    :toctree: _autosummary
 """
+
 import copy
 from importlib import import_module
 import json
@@ -37,12 +38,10 @@ class MambuEntity(MambuStruct):
     _connector = None
     """Default connector (REST)"""
 
-    _filter_keys = [
-    ]
+    _filter_keys = []
     """allowed filters for get_all filtering"""
 
-    _sortBy_fields = [
-    ]
+    _sortBy_fields = []
     """allowed fields for get_all sorting"""
 
     def __init__(self, **kwargs):
@@ -68,6 +67,7 @@ class MambuEntity(MambuStruct):
         """
         if not hasattr(self, "_mcfs"):
             from .mambucustomfield import MambuCustomFieldSet
+
             owner_type = getattr(self, "_ownerType", "")
             self._mcfs = MambuCustomFieldSet.get_all(availableFor=owner_type)
         for cfs in self._mcfs:
@@ -75,12 +75,7 @@ class MambuEntity(MambuStruct):
                 if field == cf["id"]:
                     return "/" + cfs.id + "/" + field
 
-    def _extract_field_path(
-            self,
-            field,
-            attrs_dict={}, original_keys=[],
-            cf_class=None
-    ):
+    def _extract_field_path(self, field, attrs_dict={}, original_keys=[], cf_class=None):
         """Extracts the path for a given field.
 
         If the field is a Custom Field, the path is given in a property in its
@@ -129,14 +124,14 @@ class MambuEntity(MambuStruct):
 
     @classmethod
     def __build_object(
-            cls,
-            connector,
-            resp,
-            attrs,
-            tzattrs,
-            get_entities=False,
-            detailsLevel="BASIC",
-            debug=False
+        cls,
+        connector,
+        resp,
+        attrs,
+        tzattrs,
+        get_entities=False,
+        detailsLevel="BASIC",
+        debug=False,
     ):
         """Builds an instance of an Entity object
 
@@ -157,23 +152,16 @@ class MambuEntity(MambuStruct):
         instance._tzattrs = tzattrs
         instance._convertDict2Attrs()
         instance._extractCustomFields()
-        instance._extractVOs(
-            get_entities=get_entities, debug=debug)
+        instance._extractVOs(get_entities=get_entities, debug=debug)
         entities = copy.deepcopy(instance._entities)
         if get_entities:
-            instance._assignEntObjs(
-                entities,
-                detailsLevel,
-                get_entities,
-                debug=debug)
+            instance._assignEntObjs(entities, detailsLevel, get_entities, debug=debug)
         instance._detailsLevel = detailsLevel
 
         return instance
 
     @classmethod
-    def __get_several_args(
-            cls, args, get_entities=False, debug=False
-    ):
+    def __get_several_args(cls, args, get_entities=False, debug=False):
         """Processes `MambuPy.api.entities.get_several` arguments.
 
         Args:
@@ -240,12 +228,7 @@ class MambuEntity(MambuStruct):
         """
         init_t = time.time()
 
-        (
-            prefix,
-            get_entities,
-            debug,
-            params
-        ) = cls.__get_several_args(kwargs)
+        (prefix, get_entities, debug, params) = cls.__get_several_args(kwargs)
 
         logger.debug("request several entities %s", cls.__name__)
         list_resp = get_func(prefix, **params)
@@ -262,7 +245,7 @@ class MambuEntity(MambuStruct):
                 tzattrs=copy.deepcopy(attr),
                 get_entities=get_entities,
                 detailsLevel=params["detailsLevel"],
-                debug=debug
+                debug=debug,
             )
             elements.append(elem)
 
@@ -272,11 +255,16 @@ class MambuEntity(MambuStruct):
         minutes = remainder // 60
         seconds = round(remainder - (minutes * 60), 2)
         if debug:
-            print("{}-{} ({}) {}:{}:{}".format(
-                elements[0].__class__.__name__,
-                elements[0]["id"],
-                len(elements),
-                int(hours), int(minutes), seconds))
+            print(
+                "{}-{} ({}) {}:{}:{}".format(
+                    elements[0].__class__.__name__,
+                    elements[0]["id"],
+                    len(elements),
+                    int(hours),
+                    int(minutes),
+                    seconds,
+                )
+            )
 
         return elements
 
@@ -307,9 +295,7 @@ class MambuEntity(MambuStruct):
 
         connector = MambuConnectorREST(**kwargs)
         logger.debug("request entity %s %s", cls.__name__, entid)
-        resp = connector.mambu_get(
-            entid, prefix=cls._prefix, detailsLevel=detailsLevel
-        )
+        resp = connector.mambu_get(entid, prefix=cls._prefix, detailsLevel=detailsLevel)
 
         # builds the Entity object
         instance = cls.__build_object(
@@ -319,7 +305,7 @@ class MambuEntity(MambuStruct):
             tzattrs=dict(json.loads(resp.decode())),
             get_entities=get_entities,
             detailsLevel=detailsLevel,
-            debug=debug
+            debug=debug,
         )
 
         fin_t = time.time()
@@ -328,10 +314,15 @@ class MambuEntity(MambuStruct):
         minutes = remainder // 60
         seconds = round(remainder - (minutes * 60), 2)
         if debug:
-            print("{}-{} {}:{}:{}".format(
-                instance.__class__.__name__,
-                instance["id"],
-                int(hours), int(minutes), seconds))
+            print(
+                "{}-{} {}:{}:{}".format(
+                    instance.__class__.__name__,
+                    instance["id"],
+                    int(hours),
+                    int(minutes),
+                    seconds,
+                )
+            )
 
         return instance
 
@@ -388,9 +379,7 @@ class MambuEntity(MambuStruct):
           list of instances of an entity with data from Mambu
         """
         if filters:
-            for filter_k in [
-                    fk for fk in filters.keys()
-                    if fk not in cls._filter_keys]:
+            for filter_k in [fk for fk in filters.keys() if fk not in cls._filter_keys]:
                 raise MambuPyError(
                     "key {} not in allowed _filterkeys: {}".format(
                         filter_k, cls._filter_keys
@@ -400,8 +389,10 @@ class MambuEntity(MambuStruct):
         if sortBy:
             for sort in sortBy.split(","):
                 for num, part in [
-                        (n, p) for n, p in enumerate(sort.split(":"))
-                        if (n == 0 and p not in cls._sortBy_fields)]:
+                    (n, p)
+                    for n, p in enumerate(sort.split(":"))
+                    if (n == 0 and p not in cls._sortBy_fields)
+                ]:
                     raise MambuPyError(
                         "field {} not in allowed _sortBy_fields: {}".format(
                             part, cls._sortBy_fields
@@ -503,20 +494,16 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             # op says if this is an actual field or CF to
             # patch. If it's not, DO NOHTING
             op = self.__patch_op(
-                "ADD",
-                self._attrs, original_attrs.keys(),
-                field, self._cf_class)
+                "ADD", self._attrs, original_attrs.keys(), field, self._cf_class
+            )
             if op:
                 return op
         elif field in self._attrs.keys() and field in original_attrs.keys():
             return self.__patch_op(
-                "REPLACE",
-                self._attrs, original_attrs.keys(),
-                field, self._cf_class)
-        else:
-            raise MambuPyError(
-                "Unrecognizable field {} for patching".format(field)
+                "REPLACE", self._attrs, original_attrs.keys(), field, self._cf_class
             )
+        else:
+            raise MambuPyError("Unrecognizable field {} for patching".format(field))
 
     def patch(self, fields=None, autodetect_remove=False):
         """patches a mambu entity
@@ -571,19 +558,16 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
                 if field_op:
                     fields_ops.append(field_op)
                 else:
-                    raise MambuPyError(
-                        "You cannot patch {} field".format(field))
+                    raise MambuPyError("You cannot patch {} field".format(field))
             if autodetect_remove:
                 for attr in [
-                        att for att in original_attrs.keys()
-                        if att not in self._attrs.keys()]:
+                    att for att in original_attrs.keys() if att not in self._attrs.keys()
+                ]:
                     fields_ops.append(
                         self.__patch_op(
-                            "REMOVE",
-                            original_attrs,
-                            original_attrs,
-                            attr,
-                            self._cf_class))
+                            "REMOVE", original_attrs, original_attrs, attr, self._cf_class
+                        )
+                    )
 
             self._updateCustomFields()
             self._serializeFields()
@@ -679,7 +663,8 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
 
     def get_attachments_metadata(
         self,
-        offset=None, limit=None,
+        offset=None,
+        limit=None,
         paginationDetails="OFF",
     ):
         """Gets metadata for all the documents attached to an entity
@@ -699,7 +684,10 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
         response = self._connector.mambu_get_documents_metadata(
             entid=self.id,
             owner_type=self._ownerType,
-            offset=offset, limit=limit, paginationDetails=paginationDetails)
+            offset=offset,
+            limit=limit,
+            paginationDetails=paginationDetails,
+        )
 
         metadata_list = json.loads(response.decode())
 
@@ -722,21 +710,23 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
                           attachment of the entity
         """
         if not documentId and not documentName:
-            raise MambuPyError(
-                "You must provide a documentId or a documentName")
+            raise MambuPyError("You must provide a documentId or a documentName")
         docid = None
         docbyname = None
         if documentName:
             try:
                 docbyname = [
-                    attach for attach in self._attachments.values()
-                    if attach["name"] == documentName][0]
+                    attach
+                    for attach in self._attachments.values()
+                    if attach["name"] == documentName
+                ][0]
                 docid = docbyname["id"]
             except IndexError:
                 raise MambuPyError(
                     "Document name '{}' is not an attachment of {}".format(
-                        documentName,
-                        repr(self)))
+                        documentName, repr(self)
+                    )
+                )
         if documentId:
             try:
                 self._attachments[documentId]
@@ -744,14 +734,17 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
                     if docid != documentId:
                         raise MambuPyError(
                             "Document with name '{}' does not has id '{}'".format(
-                                documentName, documentId))
+                                documentName, documentId
+                            )
+                        )
                 else:
                     docid = documentId
             except KeyError:
                 raise MambuPyError(
                     "Document id '{}' is not an attachment of {}".format(
-                        documentId,
-                        repr(self)))
+                        documentId, repr(self)
+                    )
+                )
 
         self._connector.mambu_delete_document(docid)
         self._attachments.pop(docid)
@@ -780,7 +773,10 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
         response = self._connector.mambu_get_comments(
             owner_id=self.id,
             owner_type=self._ownerType,
-            offset=offset, limit=limit, paginationDetails=paginationDetails)
+            offset=offset,
+            limit=limit,
+            paginationDetails=paginationDetails,
+        )
 
         comments_list = json.loads(response.decode())
 
@@ -802,9 +798,7 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
           Mambu's response with metadata of the posted comment
         """
         response = self._connector.mambu_comment(
-            owner_id=self.id,
-            owner_type=self._ownerType,
-            text=comment
+            owner_id=self.id, owner_type=self._ownerType, text=comment
         )
 
         comment = MambuComment(**dict(json.loads(response.decode())))
@@ -826,8 +820,7 @@ class MambuEntityCF(MambuValueObject):
     def __init__(self, value, path="", typecf="STANDARD", mcf=None):
         if typecf not in ["STANDARD", "GROUPED"]:
             raise MambuPyError("invalid CustomField type!")
-        self._attrs = {
-            "value": value, "path": path, "type": typecf, "mcf": mcf}
+        self._attrs = {"value": value, "path": path, "type": typecf, "mcf": mcf}
         self._cf_class = GenericClass
 
     def get_mcf(self):
@@ -844,8 +837,10 @@ class MambuEntityCF(MambuValueObject):
         if isinstance(self.value, list) and len(self.value) > 0:
             self.mcf = {}
             for item in self.value:
-                self.mcf['_index'] = None
-                for key in [ k for k in item.keys() if k not in self.mcf and k != '_index']:
+                self.mcf["_index"] = None
+                for key in [
+                    k for k in item.keys() if k not in self.mcf and k != "_index"
+                ]:
                     try:
                         self.mcf[key] = mcf_mod.MambuCustomField.get(key)
                     except MambuError:
@@ -856,13 +851,14 @@ class MambuEntityCF(MambuValueObject):
 
 class MambuInstallment(MambuStruct):
     """Loan Account Installment (aka Repayment)"""
+
     def __repr__(self):
-        """repr tells the class name, the number, the state and the dueDate
-        """
+        """repr tells the class name, the number, the state and the dueDate"""
         return self.__class__.__name__ + " - #{}, {}, {}".format(
             self._attrs["number"],
             self._attrs["state"],
-            self._attrs["dueDate"].strftime("%Y-%m-%d"))
+            self._attrs["dueDate"].strftime("%Y-%m-%d"),
+        )
 
 
 class MambuEntityOwnable(MambuStruct, MambuOwnable):
@@ -874,36 +870,38 @@ class MambuEntityOwnable(MambuStruct, MambuOwnable):
     Because of that, you may call get_accountHolder on the owned
     entity to instantiate the MambuEntity who owns it.
     """
+
     def _assignEntObjs(
-        self,
-        entities=None,
-        detailsLevel="BASIC",
-        get_entities=False,
-        debug=False
+        self, entities=None, detailsLevel="BASIC", get_entities=False, debug=False
     ):
         """Overwrites `MambuPy.api.mambustruct._assignEntObjs` for MambuLoan
 
-           Determines the type of account holder and instantiates accordingly
+        Determines the type of account holder and instantiates accordingly
         """
         if entities is None:
             entities = self._entities
 
         try:
             accountholder_index = entities.index(
-                ("accountHolderKey", "", "accountHolder"))
+                ("accountHolderKey", "", "accountHolder")
+            )
         except ValueError:
             accountholder_index = None
 
         if accountholder_index is not None and self.has_key("accountHolderKey"):
             if self.accountHolderType == "CLIENT":
                 entities[accountholder_index] = (
-                    "accountHolderKey", "mambuclient.MambuClient", "accountHolder")
+                    "accountHolderKey",
+                    "mambuclient.MambuClient",
+                    "accountHolder",
+                )
             elif self.accountHolderType == "GROUP":
                 entities[accountholder_index] = (
-                    "accountHolderKey", "mambugroup.MambuGroup", "accountHolder")
+                    "accountHolderKey",
+                    "mambugroup.MambuGroup",
+                    "accountHolder",
+                )
 
         return super()._assignEntObjs(
-            entities,
-            detailsLevel=detailsLevel,
-            get_entities=get_entities,
-            debug=debug)
+            entities, detailsLevel=detailsLevel, get_entities=get_entities, debug=debug
+        )

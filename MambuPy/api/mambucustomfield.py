@@ -22,20 +22,21 @@ class MambuCustomFieldSet(MambuEntity):
     _prefix = "customfieldsets"
     """prefix constant for connections to Mambu"""
 
-    _availableFor = ["CLIENT",
-                     "GROUP",
-                     "CREDIT_ARRANGEMENT",
-                     "LOAN_ACCOUNT",
-                     "GUARANTOR",
-                     "ASSET",
-                     "DEPOSIT_ACCOUNT",
-                     "DEPOSIT_PRODUCT",
-                     "TRANSACTION_CHANNEL",
-                     "TRANSACTION_TYPE",
-                     "BRANCH",
-                     "CENTRE",
-                     "USER",
-                     ]
+    _availableFor = [
+        "CLIENT",
+        "GROUP",
+        "CREDIT_ARRANGEMENT",
+        "LOAN_ACCOUNT",
+        "GUARANTOR",
+        "ASSET",
+        "DEPOSIT_ACCOUNT",
+        "DEPOSIT_PRODUCT",
+        "TRANSACTION_CHANNEL",
+        "TRANSACTION_TYPE",
+        "BRANCH",
+        "CENTRE",
+        "USER",
+    ]
     """for which entites does a Set may be available for"""
 
     @classmethod
@@ -57,9 +58,11 @@ class MambuCustomFieldSet(MambuEntity):
             raise MambuPyError("filters is not allowed on MambuCustomFieldSet")
         if "sortBy" in kwargs:
             raise MambuPyError("sortBy is not allowed on MambuCustomFieldSet")
-        if "availableFor" in kwargs and \
-           kwargs["availableFor"] and \
-           kwargs["availableFor"] not in cls._availableFor:
+        if (
+            "availableFor" in kwargs
+            and kwargs["availableFor"]
+            and kwargs["availableFor"] not in cls._availableFor
+        ):
             raise MambuPyError(
                 "key {} not in allowed _availableFor: {}".format(
                     kwargs["availableFor"], cls._availableFor

@@ -11,14 +11,19 @@ import json
 
 from dateutil.tz import tzlocal
 
-from .entities import (MambuEntity, MambuEntityWritable,
-                       MambuEntityAttachable,
-                       MambuEntitySearchable,
-                       MambuEntityCommentable,
-                       MambuEntityOwnable,
-                       MambuInstallment)
-from MambuPy.api.vos import (MambuDisbursementLoanTransactionInput,
-                             MambuRepaymentLoanTransactionInput)
+from .entities import (
+    MambuEntity,
+    MambuEntityWritable,
+    MambuEntityAttachable,
+    MambuEntitySearchable,
+    MambuEntityCommentable,
+    MambuEntityOwnable,
+    MambuInstallment,
+)
+from MambuPy.api.vos import (
+    MambuDisbursementLoanTransactionInput,
+    MambuRepaymentLoanTransactionInput,
+)
 from MambuPy.mambuutil import MambuPyError
 
 
@@ -28,7 +33,7 @@ class MambuLoan(
     MambuEntityAttachable,
     MambuEntityCommentable,
     MambuEntityOwnable,
-    MambuEntitySearchable
+    MambuEntitySearchable,
 ):
     """MambuLoan entity"""
 
@@ -73,7 +78,8 @@ class MambuLoan(
         ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre"),
         ("productTypeKey", "mambuproduct.MambuProduct", "productType"),
         ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount"),
-        ("accountHolderKey", "", "accountHolder")]
+        ("accountHolderKey", "", "accountHolder"),
+    ]
     """3-tuples of elements and Mambu Entities"""
 
     _accepted_actions = [
@@ -139,12 +145,7 @@ class MambuLoan(
         """
         self.set_state("APPROVE", notes)
 
-    def disburse(
-            self,
-            notes,
-            firstRepaymentDate=None, disbursementDate=None,
-            **kwargs
-    ):
+    def disburse(self, notes, firstRepaymentDate=None, disbursementDate=None, **kwargs):
         """Request to disburse a loan account.
 
         Args:
@@ -167,10 +168,14 @@ class MambuLoan(
             if not firstRepaymentDate.tzinfo:
                 timezone_firstRepaymentDate = datetime.timezone(
                     datetime.timedelta(
-                        hours=int(self.disbursementDetails._tzattrs[
-                            "firstRepaymentDate"][-6:-3])))
+                        hours=int(
+                            self.disbursementDetails._tzattrs["firstRepaymentDate"][-6:-3]
+                        )
+                    )
+                )
                 firstRepaymentDate = firstRepaymentDate.astimezone(
-                    timezone_firstRepaymentDate)
+                    timezone_firstRepaymentDate
+                )
             firstRepaymentDate = firstRepaymentDate.isoformat()
         else:
             firstRepaymentDate = self.disbursementDetails.firstRepaymentDate
@@ -179,17 +184,26 @@ class MambuLoan(
             if not disbursementDate.tzinfo:
                 timezone_disbursementDate = datetime.timezone(
                     datetime.timedelta(
-                        hours=int(self.disbursementDetails._tzattrs[
-                            "expectedDisbursementDate"][-6:-3])))
-                disbursementDate = disbursementDate.astimezone(
-                    timezone_disbursementDate)
+                        hours=int(
+                            self.disbursementDetails._tzattrs["expectedDisbursementDate"][
+                                -6:-3
+                            ]
+                        )
+                    )
+                )
+                disbursementDate = disbursementDate.astimezone(timezone_disbursementDate)
             disbursementDate = disbursementDate.isoformat()
         else:
             disbursementDate = self.disbursementDetails.expectedDisbursementDate
 
         self.disbursement_tr_resp = self._connector.mambu_make_disbursement(
-            self.id, notes, firstRepaymentDate, disbursementDate,
-            MambuDisbursementLoanTransactionInput._schema_fields, **kwargs)
+            self.id,
+            notes,
+            firstRepaymentDate,
+            disbursementDate,
+            MambuDisbursementLoanTransactionInput._schema_fields,
+            **kwargs
+        )
 
         self.refresh()
 
@@ -231,11 +245,17 @@ class MambuLoan(
                  has the allowed fields permitted for this operation
         """
         valueDate = datetime.datetime.strptime(
-            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
+            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S"
+        )
         valueDate = valueDate.astimezone(tzlocal()).isoformat()
 
         self._connector.mambu_make_repayment(
-            self.id, amount, notes, valueDate,
-            MambuRepaymentLoanTransactionInput._schema_fields, **kwargs)
+            self.id,
+            amount,
+            notes,
+            valueDate,
+            MambuRepaymentLoanTransactionInput._schema_fields,
+            **kwargs
+        )
 
         self.refresh()

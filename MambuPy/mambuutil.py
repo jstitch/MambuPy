@@ -20,6 +20,7 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
           compatible. PATCH/POST/DELETE operations needs review
 
 .. todo:: status API V2: testing of EVERYTHING is required """
+
 from .mambugeturl import getmambuurl
 from .mambuconfig import apipwd, apiurl, apiuser, apipagination
 

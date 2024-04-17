@@ -23,6 +23,7 @@ class MambuAddress(MambuValueObject):
 
 class MambuIDDocument(MambuValueObject):
     """ID Document"""
+
     _ownerType = "ID_DOCUMENT"
     """owner type of this entity"""
 
@@ -41,6 +42,7 @@ class MambuUserRole(MambuValueObject):
 
 class MambuGroupMember(MambuValueObject):
     """Group member"""
+
     _vos = [("roles", "MambuGroupRole")]
     """2-tuples of elements and Value Objects"""
 
@@ -54,6 +56,7 @@ class MambuGroupRole(MambuValueObject):
 
 class MambuDisbursementLoanTransactionInput(MambuValueObject):
     """Disbursment Loan Transaction body"""
+
     _schema_fields = [
         "amount",
         "bookingDate",
@@ -69,6 +72,7 @@ class MambuDisbursementLoanTransactionInput(MambuValueObject):
 
 class MambuRepaymentLoanTransactionInput(MambuValueObject):
     """Repayment Loan Transaction body"""
+
     _schema_fields = [
         "amount",
         "bookingDate",

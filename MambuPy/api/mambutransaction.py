@@ -5,24 +5,19 @@
    :toctree: _autosummary
 """
 
-from .entities import (MambuEntity, MambuEntitySearchable)
+from .entities import MambuEntity, MambuEntitySearchable
 
 
-class MambuTransaction(
-    MambuEntity,
-    MambuEntitySearchable
-):
+class MambuTransaction(MambuEntity, MambuEntitySearchable):
     """MambuTransaction entity"""
 
     _prefix = "loans/transactions"
     """prefix constant for connections to Mambu"""
 
-    _filter_keys = [
-    ]
+    _filter_keys = []
     """allowed filters for get_all filtering"""
 
-    _sortBy_fields = [
-    ]
+    _sortBy_fields = []
     """allowed fields for get_all sorting"""
 
     @classmethod
@@ -32,7 +27,7 @@ class MambuTransaction(
         offset=None,
         limit=None,
         paginationDetails="OFF",
-        detailsLevel="BASIC"
+        detailsLevel="BASIC",
     ):
         """get_all, several transactions, filtering allowed
 
@@ -48,7 +43,10 @@ class MambuTransaction(
         """
         return super().get_all(
             filters=None,
-            offset=offset, limit=limit,
-            paginationDetails=paginationDetails, detailsLevel=detailsLevel,
+            offset=offset,
+            limit=limit,
+            paginationDetails=paginationDetails,
+            detailsLevel=detailsLevel,
             sortBy=None,
-            **{"prefix": "loans/{}/transactions".format(loanAccountId)})
+            **{"prefix": "loans/{}/transactions".format(loanAccountId)}
+        )
