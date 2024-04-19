@@ -59,17 +59,21 @@ class MambuEntityTests(unittest.TestCase):
             me = entities.MambuEntity()
             me._mcfs = []
             me.aField = ""
+
+            # default: event if not in attrs, returns /fieldname
             self.assertEqual(
                 me._extract_field_path(
                     "aField", {"aField": "hello"}, {}, type),
-                ""
+                "/aField"
             )
+            # when in attrs, returns /fieldname
             self.assertEqual(
                 me._extract_field_path(
                     "aField", {"aField": "hello"}, {"aField": "hello"}, type),
                 "/aField"
             )
 
+            # when a CF, returns its path
             myCF = entities.MambuEntityCF("aValue", path="/_mySet/myField")
             self.assertEqual(
                 me._extract_field_path(
@@ -80,6 +84,7 @@ class MambuEntityTests(unittest.TestCase):
                 "/_mySet/myField"
             )
 
+            # when a CF in a set, returns its path
             mock_mcf.get_all.return_value = [
                 mock_mambucustomfieldset(
                     "_otherCFSet",

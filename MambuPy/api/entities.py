@@ -86,7 +86,14 @@ class MambuEntity(MambuStruct):
 
         If not, looks for the field in the custom field sets of the entity.
 
-        If not, the path does not exists, the field is not part of the entity.
+        If not, the path does not exists, but it may be a valid path,
+        default to / . Here we are hoping the path is correct,
+        otherwise a PATCH may throw an error.
+
+        TODO: perhaps here, in the default case, a better approach
+        would be to implement, and maintain, the schema for each
+        entity as a VO, and validate if field belongs here. If not,
+        default would be an empty string for not being a valid field.
 
         Args:
           field (str): a field for which to extract the path
@@ -98,7 +105,6 @@ class MambuEntity(MambuStruct):
 
         Returns:
           (str): the path to the field.
-                 Empty string in case the field is not a valid attribute
 
         """
         if not cf_class:
@@ -119,8 +125,10 @@ class MambuEntity(MambuStruct):
             if path_from_sets:
                 return path_from_sets
 
-            # not a CF, not a root property, it has no path
-            return ""
+            # not a CF, not an existing root property, it has no path,
+            # try defaulting to root attribute, perhaps entity didn't
+            # had it and now we need it to have it
+            return "/" + field
 
     @classmethod
     def __build_object(
