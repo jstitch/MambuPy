@@ -149,7 +149,7 @@ class MambuUtilTests(unittest.TestCase):
                 self.content = content
                 self.request = request
         mock_requests.post.return_value = response(
-            code=200, content="hello world",
+            code=202, content="hello world",
             request=request("url", "body", "headers"))
         mock_requests.get.return_value = response(
             code=200, content=b"hello world",
@@ -163,8 +163,7 @@ class MambuUtilTests(unittest.TestCase):
                                  "database/backup/LATEST"),
             auth=(mambuconfig.apiuser, mambuconfig.apipwd),
             headers={
-                "content-type": "application/json",
-                "Accept": "application/vnd.mambu.v1+zip",
+                "Accept": "application/vnd.mambu.v2+zip",
             },
         )
         self.assertEqual(mock_requests.post.call_count, 1)
@@ -242,7 +241,7 @@ class MambuUtilTests(unittest.TestCase):
             )
 
         mock_requests.post.side_effect = [
-            response(code=200, content="hello world",
+            response(code=202, content="hello world",
                      request=request("url", "body", "headers"))]
         mock_requests.get.return_value = response(
             code=404, content="hello world (not found)",

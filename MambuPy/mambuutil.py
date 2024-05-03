@@ -344,8 +344,7 @@ def _backup_db_previous_prep(callback, kwargs):
         headers = kwargs["headers"]
     except KeyError:
         headers = {
-            "content-type": "application/json",
-            "Accept": "application/vnd.mambu.v1+zip",
+            "Accept": "application/vnd.mambu.v2+zip",
         }
     list_ret.append(headers)
 
@@ -382,7 +381,7 @@ def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
                 data=json.dumps(data),
                 headers={
                     "content-type": "application/json",
-                    "Accept": "application/vnd.mambu.v1+json",
+                    "Accept": "application/vnd.mambu.v2+json",
                 },
                 auth=(user, pwd),
             )
@@ -419,7 +418,7 @@ def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
             log.close()
         raise MambuError(mess)
 
-    if not justbackup and resp.status_code != 200:
+    if not justbackup and resp.status_code != 202:
         mess = "Error posting request for backup: %s" % resp.content
         if verbose:
             log.write(mess + "\n")
