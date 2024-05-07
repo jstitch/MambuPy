@@ -234,9 +234,12 @@ Release Notes
 * v2.0.0b30
   - MambuCentre v2 assignedBranch field allows get_assignedBranch() method
 * v2.0.0b32
-  - REST connector httperror raises MambuError, different Mambu error responses.
+  - REST connector httperror raises MambuError, different Mambu error responses
   - v2 code black linting
 * v2.0.0b34
   - MambuEntity._extract_field_path for patch operations returns "/field_name" by default.
 * v2.0.0b36
   - backup_db use mambu API v2 endpoints
+* v1.10.4 2024-05-07
+  - BUGFIX MambuLoan setRepayments() mamburepaymentsclass was not condisedered.
+  - MambuBranch allows update method calling update v1 endpoint.

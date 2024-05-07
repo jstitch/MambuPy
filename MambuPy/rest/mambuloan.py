@@ -89,7 +89,7 @@ class MambuLoan(MambuStruct):
                 return datetime.now()
 
         try:
-            self.mamburepayments
+            self.mamburepaymentsclass
         except AttributeError:
             from .mamburepayment import MambuRepayments
 

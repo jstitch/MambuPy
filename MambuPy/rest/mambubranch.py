@@ -62,6 +62,15 @@ class MambuBranch(MambuStruct):
 
         return 1
 
+    def update(self, *args, **kwargs):
+        """Updates a branch from Mambu
+        """
+        if "data" in kwargs:
+            data = kwargs.pop("data")
+            if data:
+                raise NotImplementedError
+        return super(MambuBranch, self).update(data={}, *args, **kwargs)
+
 
 class MambuBranches(MambuStruct):
     """A list of Branches from Mambu.
