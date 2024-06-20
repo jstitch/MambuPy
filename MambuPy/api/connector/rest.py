@@ -796,3 +796,31 @@ url %s, params %s, data %s, headers %s",
         )
 
         return self.__request("POST", url, data=data)
+
+    def mambu_make_fee(
+        self, loan_id, amount, installmentNumber, notes, valueDate, allowed_fields, **kwargs
+    ):
+        """Make a fee transaction on a loan account.
+
+        Args:
+          loan_id (str): loan account id to apply a fee
+          amount (float): the amount of the fee
+          installmentNumber (int): the installment number to apply the fee
+          notes (str): notes for the fee transaction
+          valueDate (str): entry date for the fee transaction
+          allowed_fields (list): extra fields allowed for the transaction
+          kwargs (dict): key-values of extra fields for the transaction
+        """
+        data = {
+            "amount": amount,
+            "installmentNumber": installmentNumber,
+            "notes": notes,
+            "valueDate": valueDate,
+        }
+        for k, v in kwargs.items():
+            if k in allowed_fields:
+                data[k] = v
+
+        url = "https://{}/api/loans/{}/fee-transactions".format(self._tenant, loan_id)
+
+        return self.__request("POST", url, data=data)

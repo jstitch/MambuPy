@@ -147,6 +147,16 @@ class MambuConnectorWriter(unittest.TestCase):
             mambuconnector.MambuConnectorWriter.mambu_make_repayment(
                 None, "", "", "", "", "")
 
+    def test_mambu_make_fee(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter,
+                    "mambu_make_fee"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_make_fee(
+                None, "", "", "", "", "", "")
+
     def test_mambu_loanaccount_writeoff(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorWriter,

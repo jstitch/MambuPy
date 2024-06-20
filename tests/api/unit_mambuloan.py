@@ -13,6 +13,7 @@ from MambuPy.api import mambuloan
 from MambuPy.api.vos import (
     MambuDisbursementDetails,
     MambuDisbursementLoanTransactionInput,
+    MambuFeeLoanTransactionInput,
     MambuRepaymentLoanTransactionInput,
 )
 from MambuPy.mambuutil import MambuPyError
@@ -335,6 +336,36 @@ class MambuLoan(unittest.TestCase):
             "STP",
             valueDateAssert,
             MambuRepaymentLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        ml.refresh.assert_called_once()
+
+    def test_apply_fee(self):
+        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_make_fee.return_value = '{"encodedKey": "abc123"}'
+        ml.refresh = mock.Mock()
+
+        valueDate = datetime.datetime.now()
+        valueDateAssert = datetime.datetime.strptime(
+            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
+        timezone = datetime.datetime.now().astimezone(tzlocal()).isoformat()[-6:]
+        valueDateAssert = valueDateAssert.isoformat() + timezone
+
+        ml.apply_fee(
+            amount=100.0,
+            installmentNumber=15,
+            notes="STP",
+            valueDate=valueDate,
+            **{"something": "else"})
+
+        mock_connector.mambu_make_fee.assert_called_with(
+            '12345',
+            100.0,
+            15,
+            "STP",
+            valueDateAssert,
+            MambuFeeLoanTransactionInput._schema_fields,
             **{"something": "else"}
         )
         ml.refresh.assert_called_once()

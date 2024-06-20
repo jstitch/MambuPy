@@ -243,3 +243,5 @@ Release Notes
 * v1.10.4 2024-05-07
   - BUGFIX MambuLoan setRepayments() mamburepaymentsclass was not condisedered.
   - MambuBranch allows update method calling update v1 endpoint.
+* v2.0.0b38
+  - apply fee transactions to loan accounts

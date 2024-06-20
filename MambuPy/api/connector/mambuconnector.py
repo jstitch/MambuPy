@@ -255,6 +255,23 @@ class MambuConnectorWriter(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def mambu_make_fee(
+        self, loan_id, amount, installmentNumber, notes, valueDate, allowed_fields, **kwargs
+    ):
+        """Make a fee transaction on a loan account.
+
+        Args:
+          loan_id (str): loan account id to apply a fee
+          amount (float): the amount of the fee
+          installmentNumber (int): the installment number to apply the fee
+          notes (str): notes for the fee transaction
+          valueDate (str): entry date for the fee transaction
+          allowed_fields (list): extra fields allowed for the transaction
+          kwargs (dict): key-values of extra fields for the transaction
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_loanaccount_writeoff(self, loanid, notes):
         """Writesoff a loan account
 

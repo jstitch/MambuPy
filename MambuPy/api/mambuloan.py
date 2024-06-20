@@ -22,6 +22,7 @@ from .entities import (
 )
 from MambuPy.api.vos import (
     MambuDisbursementLoanTransactionInput,
+    MambuFeeLoanTransactionInput,
     MambuRepaymentLoanTransactionInput,
 )
 from MambuPy.mambuutil import MambuPyError
@@ -255,6 +256,36 @@ class MambuLoan(
             notes,
             valueDate,
             MambuRepaymentLoanTransactionInput._schema_fields,
+            **kwargs
+        )
+
+        self.refresh()
+
+    def apply_fee(self, amount, installmentNumber, notes, valueDate, **kwargs):
+        """Request to apply a fee to a loan account.
+
+        Args:
+          amount (float): the amount of the fee
+          installmentNumber (int): the installment number to apply the fee
+          notes (str): notes to attach to the fee transaction.
+          valueDate (:py:obj:`datetime`): value date for the fee
+                    transaction. If naive datetime, use TZ info from tzattrs.
+          kwargs (dict): allowed extra params for the fee transaction
+                 request. :py:obj:`MambuPy.api.vos.MambuFeeLoanTransactionInput._schema_fields`
+                 has the allowed fields permitted for this operation
+        """
+        valueDate = datetime.datetime.strptime(
+            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S"
+        )
+        valueDate = valueDate.astimezone(tzlocal()).isoformat()
+
+        self._connector.mambu_make_fee(
+            self.id,
+            amount,
+            installmentNumber,
+            notes,
+            valueDate,
+            MambuFeeLoanTransactionInput._schema_fields,
             **kwargs
         )
 
