@@ -824,3 +824,18 @@ url %s, params %s, data %s, headers %s",
         url = "https://{}/api/loans/{}/fee-transactions".format(self._tenant, loan_id)
 
         return self.__request("POST", url, data=data)
+
+    def mambu_loantransaction_adjust(self, transactionid, notes):
+        """Adjust a loan transaction
+
+        Args:
+          transactionid (str): the id or encoded key of the loan transaction
+          notes (str): notes to associate to the transaction adjustment in Mambu
+        """
+        data = {
+            "notes": notes,
+        }
+
+        url = "https://{}/api/loans/transactions/{}:adjust".format(self._tenant, transactionid)
+
+        return self.__request("POST", url, data=data)

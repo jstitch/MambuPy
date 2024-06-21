@@ -50,3 +50,12 @@ class MambuTransaction(MambuEntity, MambuEntitySearchable):
             sortBy=None,
             **{"prefix": "loans/{}/transactions".format(loanAccountId)}
         )
+
+    def adjust(self, notes):
+        """Request to adjust a loan transaction.
+
+        Args:
+          notes (str): notes to attach to the adjusting transaction.
+        """
+        self._connector.mambu_loantransaction_adjust(self.id, notes)
+        self.refresh()

@@ -280,3 +280,13 @@ class MambuConnectorWriter(ABC):
           notes (str): notes to associate to the writeoff operation in Mambu
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def mambu_loantransaction_adjust(self, transactionid, notes):
+        """Adjust a loan transaction
+
+        Args:
+          transactionid (str): the id or encoded key of the loan transaction
+          notes (str): notes to associate to the transaction adjustment in Mambu
+        """
+        raise NotImplementedError

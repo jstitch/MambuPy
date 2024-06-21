@@ -1,7 +1,9 @@
+import datetime
 import os
 import sys
 import unittest
 
+from dateutil.tz import tzlocal
 import mock
 
 sys.path.insert(0, os.path.abspath("."))
@@ -43,6 +45,20 @@ class MambuTransaction(unittest.TestCase):
             paginationDetails="OFF", detailsLevel="BASIC",
             sortBy=None,
             prefix="loans/12345/transactions")
+
+    def test_adjust(self):
+        mt = mambutransaction.MambuTransaction(id='12345678', connector=mock.Mock())
+        mock_connector = mt._connector
+        mock_connector.mambu_loantransaction_adjust.return_value = '{"encodedKey": "abc123"}'
+        mt.refresh = mock.Mock()
+
+        mt.adjust(notes="Crazy Horse")
+
+        mock_connector.mambu_loantransaction_adjust.assert_called_with(
+            '12345678',
+            "Crazy Horse",
+        )
+        mt.refresh.assert_called_once()
 
 
 if __name__ == "__main__":

@@ -245,3 +245,5 @@ Release Notes
   - MambuBranch allows update method calling update v1 endpoint.
 * v2.0.0b38
   - apply fee transactions to loan accounts
+* v2.0.0b40
+  - adjust loan account transactions

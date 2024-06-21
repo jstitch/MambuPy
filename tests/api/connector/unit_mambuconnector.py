@@ -167,6 +167,16 @@ class MambuConnectorWriter(unittest.TestCase):
             mambuconnector.MambuConnectorWriter.mambu_loanaccount_writeoff(
                 None, "", "")
 
+    def test_mambu_loantransaction_adjust(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter,
+                    "mambu_loantransaction_adjust"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_loantransaction_adjust(
+                None, "", "")
+
 
 if __name__ == "__main__":
     unittest.main()
