@@ -35,6 +35,8 @@ def _get_parameters_url(dict_kwargs):
                 getparams_list.append("fullDetails=false")
         elif key in ["user", "pwd"]:
             continue
+        elif key in ["version"]:
+            continue
         else:
             getparams_list.append(key + '=%s' % dict_kwargs[key])
 
