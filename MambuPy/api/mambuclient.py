@@ -72,3 +72,11 @@ class MambuClient(
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._attachments = {}
+
+    def _delete_for_creation(self):
+        """Deletes extra fields from Mambu unusable for entity
+        creation."""
+        try:
+            del self._attrs["approvedDate"]
+        except KeyError:
+            pass

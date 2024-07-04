@@ -102,6 +102,17 @@ class MambuLoan(
         super().__init__(**kwargs)
         self._attachments = {}
 
+    def _delete_for_creation(self):
+        """Deletes extra fields from Mambu unusable for entity
+        creation."""
+        try:
+            del self._attrs["currency"]
+            del self._attrs["accountState"]
+            del self._attrs["scheduleSettings"]["hasCustomSchedule"]
+            del self._attrs["interestSettings"]["accrueLateInterest"]
+        except KeyError:
+            pass
+
     def get_schedule(self):
         """Retrieves the installments schedule."""
         resp = self._connector.mambu_loanaccount_getSchedule(self.id)

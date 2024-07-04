@@ -178,6 +178,11 @@ class MambuConnectorWriter(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def mambu_delete(self, entid, prefix):
+        """deletes a mambu entity"""
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_upload_document(self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 

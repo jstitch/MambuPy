@@ -145,6 +145,38 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_extractCustomFields.assert_called_once_with()
         mock_extractVOs.assert_called_once_with()
 
+    def test_delete(self):
+        child = self.child_class_writable()
+        mock_connector = child._connector
+
+        mock_connector.mambu_delete.return_value = b""
+        child._attrs = {"id": "12345"}
+        child._attrs["myProp"] = "myVal"
+        child._detailsLevel = "FULL"
+
+        child.delete()
+
+        self.assertEqual(child._attrs, {"myProp": "myVal"})
+        self.assertEqual(child._detailsLevel, "FULL")
+        mock_connector.mambu_delete.assert_called_with("12345", "un_prefix")
+
+        # MambuError
+        child._attrs = {"id": "12345", "encodedKey": "0123456789abcdef"}
+        child._attrs["myProp"] = "myVal"
+        child._detailsLevel = "FULL"
+        mock_connector.mambu_delete.side_effect = MambuError("Un Err")
+        with self.assertRaisesRegex(MambuError, r"Un Err"):
+            child.delete()
+        self.assertEqual(
+            child._attrs,
+            {
+                "id": "12345",
+                "encodedKey": "0123456789abcdef",
+                "myProp": "myVal",
+            },
+        )
+        self.assertEqual(child._detailsLevel, "FULL")
+
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
     @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")

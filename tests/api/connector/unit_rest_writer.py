@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath("."))
 from MambuPy.api.connector import rest
 from MambuPy.mambuutil import MAX_UPLOAD_SIZE, MambuError, apiurl
 
-from unit_rest import app_json_headers
+from unit_rest import app_default_headers, app_json_headers
 
 
 class MambuConnectorWriterREST(unittest.TestCase):
@@ -51,6 +51,23 @@ class MambuConnectorWriterREST(unittest.TestCase):
             "https://{}/api/prefix".format(apiurl),
             params={},
             data='{"oneattr": "123"}',
+            headers=headers,
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu_delete(self, mock_requests):
+        mock_requests.Session().request().status_code = 200
+        headers = app_default_headers()
+
+        mcrest = rest.MambuConnectorREST()
+
+        mcrest.mambu_delete("12345", "prefix")
+
+        mock_requests.Session().request.assert_called_with(
+            "DELETE",
+            "https://{}/api/prefix/12345".format(apiurl),
+            params={},
+            data=None,
             headers=headers,
         )
 

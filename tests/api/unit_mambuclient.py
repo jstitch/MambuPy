@@ -59,6 +59,16 @@ class MambuClient(unittest.TestCase):
              ("assignedBranchKey", "mambubranch.MambuBranch", "assignedBranch"),
              ("assignedCentreKey", "mambucentre.MambuCentre", "assignedCentre")])
 
+    def test__delete_for_creation(self):
+        mc = mambuclient.MambuClient()
+        mc._attrs = {"id": "12345"}
+        mc._delete_for_creation()
+        self.assertEquals(mc._attrs, {"id": "12345"})
+
+        mc._attrs["approvedDate"] = None
+        mc._delete_for_creation()
+        self.assertEquals(mc._attrs, {"id": "12345"})
+
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"

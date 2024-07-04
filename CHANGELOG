@@ -247,3 +247,5 @@ Release Notes
   - apply fee transactions to loan accounts
 * v2.0.0b40
   - adjust loan account transactions
+* v2.0.0b42
+  - delete mambu entities

@@ -589,6 +589,36 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._extractCustomFields()
             self._extractVOs()
 
+    def _delete_for_creation(self):
+        """Deletes extra fields from Mambu unusable for entity
+        creation.
+
+        Implement on entities which require further cleaning.
+        """
+
+    def delete(self):
+        """deletes a mambu entity.
+
+        Leaves the object in a supposedly state where you can create
+        it again. Depends on required custom fields to be present in
+        the entity at the moment of deletion.
+
+        TODO: implement some way to ensure schemas are accomplished to
+        make sure we can run creation after deletion.
+        """
+        try:
+            self._connector.mambu_delete(self.id, self._prefix)
+        except MambuError:
+            raise
+
+        # cleaning...
+        for key in ["id", "encodedKey"]:
+            try:
+                del self._attrs[key]
+            except KeyError:
+                pass
+        self._delete_for_creation()
+
 
 class MambuEntitySearchable(MambuStruct, MambuSearchable):
     """A Mambu object with searching capabilities."""

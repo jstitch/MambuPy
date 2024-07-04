@@ -550,6 +550,12 @@ url %s, params %s, data %s, headers %s",
         if patch_data:
             return self.__request("PATCH", url, data=patch_data)
 
+    def mambu_delete(self, entid, prefix):
+        """deletes a mambu entity"""
+        url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
+
+        return self.__request("DELETE", url)
+
     def mambu_upload_document(self, owner_type, entid, filename, name, notes):
         """uploads an attachment to this entity
 

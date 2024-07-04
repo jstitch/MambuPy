@@ -94,6 +94,13 @@ class MambuConnectorWriter(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mambuconnector.MambuConnectorWriter.mambu_create(None, "", {})
 
+    def test_mambu_delete(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter, "mambu_delete"), True
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_delete(None, "", "")
+
     def test_mambu_upload_document(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorWriter, "mambu_upload_document"), True

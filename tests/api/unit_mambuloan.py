@@ -57,6 +57,19 @@ class MambuLoan(unittest.TestCase):
              ("originalAccountKey", "mambuloan.MambuLoan", "originalAccount"),
              ("accountHolderKey", "", "accountHolder")])
 
+    def test__delete_for_creation(self):
+        ml = mambuloan.MambuLoan()
+        ml._attrs = {"id": "12345"}
+        ml._delete_for_creation()
+        self.assertEquals(ml._attrs, {"id": "12345"})
+
+        ml._attrs["currency"] = None
+        ml._attrs["accountState"] = None
+        ml._attrs["scheduleSettings"] = {"hasCustomSchedule": None}
+        ml._attrs["interestSettings"] = {"accrueLateInterest": None}
+        ml._delete_for_creation()
+        self.assertEquals(ml._attrs, {"id": "12345", "scheduleSettings": {}, "interestSettings": {}})
+
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):
         mock_get_several.return_value = "SupGetSeveral"
