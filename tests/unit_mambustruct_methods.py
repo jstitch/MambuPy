@@ -586,7 +586,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         """Test create"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
-            connect=False, urlfunc=lambda entid, limit, offset: ""
+            connect=False, urlfunc=lambda entid: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
         iri_to_uri.return_value = "http://example.com"
@@ -644,7 +644,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
-            connect=False, urlfunc=lambda entid, limit, offset: ""
+            connect=False, urlfunc=lambda entid: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
         iri_to_uri.return_value = "http://example.com"
@@ -673,7 +673,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
-            connect=False, urlfunc=lambda entid, limit, offset: ""
+            connect=False, urlfunc=lambda entid: ""
         )
         data = {"user": {"user": "moreData"}, "customInformation": ["customFields"]}
         iri_to_uri.return_value = "http://example.com"
@@ -702,7 +702,7 @@ class MambuStructMethodsTests(unittest.TestCase):
         """Test update"""
         # inside __init__ if urlfunc is None connect is False
         ms = mambustruct.MambuStruct(
-            connect=False, urlfunc=lambda entid, limit, offset: ""
+            connect=False, urlfunc=lambda entid: ""
         )
         data = {
             "document": {

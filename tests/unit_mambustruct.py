@@ -452,7 +452,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         ms = mambustruct.MambuStruct(
             entid="12345",
-            urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
+            urlfunc=lambda entid, *args, **kwargs: "",
             data=data,
             user="my_user",
             pwd="my_password",
@@ -474,7 +474,7 @@ class MambuStructConnectTests(unittest.TestCase):
         requests.Session().reset_mock()
         mambustruct.MambuStruct(
             entid="12345",
-            urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
+            urlfunc=lambda entid, *args, **kwargs: "",
             data=data,
         )
         requests.Session().post.assert_called_with(
@@ -496,7 +496,7 @@ class MambuStructConnectTests(unittest.TestCase):
         json.loads.return_value = {"field1": "value1", "field2": "value2"}
         ms = mambustruct.MambuStruct(
             entid="12345",
-            urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
+            urlfunc=lambda entid, *args, **kwargs: "",
             data=data,
             method="PATCH",
             user="my_user",
@@ -526,7 +526,7 @@ class MambuStructConnectTests(unittest.TestCase):
         )
         ms = mambustruct.MambuStruct(
             entid="12345",
-            urlfunc=lambda entid, limit, offset, *args, **kwargs: "",
+            urlfunc=lambda entid, *args, **kwargs: "",
             method="DELETE",
             user="my_user",
             pwd="my_password",

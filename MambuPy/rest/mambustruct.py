@@ -425,7 +425,10 @@ class MambuStruct(object):
             self.__method = kwargs.pop("method")
             """REST method to use when calling connect"""
         except KeyError:
-            self.__method = "GET"
+            if self.__data:
+                self.__method = "POST"
+            else:
+                self.__method = "GET"
 
         try:
             self.__limit = kwargs["limit"]
@@ -752,13 +755,15 @@ class MambuStruct(object):
 
             user, pwd = self.__credentials()
 
+            urlfunc_params = self.__kwargs.copy()
+            if self.__method == "GET" and not self.__data:
+                urlfunc_params["limit"] = limit
+                urlfunc_params["offset"] = offset
             url = iri_to_uri(
                 self.__urlfunc(
                     str(self.entid),
-                    limit=limit,
-                    offset=offset,
                     *self.__args,
-                    **self.__kwargs
+                    **urlfunc_params
                 )
             )
             self.__url = url
