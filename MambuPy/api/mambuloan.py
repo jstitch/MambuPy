@@ -20,13 +20,14 @@ from .entities import (
     MambuEntityOwnable,
     MambuInstallment,
 )
+
 from MambuPy.api.vos import (
     MambuDisbursementLoanTransactionInput,
     MambuFeeLoanTransactionInput,
     MambuRepaymentLoanTransactionInput,
 )
 from MambuPy.mambuutil import MambuPyError
-
+from .mambutransaction import MambuTransaction
 
 class MambuLoan(
     MambuEntity,
@@ -125,6 +126,10 @@ class MambuLoan(
             installment_entity._tzattrs = copy.deepcopy(installment)
             installment_entity._convertDict2Attrs()
             self.schedule.append(installment_entity)
+
+    def get_transactions(self):
+        """Retrieves the transactions of the loan"""
+        self.transactions = MambuTransaction.get_all(self.id)
 
     def set_state(self, action, notes):
         """Request to change status of a MambuLoan

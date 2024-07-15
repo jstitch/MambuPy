@@ -6,8 +6,10 @@ import unittest
 from dateutil.tz import tzlocal
 import mock
 
+
 sys.path.insert(0, os.path.abspath("."))
 
+from MambuPy.api.mambutransaction import MambuTransaction
 from MambuPy.api import entities
 from MambuPy.api import mambuloan
 from MambuPy.api.vos import (
@@ -140,6 +142,20 @@ class MambuLoan(unittest.TestCase):
         self.assertEqual(ml.schedule[1]["state"], "PENDING")
         self.assertEqual(ml.schedule[1]["dueDate"].strftime("%Y%m%d"), "20220721")
         self.assertEqual(repr(ml.schedule[1]), "MambuInstallment - #2, PENDING, 2022-07-21")
+
+    @mock.patch("MambuPy.api.mambutransaction.MambuTransaction.get_all")
+    def test_get_transactions(self,mock_get_all):
+        mock_get_all.return_value =  [
+            MambuTransaction(id='2897470', amount=6708.0,type ='REPAYMENT'),
+            MambuTransaction(id='2897455', amount=-6708.0, type= 'REPAYMENT_ADJUSTMENT')
+        ]
+        ml= mambuloan.MambuLoan(id="12345")
+        ml.get_transactions()
+        mock_get_all.assert_called_once_with("12345")
+        self.assertEqual(len(ml.transactions), 2)
+        self.assertEqual(ml.transactions[0]["type"],"REPAYMENT")
+
+        self.assertTrue(isinstance(ml.transactions[0], MambuTransaction))
 
     def test_set_state(self):
         ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
