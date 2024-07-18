@@ -249,3 +249,5 @@ Release Notes
   - adjust loan account transactions
 * v2.0.0b42
   - delete mambu entities
+* v1.10.5 2024-07-18
+  - MambuStruct retry, ignore 500 errors.

@@ -510,7 +510,7 @@ class MambuStruct(object):
         """
         retry_strategy = Retry(
             total=MambuStruct.RETRIES,
-            status_forcelist=[429, 500, 502, 503, 504],
+            status_forcelist=[429, 502, 503, 504],
             backoff_factor=1,
             allowed_methods=[
                 "PUT",
