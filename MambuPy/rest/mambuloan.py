@@ -37,6 +37,9 @@ class MambuLoan(MambuStruct):
 
         Just initializes the MambuStruct.
         """
+        if "getClientDetails" in kwargs and kwargs["getClientDetails"] is not None:
+            self.getClientDetails = kwargs["getClientDetails"]
+            kwargs.pop("getClientDetails")
         MambuStruct.__init__(
             self, urlfunc, entid, custom_field_name="customFieldValues", *args, **kwargs
         )
@@ -208,7 +211,7 @@ class MambuLoan(MambuStruct):
 
         return 1
 
-    def setProduct(self, cache=False, *args, **kwargs):
+    def setProduct(self, *args, **kwargs):
         """Adds the product for this loan to a 'product' field.
 
         Product is a MambuProduct object.
@@ -219,6 +222,7 @@ class MambuLoan(MambuStruct):
 
         Returns the number of requests done to Mambu.
         """
+        cache = kwargs.get("cache", False)
         if cache:
             try:
                 self.allmambuproductsclass
