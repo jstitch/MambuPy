@@ -50,7 +50,7 @@ class MambuLoanTests(unittest.TestCase):
         self.assertTrue(mambuloan.MambuStruct in l.__class__.__bases__)
 
     def test___init__(self):
-        l = mambuloan.MambuLoan(urlfunc=None)
+        l = mambuloan.MambuLoan(urlfunc=None, getClientDetails=lambda x:x)
         self.assertEqual(l.custom_field_name, "customFieldValues")
 
     def test_getDebt(self):  # , mambustruct):
@@ -813,7 +813,7 @@ class MambuLoanTests(unittest.TestCase):
 
 class MambuLoansTests(unittest.TestCase):
     def test_class(self):
-        ln = mambuloan.MambuLoans(urlfunc=None)
+        ln = mambuloan.MambuLoans(urlfunc=None, getClientDetails=lambda x:x)
         self.assertTrue(mambuloan.MambuStruct in ln.__class__.__bases__)
 
     def test_iterator(self):

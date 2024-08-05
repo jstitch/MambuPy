@@ -646,6 +646,9 @@ class MambuLoans(MambuStruct):
         """By default, entid argument is empty. That makes perfect
         sense: you want several groups, not just one.
         """
+        if "getClientDetails" in kwargs and kwargs["getClientDetails"] is not None:
+            self.getClientDetails = kwargs["getClientDetails"]
+            kwargs.pop("getClientDetails")
         self.itemclass = itemclass
         MambuStruct.__init__(self, urlfunc, entid, *args, **kwargs)
 
