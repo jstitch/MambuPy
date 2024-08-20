@@ -105,7 +105,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 
         retry_strategy = Retry(
             total=self._RETRIES,
-            status_forcelist=[429, 500, 502, 503, 504],
+            status_forcelist=[429, 502, 503, 504],
             backoff_factor=1,
             allowed_methods=[
                 "HEAD",

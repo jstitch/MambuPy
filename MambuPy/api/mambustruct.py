@@ -698,7 +698,7 @@ class MambuStruct(MambuMapObj):
                     getattr(self, proprty)[int(index)][key] = ent_item
                 except ValueError:
                     pass
-            self["_" + new_property] = entity
+            self["" + new_property] = entity
             self[new_property] = ent_item
         except KeyError:
             try:
