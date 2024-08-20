@@ -251,3 +251,7 @@ Release Notes
   - delete mambu entities
 * v1.10.5 2024-07-18
   - MambuStruct retry, ignore 500 errors.
+* v2.0.0b44 2024-08-20
+  - feature: add method get_transactions to mambuloan
+  - bugfix: v2 getEntities assignnewproperty without '_' prefix.
+  - connector rest retries, ignore 500 errors.
