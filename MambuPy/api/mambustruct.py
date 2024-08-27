@@ -157,8 +157,13 @@ class MambuStruct(MambuMapObj):
         return data_list
 
     def __convert_to_basic_types_base_cases(self, data):
-        if data in ["TRUE", "true", "FALSE", "false"]:
-            return data.lower() == "true"
+        try:
+            if data in ["TRUE", "true", "FALSE", "false"]:
+                return data.lower() == "true"
+        except TypeError:
+            # some data types override __eq__ and may not be compared to str
+            # in such cases continue evaluating down under
+            pass
         try:
             i_data = int(data)
             if (

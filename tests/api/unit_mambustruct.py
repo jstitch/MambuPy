@@ -14,6 +14,17 @@ from MambuPy.mambuutil import MambuPyError
 
 
 class MambuStructTests(unittest.TestCase):
+    def test__convertDict2Attrs_not_comparable(self):
+        class A():
+            def __eq__(self, other):
+                raise TypeError("non-comparable types")
+
+        ms = mambustruct.MambuStruct()
+        ms._attrs = {
+            "aObj": A(),
+        }
+        ms._convertDict2Attrs()
+
     def test__convertDict2Attrs(self):
         """Test conversion of dictionary elements (strings) in to proper datatypes"""
         ms = mambustruct.MambuStruct()
