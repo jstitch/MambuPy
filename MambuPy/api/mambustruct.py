@@ -405,6 +405,8 @@ class MambuStruct(MambuMapObj):
                     cfs.append(key + "_" + str(ind))
                 except KeyError:
                     pass
+                except TypeError:
+                    cfs.append(key + "_" + str(ind))
         try:
             self._attrs[attr] = copy.deepcopy(self[attr[1:]])
             cfs.append(attr[1:])

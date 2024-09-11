@@ -363,6 +363,10 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(some_external_attr["hello"]["type"], "STANDARD")
 
     def test__updateCustomFields(self):
+        class A():
+            def __eq__(self, other):
+                raise TypeError("non-comparable types")
+
         obj0 = mambustruct.MambuStruct()
         obj0.encodedKey = "someEncodedKey"
         obj1 = mambustruct.MambuStruct()
@@ -381,6 +385,7 @@ class MambuStructTests(unittest.TestCase):
                     "bool": True,
                     "obj": "someEncodedKey",
                     "not_converted": "?",
+                    "exception": A(),
                     "_index": 0,
                 },
                 {
@@ -390,6 +395,7 @@ class MambuStructTests(unittest.TestCase):
                     "bool": False,
                     "obj": "anotherEncodedKey",
                     "not_converted": "?",
+                    "exception": A(),
                     "_index": 1,
                 },
                 "invalidElement",
@@ -408,11 +414,13 @@ class MambuStructTests(unittest.TestCase):
             "float_0": 15.56,
             "bool_0": True,
             "obj_0": obj0,
+            "exception_0": A(),
             "str_1": "def456",
             "num_1": 456,
             "float_1": 23.34,
             "bool_1": False,
-            "obj_1": obj1
+            "obj_1": obj1,
+            "exception_1": A(),
         }
         ms = mambustruct.MambuStruct()
         ms._attrs = copy.deepcopy(extracted_fields)
