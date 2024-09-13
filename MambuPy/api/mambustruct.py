@@ -216,6 +216,8 @@ class MambuStruct(MambuMapObj):
                 data = self.__convert_from_dict_to_basic_types(
                     it, data, tzdata, constantFields
                 )
+            if isinstance(it, MambuMapObj):
+                it._convertDict2Attrs()
             if isinstance(it, list):
                 data = self.__convert_from_list_to_basic_types(
                     it, data, tzdata, constantFields
