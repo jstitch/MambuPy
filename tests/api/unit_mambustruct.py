@@ -57,6 +57,13 @@ class MambuStructTests(unittest.TestCase):
             },
         }
         ms._tzattrs = copy.deepcopy(ms._attrs)
+        other_ms = mambustruct.MambuStruct()
+        other_ms._attrs = {
+            "aNum": "123",
+        }
+        other_ms._tzattrs = copy.deepcopy(other_ms._attrs)
+        ms._attrs["aMambuEnt"] = other_ms
+        ms._tzattrs["aMambuEnt"] = {}
 
         ms._convertDict2Attrs()
 
@@ -88,6 +95,9 @@ class MambuStructTests(unittest.TestCase):
 
         # "FALSE" transforms in to boolean False
         self.assertEqual(ms.otherBool, False)
+
+        #
+        self.assertEqual(ms.aMambuEnt, other_ms)
 
         # datetime transforms in to datetime object
         self.assertEqual(

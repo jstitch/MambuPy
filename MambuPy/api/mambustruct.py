@@ -121,10 +121,10 @@ class MambuStruct(MambuMapObj):
                 raise attr_err
 
     def __convert_from_dict_to_basic_types_non_constant_fields(
-        self, k, data_dict, data, tzdata
+        self, k, data_dict, data, tzdata, constantFields
     ):
         try:
-            data_dict[k] = self.__convert_to_basic_types(data[k], tzdata[k])
+            data_dict[k] = self.__convert_to_basic_types(data[k], tzdata[k], constantFields)
             if type(data_dict[k]) not in [dict, list, datetime]:
                 del tzdata[k]
             elif isinstance(data_dict[k], datetime):
@@ -141,14 +141,14 @@ class MambuStruct(MambuMapObj):
                     del tzdata[k]
             else:
                 self.__convert_from_dict_to_basic_types_non_constant_fields(
-                    k, data_dict, data, tzdata
+                    k, data_dict, data, tzdata, constantFields
                 )
         return data_dict
 
     def __convert_from_list_to_basic_types(self, it_list, data, tzdata, constantFields):
         data_list = []
         for num, (e, te) in enumerate(zip(it_list, tzdata)):
-            d = self.__convert_to_basic_types(e, te)
+            d = self.__convert_to_basic_types(e, te, constantFields)
             if type(d) not in [dict, list, datetime]:
                 tzdata[num] = None
             elif isinstance(d, datetime):
