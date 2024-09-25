@@ -25,6 +25,7 @@ from MambuPy.api.vos import (
     MambuDisbursementLoanTransactionInput,
     MambuFeeLoanTransactionInput,
     MambuRepaymentLoanTransactionInput,
+    MambuLoanTransactionDetailsInput,
 )
 from MambuPy.mambuutil import MambuPyError
 from .mambutransaction import MambuTransaction
@@ -259,7 +260,10 @@ class MambuLoan(
                     operation. If naive datetime, use TZ info from tzattrs.
           kwargs (dict): allowed extra params for the repayment transaction
                  request. :py:obj:`MambuPy.api.vos.MambuRepaymentLoanTransactionInput._schema_fields`
-                 has the allowed fields permitted for this operation
+                 has the allowed fields permitted for this operation.
+                 If transactionDetails is provided, it needs to have the
+                 structure defined at
+                 :py:obj:`MambuPy.api.vos.MambuLoanTransactionDetailsInput._schema_fields`.
         """
         valueDate = datetime.datetime.strptime(
             valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S"
@@ -272,6 +276,7 @@ class MambuLoan(
             notes,
             valueDate,
             MambuRepaymentLoanTransactionInput._schema_fields,
+            MambuLoanTransactionDetailsInput._schema_fields,
             **kwargs
         )
 

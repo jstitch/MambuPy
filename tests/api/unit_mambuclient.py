@@ -63,11 +63,11 @@ class MambuClient(unittest.TestCase):
         mc = mambuclient.MambuClient()
         mc._attrs = {"id": "12345"}
         mc._delete_for_creation()
-        self.assertEquals(mc._attrs, {"id": "12345"})
+        self.assertEqual(mc._attrs, {"id": "12345"})
 
         mc._attrs["approvedDate"] = None
         mc._delete_for_creation()
-        self.assertEquals(mc._attrs, {"id": "12345"})
+        self.assertEqual(mc._attrs, {"id": "12345"})
 
     @mock.patch("MambuPy.api.entities.MambuEntity._get_several")
     def test_get_all(self, mock_get_several):

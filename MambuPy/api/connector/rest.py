@@ -780,7 +780,9 @@ url %s, params %s, data %s, headers %s",
         return self.__request("POST", url, data=data)
 
     def mambu_make_repayment(
-        self, loan_id, amount, notes, valueDate, allowed_fields, **kwargs
+        self, loan_id, amount, notes, valueDate,
+        allowed_fields, loantransaction_allowed_fields,
+        **kwargs
     ):
         """Make a repayment transaction on a loan account.
 
@@ -790,11 +792,25 @@ url %s, params %s, data %s, headers %s",
           notes (str): notes for the repayment transaction
           valueDate (str): date for the repayment transaction in ISO format
           allowed_fields (list): extra fields allowed for the transaction
+          loantransaction_allowed_fields (list): extra fields allowed for the transaction details
           kwargs (dict): key-values of extra fields for the transaction
+                         allows custom fields in the transaction ONLY when prefixed with '_' and being a dict
         """
+        def _extract_valid_transactionDetails(transactionDetails_dict):
+            transactionDetails = {}
+            for k, v in transactionDetails_dict.items():
+                if k in loantransaction_allowed_fields:
+                    transactionDetails[k] = v
+            return transactionDetails
+
         data = {"amount": amount, "notes": notes, "valueDate": valueDate}
         for k, v in kwargs.items():
             if k in allowed_fields:
+                if k == "transactionDetails":
+                    data[k] = _extract_valid_transactionDetails(v)
+                else:
+                    data[k] = v
+            elif k[0] == "_" and isinstance(v, dict):
                 data[k] = v
 
         url = "https://{}/api/loans/{}/repayment-transactions".format(

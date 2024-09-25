@@ -82,6 +82,17 @@ class MambuRepaymentLoanTransactionInput(MambuValueObject):
         "originalCurrencyCode",
         "prepaymentRecalculationMethod",
         "valueDate",
+        "transactionDetails",
+    ]
+    """List of schema fields for a loan repayment transaction."""
+
+
+class MambuLoanTransactionDetailsInput(MambuValueObject):
+    """Loan Transaction Details body"""
+
+    _schema_fields = [
+        "transactionChannelId",
+        "transactionChannelKey",
     ]
     """List of schema fields for a loan repayment transaction."""
 

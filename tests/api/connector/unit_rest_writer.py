@@ -306,8 +306,20 @@ class MambuConnectorWriterREST(unittest.TestCase):
             amount=100.0,
             notes="My Notes",
             valueDate="my-value-date",
-            allowed_fields=["hello"],
-            **{"hello": "world", "bye bye": "miss american pie"}
+            allowed_fields=["hello", "transactionDetails"],
+            loantransaction_allowed_fields=["transactionChannelId"],
+            **{
+                "hello": "world",
+                "goodbye": "stranger",  # ignored parameter
+                "transactionDetails": {
+                    "transactionChannelId": "rock&roll",
+                    "nothing": "else matters",  # ignored parameter
+                },
+                "_music_died_day": {
+                    "buddy": "holly",
+                    "bye bye": "miss american pie"
+                },
+            },
         )
 
         mock_requests.Session().request.assert_called_with(
@@ -317,7 +329,9 @@ class MambuConnectorWriterREST(unittest.TestCase):
             data='{"amount": 100.0, \
 "notes": "My Notes", \
 "valueDate": "my-value-date", \
-"hello": "world"}',
+"hello": "world", \
+"transactionDetails": {"transactionChannelId": "rock&roll"}, \
+"_music_died_day": {"buddy": "holly", "bye bye": "miss american pie"}}',
             headers=mcrest._headers
         )
 
