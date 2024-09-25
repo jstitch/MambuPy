@@ -255,3 +255,9 @@ Release Notes
   - feature: add method get_transactions to mambuloan
   - bugfix: v2 getEntities assignnewproperty without '_' prefix.
   - connector rest retries, ignore 500 errors.
+* v2.0.0b46 2024-09-24
+  - bugfix: convert dict to attrs base case, comparisons may fail.
+  - bugfix: updateCFs from list, comparisons may fail.
+  - feature: convertDict2Attrs, iterate over MambuPy objs.
+  - bugfix: v2 convertDict2Attrs constantFields.
+  - feature: MambuLoan repayment transaction channels and custom fields support.
