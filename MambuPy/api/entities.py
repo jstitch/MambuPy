@@ -888,7 +888,14 @@ class MambuEntityCF(MambuValueObject):
 
 
 class MambuInstallment(MambuStruct):
-    """Loan Account Installment (aka Repayment)"""
+    """Loan Account Installment (aka Repayment).
+
+    Defaults dueDate to UTC since timezone is not relevant for this entity.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._as_utc = True
 
     def __repr__(self):
         """repr tells the class name, the number, the state and the dueDate"""

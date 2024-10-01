@@ -47,6 +47,9 @@ class MambuStruct(MambuMapObj):
         so those fileds get a None TZ info.
     """
 
+    _as_utc = False
+    """When True, all datetimes will be converted as UTC in _convertDict2Attrs."""
+
     _vos = []
     """List of Value Objects in the struct's _attrs.
 
@@ -177,7 +180,7 @@ class MambuStruct(MambuMapObj):
                 return f_data
             except (TypeError, ValueError):
                 try:
-                    return date_format(data)
+                    return date_format(data, as_utc=self._as_utc)
                 except (TypeError, ValueError):
                     return data
 
@@ -195,7 +198,7 @@ class MambuStruct(MambuMapObj):
           - int: an int number
           - float: a floating point number
           - datetime: if the string holds a valid datetime in a date_format
-                      specific format
+                      specific format. Considers UTC if _as_utc is True.
 
         A list of fields that should stay as-they-come (strings) is supported.
         All fields whose name ends with "Key" is also ignored.

@@ -43,20 +43,8 @@ UnitTests-3:
     - merge_requests
   script:
     - pip install -q --no-cache-dir --upgrade -r requirements.py3.txt
+    - date
     - make test
-
-UnitTests-2:
-  extends: ".UnitTests"
-  stage: "UnitTests"
-  variables:
-    PYVERSION: "2"
-  image: "python:2"
-  only:
-    - branches
-    - tags
-    - merge_requests
-  script:
-    - make test APIV2=no
 
 Docs:
   image: "python:3"

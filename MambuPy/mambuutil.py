@@ -34,7 +34,7 @@ except NameError:
 import json
 import sys
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 API_RETURN_CODES = {
     "SUCCESS": 0,
@@ -159,7 +159,7 @@ class MambuCommError(MambuError):
 
 
 ### More utility functions follow ###
-def date_format(field, formato=None):
+def date_format(field, formato=None, as_utc=False):
     """Converts a datetime field to a datetime using some specified format.
 
     What this really means is that, if specified format includes only for
@@ -169,6 +169,8 @@ def date_format(field, formato=None):
 
     A useful format may be %Y%m%d, then the datetime objects effectively
     translates into date objects alone, with no relevant time information.
+
+    When as_utc is True, the datetime object is converted to UTC timezone.
 
     PLEASE BE AWARE, that this may lose useful information for your datetimes
     from Mambu. Read this for why this may be a BAD idea:
@@ -184,10 +186,15 @@ def date_format(field, formato=None):
             formato,
         )
     else:
-        return datetime.strptime(
+        field_as_dt = datetime.strptime(
             datetime.fromisoformat(field).strftime(formato),
             formato,
         )
+        if as_utc:
+            field_as_dt = field_as_dt.astimezone(
+                timezone.utc
+            ).replace(tzinfo=None)
+        return field_as_dt
 
 
 def strip_tags(html):
