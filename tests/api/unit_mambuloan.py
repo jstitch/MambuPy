@@ -373,6 +373,40 @@ class MambuLoan(unittest.TestCase):
         )
         ml.refresh.assert_called_once()
 
+    def test_adjust(self):
+        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_loantransaction_adjust.return_value = '{"encodedKey": "abc123"}'
+        ml.refresh = mock.Mock()
+
+        ml.adjust_transaction(transactionId="Neil Young", notes="Crazy Horse")
+
+        mock_connector.mambu_loantransaction_adjust.assert_called_with(
+            'Neil Young',
+            "Crazy Horse",
+        )
+        ml.refresh.assert_called_once()
+
+    def test_adjust_validate_transactionId(self):
+        ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_loantransaction_adjust.return_value = '{"encodedKey": "abc123"}'
+        ml.refresh = mock.Mock()
+
+        ml.transactions = [
+            MambuTransaction(id='2897470', amount=6708.0,type ='REPAYMENT'),
+        ]
+
+        ml.adjust_transaction(transactionId="2897470", notes="hey hey my my")
+        mock_connector.mambu_loantransaction_adjust.assert_called_with(
+            '2897470',
+            "hey hey my my",
+        )
+        with self.assertRaisesRegex(
+            MambuPyError, r"^transactionId 'my my hey hey' not found in loan transactions"
+        ):
+            ml.adjust_transaction(transactionId="my my hey hey", notes="hey hey my my")
+
     def test_apply_fee(self):
         ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
         mock_connector = ml._connector

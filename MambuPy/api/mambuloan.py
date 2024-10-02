@@ -282,6 +282,23 @@ class MambuLoan(
 
         self.refresh()
 
+    def adjust_transaction(self, transactionId, notes):
+        """Request to adjust a loan transaction.
+
+        Args:
+          transactionId (str): the id of the transaction to adjust
+          notes (str): notes to attach to the adjusting transaction.
+        """
+        if hasattr(self, "transactions"):
+            if transactionId not in [t.id for t in self.transactions]:
+                raise MambuPyError(
+                    "transactionId '{}' not found in loan transactions".format(
+                        transactionId
+                    )
+                )
+        self._connector.mambu_loantransaction_adjust(transactionId, notes)
+        self.refresh()
+
     def apply_fee(self, amount, installmentNumber, notes, valueDate, **kwargs):
         """Request to apply a fee to a loan account.
 
