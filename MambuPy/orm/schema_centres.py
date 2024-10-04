@@ -38,6 +38,7 @@ class Centre(Base):
 
     # Relationships
     assignedBranchKey = Column(String, ForeignKey(Branch.encodedKey))
+    loans = relationship("LoanAccount", back_populates="centre")
     branch = relationship(Branch, back_populates="centres")
     groups = relationship("Group", back_populates="centre")
 

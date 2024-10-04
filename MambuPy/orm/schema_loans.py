@@ -13,6 +13,7 @@ from sqlalchemy.orm import relationship
 
 from . import schema_orm as orm
 from .schema_branches import Branch
+from .schema_centres import Centre
 from .schema_users import User
 
 dbname = orm.dbname
@@ -89,7 +90,6 @@ class LoanAccount(Base):
     approvedDate = Column(DateTime)
     closedDate = Column(DateTime)
     rescheduledAccountKey = Column(String)
-    assignedCentreKey = Column(String)  # not in API
     lastSetToArrearsDate = Column(DateTime)  # not in API
 
     # Relationships
@@ -99,6 +99,8 @@ class LoanAccount(Base):
     disbursementDetails = relationship("DisbursementDetails")
     assignedBranchKey = Column(String, ForeignKey(Branch.encodedKey))
     branch = relationship("Branch", back_populates="loans")
+    assignedCentreKey = Column(String, ForeignKey(Centre.encodedKey))
+    centre = relationship("Centre", back_populates="loans")
     assignedUserKey = Column(String, ForeignKey(User.encodedKey))
     user = relationship("User", back_populates="loans")
     accountHolderKey = Column(String)
