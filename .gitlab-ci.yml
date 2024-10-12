@@ -47,7 +47,7 @@ UnitTests-3:
     - make test
 
 Docs:
-  image: "python:3"
+  image: "python:3.8"
   only:
     - branches
     - tags
