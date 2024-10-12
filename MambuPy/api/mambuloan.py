@@ -115,7 +115,7 @@ class MambuLoan(
         except KeyError:
             pass
 
-    def get_schedule(self):
+    def get_schedule(self, **kwargs):
         """Retrieves the installments schedule."""
         resp = self._connector.mambu_loanaccount_getSchedule(self.id)
 
@@ -128,11 +128,11 @@ class MambuLoan(
             installment_entity._convertDict2Attrs()
             self.schedule.append(installment_entity)
 
-    def get_transactions(self):
+    def get_transactions(self, **kwargs):
         """Retrieves the transactions of the loan"""
         self.transactions = MambuTransaction.get_all(self.id)
 
-    def set_state(self, action, notes):
+    def set_state(self, action, notes, **kwargs):
         """Request to change status of a MambuLoan
 
         Args:
@@ -144,7 +144,7 @@ class MambuLoan(
         """
         if action in self._accepted_actions:
             resp = self._connector.mambu_change_state(
-                entid=self.id, prefix=self._prefix, action=action, notes=notes
+                entid=self.id, prefix=self._prefix, action=action, notes=notes,
             )
             resp = json.loads(resp)
             self.accountState = resp["accountState"]
@@ -155,13 +155,13 @@ class MambuLoan(
                 )
             )
 
-    def approve(self, notes):
+    def approve(self, notes, **kwargs):
         """Request to approve a loan account.
 
         Args:
           notes (str): notes to attach to the approval operation.
         """
-        self.set_state("APPROVE", notes)
+        self.set_state("APPROVE", notes, **kwargs)
 
     def disburse(self, notes, firstRepaymentDate=None, disbursementDate=None, **kwargs):
         """Request to disburse a loan account.
@@ -225,23 +225,23 @@ class MambuLoan(
 
         self.refresh()
 
-    def reject(self, notes):
+    def reject(self, notes, **kwargs):
         """Request to reject a loan account.
 
         Args:
           notes (str): notes to attach to the reject operation.
         """
-        self.set_state("REJECT", notes)
+        self.set_state("REJECT", notes, **kwargs)
 
-    def close(self, notes):
+    def close(self, notes, **kwargs):
         """Request to close a loan account.
 
         Args:
           notes (str): notes to attach to the closing operation.
         """
-        self.set_state("CLOSE", notes)
+        self.set_state("CLOSE", notes, **kwargs)
 
-    def writeoff(self, notes):
+    def writeoff(self, notes, **kwargs):
         """Request to writeoff a loan account.
 
         Args:
@@ -282,7 +282,7 @@ class MambuLoan(
 
         self.refresh()
 
-    def adjust_transaction(self, transactionId, notes):
+    def adjust_transaction(self, transactionId, notes, **kwargs):
         """Request to adjust a loan transaction.
 
         Args:

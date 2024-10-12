@@ -673,7 +673,7 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
     _attachments = {}
     """dict of attachments of an entity, key is the id"""
 
-    def attach_document(self, filename, title="", notes=""):
+    def attach_document(self, filename, title="", notes="", **kwargs):
         """uploads an attachment to this entity
 
         _attachments dicitionary gets a new entry with the attached document.

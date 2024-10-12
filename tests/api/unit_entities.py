@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import unittest
@@ -408,6 +409,18 @@ class MambuEntityCFTests(unittest.TestCase):
         self.assertEqual(
             ms._attrs["mcf"],
             {"_KEY_": "Other_MambuCF", "_OTHER_": None, "_OTHER_KEY_": "AnOther_MambuCF", "_index": None})
+
+
+class MambuInstallment(unittest.TestCase):
+    def test_installment(self):
+        ms = entities.MambuInstallment(
+            **{
+                "number": 1,
+                "state": "PENDING",
+                "dueDate": datetime.strptime("2021-01-01", "%Y-%m-%d"),
+            })
+        self.assertEqual(ms._as_utc, True)
+        self.assertEqual(repr(ms), "MambuInstallment - #1, PENDING, 2021-01-01")
 
 
 if __name__ == "__main__":
