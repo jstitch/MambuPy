@@ -334,7 +334,7 @@ class MambuEntity(MambuStruct):
 
         return instance
 
-    def refresh(self, detailsLevel=""):
+    def refresh(self, detailsLevel="", **kwargs):
         """get again this single entity, identified by its entid.
 
         Updates _attrs with responded data. Loses any change on _attrs that
@@ -343,6 +343,8 @@ class MambuEntity(MambuStruct):
 
         Args:
           detailsLevel (str BASIC/FULL): ask for extra details or not
+          kwargs (dict): keyword arguments for this method.
+                         May include a user, pwd and url to connect to Mambu.
         """
         if not detailsLevel:
             detailsLevel = self._detailsLevel
