@@ -130,7 +130,7 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
 url %s, params %s, data %s, headers %s",
                 method,
                 url,
-                params,
+                [(k, v) for k, v in params.items() if k not in ["pwd"]],
                 data,
                 [(k, v) for k, v in headers.items() if k != "Authorization"],
             )
