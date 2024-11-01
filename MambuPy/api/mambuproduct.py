@@ -69,7 +69,7 @@ class MambuProduct(
 
     @classmethod
     def get_all(
-        cls, filters=None, offset=None, limit=None, paginationDetails="OFF", sortBy=None
+        cls, filters=None, offset=None, limit=None, paginationDetails="OFF", sortBy=None, **kwargs
     ):
         """get_all, several entities, filtering allowed
 
@@ -85,6 +85,8 @@ class MambuProduct(
         Returns:
           list of instances of an entity with data from Mambu
         """
+        if "detailsLevel" in kwargs:
+            kwargs.pop("detailsLevel")
         return super().get_all(
-            filters, offset, limit, paginationDetails, detailsLevel="FULL", sortBy=sortBy
+            filters, offset, limit, paginationDetails, detailsLevel="FULL", sortBy=sortBy, **kwargs
         )

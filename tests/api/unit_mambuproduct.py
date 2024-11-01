@@ -69,8 +69,8 @@ class MambuProduct(unittest.TestCase):
         mp = mambuproduct.MambuProduct.get_all()
         self.assertEqual(mp, "SupGetSeveral")
 
-        with self.assertRaises(TypeError):
-            mambuproduct.MambuProduct.get_all(detailsLevel="BASIC")
+        mp = mambuproduct.MambuProduct.get_all(detailsLevel="BASIC")
+        self.assertEqual(mp, "SupGetSeveral")
 
         mp = mambuproduct.MambuProduct.get_all(filters={})
         self.assertEqual(mp, "SupGetSeveral")

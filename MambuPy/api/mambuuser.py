@@ -80,6 +80,7 @@ class MambuUser(
         detailsLevel="BASIC",
         sortBy=None,
         branchIdType=None,
+        **kwargs,
     ):
         """get_all, several entities, filtering allowed
 
@@ -106,6 +107,7 @@ class MambuUser(
         params = {}
         if branchIdType:
             params["branchIdType"] = branchIdType
+        params.update(kwargs)
 
         return super().get_all(
             filters, offset, limit, paginationDetails, detailsLevel, sortBy, **params

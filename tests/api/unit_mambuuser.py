@@ -78,6 +78,9 @@ class MambuUser(unittest.TestCase):
         mc = mambuuser.MambuUser.get_all()
         self.assertEqual(mc, "SupGetSeveral")
 
+        mc = mambuuser.MambuUser.get_all(something="else")
+        self.assertEqual(mc, "SupGetSeveral")
+
         mc = mambuuser.MambuUser.get_all(filters={})
         self.assertEqual(mc, "SupGetSeveral")
 

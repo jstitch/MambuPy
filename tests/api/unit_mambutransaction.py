@@ -35,7 +35,7 @@ class MambuTransaction(unittest.TestCase):
     def test_get_all(self, mock_get_several, mock_connector_rest):
         mock_get_several.return_value = "SupGetSeveral"
 
-        mt = mambutransaction.MambuTransaction.get_all(loanAccountId="12345")
+        mt = mambutransaction.MambuTransaction.get_all(loanAccountId="12345", hello="world")
         self.assertEqual(mt, "SupGetSeveral")
         mock_get_several.assert_called_with(
             mock_connector_rest.return_value.mambu_get_all,
@@ -44,7 +44,9 @@ class MambuTransaction(unittest.TestCase):
             offset=None, limit=None,
             paginationDetails="OFF", detailsLevel="BASIC",
             sortBy=None,
-            prefix="loans/12345/transactions")
+            prefix="loans/12345/transactions",
+            hello="world",
+        )
 
     def test_adjust(self):
         mt = mambutransaction.MambuTransaction(id='12345678', connector=mock.Mock())

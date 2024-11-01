@@ -28,6 +28,7 @@ class MambuTransaction(MambuEntity, MambuEntitySearchable):
         limit=None,
         paginationDetails="OFF",
         detailsLevel="BASIC",
+        **kwargs,
     ):
         """get_all, several transactions, filtering allowed
 
@@ -41,6 +42,7 @@ class MambuTransaction(MambuEntity, MambuEntitySearchable):
         Returns:
           list of instances of a transaction with data from Mambu
         """
+        kwargs.update({"prefix": "loans/{}/transactions".format(loanAccountId)})
         return super().get_all(
             filters=None,
             offset=offset,
@@ -48,7 +50,7 @@ class MambuTransaction(MambuEntity, MambuEntitySearchable):
             paginationDetails=paginationDetails,
             detailsLevel=detailsLevel,
             sortBy=None,
-            **{"prefix": "loans/{}/transactions".format(loanAccountId)}
+            **kwargs,
         )
 
     def adjust(self, notes):
