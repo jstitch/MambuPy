@@ -263,10 +263,13 @@ class MambuEntity(MambuStruct):
         minutes = remainder // 60
         seconds = round(remainder - (minutes * 60), 2)
         if debug:
-            print(
-                "{}-{} ({}) {}:{}:{}".format(
+            if elements:
+                print("{}-{}".format(
                     elements[0].__class__.__name__,
                     elements[0]["id"],
+                ))
+            print(
+                "({}) {}:{}:{}".format(
                     len(elements),
                     int(hours),
                     int(minutes),

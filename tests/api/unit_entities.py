@@ -161,10 +161,10 @@ class MambuEntityTests(unittest.TestCase):
             "something else",
             detailsLevel="BASIC"
         )
-        mock_print.assert_called_with(
-            "child_class" + "-" +
-            elems[0]._attrs["id"] +
-            " ({}) ".format(len(elems)) +
+        mock_print.assert_any_call(
+            "child_class" + "-" + elems[0]._attrs["id"])
+        mock_print.assert_any_call(
+            "({}) ".format(len(elems)) +
             "0:0:0.0")
         for elem in elems:
             elem._assignEntObjs.assert_called_with(
