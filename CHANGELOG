@@ -261,3 +261,12 @@ Release Notes
   - feature: convertDict2Attrs, iterate over MambuPy objs.
   - bugfix: v2 convertDict2Attrs constantFields.
   - feature: MambuLoan repayment transaction channels and custom fields support.
+* v2.0.0b48
+  - fix: debug get_several entities, when no elements were responded
+  - fix: v2 Entities.get_all() allow kwargs arguments
+  - fix: log should not print sensitive data
+  - refact: get and refresh operations to mambu support arbitrary args
+  - devops: docs job python env version 3.8
+  - refact: write operations to mambu support arbitrary args
+  - feat: orm loans include assigned centre information
+  - feat: mambuloan adjust_transaction method
