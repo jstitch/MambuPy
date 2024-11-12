@@ -116,7 +116,8 @@ class MambuStruct(MambuMapObj):
                 if ent in self._attrs.keys():
                     entity = self._attrs[ent]
                     if entity.__class__.__name__ == self._cf_class.__name__:
-                        entity.get_mcf()
+                        if not entity.mcf:
+                            entity.get_mcf()
                         return self.__getattribute_for_cf(ent, entity)
                     return lambda **kwargs: entity
                 return lambda **kwargs: self.getEntities([ent], **kwargs)[0]
