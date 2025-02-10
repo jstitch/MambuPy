@@ -82,6 +82,12 @@ Another=BrickInTheWall
         except AttributeError:
             self.fail("No dbeng attribute in mambuconfig")
 
+    def test_mambupy_attrs(self):
+        try:
+            mambuconfig.loggingdir
+        except AttributeError:
+            self.fail("No loggingdir attribute in mambuconfig")
+
     def test_default_configs(self):
         self.assertEqual(mambuconfig.default_configs.get("apiurl"), "domain.mambu.com")
         self.assertEqual(mambuconfig.default_configs.get("apiuser"), "mambu_api_user")
@@ -93,6 +99,7 @@ Another=BrickInTheWall
         self.assertEqual(mambuconfig.default_configs.get("dbhost"), "localhost")
         self.assertEqual(mambuconfig.default_configs.get("dbport"), "3306")
         self.assertEqual(mambuconfig.default_configs.get("dbeng"), "mysql")
+        self.assertEqual(mambuconfig.default_configs.get("loggingdir"), "")
 
     def test_get_conf(self):
         self.config.read("/tmp/test.ini")

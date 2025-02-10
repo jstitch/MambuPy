@@ -22,11 +22,30 @@ from .interfaces import (
 from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
-from MambuPy.mambuutil import MambuError, MambuPyError
+from MambuPy.mambuutil import MambuError, MambuPyError, loggingdir
 
 
 logger = logging.getLogger(__name__)
-logger.propagate = True
+if loggingdir:  # pragma: no cover
+    # Create file handler
+    file_handler = logging.FileHandler(loggingdir + "mambupy_api_v2.log")
+    file_handler.setLevel(logging.INFO)
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    # Set logger level
+    logger.setLevel(logging.INFO)
+    # Avoid propagation
+    logger.propagate = True
+else:  # pragma: no cover
+    logger.propagate = True
 
 
 class MambuEntity(MambuStruct):

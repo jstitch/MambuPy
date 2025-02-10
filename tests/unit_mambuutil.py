@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from datetime import datetime
+import logging
 import os
 import sys
 import unittest
 
+logging.disable(logging.CRITICAL)
 sys.path.insert(0, os.path.abspath("."))
 
 try:

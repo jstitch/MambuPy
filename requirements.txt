@@ -5,6 +5,7 @@ SQLAlchemy==1.3.6
 mysqlclient
 dateutils
 
+freezegun==1.1.0
 mock
 coverage
 future

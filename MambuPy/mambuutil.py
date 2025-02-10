@@ -21,8 +21,10 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
 
 .. todo:: status API V2: testing of EVERYTHING is required """
 
+import logging
+
 from .mambugeturl import getmambuurl
-from .mambuconfig import apipwd, apiurl, apiuser, apipagination
+from .mambuconfig import apipwd, apiurl, apiuser, apipagination, loggingdir
 
 try:
     # python2
@@ -144,6 +146,9 @@ SEARCH_OPERATORS = [
     "NOT_EMPTY",
 ]
 """search operators"""
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 
 class MambuPyError(Exception):
@@ -328,11 +333,6 @@ import requests
 def _backup_db_previous_prep(callback, kwargs):
     list_ret = []
     try:
-        verbose = kwargs["verbose"]
-    except KeyError:
-        verbose = False
-    list_ret.append(verbose)
-    try:
         retries = kwargs["retries"]
     except KeyError:
         retries = -1
@@ -355,13 +355,32 @@ def _backup_db_previous_prep(callback, kwargs):
         }
     list_ret.append(headers)
 
-    if verbose:
-        log = open("/tmp/log_mambu_backup", "a")
-        log.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " - Mambu DB Backup\n")
-        log.flush()
-    else:
-        log = None
-    list_ret.append(log)
+    if loggingdir:  # pragma: no cover
+        logger = logging.getLogger("backup_db")
+        # Create file handler
+        file_handler = logging.FileHandler(loggingdir + "mambupy_backup_db.log")
+        file_handler.setLevel(logging.INFO)
+        # Create console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+        # Add handlers to logger
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+        # Set logger level
+        logger.setLevel(logging.INFO)
+        # Avoid propagation
+        logger.propagate = True
+    else:  # pragma: no cover
+        logger = logging.getLogger(__name__)
+        logger.propagate = True
+
+    logger.info("Mambu DB Backup")
+
+    list_ret.append(logger)
 
     user = kwargs.pop("user", apiuser)
     list_ret.append(user)
@@ -375,14 +394,12 @@ def _backup_db_previous_prep(callback, kwargs):
     return list_ret
 
 
-def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
+def _backup_db_request(justbackup, data, user, pwd, logger=None):
     try:
         if not justbackup:
             posturl = iri_to_uri(getmambuurl() + "database/backup")
-            if verbose:
-                log.write("open url: " + posturl + "\n")
-                log.write("data: " + str(data) + "\n")
-                log.flush()
+            logger.info("open url: " + posturl)
+            logger.info("data: " + str(data))
             resp = requests.post(
                 posturl,
                 data=json.dumps(data),
@@ -392,67 +409,35 @@ def _backup_db_request(justbackup, data, user, pwd, verbose=None, log=None):
                 },
                 auth=(user, pwd),
             )
-            if verbose:
-                log.write(
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    + " - "
-                    + str(resp.content)
-                    + "\n"
-                )
-                log.write(
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    + " - "
-                    + resp.request.url
-                    + "\n"
-                )
-                log.write(
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    + " - "
-                    + resp.request.body
-                    + "\n"
-                )
-                log.write(
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    + " - "
-                    + str(resp.request.headers)
-                    + "\n"
-                )
-                log.flush()
+            logger.info(str(resp.content))
+            logger.info(resp.request.url)
+            logger.info(resp.request.body)
+            logger.info(str(resp.request.headers))
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
+        logger.exception(mess)
         raise MambuError(mess)
 
     if not justbackup and resp.status_code != 202:
         mess = "Error posting request for backup: %s" % resp.content
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
+        logger.error(mess)
         raise MambuCommError(mess)
 
 
 def _backup_db_timeout_mechanism(
-    justbackup, retries, bool_func, force_download_latest, verbose=None, log=None
+    justbackup, retries, bool_func, force_download_latest, logger=None
 ):
     value_to_latest = True
     while not justbackup and retries and not bool_func():
-        if verbose:
-            log.write("waiting...\n")
-            log.flush()
+        logger.info("waiting...")
         sleep(10)
         retries -= 1
         if retries < 0:
             retries = -1
     if not justbackup and not retries:
         mess = "Tired of waiting, giving up..."
-        if verbose:
-            log.write(mess + "\n")
-            log.flush()
+        logger.warning(mess)
         if not force_download_latest:
-            if verbose:
-                log.close()
             raise MambuError(mess)
         else:
             value_to_latest = False
@@ -461,27 +446,21 @@ def _backup_db_timeout_mechanism(
     return value_to_latest
 
 
-def _backup_db_request_download_backup(user, pwd, headers, verbose=None, log=None):
+def _backup_db_request_download_backup(user, pwd, headers, logger=None):
     geturl = iri_to_uri(getmambuurl() + "database/backup/LATEST")
-    if verbose:
-        log.write("open url: " + geturl + "\n")
-        log.flush()
+    logger.info("open url: " + geturl)
     resp = requests.get(geturl, auth=(user, pwd), headers=headers)
 
     if resp.status_code != 200:
         mess = "Error getting database backup: %s" % resp.content
-        if verbose:
-            log.write(mess + "\n")
-            log.close()
+        logger.error(mess)
         raise MambuCommError(mess)
 
     return resp
 
 
-def _backup_db_post_processing(resp, output_fname, verbose=None, log=None):
-    if verbose:
-        log.write("saving...\n")
-        log.flush()
+def _backup_db_post_processing(resp, output_fname, logger=None):
+    logger.info("saving...")
     with open(output_fname, "wb") as fw:
         fw.write(resp.content)
 
@@ -516,8 +495,6 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     * user, pwd and url allow you to change the Mambu permissions for
       the getmambuurl internally called here.
 
-    * verbose is a boolean flag for verbosity.
-
     * retries number of retries for bool_func or -1 for keep waiting.
 
     * just_backup bool if True, skip asking for backup, just download LATEST
@@ -534,34 +511,31 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
 
     # previous preparation
     (
-        verbose,
         retries,
         justbackup,
         force_download_latest,
         headers,
-        log,
+        logger,
         user,
         pwd,
         data,
     ) = _backup_db_previous_prep(callback, kwargs)
 
     # POST to request Mambu to prepare backup of its own DB
-    _backup_db_request(justbackup, data, user, pwd, verbose, log)
+    _backup_db_request(justbackup, data, user, pwd, logger)
 
     # wait & timeout mechanism
     data["latest"] = _backup_db_timeout_mechanism(
-        justbackup, retries, bool_func, force_download_latest, verbose, log
+        justbackup, retries, bool_func, force_download_latest, logger
     )
 
     # GET request to download LATEST Mambu's DB backup
-    resp = _backup_db_request_download_backup(user, pwd, headers, verbose, log)
+    resp = _backup_db_request_download_backup(user, pwd, headers, logger)
 
     # post-processing
-    _backup_db_post_processing(resp, output_fname, verbose, log)
+    _backup_db_post_processing(resp, output_fname, logger)
 
     # no refactor
-    if verbose:
-        log.write("DONE!\n")
-        log.close()
+    logger.info("DONE!")
 
     return data
