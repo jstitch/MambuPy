@@ -8,7 +8,6 @@
 import copy
 from importlib import import_module
 import json
-import logging
 import time
 
 from .classes import GenericClass
@@ -22,30 +21,10 @@ from .interfaces import (
 from .connector.rest import MambuConnectorREST
 from .mambustruct import MambuStruct
 from .vos import MambuDocument, MambuComment, MambuValueObject
-from MambuPy.mambuutil import MambuError, MambuPyError, loggingdir
+from MambuPy.mambuutil import MambuError, MambuPyError, setup_logging
 
 
-logger = logging.getLogger(__name__)
-if loggingdir:  # pragma: no cover
-    # Create file handler
-    file_handler = logging.FileHandler(loggingdir + "mambupy_api_v2.log")
-    file_handler.setLevel(logging.INFO)
-    # Create console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    # Create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-    # Add handlers to logger
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-    # Set logger level
-    logger.setLevel(logging.INFO)
-    # Avoid propagation
-    logger.propagate = True
-else:  # pragma: no cover
-    logger.propagate = True
+logger = setup_logging(__name__)
 
 
 class MambuEntity(MambuStruct):

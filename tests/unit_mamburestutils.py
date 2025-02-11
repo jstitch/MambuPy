@@ -1,10 +1,12 @@
 # coding: utf-8
+import logging
 import mock
 import os
 import sys
 import unittest
 
 sys.path.insert(0, os.path.abspath("."))
+logging.disable(logging.CRITICAL)
 
 from MambuPy.rest import mambustruct, mamburestutils
 

@@ -1,0 +1,70 @@
+version: 1
+
+formatters:
+  standard:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+handlers:
+  apiv2:
+    class: logging.handlers.RotatingFileHandler
+    filename: /path_to/mambupy_api_v2.log
+    level: INFO
+    formatter: standard
+    maxBytes: 10485760  # 10Mb
+    backupCount: 20
+    encoding: utf8
+  apiv1:
+    class: logging.handlers.RotatingFileHandler
+    filename: /path_to/mambupy_api_v1.log
+    level: INFO
+    formatter: standard
+    maxBytes: 10485760  # 10Mb
+    backupCount: 20
+    encoding: utf8
+  backup_db:
+    class: logging.handlers.RotatingFileHandler
+    filename: /path_to/mambupy_backup_db.log
+    level: INFO
+    formatter: standard
+    maxBytes: 10485760  # 10Mb
+    backupCount: 20
+    encoding: utf8
+  mambupy:
+    class: logging.handlers.RotatingFileHandler
+    filename: /path_to/mambupy.log
+    level: INFO
+    formatter: standard
+    maxBytes: 10485760  # 10Mb
+    backupCount: 20
+    encoding: utf8
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+
+loggers:
+  mambupy.api.connector.rest:
+    level: INFO
+    handlers: [apiv2, console]
+    propagate: false
+  mambupy.api.entities:
+    level: INFO
+    handlers: [apiv2, console]
+    propagate: false
+  mambupy.rest.mambustruct:
+    level: INFO
+    handlers: [apiv1, console]
+    propagate: false
+  mambupy.backup_db:
+    level: INFO
+    handlers: [backup_db, console]
+    propagate: false
+  mambupy:
+    level: INFO
+    handlers: [mambupy, console]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console]
+  propagate: true

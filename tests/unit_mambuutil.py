@@ -152,10 +152,10 @@ class MambuUtilTests(unittest.TestCase):
                 self.request = request
         mock_requests.post.return_value = response(
             code=202, content="hello world",
-            request=request("url", "body", "headers"))
+            request=request("url", "body", {"headers": "value"}))
         mock_requests.get.return_value = response(
             code=200, content=b"hello world",
-            request=request("url", "body", "headers"))
+            request=request("url", "body", {"headers": "value"}))
         d = mambuutil.backup_db(
             callback="da-callback", bool_func=lambda: True, output_fname="/tmp/out_test"
         )
@@ -217,7 +217,7 @@ class MambuUtilTests(unittest.TestCase):
 
         mock_requests.post.return_value = response(
             code=404, content="hello world (not found)",
-            request=request("url", "body", "headers")
+            request=request("url", "body", {"headers": "value"})
         )
         with self.assertRaisesRegexp(
             mambuutil.MambuCommError,
@@ -244,7 +244,7 @@ class MambuUtilTests(unittest.TestCase):
 
         mock_requests.post.side_effect = [
             response(code=202, content="hello world",
-                     request=request("url", "body", "headers"))]
+                     request=request("url", "body", {"headers": "value"}))]
         mock_requests.get.return_value = response(
             code=404, content="hello world (not found)",
             request=request("url", "body", "headers")

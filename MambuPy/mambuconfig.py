@@ -32,7 +32,7 @@ RC files must have the following format:
     dbport=Database_port
     dbeng=Database_engine
     [MAMBUPY]
-    loggingdir=Logging_directory
+    loggingconf=Logging_conf_path
 
 You can use environment variables to override the previous behaviour for any
 option. The variable must be named as follows::
@@ -91,7 +91,7 @@ default_configs = {
     "dbport": "3306",
     "dbeng": "mysql",
     # MambuPy configurations
-    "loggingdir": "",  # empty string means no logging, a dir stores logs and yamls for logging configuration
+    "loggingconf": "",  # empty string means default logging, path to a yaml for logging configuration
 }
 """ Defaults dictionary for the options configured here.
 
@@ -129,7 +129,7 @@ argparser.add_argument("--mambupy_dbpwd")
 argparser.add_argument("--mambupy_dbhost")
 argparser.add_argument("--mambupy_dbport")
 argparser.add_argument("--mambupy_dbeng")
-argparser.add_argument("--mambupy_loggingdir")
+argparser.add_argument("--mambupy_loggingconf")
 args, unknown = argparser.parse_known_args()
 
 
@@ -196,5 +196,5 @@ dbport = get_conf(config, "DB", "dbport")
 """Port to connect to the host of the Mambu's DB backup"""
 dbeng = get_conf(config, "DB", "dbeng")
 """DB engine for the Mambu's DB backup"""
-loggingdir = get_conf(config, "MAMBUPY", "loggingdir")
+loggingconf = get_conf(config, "MAMBUPY", "loggingconf")
 """Directory where to store logs"""

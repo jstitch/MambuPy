@@ -22,9 +22,14 @@ Exceptions, some API return codes, utility functions, a lot of urlfuncs
 .. todo:: status API V2: testing of EVERYTHING is required """
 
 import logging
+import logging.config as logging_config
+import os
+from codecs import open as copen
 
+import yaml
+
+from .mambuconfig import apipagination, apipwd, apiurl, apiuser, loggingconf
 from .mambugeturl import getmambuurl
-from .mambuconfig import apipwd, apiurl, apiuser, apipagination, loggingdir
 
 try:
     # python2
@@ -35,7 +40,6 @@ except NameError:
 
 import json
 import sys
-
 from datetime import datetime, timezone
 
 API_RETURN_CODES = {
@@ -146,9 +150,6 @@ SEARCH_OPERATORS = [
     "NOT_EMPTY",
 ]
 """search operators"""
-
-logger = logging.getLogger(__name__)
-logger.propagate = True
 
 
 class MambuPyError(Exception):
@@ -330,7 +331,7 @@ from time import sleep
 import requests
 
 
-def _backup_db_previous_prep(callback, kwargs):
+def _backup_db_previous_prep(callback, logger, kwargs):
     list_ret = []
     try:
         retries = kwargs["retries"]
@@ -355,32 +356,7 @@ def _backup_db_previous_prep(callback, kwargs):
         }
     list_ret.append(headers)
 
-    if loggingdir:  # pragma: no cover
-        logger = logging.getLogger("backup_db")
-        # Create file handler
-        file_handler = logging.FileHandler(loggingdir + "mambupy_backup_db.log")
-        file_handler.setLevel(logging.INFO)
-        # Create console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
-        # Add handlers to logger
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-        # Set logger level
-        logger.setLevel(logging.INFO)
-        # Avoid propagation
-        logger.propagate = True
-    else:  # pragma: no cover
-        logger = logging.getLogger(__name__)
-        logger.propagate = True
-
     logger.info("Mambu DB Backup")
-
-    list_ret.append(logger)
 
     user = kwargs.pop("user", apiuser)
     list_ret.append(user)
@@ -412,7 +388,7 @@ def _backup_db_request(justbackup, data, user, pwd, logger=None):
             logger.info(str(resp.content))
             logger.info(resp.request.url)
             logger.info(resp.request.body)
-            logger.info(str(resp.request.headers))
+            logger.info(str([(k, v) for k, v in resp.request.headers.items() if k != "Authorization"]))
     except Exception as ex:
         mess = "Error requesting backup: %s" % repr(ex)
         logger.exception(mess)
@@ -508,18 +484,17 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
 
     .. todo:: status API V2: compatible
     """
-
+    logger = setup_logging("mambupy.backup_db")
     # previous preparation
     (
         retries,
         justbackup,
         force_download_latest,
         headers,
-        logger,
         user,
         pwd,
         data,
-    ) = _backup_db_previous_prep(callback, kwargs)
+    ) = _backup_db_previous_prep(callback, logger, kwargs)
 
     # POST to request Mambu to prepare backup of its own DB
     _backup_db_request(justbackup, data, user, pwd, logger)
@@ -539,3 +514,24 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
     logger.info("DONE!")
 
     return data
+
+
+def setup_logging(
+        loggername,
+        default_level=logging.INFO,
+) -> logging.Logger:
+    """ Get a logger configured with a yaml file. """
+    if os.path.exists(loggingconf):
+        with copen(loggingconf, "r", "utf-8") as f:
+            config = yaml.full_load(f.read())
+        logging_config.dictConfig(config)
+        loggr = logging.getLogger(loggername)
+    else:
+        loggr = logging.getLogger(loggername)
+        loggr.setLevel(default_level)
+        loggr.propagate = True
+    return loggr
+
+
+logger = setup_logging("mambupy")
+"""Default logger for mambupy module"""
