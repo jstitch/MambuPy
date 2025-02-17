@@ -74,7 +74,7 @@ class MambuActivitiesTests(unittest.TestCase):
             {"activity": "my_act"},
             {"activity": "my_2_act"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuActivities' object has no attribute 'mambuactivityclass'",
         ):

@@ -68,7 +68,7 @@ class MambuProductsTests(unittest.TestCase):
             {"id": "1", "name": "my_product"},
             {"id": "2", "name": "my_2_product"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuProducts' object has no attribute 'mambuproductclass'",
         ):

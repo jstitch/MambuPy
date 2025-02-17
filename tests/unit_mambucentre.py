@@ -109,7 +109,7 @@ class MambuCentresTests(unittest.TestCase):
             {"id": "1", "name": "my_centre"},
             {"id": "2", "name": "my_2_centre"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError, "'MambuCentres' object has no attribute 'mambucentreclass'"
         ):
             cens.mambucentreclass

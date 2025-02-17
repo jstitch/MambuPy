@@ -110,7 +110,7 @@ class MambuBranchesTests(unittest.TestCase):
             {"id": "1", "name": "my_branch"},
             {"id": "2", "name": "my_2_branch"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError, "'MambuBranches' object has no attribute 'mambubranchclass'"
         ):
             brs.mambubranchclass

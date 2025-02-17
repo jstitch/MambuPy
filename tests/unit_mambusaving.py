@@ -58,7 +58,7 @@ class MambuSavingTests(unittest.TestCase):
 
             l = mambusaving.MambuSaving(urlfunc=lambda x: x)
             self.assertFalse(l.has_key("assignedUser"))
-            with self.assertRaisesRegexp(
+            with self.assertRaisesRegex(
                 mambusaving.MambuError, r"La cuenta 12345 no tiene asignado un usuario"
             ):
                 l.setUser()
@@ -85,7 +85,7 @@ class MambuSavingsTests(unittest.TestCase):
             {"saving": "my_saving"},
             {"saving": "my_2_saving"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuSavings' object has no attribute 'saving'",
         ):

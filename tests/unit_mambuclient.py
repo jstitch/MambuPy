@@ -281,7 +281,7 @@ class MambuClientsTests(unittest.TestCase):
             {"id": "1", "firstName": "my_client"},
             {"id": "2", "firstName": "my_2_client"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError, "'MambuClients' object has no attribute 'mambuclientclass'"
         ):
             clns.mambuclientclass

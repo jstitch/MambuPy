@@ -60,7 +60,7 @@ class MambuTransactionChannelsTests(unittest.TestCase):
             {"transaction_channel": "my_transaction_channel"},
             {"transaction_channel": "my_2_transaction_channel"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuTransactionChannels' object has no attribute 'transaction_channel'",
         ):

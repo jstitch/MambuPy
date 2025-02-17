@@ -53,7 +53,7 @@ class MambuRepaymentTests(unittest.TestCase):
             rep = mamburepayment.MambuRepayment(
                 urlfunc=getrepaymentsurl, entid="mockrepayment"
             )
-            self.assertRegexpMatches(
+            self.assertRegex(
                 repr(rep),
                 r"^MambuRepayment - duedate: {}".format(
                     date.today().strftime("%Y-%m-%d")
@@ -82,7 +82,7 @@ class MambuRepaymentsTests(unittest.TestCase):
             {"id": "1", "dueDate": "1979-10-23"},
             {"id": "2", "dueDate": "1981-06-08"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuRepayments' object has no attribute 'mamburepaymentclass'",
         ):

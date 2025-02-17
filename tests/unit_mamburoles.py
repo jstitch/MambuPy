@@ -70,7 +70,7 @@ class MambuRolesTests(unittest.TestCase):
             {"name": "my_role", "permissions": {}},
             {"name": "my_2_role", "permissions": {}},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError, "'MambuRoles' object has no attribute 'mamburoleclass'"
         ):
             rs.mamburoleclass

@@ -60,7 +60,7 @@ class MambuSavingTransactionsTests(unittest.TestCase):
             {"saving_transaction": "my_saving_transaction"},
             {"saving_transaction": "my_2_saving_transaction"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuSavingTransactions' object has no attribute 'transaction_channel'",
         ):
@@ -95,7 +95,7 @@ class MambuSavingsTransactionSearchTests(unittest.TestCase):
             {"saving_transaction": "my_saving_transaction"},
             {"saving_transaction": "my_2_saving_transaction"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuSavingsTransactionSearch' object has no attribute 'transaction_channel'",
         ):

@@ -55,7 +55,7 @@ class MambuTransactionTests(unittest.TestCase):
             tran = mambutransaction.MambuTransaction(
                 urlfunc=gettransactionsurl, entid="mocktransaction"
             )
-            self.assertRegexpMatches(
+            self.assertRegex(
                 repr(tran), r"^MambuTransaction - transactionid: mocktransaction"
             )
 
@@ -81,7 +81,7 @@ class MambuTransactionsTests(unittest.TestCase):
             {"transactionId": "1", "entryDate": "1979-10-23"},
             {"transactionId": "2", "entryDate": "1981-06-08"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuTransactions' object has no attribute 'mambutransactionclass'",
         ):

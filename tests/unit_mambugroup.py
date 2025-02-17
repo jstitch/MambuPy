@@ -546,7 +546,7 @@ class MambuGroupsTests(unittest.TestCase):
             {"id": "1", "groupName": "my_group"},
             {"id": "2", "groupName": "my_2_group"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError, "'MambuGroups' object has no attribute 'mambugroupclass'"
         ):
             grps.mambugroupclass

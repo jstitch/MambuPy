@@ -82,7 +82,7 @@ class MambuRepaymentsTests(unittest.TestCase):
             {"activity": "my_act"},
             {"activity": "my_2_act"},
         ]
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             AttributeError,
             "'MambuSavingFundingRepayments' object has no attribute 'repayment'",
         ):
