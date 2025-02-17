@@ -513,5 +513,6 @@ Next Recipes
    * Entity Creation
    * Approving, Disbursing, Paying and Closing a Loan Account
    * Account and Group Reassignment
-   * Reassignment of Users with Assigned Accounts and Groups 
+   * Reassignment of Users with Assigned Accounts and Groups
    * Using an Entity with Different Authentication Credentials than the ones Configured by default
+   * How to configure logging for MambuPy
