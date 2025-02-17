@@ -23,7 +23,7 @@ MambuPy for REST API
 --------------------
 
 Mambu allows communicating via a RESTful API (documented at
-https://support.mambu.com/docs/developer).
+https://api.mambu.com).
 
 MambuPy includes a set of classes whose purpose is connecting to this
 REST API and work with Mambu entities on your python scripts.
@@ -31,12 +31,9 @@ REST API and work with Mambu entities on your python scripts.
 You must configure your Mambu account for allowing an API user to
 connect with it for this functionality to work.
 
-Look at :doc:`mambu_rest` for the documentation of this way of using
+Look at :doc:`mambu_rest_v2` for the documentation of this way of using
 MambuPy.
 
-Also, for more information, look at the MambuStruct class and all the
-classes inheriting from it. MambuPy implements this at the
-:py:mod:`MambuPy.rest` module.
 
 MambuPy for Database Backup
 ---------------------------
@@ -58,32 +55,13 @@ MambuPy.
 Also, for more information, look at the scripts in the
 :py:mod:`MambuPy.orm` module.
 
-Installation
-------------
-
-Currently MambuPy works on Python 2.7 and Python >3.7
-
-You may install MambuPy by git-cloning this repository on your local
-environment and making it available anywhere on your ``PYTHONPATH``.
-
-You may also use ``pip install mambupy`` but please consider that you
-must configure your installation before using it.
-
-Configuration
--------------
-
-You must configure your local MambuPy environment first so you can
-correctly use this module.
-
-Look at :py:mod:`MambuPy.mambuconfig` for more information.
-
 Work in progress
 ----------------
 
 MambuPy is a work in progress.
 
 Currently it allows connection to some of the more important Mambu
-entitites accessible via its REST API. We are also working on th
+entitites accessible via its REST API. We are currently working on the
 :doc:`mambu_rest_v2` that supports Mambu REST API v2.
 
 On the ORM side, not all of the Mambu Database schemas are currently
@@ -112,25 +90,3 @@ Author
 
 JNC
 jstitch@gmail.com
-
-
-Table of Contents
------------------
-
-.. toctree::
-   :maxdepth: 3
-
-   mambu_rest
-   mambu_rest_v2
-   mambu_orm
-   mambupy
-   CHANGELOG
-   LICENSE
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
