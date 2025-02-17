@@ -83,7 +83,8 @@ if not lite:
     )
 
 install_requires = [
-    "future",
+    "PyYAML==6.0.1",
+    "future==0.18.3",
     "requests==2.31.0",
     "requests_toolbelt==1.0.0",
     "dateutils==0.6.12",
@@ -121,7 +122,7 @@ setuptools.setup(
         "mambu",
     ],
     packages=packages,
-    python_requires=">=2.7",
+    python_requires=">=3.8",
     cmdclass={"verify": VerifyVersionCommand},
     install_requires=install_requires,
 )

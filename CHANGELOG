@@ -270,3 +270,11 @@ Release Notes
   - refact: write operations to mambu support arbitrary args
   - feat: orm loans include assigned centre information
   - feat: mambuloan adjust_transaction method
+* v2.0.0b50
+  - fix: log should not print sensitive data
+  - refact: v2 MambuStruct possible optimization loading CFs.
+  - devops: codeowners file.
+  - feat: logging configuration in MambuPy, using yamls.
+  - refact: unittests assertRaisesRegex.
+  - docs: cookbook and a better introduction to MambuPy development.
+  - breaking: no more Python 2 support!
