@@ -1,53 +1,92 @@
-=======
-MambuPy
-=======
+.. MambuPy documentation master file, created by
+   sphinx-quickstart on Mon Jul 16 14:04:58 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-MambuPy is a Python library designed to interact with the Mambu API, a leading cloud financial services platform. This library facilitates integration with Mambu, allowing developers to automate operations, manage clients, groups, loans, and transactions efficiently through an intuitive Pythonic interface.
+MambuPy Docs!
+=============
 
-.. note::
-   MambuPy is distributed under the GNU GPL v3 license, it is free software and your collaboration is welcome: https://gitlab.com/jstitch/MambuPy
+A python API for using Mambu.
+-----------------------------
 
-.. important::
-   The basic conceptual idea behind MambuPy is to be a library that provides an abstraction layer over Mambu's REST API, simplifying common tasks such as managing clients, groups, loans, among others.
+Allows accessing Mambu programatically.
 
-   It is designed to be easy to use while maintaining the flexibility needed for complex financial operations, abstracting low-level details such as request handling, authentication, pagination, data serialization/deserialization, timezones, idempotency for write operations, etc. The idea here is: you want to interact with a Mambu Client or Group, not with the technical details behind the implementation of that interaction.
+Either using Mambu's REST API, or from within a Mambu's database
+backup.
 
-   And even other not-so-low-level details, like the fact that Mambu handles encodedKeys to identify entities - why do you need to know that the `assignedBranchKey` field corresponds to the encodedKey of the Branch that a Group is assigned to when all you really need is to know and interact with that Branch?
-   Or the "detail" that accessing custom fields must be done through the aspects with which Mambu implements them: using field sets and groups json objets. Do you really want to reach your "Nationality" field via `client._client_details["Nationality"]`? If Nationality is a client property, why not simply reach it via `client.Nationality`?
+Mambu is a cloud platform which lets you rapidly build, integrate,
+launch and service any lending portfolio into any market
+(https://www.mambu.com).
 
-Important References
+
+MambuPy for REST API
 --------------------
 
-Here are some official resources and relevant documentation:
+Mambu allows communicating via a RESTful API (documented at
+https://api.mambu.com).
 
-* `Official MambuPy Repository on GitLab <https://gitlab.com/jstitch/MambuPy>`_
-* `MambuPy Releases on PyPi <https://pypi.org/project/MambuPy/>`_
-* `Official Mambu REST API v2 Documentation <https://api.mambu.com>`_
-* `Official Mambu Developer Documentation <https://support.mambu.com/docs/developer-overview>`_
-* `Mambu Community <https://community.mambu.com>`_ - Official forum for developers and users
+MambuPy includes a set of classes whose purpose is connecting to this
+REST API and work with Mambu entities on your python scripts.
 
-.. note::
-   Some code conventions break certain 100% Pythonic code best practices. For example, ``camelCase`` is used instead of ``snake_case`` in entity properties. This is a design decision of the library dictated by how Mambu's REST API, and Mambu itself, deliver their information. Mambu is built in Java and its endpoints handle nomenclature with camelCase. The decision to use camelCase in some parts of MambuPy goes hand in hand with maintaining certain compatibility but above all ensuring clean code reading in Python compared to the JSON that Mambu's API delivers. It's easier to understand that ``loanAmount`` of a credit account is the ``loanAmount`` from the response that obtains said account, rather than inferring that Mambu delivers a ``loanAmount`` but we decided to call it ``loan_amount``.
+You must configure your Mambu account for allowing an API user to
+connect with it for this functionality to work.
 
-Table of Contents
------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   index
-   cookbook
-   mambu_rest_v2
-   mambu_rest
-   mambu_orm
-   mambupy
-   CHANGELOG
-   LICENSE
+Look at :doc:`mambu_rest_v2` for the documentation of this way of using
+MambuPy.
 
 
-Indices and tables
-==================
+MambuPy for Database Backup
+---------------------------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Mambu also allows their users to download a dump of its database. It
+is a MySQL schema, documented at
+https://support.mambu.com/docs/mambu-data-dictionary
+
+MambuPy includes a set of SQLAlchemy mappings that can connect to
+this Mambu database dump.
+
+You must download a valid dump of your Mambu database, and then
+extract and restore on a local MySQL server of your own, and configure
+the connection to it for this functionality to work.
+
+Look at :doc:`mambu_orm` for the documentation of this way of using
+MambuPy.
+
+Also, for more information, look at the scripts in the
+:py:mod:`MambuPy.orm` module.
+
+Work in progress
+----------------
+
+MambuPy is a work in progress.
+
+Currently it allows connection to some of the more important Mambu
+entitites accessible via its REST API. We are currently working on the
+:doc:`mambu_rest_v2` that supports Mambu REST API v2.
+
+On the ORM side, not all of the Mambu Database schemas are currently
+mapped.
+
+Finally, also note that Mambu itself delivers changes on a regular
+basis that may include new functionality on its REST API, and changes
+on its database tables. Currently MambuPy works with the last version
+of Mambu but NOT ALL of its functionality is implemented. Making a
+complete implementation of the REST API and the mapping of the
+Database, and keeping them up to date with the latest version of
+Mambu, is one of the main objectives of the MambuPy project.
+
+Please consider supporting the project by forking, improving and
+pull-requesting it.
+
+TODOs
+-----
+
+TODO comments for hackers are included at:
+
+* pydoc strings all around the code
+
+Author
+------
+
+JNC
+jstitch@gmail.com
