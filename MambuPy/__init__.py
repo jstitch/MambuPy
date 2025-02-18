@@ -5,17 +5,18 @@
 
     MambuPy.mambuconfig
     MambuPy.mambuutil
-    MambuPy.rest
-    MambuPy.orm
     MambuPy.api
     MambuPy.api.connector
+    MambuPy.orm
+    MambuPy.rest
 
 
 Currently, there are two different ways to access Mambu objects:
 
 1) Objects using `Mambu REST API
    <https://developer.mambu.com/customer/en/portal/articles/1162276-rest-apis-overview/>`_
-   , they live at the :any:`MambuPy.rest` package
+   , they live at the :any:`MambuPy.api` package (the old-and-soon-to-be-deprecated,
+   V1-compatible code lives at :any:`MambuPy.rest`
 
 2) An ORM using a `DB backup retrieved from Mambu
    <https://support.mambu.com/docs/mambu-data-dictionary>`_
