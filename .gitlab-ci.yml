@@ -42,7 +42,7 @@ UnitTests-3:
     - tags
     - merge_requests
   script:
-    - pip install -q --no-cache-dir --upgrade -r requirements.py3.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.txt
     - date
     - make test
 
