@@ -3,6 +3,6 @@ mock
 coverage
 
 pylint
+ruff
 black
 isort
-autoflake

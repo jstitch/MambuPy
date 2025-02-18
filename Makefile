@@ -16,25 +16,31 @@ test:
 
 black:
 	@( \
-		black ./  -l 90 --exclude ".venv|docs" --check; \
+		echo ""; \
+		echo "black"; \
+		black ./MambuPy  -l 90 --exclude ".venv|docs|mambupy|MambuPy" --check; \
 	)
 
 isort:
 	@( \
-		isort ./ --check-only; \
+		echo ""; \
+		echo "isort"; \
+		isort ./MambuPy --check-only; \
 	)
 
-autoflake:
+ruff:
 	@( \
-		autoflake --recursive --exclude ".venv,docs" --check --remove-all-unused-imports --remove-unused-variables ./; \
+		echo ""; \
+		echo "ruff"; \
+		ruff check --exclude ".venv,docs,mambupy,MambuPy" --exclude "python" --exclude "flycheck_*" --ignore E501 ./ --quiet; \
 	)
 
-lint2: black isort autoflake
+lint2: ruff black isort
 
 lint2-fix:
 	@( \
-		black ./ -l 90 --exclude ".venv|docs"; \
+		black ./ -l 90 --exclude ".venv|docs|mambupy|MambuPy"; \
 		isort ./ --force-single-line-imports --quiet --apply -l=250; \
-		autoflake ./ --recursive --exclude ".venv,docs" --in-place --remove-all-unused-imports; \
+		ruff check --exclude ".venv,docs,mambupy,MambuPy" --exclude "python" --exclude "flycheck_*" --ignore E501 ./ --fix; \
 		isort ./ --quiet --apply; \
 	)
