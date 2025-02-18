@@ -8,12 +8,3 @@ future==0.18.3
 # ORM
 SQLAlchemy==1.3.6
 mysqlclient==2.1.0
-
-freezegun==1.1.0
-black
-isort
-autoflake
-mock
-coverage
-
-pylint

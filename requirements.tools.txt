@@ -1,0 +1,8 @@
+freezegun==1.1.0
+mock
+coverage
+
+pylint
+black
+isort
+autoflake

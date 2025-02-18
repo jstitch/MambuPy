@@ -7,13 +7,13 @@ stages:
 
 Linter:
   stage: lint
-  image: "python:3"
+  image: "python:3.8"
   only:
     - branches
     - tags
     - merge_requests
   script:
-    - pip install -q --no-cache-dir pylint black isort autoflake
+    - pip install -q --no-cache-dir -r requirements.tools.txt
     - make lint
 
 .UnitTests:
@@ -43,6 +43,7 @@ UnitTests-3:
     - merge_requests
   script:
     - pip install -q --no-cache-dir --upgrade -r requirements.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.tools.txt
     - date
     - make test
 
@@ -54,7 +55,6 @@ Docs:
     - merge_requests
   stage: docs
   before_script:
-    - pip install -q --no-cache-dir --upgrade -r requirements.txt
     - pip install -q --no-cache-dir -r requirements.doc.txt
   script:
     - cd docs && make html && make html && cd ..
@@ -71,7 +71,7 @@ Docs:
 # mambupy with a project named mambupy-deploy, with a file named
 # .gitlab-ci_deploy.yml
 
-# without this, your pipelines will fail
+# without this, your deploy pipelines will fail
 
 # there you can put your own deploy rules, or if you don't have any,
 # you can add a job for some of the "quality" or "deploys" stages

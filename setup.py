@@ -91,20 +91,9 @@ if not lite:
     install_requires.extend(
         [
             "SQLAlchemy>=1.3.6",
+            "mysqlclient==2.1.0",
         ]
     )
-    if int(major_ver) <= 3:
-        install_requires.extend(
-            [
-                "mysqlclient",
-            ]
-        )
-    else:
-        install_requires.extend(
-            [
-                "mysqlclient==2.1.0",
-            ]
-        )
 
 setuptools.setup(
     name="MambuPy",
