@@ -60,8 +60,6 @@ if int(major_ver) >= 2:
     if not lite:
         packages.extend(
             [
-                "MambuPy/rest1to2",
-                "mambupy/rest1to2",
                 "MambuPy/utils",
                 "mambupy/utils",
             ]

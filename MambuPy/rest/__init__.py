@@ -1,4 +1,4 @@
-""" MambuPy's REST package (SOON TO BE DEPRECATED).
+"""MambuPy's REST package (SOON TO BE DEPRECATED).
 
 Objects using `Mambu REST API
 <https://developer.mambu.com/customer/en/portal/articles/1162276-rest-apis-overview/>`_
@@ -23,7 +23,7 @@ Objects using `Mambu REST API
     MambuPy.rest.mambuuser
     MambuPy.rest.mamburoles
 
-.. warning:: This package is soon to be deprecated. Use the api package instead.
+.. warning:: This package is soon to be deprecated. Use the :any:`MambuPy.api` package instead.
 
 The REST API way is the currently most developed code on *MambuPy*.
 

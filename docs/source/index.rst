@@ -41,7 +41,7 @@ Table of Contents
    mambu_rest
    mambu_orm
    mambupy
-   CHANGELOG
+   release_notes
    LICENSE
 
 
