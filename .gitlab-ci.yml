@@ -23,7 +23,8 @@ Linter:
       - coverage_${CI_PROJECT_NAME}_$PYVERSION.xml
     expire_in: 1 day
   before_script:
-    - pip install -q --no-cache-dir --upgrade -r requirements.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.light.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.full.txt
   after_script:
     - coverage html
     - mv htmlcov htmlcov_${CI_PROJECT_NAME}_$PYVERSION
@@ -42,7 +43,8 @@ UnitTests-3:
     - tags
     - merge_requests
   script:
-    - pip install -q --no-cache-dir --upgrade -r requirements.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.light.txt
+    - pip install -q --no-cache-dir --upgrade -r requirements.full.txt
     - pip install -q --no-cache-dir --upgrade -r requirements.tools.txt
     - date
     - make test

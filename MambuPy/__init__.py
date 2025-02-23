@@ -35,5 +35,21 @@ TODOS
           to achive TDD when implementing features or correcting bugs.
 """
 
-__version__ = "2.0.0b50"
+import sys
+from importlib.abc import MetaPathFinder
+from importlib.util import spec_from_file_location
+
+__version__ = "2.0.0b51"
 """The version of this module."""
+
+
+class CaseInsensitiveFinder(MetaPathFinder):
+    def find_spec(self, fullname, path, target=None):
+        if fullname.lower() == "mambupy":
+            # Get the actual module file location
+            return spec_from_file_location(fullname, __file__)
+        return None
+
+
+# Register the finder
+sys.meta_path.insert(0, CaseInsensitiveFinder())

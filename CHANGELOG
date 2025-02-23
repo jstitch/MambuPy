@@ -3,6 +3,9 @@ Release Notes
 
 Beta
 ----
+* v2.0.0b51 2025-02-19
+  - back to ONE increments on version numbers with light/full flavor
+    packages
 * v2.0.0b50 2025-02-17
   - fix: log should not print sensitive data
   - refact: v2 MambuStruct possible optimization loading CFs.
