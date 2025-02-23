@@ -39,7 +39,7 @@ import sys
 from importlib.abc import MetaPathFinder
 from importlib.util import spec_from_file_location
 
-__version__ = "2.0.0b51"
+__version__ = "2.0.0b52"
 """The version of this module."""
 
 
