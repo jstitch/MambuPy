@@ -405,7 +405,7 @@ def _backup_db_timeout_mechanism(
 ):
     value_to_latest = True
     while not justbackup and retries and not bool_func():
-        logger.info("waiting...")
+        logger.debug("waiting...")
         sleep(10)
         retries -= 1
         if retries < 0:

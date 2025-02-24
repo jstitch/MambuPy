@@ -2,7 +2,12 @@ MambuPy Cookbook
 ================
 
 .. tip::
-   This guide offers a complete collection of recipes and practical examples for working with MambuPy. It covers everything from initial installation and setup to advanced operations with the Mambu API. Whether you're starting with integration or looking to implement specific functions, you'll find clear code examples and detailed explanations for each key aspect of the library.
+   This guide offers a complete collection of recipes and practical
+   examples for working with MambuPy. It covers everything from
+   initial installation and setup to advanced operations with the
+   Mambu API. Whether you're starting with integration or looking to
+   implement specific functions, you'll find clear code examples and
+   detailed explanations for each key aspect of the library.
 
 Installation of MambuPy
 -----------------------
@@ -10,38 +15,50 @@ Installation of MambuPy
 MambuPy works on Python >3.8
 
 .. warning::
-   Currently MambuPy for Mambu's REST API v2 is in BETA phase. Mambu has announced the complete deprecation of v1 of their REST API, therefore it is NOT RECOMMENDED to use MambuPy modules that use that version of the Mambu API.
+   Currently MambuPy for Mambu's REST API v2 is in BETA phase. Mambu
+   has announced the complete deprecation of v1 of their REST API,
+   therefore it is NOT RECOMMENDED to use MambuPy modules that use
+   that version of the Mambu API.
 
 Installation using pip
 ~~~~~~~~~~~~~~~~~~~~~~
 
+.. note:: Since the latest version of MambuPy is in beta, you can use
+   the `--pre` argument to tell pip to use the latest prerelease
+   version. The stable version does not support Mambu's API v2.
+
 .. code-block:: bash
 
-   pip install MambuPy==2.0.0b48
+   pip install --pre MambuPy
 
-.. note::
-   Since the latest version of MambuPy is in beta, you need to specify the version to install. The stable version does not support Mambu's API v2. Check the `releases on PyPi <https://pypi.org/project/MambuPy/>`_ to find the most recent version.
+Similarly, MambuPy covers other aspects for interacting with
+Mambu. There is an ORM module with SQLAlchemy mappings for querying a
+backup of Mambu's database dump. However, you may not want to install
+that feature. You may access this features by installing:
 
-.. note::
-   Similarly, MambuPy covers other aspects for interacting with Mambu. There is an ORM module with SQLAlchemy mappings for querying a backup of Mambu's database dump. However, you may not want to install that feature. For NOW, to only install the "light" version with support for Mambu's REST API only, install an even version (the immediately lower odd version includes everything, e.g., the ORM)
+.. code-block:: bash
+
+   pip install --pre MambuPy[full]
 
 Installation using uv
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   uv pip install MambuPy==2.0.0b48
+   uv pip install --pre MambuPy
 
 
 Configuration of MambuPy
 ------------------------
 
-There are four ways to configure MambuPy, listed here in order of priority (highest to lowest)
+There are four ways to configure MambuPy, listed here in order of
+priority (highest to lowest)
 
 1. Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Environment variables have the highest priority and will override any other configuration:
+Environment variables have the highest priority and will override any
+other configuration:
 
 .. code-block:: bash
 
@@ -52,10 +69,14 @@ Environment variables have the highest priority and will override any other conf
 2. Configuration via RC File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-MambuPy will search for `RC files <https://medium.com/@aadishazzam/rc-files-403a2b7c80a9>`_ in this order, overwriting values as it finds consecutive files containing the same configuration variables:
+MambuPy will search for `RC files
+<https://medium.com/@aadishazzam/rc-files-403a2b7c80a9>`_ in this
+order, overwriting values as it finds consecutive files containing the
+same configuration variables:
 
 1. In the system's global directory: ``/etc/mambupy.rc``
-2. In the user's home directory: ``~/.mambupy.rc`` (this is a hidden file in your account's ``$HOME`` directory)
+2. In the user's home directory: ``~/.mambupy.rc`` (this is a hidden
+   file in your account's ``$HOME`` directory)
 
 The RC file must have the following format:
 
@@ -70,12 +91,17 @@ The RC file must have the following format:
    # and there may be more configurations not mentioned here
    # See mambuconfig documentation for more details
 
-If a variable value exists in ``/etc/mambupy.rc``, and then another value for the same variable exists in ``~/.mambupy.rc``, the value from the latter file is used. In any other case, both files complement each other.
+If a variable value exists in ``/etc/mambupy.rc``, and then another
+value for the same variable exists in ``~/.mambupy.rc``, the value
+from the latter file is used. In any other case, both files complement
+each other.
 
 3. Configuration via Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If no environment variables or RC files are found, you can use values for these variables programmatically using MambuPy's configuration module:
+If no environment variables or RC files are found, you can use values
+for these variables programmatically using MambuPy's configuration
+module:
 
 .. code-block:: python
 
@@ -95,7 +121,12 @@ If no environment variables or RC files are found, you can use values for these 
    4. ``mambupy.rc`` file in ``/etc``
 
 .. warning::
-   **SECURITY NOTE**: When using multiple configuration methods, ensure credentials are properly protected in all storage locations. For the file in ``/etc``, it's recommended to set restrictive permissions (``600``) and root ownership. For code configurations, ensure proper versioning, or no versioning, of credentials that must remain private.
+  **SECURITY NOTE**: When using multiple configuration methods, ensure
+   credentials are properly protected in all storage locations. For
+   the file in ``/etc``, it's recommended to set restrictive
+   permissions (``600``) and root ownership. For code configurations,
+   ensure proper versioning, or no versioning, of credentials that
+   must remain private.
 
 
 Basic Recipes
@@ -104,7 +135,8 @@ Basic Recipes
 1. Working with Clients (``MambuClient``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Clients in Mambu represent individual persons. Here are some usage examples:
+Clients in Mambu represent individual persons. Here are some usage
+examples:
 
 .. code-block:: python
 
@@ -160,12 +192,17 @@ Clients in Mambu represent individual persons. Here are some usage examples:
    )
 
 .. note::
-   About pagination: if you don't send a ``limit`` argument, BY DEFAULT MambuPy will handle downloading ALL entities that match the criteria (and there could be MANY) by properly paginating Mambu requests in chunks given by the ``apipagination`` config (``default=50``). BE CAREFUL with resource usage in these cases!
+   About pagination: if you don't send a ``limit`` argument, BY
+   DEFAULT MambuPy will handle downloading ALL entities that match the
+   criteria (and there could be MANY) by properly paginating Mambu
+   requests in chunks given by the ``apipagination`` config
+   (``default=50``). BE CAREFUL with resource usage in these cases!
 
 2. Working with Groups (``MambuGroup``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Groups allow grouping clients and managing group loans. Usage examples:
+Groups allow grouping clients and managing group loans. Usage
+examples:
 
 .. code-block:: python
 
@@ -263,7 +300,8 @@ Loans represent loan accounts. Usage examples:
 4. Working with Branches, Centres and Users
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Branches, centres and users are important organizational elements in Mambu. Here are some examples of how to work with them:
+Branches, centres and users are important organizational elements in
+Mambu. Here are some examples of how to work with them:
 
 ``MambuBranch``
 +++++++++++++++
@@ -377,15 +415,25 @@ Assignments and Relationships
    loan.get_assignedUser()
 
 .. note::
-   These ``get_assigned*`` methods create properties in the object and contain the complete instance of the related entity. It's more efficient than creating instances manually, avoiding the need to remember the property with the related encodedKey, and allows direct access to all attributes of the related object.
+   These ``get_assigned*`` methods create properties in the object and
+   contain the complete instance of the related entity. It's more
+   efficient than creating instances manually, avoiding the need to
+   remember the property with the related encodedKey, and allows
+   direct access to all attributes of the related object.
 
 .. important::
-   Assignments are crucial for hierarchical organization in Mambu. A client must always be assigned to a branch and can be assigned to a centre and a credit officer. The same applies to groups. These assignments are automatically inherited by the loan accounts of the client or group owner of the account.
+   Assignments are crucial for hierarchical organization in Mambu. A
+   client must always be assigned to a branch and can be assigned to a
+   centre and a credit officer. The same applies to groups. These
+   assignments are automatically inherited by the loan accounts of the
+   client or group owner of the account.
 
 5. Advanced Searches
 ~~~~~~~~~~~~~~~~~~~~
 
-Examples of more complex searches. See more information about their usage in the `Mambu API documentation <https://api.mambu.com/#searching-for-records>`_:
+Examples of more complex searches. See more information about their
+usage in the `Mambu API documentation
+<https://api.mambu.com/#searching-for-records>`_:
 
 .. code-block:: python
 
@@ -410,20 +458,33 @@ Examples of more complex searches. See more information about their usage in the
 6. Exception Handling
 ~~~~~~~~~~~~~~~~~~~~~
 
-MambuPy maintains an exception handling scheme for most error conditions. While this handling decision is opinionated, the exception structure maintains consistency regarding the meaning of thrown exceptions, and also responds to the library's objective of abstracting low-level details of the way it communicates with the Mambu API, including details such as format (json), protocol (HTTP), and therefore also response codes.
+MambuPy maintains an exception handling scheme for most error
+conditions. While this handling decision is opinionated, the exception
+structure maintains consistency regarding the meaning of thrown
+exceptions, and also responds to the library's objective of
+abstracting low-level details of the way it communicates with the
+Mambu API, including details such as format (json), protocol (HTTP),
+and therefore also response codes.
 
 .. note::
-   * An exception from Mambu whose response includes an ``errorCode`` is handled as ``MambuError``.
-     All ``errorCodes`` handled by Mambu are documented `here <https://support.mambu.com/docs/api-response-error-codes>`_.
-     See more information in the `Mambu API documentation <https://api.mambu.com/#responses>`_.
+   * An exception from Mambu whose response includes an ``errorCode``
+     is handled as ``MambuError``.  All ``errorCodes`` handled by
+     Mambu are documented `here
+     <https://support.mambu.com/docs/api-response-error-codes>`_.  See
+     more information in the `Mambu API documentation
+     <https://api.mambu.com/#responses>`_.
 
-   * An exception derived from the inability to contact the Mambu API is handled as ``MambuCommError``.
-     A ``MambuCommError`` is a type of ``MambuError``.
+   * An exception derived from the inability to contact the Mambu API
+     is handled as ``MambuCommError``.  A ``MambuCommError`` is a type
+     of ``MambuError``.
 
-   * Any other exception thrown directly by MambuPy is handled as ``MambuPyError``. 
-     All exceptions thrown by MambuPy, including ``MambuError`` and therefore ``MambuCommError`` are ``MambuPyError``.
+   * Any other exception thrown directly by MambuPy is handled as
+     ``MambuPyError``.  All exceptions thrown by MambuPy, including
+     ``MambuError`` and therefore ``MambuCommError`` are
+     ``MambuPyError``.
 
-Generic MambuPy error, in this case for sending an argument with an invalid type
+Generic MambuPy error, in this case for sending an argument with an
+invalid type
 
 .. code-block:: python
 
@@ -448,7 +509,8 @@ Tries to instantiate a client that doesn't exist in Mambu:
 
    client = MambuClient.get("I DONT EXIST")
 
-Exception (note the ``errorCode: 301``, and the response code also included: ``404``)
+Exception (note the ``errorCode: 301``, and the response code also
+included: ``404``)
 
 .. code-block:: bash
 
