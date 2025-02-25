@@ -1,31 +1,8 @@
 language: python
 python:
-  - "2.7"
-  - "3.6"
+  - "3.8"
 install:
-  - pip install requests
-  - pip install sqlalchemy
-  - pip install future
-  - pip install mysqlclient
+  - pip install -r requirements.light.txt
+  - pip install -r requirements.full.txt
 script:
-  - python tests/unit_mambustruct.py
-  - python tests/unit_mambustruct_methods.py
-  - python tests/unit_mambuconfig.py
-  - python tests/unit_mambuutil.py
-  - python tests/unit_mambutask.py
-  - python tests/unit_mamburoles.py
-  - python tests/unit_mambuuser.py
-  - python tests/unit_mambuloan.py
-  - python tests/unit_mambuactivity.py
-  - python tests/unit_mambubranch.py
-  - python tests/unit_mambucentre.py
-  - python tests/unit_mambuclient.py
-  - python tests/unit_mamburepayment.py
-  - python tests/unit_mambutransaction.py
-  - python tests/unit_mambugroup.py
-  - python tests/unit_mambuproduct.py
-  - unit_mambugeturl.py
-  - unit_mambutransactionchannel.py
-  - unit_mambusavingtransaction.py
-  - unit_mambusaving.py
-  - unit_mambusavingfundingrepayment
+  - ./tests/unit.sh
