@@ -15,21 +15,16 @@ Installation of MambuPy
 MambuPy works on Python >3.8
 
 .. warning::
-   Currently MambuPy for Mambu's REST API v2 is in BETA phase. Mambu
-   has announced the complete deprecation of v1 of their REST API,
-   therefore it is NOT RECOMMENDED to use MambuPy modules that use
-   that version of the Mambu API.
+   Mambu has announced the complete deprecation of v1 of their REST
+   API, therefore it is NOT RECOMMENDED to use MambuPy modules that
+   use that version of the Mambu API.
 
 Installation using pip
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. note:: Since the latest version of MambuPy is in beta, you can use
-   the `--pre` argument to tell pip to use the latest prerelease
-   version. The stable version does not support Mambu's API v2.
-
 .. code-block:: bash
 
-   pip install --pre MambuPy
+   pip install MambuPy
 
 Similarly, MambuPy covers other aspects for interacting with
 Mambu. There is an ORM module with SQLAlchemy mappings for querying a
@@ -39,6 +34,12 @@ that feature. You may access this features by installing:
 .. code-block:: bash
 
    pip install --pre MambuPy[full]
+
+There are other optional dependencies you can isntall, mostly for
+developing MambuPy
+.. code-block:: bash
+
+   pip install --pre MambuPy[dev,devtools,doc]
 
 Installation using uv
 ~~~~~~~~~~~~~~~~~~~~~
