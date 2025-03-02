@@ -42,7 +42,7 @@ Mambu also allows their users to download a dump of its database. It
 is a MySQL schema, documented at
 https://support.mambu.com/docs/mambu-data-dictionary
 
-MambuPy includes in its full flaver a set of SQLAlchemy mappings that
+MambuPy includes in its full flavor a set of SQLAlchemy mappings that
 can connect to this Mambu database dump.
 
 You must download a valid dump of your Mambu database, and then
