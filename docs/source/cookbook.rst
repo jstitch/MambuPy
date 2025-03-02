@@ -33,20 +33,21 @@ that feature. You may access this features by installing:
 
 .. code-block:: bash
 
-   pip install --pre MambuPy[full]
+   pip install MambuPy[full]
 
 There are other optional dependencies you can isntall, mostly for
 developing MambuPy
+
 .. code-block:: bash
 
-   pip install --pre MambuPy[dev,devtools,doc]
+   pip install MambuPy[dev,devtools,doc]
 
 Installation using uv
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   uv pip install --pre MambuPy
+   uv pip install MambuPy
 
 
 Configuration of MambuPy
