@@ -9,7 +9,7 @@ dynamic = ["version"]
 dependencies = ["PyYAML==6.0.1", "requests==2.31.0", "requests_toolbelt==1.0.0", "dateutils==0.6.12", "future==0.18.3"]
 keywords = ["mambu"]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Intended Audience :: Financial and Insurance Industry",
   "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
