@@ -428,19 +428,22 @@ class MambuEntity(MambuStruct):
 class MambuEntityWritable(MambuStruct, MambuWritable):
     """A Mambu object with writing capabilities."""
 
-    def update(self):
+    def update(self, **kwargs):
         """updates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
         Pre-requires that CustomFields are updated previously.
         Post-requires that CustomFields are extracted again.
+
+        kwargs (dict): keyword arguments for this method.
+                       May include a user, pwd and url to connect to Mambu.
         """
         self._updateVOs()
         self._updateCustomFields()
         self._serializeFields()
         try:
             self._connector.mambu_update(
-                self.id, self._prefix, copy.deepcopy(self._attrs)
+                self.id, self._prefix, copy.deepcopy(self._attrs), **kwargs
             )
             # should I refresh _attrs? (either get request from Mambu or using the response)
         except MambuError:
@@ -450,19 +453,22 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._extractCustomFields()
             self._extractVOs()
 
-    def create(self):
+    def create(self, **kwargs):
         """creates a mambu entity
 
         Uses the current values of the _attrs to send to Mambu.
         Pre-requires that CustomFields are updated previously.
         Post-requires that CustomFields are extracted again.
+
+        kwargs (dict): keyword arguments for this method.
+                       May include a user, pwd and url to connect to Mambu.
         """
         self._updateVOs()
         self._updateCustomFields()
         self._serializeFields()
         try:
             self._resp = self._connector.mambu_create(
-                self._prefix, copy.deepcopy(self._attrs)
+                self._prefix, copy.deepcopy(self._attrs), **kwargs
             )
             self._attrs.update(dict(json.loads(self._resp.decode())))
             self._tzattrs = dict(json.loads(self._resp.decode()))
@@ -516,7 +522,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         else:
             raise MambuPyError("Unrecognizable field {} for patching".format(field))
 
-    def patch(self, fields=None, autodetect_remove=False):
+    def patch(self, fields=None, autodetect_remove=False, **kwargs):
         """patches a mambu entity
 
         Allows patching of parts of the entity up to Mambu.
@@ -583,7 +589,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._updateCustomFields()
             self._serializeFields()
             if fields_ops:
-                self._connector.mambu_patch(self.id, self._prefix, fields_ops)
+                self._connector.mambu_patch(self.id, self._prefix, fields_ops, **kwargs)
             # should I refresh _attrs? (needs get request from Mambu)
         except MambuError:
             raise
@@ -599,7 +605,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         Implement on entities which require further cleaning.
         """
 
-    def delete(self):
+    def delete(self, **kwargs):
         """deletes a mambu entity.
 
         Leaves the object in a supposedly state where you can create
@@ -610,7 +616,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
         make sure we can run creation after deletion.
         """
         try:
-            self._connector.mambu_delete(self.id, self._prefix)
+            self._connector.mambu_delete(self.id, self._prefix, **kwargs)
         except MambuError:
             raise
 

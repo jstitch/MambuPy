@@ -52,10 +52,16 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
     def __init__(self, user=apiuser, pwd=apipwd, url=apiurl, **kwargs):
         self._headers = {
             "Accept": "application/vnd.mambu.v2+json",
-            "Authorization": "Basic {}".format(
-                base64.b64encode(bytes("{}:{}".format(user, pwd), "utf-8")).decode()
-            ),
         }
+        self.__set_authorization_header(user, pwd)
+        self.__set_url(url)
+
+    def __set_authorization_header(self, user, pwd):
+        self._headers["Authorization"] = "Basic {}".format(
+            base64.b64encode(bytes("{}:{}".format(user, pwd), "utf-8")).decode()
+        )
+
+    def __set_url(self, url):
         self._tenant = url
 
     def __request_headers(self, method, content_type):
@@ -489,36 +495,48 @@ url %s, params %s, data %s, headers %s",
 
         return self.__list_request("POST", url, params=params, data=data)
 
-    def mambu_update(self, entid, prefix, attrs):
+    def mambu_update(self, entid, prefix, attrs, **kwargs):
         """updates a mambu entity
 
         Args:
           entid (str): the id or encoded key of the entity owning the document
           prefix (str): entity's URL prefix
           attrs (dict): entity to be updated, complying with Mambu's schemas
+          kwargs (dict): keyword arguments for this method.
+                         May include a user, pwd and url to connect to Mambu.
 
         Returns:
           response content (str json {})
         """
+        if "url" in kwargs:
+            self.__set_url(kwargs["url"])
+        if "user" in kwargs and "pwd" in kwargs:
+            self.__set_authorization_header(kwargs["user"], kwargs["pwd"])
         url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
 
         return self.__request("PUT", url, data=attrs)
 
-    def mambu_create(self, prefix, attrs):
+    def mambu_create(self, prefix, attrs, **kwargs):
         """creates a mambu entity
 
         Args:
           prefix (str): entity's URL prefix
           attrs (dict): entity to be created, complying with Mambu's schemas
+          kwargs (dict): keyword arguments for this method.
+                         May include a user, pwd and url to connect to Mambu.
 
         Returns:
           response content (str json {})
         """
+        if "url" in kwargs:
+            self.__set_url(kwargs["url"])
+        if "user" in kwargs and "pwd" in kwargs:
+            self.__set_authorization_header(kwargs["user"], kwargs["pwd"])
         url = "https://{}/api/{}".format(self._tenant, prefix)
 
         return self.__request("POST", url, data=attrs)
 
-    def mambu_patch(self, entid, prefix, fields_ops=None):
+    def mambu_patch(self, entid, prefix, fields_ops=None, **kwargs):
         """patches certain parts of a mambu entity
 
         https://api.mambu.com/?python#tocspatchoperation
@@ -532,10 +550,16 @@ url %s, params %s, data %s, headers %s",
             OP (str): operation ("ADD", "REPLACE", "REMOVE")
             PATH (str): json pointer referencing the location in the target entity
             VALUE (obj, opc): the value of the field (not for REMOVE op)
+          kwargs (dict): keyword arguments for this method.
+                         May include a user, pwd and url to connect to Mambu.
         """
         if not fields_ops:
             fields_ops = []
 
+        if "url" in kwargs:
+            self.__set_url(kwargs["url"])
+        if "user" in kwargs and "pwd" in kwargs:
+            self.__set_authorization_header(kwargs["user"], kwargs["pwd"])
         url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
 
         # build data from fields_ops param
@@ -549,8 +573,16 @@ url %s, params %s, data %s, headers %s",
         if patch_data:
             return self.__request("PATCH", url, data=patch_data)
 
-    def mambu_delete(self, entid, prefix):
-        """deletes a mambu entity"""
+    def mambu_delete(self, entid, prefix, **kwargs):
+        """deletes a mambu entity
+
+           kwargs (dict): keyword arguments for this method.
+                  May include a user, pwd and url to connect to Mambu.
+        """
+        if "url" in kwargs:
+            self.__set_url(kwargs["url"])
+        if "user" in kwargs and "pwd" in kwargs:
+            self.__set_authorization_header(kwargs["user"], kwargs["pwd"])
         url = "https://{}/api/{}/{}".format(self._tenant, prefix, entid)
 
         return self.__request("DELETE", url)

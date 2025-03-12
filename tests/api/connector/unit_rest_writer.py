@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import sys
@@ -36,6 +37,32 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.uuid")
     @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu_update_auth(self, mock_requests, mock_uuid):
+        mock_uuid.uuid4.return_value = "An UUID"
+        mock_requests.Session().request().status_code = 200
+        headers = app_json_headers()
+        headers["Authorization"] = "Basic {}".format(
+            base64.b64encode(b"myuser:mypass").decode("utf-8")
+        )
+        headers["Idempotency-Key"] = "An UUID"
+
+        mcrest = rest.MambuConnectorREST()
+
+        mcrest.mambu_update(
+            "entid", "prefix", {"oneattr": "123"},
+            user="myuser", pwd="mypass", url="myurl"
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "PUT",
+            "https://myurl/api/prefix/entid",
+            params={},
+            data='{"oneattr": "123"}',
+            headers=headers,
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.uuid")
+    @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_create(self, mock_requests, mock_uuid):
         mock_uuid.uuid4.return_value = "An UUID"
         mock_requests.Session().request().status_code = 200
@@ -54,6 +81,32 @@ class MambuConnectorWriterREST(unittest.TestCase):
             headers=headers,
         )
 
+    @mock.patch("MambuPy.api.connector.rest.uuid")
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu_create_auth(self, mock_requests, mock_uuid):
+        mock_uuid.uuid4.return_value = "An UUID"
+        mock_requests.Session().request().status_code = 200
+        headers = app_json_headers()
+        headers["Authorization"] = "Basic {}".format(
+            base64.b64encode(b"myuser:mypass").decode("utf-8")
+        )
+        headers["Idempotency-Key"] = "An UUID"
+
+        mcrest = rest.MambuConnectorREST()
+
+        mcrest.mambu_create(
+            "prefix", {"oneattr": "123"},
+            user="myuser", pwd="mypass", url="myurl"
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "POST",
+            "https://myurl/api/prefix",
+            params={},
+            data='{"oneattr": "123"}',
+            headers=headers,
+        )
+
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_delete(self, mock_requests):
         mock_requests.Session().request().status_code = 200
@@ -66,6 +119,29 @@ class MambuConnectorWriterREST(unittest.TestCase):
         mock_requests.Session().request.assert_called_with(
             "DELETE",
             "https://{}/api/prefix/12345".format(apiurl),
+            params={},
+            data=None,
+            headers=headers,
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu_delete_auth(self, mock_requests):
+        mock_requests.Session().request().status_code = 200
+        headers = app_default_headers()
+        headers["Authorization"] = "Basic {}".format(
+            base64.b64encode(b"myuser:mypass").decode("utf-8")
+        )
+
+        mcrest = rest.MambuConnectorREST()
+
+        mcrest.mambu_delete(
+            "12345", "prefix",
+            user="myuser", pwd="mypass", url="myurl"
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "DELETE",
+            "https://myurl/api/prefix/12345",
             params={},
             data=None,
             headers=headers,
@@ -94,6 +170,44 @@ class MambuConnectorWriterREST(unittest.TestCase):
         mock_requests.Session().request.assert_called_with(
             "PATCH",
             "https://{}/api/prefix/entid".format(apiurl),
+            params={},
+            data='[{"op": "add", "path": "/onepath", "value": "12345"}, \
+{"op": "replace", "path": "/otherpath/asubpath", "value": "54321"}, \
+{"op": "remove", "path": "/somepath"}]',
+            headers=headers,
+        )
+
+        mock_requests.Session().reset_mock()
+        mcrest.mambu_patch("entid", "prefix", [])
+        self.assertEqual(mock_requests.request.call_count, 0)
+
+    @mock.patch("MambuPy.api.connector.rest.uuid")
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    def test_mambu_patch_auth(self, mock_requests, mock_uuid):
+        mock_uuid.uuid4.return_value = "An UUID"
+        mock_requests.Session().request().status_code = 200
+        headers = app_json_headers()
+        headers["Authorization"] = "Basic {}".format(
+            base64.b64encode(b"myuser:mypass").decode("utf-8")
+        )
+        headers["Idempotency-Key"] = "An UUID"
+
+        mcrest = rest.MambuConnectorREST()
+
+        mcrest.mambu_patch(
+            "entid",
+            "prefix",
+            [
+                ("ADD", "/onepath", "12345"),
+                ("REPLACE", "/otherpath/asubpath", "54321"),
+                ("REMOVE", "/somepath"),
+            ],
+            user="myuser", pwd="mypass", url="myurl"
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "PATCH",
+            "https://myurl/api/prefix/entid",
             params={},
             data='[{"op": "add", "path": "/onepath", "value": "12345"}, \
 {"op": "replace", "path": "/otherpath/asubpath", "value": "54321"}, \

@@ -3,6 +3,9 @@ Release Notes
 
 Release
 -------
+* v2.1.0
+  - Allow update/create/patch/delete with user credentials besides
+    default
 * v2.0.0
   - v2 stable release.
   - 500 error code to status_forcelist for retries
