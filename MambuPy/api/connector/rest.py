@@ -142,7 +142,7 @@ url %s, params %s, data %s, headers %s",
             resp = http.request(method, url, params=params, data=data, headers=headers)
             resp.raise_for_status()
         except requests.exceptions.HTTPError as httperr:
-            logger.error(
+            logger.warning(
                 "%s on %s request: params %s, data %s, headers %s",
                 str(httperr),
                 method,
@@ -151,7 +151,7 @@ url %s, params %s, data %s, headers %s",
                 [(k, v) for k, v in headers.items() if k != "Authorization"],
             )
             if hasattr(resp, "content"):  # pragma: no cover
-                logger.error("HTTPError, resp content: %s", resp.content)
+                logger.warning("HTTPError, resp content: %s", resp.content)
             try:
                 content = json.loads(resp.content.decode())
             except ValueError:
