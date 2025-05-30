@@ -24,6 +24,7 @@ RC files must have the following format:
     apiuser=API_user
     apipwd=API_password
     apipagination=API_pagination_limit
+    activate_request_session_objects=API_persistent_session
     [DB]
     dbname=Database_name
     dbuser=Database_user
@@ -75,6 +76,10 @@ user on your Mambu instance
 
 The db* configs refer to Database configurations which hold a backup of
 your Mambu Database on some server.
+
+The activate_request_session_objects config enables or disables HTTP persistent sessions
+for API requests. When enabled, it will reuse the same TCP connection for
+multiple requests, improving performance. Default is False.
 """
 
 default_configs = {
@@ -83,6 +88,7 @@ default_configs = {
     "apiuser": "mambu_api_user",
     "apipwd": "mambu_api_password",
     "apipagination": "50",
+    "activate_request_session_objects": "False",
     # Mambu DB configurations
     "dbname": "mambu_db",
     "dbuser": "mambu_db_user",
@@ -123,6 +129,7 @@ argparser.add_argument("--mambupy_apiurl")
 argparser.add_argument("--mambupy_apiuser")
 argparser.add_argument("--mambupy_apipwd")
 argparser.add_argument("--mambupy_apipagination")
+argparser.add_argument("--mambupy_activate_request_session_objects")
 argparser.add_argument("--mambupy_dbname")
 argparser.add_argument("--mambupy_dbuser")
 argparser.add_argument("--mambupy_dbpwd")
@@ -184,6 +191,8 @@ apipwd = get_conf(config, "API", "apipwd")
 """Password to access Mambu API"""
 apipagination = get_conf(config, "API", "apipagination")
 """Pagination default limit for requests to Mambu API"""
+activate_request_session_objects = get_conf(config, "API", "activate_request_session_objects")
+"""Whether to use persistent HTTP sessions for API requests"""
 dbname = get_conf(config, "DB", "dbname")
 """Name of the DB with a backup of Mambu's DB"""
 dbuser = get_conf(config, "DB", "dbuser")

@@ -55,6 +55,10 @@ Another=BrickInTheWall
             mambuconfig.apipagination
         except AttributeError:
             self.fail("No apipagination attribute in mambuconfig")
+        try:
+            mambuconfig.activate_request_session_objects
+        except AttributeError:
+            self.fail("No activate_request_session_objects attribute in mambuconfig")
 
     def test_db_attrs(self):
         try:
@@ -93,6 +97,7 @@ Another=BrickInTheWall
         self.assertEqual(mambuconfig.default_configs.get("apiuser"), "mambu_api_user")
         self.assertEqual(mambuconfig.default_configs.get("apipwd"), "mambu_api_password")
         self.assertEqual(mambuconfig.default_configs.get("apipagination"), "50")
+        self.assertEqual(mambuconfig.default_configs.get("activate_request_session_objects"), "False")
         self.assertEqual(mambuconfig.default_configs.get("dbname"), "mambu_db")
         self.assertEqual(mambuconfig.default_configs.get("dbuser"), "mambu_db_user")
         self.assertEqual(mambuconfig.default_configs.get("dbpwd"), "mambu_db_pwd")
