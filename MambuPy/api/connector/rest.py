@@ -36,10 +36,80 @@ from MambuPy.mambuutil import (
     apiurl,
     apiuser,
     setup_logging,
+    activate_request_session_objects,
 )
 
 
 logger = setup_logging(__name__)
+
+
+def _configure_retry_strategy(session, retries=5):
+    """Configure retry strategy for a session.
+
+    Args:
+        session (requests.Session): The session to configure
+        retries (int, optional): Number of retries. Defaults to 5.
+    """
+    retry_strategy = Retry(
+        total=retries,
+        status_forcelist=[429, 500, 502, 503, 504],
+        backoff_factor=1,
+        allowed_methods=[
+            "HEAD",
+            "GET",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "DELETE",
+            "TRACE",
+            "PATCH",
+        ],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+
+class SessionSingleton:
+    """Singleton class to manage HTTP sessions for MambuPy.
+
+    This class ensures that only one requests.Session object is created and reused
+    across all requests to the Mambu API. This helps improve performance by reusing
+    TCP connections.
+
+    Example:
+        >>> session = SessionSingleton()
+        >>> session.get_session()  # Returns a requests.Session object
+        >>> session2 = SessionSingleton()
+        >>> session2.get_session()  # Returns the same requests.Session object
+    """
+
+    __instance = None
+    __session = None
+    _RETRIES = 5
+
+    def __new__(cls):
+        """Create a new instance of SessionSingleton if one doesn't exist.
+
+        Returns:
+            SessionSingleton: The singleton instance.
+        """
+        if cls.__instance is None:
+            cls.__instance = super(SessionSingleton, cls).__new__(cls)
+        return cls.__instance
+
+    def get_session(self):
+        """Get the requests.Session object.
+
+        If no session exists, create a new one. Otherwise, return the existing one.
+
+        Returns:
+            requests.Session: The session object to use for HTTP requests.
+        """
+        if self.__session is None:
+            self.__session = requests.Session()
+            _configure_retry_strategy(self.__session, self._RETRIES)
+        return self.__session
 
 
 class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWriter):
@@ -55,6 +125,9 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         }
         self.__set_authorization_header(user, pwd)
         self.__set_url(url)
+        self._session = None
+        if activate_request_session_objects.lower() == "true":
+            self._session = SessionSingleton().get_session()
 
     def __set_authorization_header(self, user, pwd):
         self._headers["Authorization"] = "Basic {}".format(
@@ -108,26 +181,6 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         params = self.__request_params(params)
         data = self.__request_data(data)
 
-        retry_strategy = Retry(
-            total=self._RETRIES,
-            status_forcelist=[429, 500, 502, 503, 504],
-            backoff_factor=1,
-            allowed_methods=[
-                "HEAD",
-                "GET",
-                "OPTIONS",
-                "POST",
-                "PUT",
-                "DELETE",
-                "TRACE",
-                "PATCH",
-            ],
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        http = requests.Session()
-        http.mount("https://", adapter)
-        http.mount("http://", adapter)
-
         resp = ""
         try:
             logger.debug(
@@ -139,7 +192,12 @@ url %s, params %s, data %s, headers %s",
                 data,
                 [(k, v) for k, v in headers.items() if k != "Authorization"],
             )
-            resp = http.request(method, url, params=params, data=data, headers=headers)
+            if self._session:
+                resp = self._session.request(method, url, params=params, data=data, headers=headers)
+            else:
+                http = requests.Session()
+                _configure_retry_strategy(http, self._RETRIES)
+                resp = http.request(method, url, params=params, data=data, headers=headers)
             resp.raise_for_status()
         except requests.exceptions.HTTPError as httperr:
             logger.warning(

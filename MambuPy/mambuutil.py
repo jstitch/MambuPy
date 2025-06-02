@@ -28,7 +28,7 @@ from codecs import open as copen
 
 import yaml
 
-from .mambuconfig import apipagination, apipwd, apiurl, apiuser, loggingconf
+from .mambuconfig import apipagination, apipwd, apiurl, apiuser, loggingconf, activate_request_session_objects
 from .mambugeturl import getmambuurl
 
 try:

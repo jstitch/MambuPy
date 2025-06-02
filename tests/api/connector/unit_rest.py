@@ -7,12 +7,14 @@ import unittest
 
 import mock
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 sys.path.insert(0, os.path.abspath("."))
 
 from MambuPy.api.connector import rest
 from MambuPy.mambuutil import (MambuCommError, MambuError,
-                               MambuPyError, apiurl)
+                               MambuPyError, apiurl, activate_request_session_objects)
 
 
 logging.disable(logging.CRITICAL)
@@ -29,7 +31,63 @@ def app_default_headers():
     return headers
 
 
+class TestSessionSingleton(unittest.TestCase):
+    """Test cases for SessionSingleton class."""
+
+    def setUp(self):
+        """Set up test cases."""
+        # Reset the singleton instance before each test
+        rest.SessionSingleton._SessionSingleton__instance = None
+        rest.SessionSingleton._SessionSingleton__session = None
+
+    def test_singleton_instance(self):
+        """Test that SessionSingleton maintains a single instance."""
+        session1 = rest.SessionSingleton()
+        session2 = rest.SessionSingleton()
+        self.assertIs(session1, session2)
+
+    def test_get_session_creates_new_session(self):
+        """Test that get_session creates a new session when none exists."""
+        session = rest.SessionSingleton()
+        http_session = session.get_session()
+        self.assertIsInstance(http_session, requests.Session)
+        self.assertIsNotNone(http_session)
+
+    def test_get_session_returns_existing_session(self):
+        """Test that get_session returns the same session instance."""
+        session = rest.SessionSingleton()
+        http_session1 = session.get_session()
+        http_session2 = session.get_session()
+        self.assertIs(http_session1, http_session2)
+
+    def test_session_has_retry_strategy(self):
+        """Test that the session has proper retry strategy configured."""
+        session = rest.SessionSingleton()
+        http_session = session.get_session()
+
+        # Get the adapter for https
+        adapter = http_session.get_adapter('https://')
+        self.assertIsInstance(adapter, HTTPAdapter)
+
+        # Check retry strategy
+        retry = adapter.max_retries
+        self.assertIsInstance(retry, Retry)
+        self.assertEqual(retry.total, 5)
+        self.assertEqual(retry.backoff_factor, 1)
+        self.assertIn(429, retry.status_forcelist)
+        self.assertIn(500, retry.status_forcelist)
+        self.assertIn(502, retry.status_forcelist)
+        self.assertIn(503, retry.status_forcelist)
+        self.assertIn(504, retry.status_forcelist)
+
+
 class MambuConnectorREST(unittest.TestCase):
+    def setUp(self):
+        """Set up test cases."""
+        # Reset the singleton instance before each test
+        rest.SessionSingleton._SessionSingleton__instance = None
+        rest.SessionSingleton._SessionSingleton__session = None
+
     def test_properties(self):
         mcrest = rest.MambuConnectorREST()
 
@@ -57,6 +115,62 @@ class MambuConnectorREST(unittest.TestCase):
             {'Accept': 'application/vnd.mambu.v2+json',
              'Authorization': 'Basic {}'.format(basic_auth)})
         self.assertEqual(mcrest._tenant, "my_url")
+
+    @mock.patch("MambuPy.api.connector.rest.activate_request_session_objects")
+    def test_connector_uses_session_when_enabled(self, mock_activate):
+        """Test that connector uses session when enabled."""
+        mock_activate.lower.return_value = "true"
+        with mock.patch.object(rest.SessionSingleton, 'get_session') as mock_get_session:
+            mock_get_session.return_value = requests.Session()
+            connector = rest.MambuConnectorREST()
+            self.assertIsNotNone(connector._session)
+            self.assertIsInstance(connector._session, requests.Session)
+
+    @mock.patch("MambuPy.api.connector.rest.activate_request_session_objects")
+    def test_connector_doesnt_use_session_when_disabled(self, mock_activate):
+        """Test that connector doesn't use session when disabled."""
+        mock_activate.lower.return_value = "false"
+        connector = rest.MambuConnectorREST()
+        self.assertIsNone(connector._session)
+
+    @mock.patch("MambuPy.api.connector.rest.activate_request_session_objects")
+    @mock.patch("requests.Session.request")
+    def test_connector_uses_session_for_requests(self, mock_request, mock_activate):
+        """Test that connector uses session for requests when enabled."""
+        mock_activate.lower.return_value = "true"
+        # Setup mock response
+        mock_response = mock.MagicMock()
+        mock_response.content = b'{"data": "test"}'
+        mock_response.raise_for_status = mock.MagicMock()
+        mock_request.return_value = mock_response
+
+        with mock.patch.object(rest.SessionSingleton, 'get_session') as mock_get_session:
+            mock_session = requests.Session()
+            mock_get_session.return_value = mock_session
+            connector = rest.MambuConnectorREST()
+            connector.mambu_get('test_id', 'test_prefix')
+
+            # Verify session was used
+            mock_request.assert_called_once()
+            self.assertIsNotNone(connector._session)
+
+    @mock.patch("MambuPy.api.connector.rest.activate_request_session_objects")
+    @mock.patch("requests.Session.request")
+    def test_connector_creates_new_session_for_each_request_when_disabled(self, mock_request, mock_activate):
+        """Test that connector creates new session for each request when disabled."""
+        mock_activate.lower.return_value = "false"
+        # Setup mock response
+        mock_response = mock.MagicMock()
+        mock_response.content = b'{"data": "test"}'
+        mock_response.raise_for_status = mock.MagicMock()
+        mock_request.return_value = mock_response
+
+        connector = rest.MambuConnectorREST()
+        connector.mambu_get('test_id', 'test_prefix')
+
+        # Verify new session was created
+        mock_request.assert_called_once()
+        self.assertIsNone(connector._session)
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu___request_GET(self, mock_requests):
