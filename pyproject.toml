@@ -4,9 +4,15 @@ authors = [{name = "Javier Novoa C.", email = "jstitch@gmail.com"}]
 license = {file = "LICENSE"}
 description="A python library for using Mambu APIs."
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 dynamic = ["version"]
-dependencies = ["PyYAML==6.0.1", "requests==2.31.0", "requests_toolbelt==1.0.0", "dateutils==0.6.12", "future==0.18.3"]
+dependencies = [
+ "PyYAML==6.0.1",
+ "requests==2.31.0",
+ "requests_toolbelt==1.0.0",
+ "dateutils==0.6.12",
+ "future==0.18.3",
+]
 keywords = ["mambu"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -23,7 +29,7 @@ full = ["SQLAlchemy==1.3.6", "mysqlclient==2.1.0"]
 doc = ["sphinx==5.0.0", "sphinx_rtd_theme"]
 dev = ["freezegun==1.1.0", "mock", "coverage", "pylint", "ruff", "black", "isort"]
 deploy = ["build", "twine"]
-devtools = ["ipython", "ipdb"]
+devtools = ["ipython", "ipdb", "devpi-client>=7.2.0"]
 
 [project.urls]
 Homepage = "https://mambupydocs.readthedocs.io"

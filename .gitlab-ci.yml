@@ -17,6 +17,13 @@ Linter:
     - make lint
 
 .UnitTests:
+  stage: "UnitTests"
+  variables:
+    PYVERSION: "3"
+  only:
+    - branches
+    - tags
+    - merge_requests
   artifacts:
     paths:
       - htmlcov_${CI_PROJECT_NAME}_$PYVERSION.tar.bz2
@@ -31,23 +38,34 @@ Linter:
     - tar cjf htmlcov_${CI_PROJECT_NAME}_$PYVERSION.tar.bz2 htmlcov_${CI_PROJECT_NAME}_$PYVERSION
     - coverage xml
     - mv coverage.xml coverage_${CI_PROJECT_NAME}_$PYVERSION.xml
-
-UnitTests-3:
-  extends: ".UnitTests"
-  stage: "UnitTests"
-  variables:
-    PYVERSION: "3"
-  image: "python:3.8"
-  only:
-    - branches
-    - tags
-    - merge_requests
   script:
     - pip install -q --no-cache-dir --upgrade -r requirements.light.txt
     - pip install -q --no-cache-dir --upgrade -r requirements.full.txt
     - pip install -q --no-cache-dir --upgrade -r requirements.tools.txt
     - date
     - make test
+
+UnitTests-37:
+  extends: ".UnitTests"
+  image: "python:3.7"
+
+UnitTests-38:
+  extends: ".UnitTests"
+  image: "python:3.8"
+
+UnitTests-39:
+  extends: ".UnitTests"
+  image: "python:3.9"
+
+UnitTests-310:
+  extends: ".UnitTests"
+  image: "python:3.10"
+
+UnitTests-311:
+  extends: ".UnitTests"
+  image: "python:3.11"
+
+# python 3.12, 3.13 not yet supported
 
 Docs:
   image: "python:3.8"
