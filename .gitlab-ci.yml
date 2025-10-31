@@ -65,6 +65,18 @@ UnitTests-311:
   extends: ".UnitTests"
   image: "python:3.11"
 
+UnitTests-312:
+  extends: ".UnitTests"
+  image: "python:3.12"
+
+UnitTests-313:
+  extends: ".UnitTests"
+  image: "python:3.13"
+
+UnitTests-314:
+  extends: ".UnitTests"
+  image: "python:3.14"
+
 # python 3.12, 3.13 not yet supported
 
 Docs:
