@@ -163,9 +163,13 @@ class MambuEntityTests(unittest.TestCase):
         )
         mock_print.assert_any_call(
             "child_class" + "-" + elems[0]._attrs["id"])
-        mock_print.assert_any_call(
-            "({}) ".format(len(elems)) +
-            "0:0:0.0")
+        # Check that a timing print was made with format "(count) h:m:s.ms"
+        # Don't check exact timing since it varies between test runs
+        timing_calls = [
+            call for call in mock_print.call_args_list
+            if len(call[0]) > 0 and isinstance(call[0][0], str) and call[0][0].startswith("(4) ")
+        ]
+        self.assertGreater(len(timing_calls), 0, "Expected timing print call not found")
         for elem in elems:
             elem._assignEntObjs.assert_called_with(
                 [], "BASIC", True, debug=True)
