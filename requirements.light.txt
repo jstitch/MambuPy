@@ -3,4 +3,3 @@ PyYAML==6.0.1
 requests==2.31.0
 requests_toolbelt==1.0.0
 dateutils==0.6.12
-future==0.18.3

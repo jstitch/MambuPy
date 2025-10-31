@@ -1,5 +1,3 @@
-from future.utils import implements_iterator
-
 from ..mambuutil import MambuError
 
 
@@ -30,7 +28,6 @@ class RequestsCounter(object):
         cls.requests = []
 
 
-@implements_iterator
 class MambuStructIterator:
     """Enables iteration for some Mambu objects that may want to have iterators.
 

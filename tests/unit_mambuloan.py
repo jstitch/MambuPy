@@ -309,8 +309,6 @@ class MambuLoanTests(unittest.TestCase):
             self.assertFalse(l.has_key("user"))
 
     def test_setProduct(self):
-        from future.utils import implements_iterator
-
         def mock_connect(*args, **kwargs):
             args[0].attrs = {"id": "12345", "productTypeKey": "prodEk12345"}
 
@@ -323,7 +321,6 @@ class MambuLoanTests(unittest.TestCase):
 
         my_product_instance = my_product(id="dummyProductId", encodedKey="prodEk12345")
 
-        @implements_iterator
         class all_mambu_products(object):
             __instance = None
 
