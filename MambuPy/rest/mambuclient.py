@@ -13,7 +13,7 @@ Uses mambugeturl.getclienturl as default urlfunc
 """
 
 
-from builtins import str as unicode
+unicode = str
 
 from ..mambugeturl import getclientcustominformationurl, getclienturl
 from ..mambuutil import strip_consecutive_repeated_char as scrc

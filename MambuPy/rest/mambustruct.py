@@ -31,7 +31,7 @@ Some basic definitions:
   relational database but the term table is preferred in this case.
 """
 import json
-from builtins import str as unicode
+unicode = str
 from datetime import datetime
 
 import requests

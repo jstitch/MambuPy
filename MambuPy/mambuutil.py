@@ -258,7 +258,7 @@ def strip_consecutive_repeated_char(s, ch):
 
 if sys.version_info >= (3, 0):
     # python3
-    from future.moves.urllib import parse as urlparse
+    from urllib import parse as urlparse
 else:  # pragma: no cover
     # python2
     import urlparse
