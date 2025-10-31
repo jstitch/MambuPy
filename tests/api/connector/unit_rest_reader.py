@@ -15,6 +15,12 @@ from unit_rest import app_json_headers
 
 
 class MambuConnectorReaderREST(unittest.TestCase):
+    def setUp(self):
+        """Set up test cases."""
+        # Reset the singleton instance before each test
+        rest.SessionSingleton._SessionSingleton__instance = None
+        rest.SessionSingleton._SessionSingleton__session = None
+
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_get(self, mock_requests):
         mock_requests.Session().request().status_code = 200

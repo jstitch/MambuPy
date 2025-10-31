@@ -15,6 +15,12 @@ from unit_rest import app_default_headers, app_json_headers
 
 
 class MambuConnectorWriterREST(unittest.TestCase):
+    def setUp(self):
+        """Set up test cases."""
+        # Reset the singleton instance before each test
+        rest.SessionSingleton._SessionSingleton__instance = None
+        rest.SessionSingleton._SessionSingleton__session = None
+
     @mock.patch("MambuPy.api.connector.rest.uuid")
     @mock.patch("MambuPy.api.connector.rest.requests")
     def test_mambu_update(self, mock_requests, mock_uuid):
