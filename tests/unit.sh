@@ -16,27 +16,8 @@ rm -f coverage.xml
 fails=0
 
 tests=("unit_mambuconfig.py" \
-           "unit_mambutask.py" \
-           "unit_mamburoles.py" \
-           "unit_mamburepayment.py" \
-           "unit_mambuproduct.py" \
-           "unit_mambucentre.py" \
-           "unit_mambubranch.py" \
-           "unit_mambuactivity.py" \
-           "unit_mambutransaction.py" \
            "unit_mambuuser.py" \
-           "unit_mambustruct.py" \
-           "unit_mambustruct_methods.py" \
-           "unit_mambugroup.py" \
-           "unit_mambuclient.py" \
            "unit_mambuutil.py" \
-           "unit_mambuloan.py" \
-           "unit_mambugeturl.py" \
-           "unit_mambutransactionchannel.py" \
-           "unit_mambusavingtransaction.py" \
-           "unit_mambusaving.py" \
-           "unit_mambusavingfundingrepayment.py" \
-           "unit_mamburestutils.py" \
 
            "api/unit_classes.py" \
            "api/unit_mambustruct.py" \

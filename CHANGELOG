@@ -3,6 +3,10 @@ Release Notes
 
 Release
 -------
+* v2.2.0 (unreleased)
+  - BREAKING: Completely removed Mambu API v1 support (MambuPy.rest module)
+  - Removed all v1-related code, tests, and documentation
+  - Removed v1-only URL builder functions from mambugeturl.py
 * v2.1.0
   - Allow update/create/patch/delete with user credentials besides
     default

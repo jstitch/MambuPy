@@ -14,11 +14,6 @@ Installation of MambuPy
 
 MambuPy works on Python >3.8
 
-.. warning::
-   Mambu has announced the complete deprecation of v1 of their REST
-   API, therefore it is NOT RECOMMENDED to use MambuPy modules that
-   use that version of the Mambu API.
-
 Installation using pip
 ~~~~~~~~~~~~~~~~~~~~~~
 

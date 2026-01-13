@@ -73,7 +73,6 @@ Table of Contents
    intro
    cookbook
    mambu_rest_v2
-   mambu_rest
    mambu_orm
    mambupy
    release_notes
