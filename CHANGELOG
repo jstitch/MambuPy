@@ -3,10 +3,19 @@ Release Notes
 
 Release
 -------
-* v2.2.0 (unreleased)
+* v2.2.0
   - BREAKING: Completely removed Mambu API v1 support (MambuPy.rest module)
   - Removed all v1-related code, tests, and documentation
   - Removed v1-only URL builder functions from mambugeturl.py
+  - legacy: standalone v1 mambuactivity module
+* v2.1.1
+  - test: fix intermittent timing assertion in test__get_several
+  - fix: remove future library dependency for Python 3.12+ compatibility
+  - test: reset SessionSingleton in setUp for connector tests
+  - devops: support for python 3.12
+  - devops: python3 several versions support.
+  - feat: implement Singleton pattern for HTTP session management
+  - feat: add persistent session configuration toggle
 * v2.1.0
   - Allow update/create/patch/delete with user credentials besides
     default

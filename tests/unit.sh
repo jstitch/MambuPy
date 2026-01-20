@@ -16,8 +16,9 @@ rm -f coverage.xml
 fails=0
 
 tests=("unit_mambuconfig.py" \
-           "unit_mambuuser.py" \
+           "unit_mambuconfig.py" \
            "unit_mambuutil.py" \
+           "unit_mambuactivity.py" \
 
            "api/unit_classes.py" \
            "api/unit_mambustruct.py" \

@@ -10,12 +10,6 @@ Besides the compatibility with the more recent version of Mambu's API,
 the main design objective of MambuPy v2 is to have a good design and
 best practices, with a KISS and DRY philosophy.
 
-MambuPy v2 DOES NOT pretends to be backwards compatible with v1,
-please be aware of the implications for your code.
-
-If you are looking for documentation of v1 for MambuPy, look here:
-:doc:`mambu_rest`.
-
 The idea behind MambuPy v2 is to implement functionality to interact
 with Mambu using Mambu's REST API endpoints. Even if one of its
 objectives is to implement each and every endpoint offered by the REST
@@ -33,14 +27,11 @@ backup as you pick).
 Current Status
 --------------
 
-MambuPy v2 is in a beta-testing stage. There are some users developing
-based on it.
+MambuPy v2 is officially released
 
-Beta Test means that you now have almost every Mambu Entity you had on
-MambuPy v1 rest module (except for savings and transaction channels).
-
-Also, Activities is currently not supported by Mambu REST API v2, so
-we are unable to implement any functionality around it.
+Activities is currently not supported by Mambu REST API v2, so
+we are unable to implement any functionality around it, so you'll
+have to rely on the old v1 rest.mambuactivities non-supported module.
 
 What follows, is a description of how MambuPy v2 is designed and some
 implementation details are given, with the purpose of explaining how
@@ -77,13 +68,10 @@ The following diagram illustrates the currently implemented entities:
 MambuStruct
 +++++++++++
 
-If you recall how MambuPy v1 works,
-:py:class:`MambuPy.rest.mambustruct.MambuStruct` is a fundamental
-class for it.
+:py:class:`MambuPy.api.mambustruct.MambuStruct` is a fundamental
+class for Mambu Entities functionality.
 
-v2 also has a :py:class:`MambuPy.api.mambustruct.MambuStruct`, but
-what v1 did in a single class, v2 does in several ones, organized in a
-more ordered fashion.
+v2 sues several classes, organized in an ordered fashion.
 
 The real father of all MambuPy v2 classes is
 :py:class:`MambuPy.api.classes.MambuMapObj`, which implements
