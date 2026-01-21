@@ -19,6 +19,7 @@ tests=("unit_mambuconfig.py" \
            "unit_mambuconfig.py" \
            "unit_mambuutil.py" \
            "unit_mambuactivity.py" \
+           "unit_mambugeturl.py" \
 
            "api/unit_classes.py" \
            "api/unit_mambustruct.py" \
