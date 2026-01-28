@@ -85,18 +85,12 @@ class MambuUtilTests(unittest.TestCase):
             mambuutil.iri_to_uri("https://domain.mambu.com/some_url"),
             "https://domain.mambu.com/some_url",
         )
-        if sys.version_info < (3, 0):
-            url = "https://domain.mambu.com/some_url/strange_ñame/having_ñ"
-            resUrl = "https://domain.mambu.com/some_url/strange_%c3%b1ame/having_%c3%b1"
-            self.assertEqual(mambuutil.iri_to_uri(url), resUrl
-                             )
-        else:
-            self.assertEqual(
-                mambuutil.iri_to_uri(
-                    "https://domain.mambu.com/some_url/strange_name/having_ñ"
-                ),
-                "https://domain.mambu.com/some_url/strange_name/having_ñ",
-            )
+        self.assertEqual(
+            mambuutil.iri_to_uri(
+                "https://domain.mambu.com/some_url/strange_name/having_ñ"
+            ),
+            "https://domain.mambu.com/some_url/strange_name/having_ñ",
+        )
 
     def test_encoded_dict(self):
         d = {
@@ -111,10 +105,7 @@ class MambuUtilTests(unittest.TestCase):
 
     def test_date_format(self):
         """Test date_format"""
-        if sys.version_info < (3, 0):
-            format = "%Y-%m-%dT%H:%M:%S+0000"
-        else:
-            format = "%Y-%m-%dT%H:%M:%S-06:00"
+        format = "%Y-%m-%dT%H:%M:%S-06:00"
         today = datetime.now()
         # default date_format
         self.assertEqual(

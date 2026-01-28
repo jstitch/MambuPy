@@ -15,10 +15,9 @@ from .schema_users import User
 
 # technical debt, cannot import name schema_clients
 try:
-    from . import \
-        schema_clients  # this should work for python2 and python3, but doesnt
-except Exception as e:
-    import schema_clients  # python 2
+    from . import schema_clients
+except Exception:
+    import schema_clients
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,
                         Text)

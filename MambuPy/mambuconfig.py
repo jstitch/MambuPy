@@ -105,20 +105,10 @@ You may edit this to your own liking. But beware of pricking eyes!
 """
 
 import os
+import configparser
+from configparser import NoSectionError
 
-# import ConfigParser depending on Python version
-import sys
-
-if sys.version_info.major < 3:
-    import ConfigParser
-    from ConfigParser import NoSectionError
-
-    config = ConfigParser.ConfigParser(defaults=default_configs)
-else:
-    import configparser
-    from configparser import NoSectionError
-
-    config = configparser.ConfigParser(defaults=default_configs)
+config = configparser.ConfigParser(defaults=default_configs)
 
 # argparse for command line arguments overriding
 import argparse

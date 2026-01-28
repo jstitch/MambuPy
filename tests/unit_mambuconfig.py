@@ -27,16 +27,9 @@ Another=BrickInTheWall
 """
             )
         defaults = {"AllInAll": "You'reJust"}
-        import sys
+        import configparser
 
-        if sys.version_info.major < 3:
-            import ConfigParser
-
-            self.config = ConfigParser.ConfigParser(defaults=defaults)
-        else:
-            import configparser
-
-            self.config = configparser.ConfigParser(defaults=defaults)
+        self.config = configparser.ConfigParser(defaults=defaults)
 
     def test_api_attrs(self):
         try:

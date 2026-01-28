@@ -23,8 +23,6 @@ every schema_*.py you need.
 This last requirement also applies for the Base, or for the engine and
 the sessionmaker for that matter.
 """
-from __future__ import absolute_import
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 

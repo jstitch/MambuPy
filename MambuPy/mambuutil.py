@@ -31,13 +31,6 @@ import yaml
 from .mambuconfig import apipagination, apipwd, apiurl, apiuser, loggingconf, activate_request_session_objects
 from .mambugeturl import getmambuurl
 
-try:
-    # python2
-    unicode
-except NameError:
-    # python3
-    unicode = str
-
 import json
 import sys
 from datetime import datetime, timezone
@@ -221,10 +214,7 @@ def strip_tags(html):
         """
 
         def __init__(self):
-            try:
-                super().__init__()  # required for python3
-            except TypeError:  # pragma: no cover
-                pass  # with python2 raises TypeError
+            super().__init__()
             self.reset()
             self.fed = []
 
@@ -256,12 +246,7 @@ def strip_consecutive_repeated_char(s, ch):
     return sdest
 
 
-if sys.version_info >= (3, 0):
-    # python3
-    from urllib import parse as urlparse
-else:  # pragma: no cover
-    # python2
-    import urlparse
+from urllib import parse as urlparse
 
 
 def iri_to_uri(iri):
@@ -277,35 +262,9 @@ def iri_to_uri(iri):
     unicode chars there. Using this I solved the problem.
     """
 
-    def url_encode_non_ascii(b):
-        """Encode Non ASCII chars to URL-friendly chars.
-
-        Sometimes unicode gets in the way. A shame, I know. And perhaps the
-        biggest shame is not me correctly handling it.
-        """
-        import re
-
-        return re.sub("[\x80-\xFF]", lambda c: "%%%02x" % ord(c.group(0)), b)
-
     parts = urlparse.urlparse(iri)
-    if sys.version_info < (3, 0):  # pragma: no cover
-        # python2
-        partes = []
-        for parti, part in enumerate(parts):
-            try:
-                if parti != 1:
-                    partes.append(url_encode_non_ascii(part.encode("utf-8")))
-                else:
-                    partes.append(part.encode("idna"))
-            except UnicodeDecodeError:
-                partes.append(url_encode_non_ascii(part.decode("latin")))
-            except Exception:
-                raise Exception
-        return urlparse.urlunparse(partes)
-    else:
-        # python3
-        uri = [part.decode("utf8") for parti, part in enumerate(parts.encode("utf8"))]
-        return urlparse.urlunparse(uri)
+    uri = [part.decode("utf8") for parti, part in enumerate(parts.encode("utf8"))]
+    return urlparse.urlunparse(uri)
 
 
 def encoded_dict(in_dict):
@@ -315,13 +274,6 @@ def encoded_dict(in_dict):
     """
     out_dict = {}
     for k, v in in_dict.items():
-        if isinstance(v, unicode):
-            if sys.version_info < (3, 0):  # pragma: no cover
-                v = v.encode("utf8")
-        elif isinstance(v, str):
-            # Must be encoded in UTF-8
-            if sys.version_info < (3, 0):  # pragma: no cover
-                v.decode("utf8")
         out_dict[k] = v
     return out_dict
 

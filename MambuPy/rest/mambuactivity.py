@@ -14,7 +14,6 @@ MambuActivities holds a list of activities.
 """
 import json
 import warnings
-from builtins import str as unicode
 from copy import deepcopy
 from datetime import datetime
 
@@ -187,12 +186,12 @@ class MambuStruct(object):
         try:
             it = iter(data)
         except TypeError:
-            return unicode(data)
+            return str(data)
         if type(it) == type(iter([])):
             return [MambuStruct.serialize_fields(e) for e in it]
         elif type(it) == type(iter({})):
             return {k: MambuStruct.serialize_fields(data[k]) for k in it}
-        return unicode(data)
+        return str(data)
 
     def __getitem__(self, key):
         """Dict-like key query"""
