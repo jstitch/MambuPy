@@ -3,6 +3,9 @@ Release Notes
 
 Release
 -------
+* v2.2.1
+  - bugfix for mambuutil.date_format as_utc conversions
+  - drop python 2 support remnants
 * v2.2.0
   - BREAKING: Completely removed Mambu API v1 support (MambuPy.rest module)
   - Removed all v1-related code, tests, and documentation

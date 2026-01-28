@@ -179,21 +179,23 @@ def date_format(field, formato=None, as_utc=False):
 
     if not formato:
         formato = "%Y-%m-%dT%H:%M:%S"
-    if sys.version_info < (3, 0):
-        return datetime.strptime(
-            datetime.strptime(field, "%Y-%m-%dT%H:%M:%S+0000").strftime(formato),
+
+    field_with_tz = datetime.fromisoformat(field)
+
+    if as_utc and field_with_tz.tzinfo is not None:
+        # Convertir a UTC mientras aún tiene tzinfo
+        field_as_dt = field_with_tz.astimezone(timezone.utc)
+        field_as_dt = datetime.strptime(
+            field_as_dt.strftime(formato),
             formato,
         )
     else:
         field_as_dt = datetime.strptime(
-            datetime.fromisoformat(field).strftime(formato),
+            field_with_tz.strftime(formato),
             formato,
         )
-        if as_utc:
-            field_as_dt = field_as_dt.astimezone(
-                timezone.utc
-            ).replace(tzinfo=None)
-        return field_as_dt
+
+    return field_as_dt
 
 
 def strip_tags(html):
