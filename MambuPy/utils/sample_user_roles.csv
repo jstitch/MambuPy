@@ -1,0 +1,22 @@
+# Sample CSV file for updating user roles in Mambu
+# Lines starting with '#' are comments and will be ignored
+# Format: username,role
+# Note: Role can be specified by NAME or by ID
+
+# Update these users to Credit Officer role (using role name)
+john.doe,Credit Officer
+jane.smith,Credit Officer
+
+# Update this user to Branch Manager (using role ID)
+bob.johnson,BRANCH_MANAGER_ID
+
+# This line will be skipped if the user doesn't exist
+nonexistent.user,Accountant
+
+# Multiple users with the same role (mixing names and IDs)
+alice.williams,Loan Officer
+charlie.brown,LOAN_OFFICER_ID
+diana.prince,Loan Officer
+
+# User with a role change (using role name)
+manager.user,Senior Manager

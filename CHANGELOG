@@ -3,6 +3,10 @@ Release Notes
 
 Release
 -------
+* v2.3.0
+  - feat: new update_user_roles.py utility script for bulk role updates
+  - feat: role validation supports both role name and role ID
+  - docs: comprehensive README for MambuPy utilities
 * v2.2.1
   - bugfix for mambuutil.date_format as_utc conversions
   - drop python 2 support remnants
