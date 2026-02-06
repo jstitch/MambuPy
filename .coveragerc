@@ -7,6 +7,7 @@ omit =
     test*.py
     doc/*
     */orm/*
+    */utils/*
 
 [report]
 omit =
@@ -14,6 +15,7 @@ omit =
     test*.py
     doc/*
     */orm/*
+    */utils/*
 
 skip_empty = True
 
