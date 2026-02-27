@@ -3,7 +3,6 @@ import os
 import sys
 import unittest
 
-from dateutil.tz import tzlocal
 from freezegun import freeze_time
 import mock
 
@@ -294,6 +293,46 @@ class MambuLoan(unittest.TestCase):
         )
         ml.refresh.assert_called_once()
 
+    def test_disburse_subhour_offset(self):
+        ml = mambuloan.MambuLoan(
+            id='12345', accountState="APPROVED", connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_make_disbursement.return_value = '{"encodedKey": "abc123"}'
+        ml.refresh = mock.Mock()
+
+        # India (+05:30) and Venezuela (-04:30) style sub-hour offsets
+        firstRepaymentDate = datetime.datetime.now()
+        valueDate = datetime.datetime.now()
+        ml.disbursementDetails = MambuDisbursementDetails(**{
+            "firstRepaymentDate": firstRepaymentDate,
+            "expectedDisbursementDate": valueDate})
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC+05:30",
+            "expectedDisbursementDate": "UTC-04:30"}
+
+        tz_info_frd = datetime.datetime.fromisoformat("2000-01-01T00:00:00+05:30").tzinfo
+        tz_info_vd = datetime.datetime.fromisoformat("2000-01-01T00:00:00-04:30").tzinfo
+
+        ml.disburse(
+            notes="A denial",
+            firstRepaymentDate=firstRepaymentDate,
+            disbursementDate=valueDate,
+            **{"something": "else"})
+
+        mock_connector.mambu_make_disbursement.assert_called_with(
+            '12345',
+            "A denial",
+            firstRepaymentDate.astimezone(tz_info_frd).isoformat(),
+            valueDate.astimezone(tz_info_vd).isoformat(),
+            MambuDisbursementLoanTransactionInput._schema_fields,
+            **{"something": "else"}
+        )
+        # verify the offset minutes are preserved in the serialized string
+        call_args = mock_connector.mambu_make_disbursement.call_args[0]
+        self.assertIn("+05:30", call_args[2])
+        self.assertIn("-04:30", call_args[3])
+        ml.refresh.assert_called_once()
+
     def test_reject(self):
         ml = mambuloan.MambuLoan(id=1, connector=mock.Mock())
         mock_connector = ml._connector
@@ -349,12 +388,16 @@ class MambuLoan(unittest.TestCase):
         mock_connector = ml._connector
         mock_connector.mambu_make_repayment.return_value = '{"encodedKey": "abc123"}'
         ml.refresh = mock.Mock()
+        ml.disbursementDetails = MambuDisbursementDetails(
+            firstRepaymentDate=datetime.datetime.now(),
+            expectedDisbursementDate=datetime.datetime.now())
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC-05:00",
+            "expectedDisbursementDate": "UTC-05:00"}
 
         valueDate = datetime.datetime.now()
-        valueDateAssert = datetime.datetime.strptime(
-            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
-        timezone = datetime.datetime.now().astimezone(tzlocal()).isoformat()[-6:]
-        valueDateAssert = valueDateAssert.isoformat() + timezone
+        tz_info = datetime.datetime.fromisoformat("2000-01-01T00:00:00-05:00").tzinfo
+        valueDateAssert = valueDate.astimezone(tz_info).isoformat()
 
         ml.repay(
             amount=100.0,
@@ -412,12 +455,16 @@ class MambuLoan(unittest.TestCase):
         mock_connector = ml._connector
         mock_connector.mambu_make_fee.return_value = '{"encodedKey": "abc123"}'
         ml.refresh = mock.Mock()
+        ml.disbursementDetails = MambuDisbursementDetails(
+            firstRepaymentDate=datetime.datetime.now(),
+            expectedDisbursementDate=datetime.datetime.now())
+        ml.disbursementDetails._tzattrs = {
+            "firstRepaymentDate": "UTC-05:00",
+            "expectedDisbursementDate": "UTC-05:00"}
 
         valueDate = datetime.datetime.now()
-        valueDateAssert = datetime.datetime.strptime(
-            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S")
-        timezone = datetime.datetime.now().astimezone(tzlocal()).isoformat()[-6:]
-        valueDateAssert = valueDateAssert.isoformat() + timezone
+        tz_info = datetime.datetime.fromisoformat("2000-01-01T00:00:00-05:00").tzinfo
+        valueDateAssert = valueDate.astimezone(tz_info).isoformat()
 
         ml.apply_fee(
             amount=100.0,

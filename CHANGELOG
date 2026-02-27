@@ -3,6 +3,12 @@ Release Notes
 
 Release
 -------
+* v2.3.1
+  - fix: repay() and apply_fee() use loan's own timezone (from _tzattrs) instead
+    of tzlocal() when stamping naive valueDate; fixes incorrect UTC offset on
+    AWS Lambda and other UTC-runtime environments
+  - fix: disburse() sub-hour UTC offsets (e.g. +05:30, -04:30) now preserved;
+    replaces [-6:-3] integer-hours-only slice with full offset parsing
 * v2.3.0
   - feat: new update_user_roles.py utility script for bulk role updates
   - feat: role validation supports both role name and role ID

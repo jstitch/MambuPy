@@ -9,8 +9,6 @@ import copy
 import datetime
 import json
 
-from dateutil.tz import tzlocal
-
 from .entities import (
     MambuEntity,
     MambuEntityWritable,
@@ -184,32 +182,24 @@ class MambuLoan(
 
         if firstRepaymentDate:
             if not firstRepaymentDate.tzinfo:
-                timezone_firstRepaymentDate = datetime.timezone(
-                    datetime.timedelta(
-                        hours=int(
-                            self.disbursementDetails._tzattrs["firstRepaymentDate"][-6:-3]
-                        )
-                    )
-                )
-                firstRepaymentDate = firstRepaymentDate.astimezone(
-                    timezone_firstRepaymentDate
-                )
+                tzname = self.disbursementDetails._tzattrs["firstRepaymentDate"]
+                offset_str = tzname[3:] or "+00:00"
+                tz_info = datetime.datetime.fromisoformat(
+                    "2000-01-01T00:00:00" + offset_str
+                ).tzinfo
+                firstRepaymentDate = firstRepaymentDate.astimezone(tz_info)
             firstRepaymentDate = firstRepaymentDate.isoformat()
         else:
             firstRepaymentDate = self.disbursementDetails.firstRepaymentDate
 
         if disbursementDate:
             if not disbursementDate.tzinfo:
-                timezone_disbursementDate = datetime.timezone(
-                    datetime.timedelta(
-                        hours=int(
-                            self.disbursementDetails._tzattrs["expectedDisbursementDate"][
-                                -6:-3
-                            ]
-                        )
-                    )
-                )
-                disbursementDate = disbursementDate.astimezone(timezone_disbursementDate)
+                tzname = self.disbursementDetails._tzattrs["expectedDisbursementDate"]
+                offset_str = tzname[3:] or "+00:00"
+                tz_info = datetime.datetime.fromisoformat(
+                    "2000-01-01T00:00:00" + offset_str
+                ).tzinfo
+                disbursementDate = disbursementDate.astimezone(tz_info)
             disbursementDate = disbursementDate.isoformat()
         else:
             disbursementDate = self.disbursementDetails.expectedDisbursementDate
@@ -265,10 +255,14 @@ class MambuLoan(
                  structure defined at
                  :py:obj:`MambuPy.api.vos.MambuLoanTransactionDetailsInput._schema_fields`.
         """
-        valueDate = datetime.datetime.strptime(
-            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S"
-        )
-        valueDate = valueDate.astimezone(tzlocal()).isoformat()
+        if not valueDate.tzinfo:
+            tzname = self.disbursementDetails._tzattrs["firstRepaymentDate"]
+            offset_str = tzname[3:] or "+00:00"
+            tz_info = datetime.datetime.fromisoformat(
+                "2000-01-01T00:00:00" + offset_str
+            ).tzinfo
+            valueDate = valueDate.astimezone(tz_info)
+        valueDate = valueDate.isoformat()
 
         self._connector.mambu_make_repayment(
             self.id,
@@ -312,10 +306,14 @@ class MambuLoan(
                  request. :py:obj:`MambuPy.api.vos.MambuFeeLoanTransactionInput._schema_fields`
                  has the allowed fields permitted for this operation
         """
-        valueDate = datetime.datetime.strptime(
-            valueDate.strftime("%Y-%m-%d %H%M%S"), "%Y-%m-%d %H%M%S"
-        )
-        valueDate = valueDate.astimezone(tzlocal()).isoformat()
+        if not valueDate.tzinfo:
+            tzname = self.disbursementDetails._tzattrs["firstRepaymentDate"]
+            offset_str = tzname[3:] or "+00:00"
+            tz_info = datetime.datetime.fromisoformat(
+                "2000-01-01T00:00:00" + offset_str
+            ).tzinfo
+            valueDate = valueDate.astimezone(tz_info)
+        valueDate = valueDate.isoformat()
 
         self._connector.mambu_make_fee(
             self.id,
