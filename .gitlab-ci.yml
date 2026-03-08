@@ -104,3 +104,5 @@ Docs:
 include:
   - project: 'mambupy/mambupy-deploy'
     file: '.gitlab-ci_deploy.yml'
+    rules:
+      - if: $ENABLE_DEPLOY == "true"
