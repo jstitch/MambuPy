@@ -9,11 +9,14 @@ Currently supports REST.
 
 import base64
 import copy
+import datetime
+import enum
 import json
 import mimetypes
 import os
 import re
 import uuid
+from decimal import Decimal
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
@@ -41,6 +44,19 @@ from MambuPy.mambuutil import (
 
 
 logger = setup_logging(__name__)
+
+
+class _MambuJSONEncoder(json.JSONEncoder):
+    """JSON encoder that handles Python types not natively serializable by json.dumps."""
+
+    def default(self, obj):
+        if isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+        if isinstance(obj, enum.Enum):
+            return obj.value
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 def _configure_retry_strategy(session, retries=5):
@@ -154,11 +170,8 @@ class MambuConnectorREST(MambuConnector, MambuConnectorReader, MambuConnectorWri
         return params
 
     def __request_data(self, data):
-        if data is not None:
-            try:
-                data = json.dumps(data)
-            except TypeError:
-                data = data
+        if isinstance(data, (dict, list)):
+            data = json.dumps(data, cls=_MambuJSONEncoder)
         return data
 
     def __request(self, method, url, params=None, data=None, content_type=None):

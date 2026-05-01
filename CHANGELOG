@@ -3,6 +3,14 @@ Release Notes
 
 Release
 -------
+* v2.3.2
+  - fix: replace silent TypeError in __request_data with _MambuJSONEncoder;
+    previously json.dumps failures were swallowed and the raw object handed
+    to requests, breaking with ValueError at form-encoding time
+  - fix: _MambuJSONEncoder handles datetime, enum.Enum and Decimal recursively
+    (only dict/list serialized; MultipartEncoder and None passed through)
+  - fix: serialize Enum values in __patch_op to avoid json.dumps failures on
+    fields like gender (Gender.FEMALE)
 * v2.3.1
   - fix: repay() and apply_fee() use loan's own timezone (from _tzattrs) instead
     of tzlocal() when stamping naive valueDate; fixes incorrect UTC offset on

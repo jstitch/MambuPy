@@ -6,6 +6,8 @@
 """
 
 import copy
+import datetime
+import enum
 from importlib import import_module
 import json
 import time
@@ -503,6 +505,10 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             val = attrs[field]["value"]
         except (TypeError, KeyError):
             val = attrs[field]
+        if isinstance(val, (datetime.datetime, datetime.date)):
+            val = val.isoformat()
+        elif isinstance(val, enum.Enum):
+            val = val.value
         return (operation, path, val)
 
     def __patch_field_op(self, field, original_attrs):

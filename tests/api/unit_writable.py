@@ -1,3 +1,5 @@
+import datetime
+import enum
 import json
 import os
 import sys
@@ -577,6 +579,99 @@ class MambuWritableEntityTests(unittest.TestCase):
         mock_updateCustomFields.assert_called_once_with()
         mock_serializeFields.assert_called_once_with()
         mock_convertDict2Attrs.assert_called_once_with()
+
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
+    @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
+    def test_patch_datetime_serialization(
+        self,
+        mock_efp,
+        mock_updateVOs,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+    ):
+        child = self.child_class_writable()
+        mock_connector = child._connector
+        mock_efp.return_value = "/birthDate"
+
+        child._resp = b"""{
+        "encodedKey":"0123456789abcdef","id":"12345","birthDate":"1980-01-01"
+        }"""
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["birthDate"] = datetime.date(1980, 1, 1)
+
+        child.patch(["birthDate"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REPLACE", "/birthDate", "1980-01-01")]
+        )
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
+    @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
+    def test_patch_datetime_datetime_serialization(
+        self,
+        mock_efp,
+        mock_updateVOs,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+    ):
+        child = self.child_class_writable()
+        mock_connector = child._connector
+        mock_efp.return_value = "/creationDate"
+
+        child._resp = b"""{
+        "encodedKey":"0123456789abcdef","id":"12345","creationDate":"2024-06-15T10:30:00"
+        }"""
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["creationDate"] = datetime.datetime(2024, 6, 15, 10, 30, 0)
+
+        child.patch(["creationDate"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix",
+            [("REPLACE", "/creationDate", "2024-06-15T10:30:00")]
+        )
+
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._convertDict2Attrs")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._serializeFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateCustomFields")
+    @mock.patch("MambuPy.api.mambustruct.MambuStruct._updateVOs")
+    @mock.patch("MambuPy.api.entities.MambuEntity._extract_field_path")
+    def test_patch_enum_serialization(
+        self,
+        mock_efp,
+        mock_updateVOs,
+        mock_updateCustomFields,
+        mock_serializeFields,
+        mock_convertDict2Attrs,
+    ):
+        class Gender(enum.Enum):
+            FEMALE = "FEMALE"
+            MALE = "MALE"
+
+        child = self.child_class_writable()
+        mock_connector = child._connector
+        mock_efp.return_value = "/gender"
+
+        child._resp = b"""{
+        "encodedKey":"0123456789abcdef","id":"12345","gender":"FEMALE"
+        }"""
+        child._attrs = dict(json.loads(child._resp))
+        child._attrs["gender"] = Gender.FEMALE
+
+        child.patch(["gender"])
+
+        mock_connector.mambu_patch.assert_called_once_with(
+            "12345", "un_prefix", [("REPLACE", "/gender", "FEMALE")]
+        )
 
 
 if __name__ == "__main__":

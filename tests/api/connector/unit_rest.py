@@ -1,9 +1,12 @@
 import base64
 import copy
+import datetime
+import enum
 import logging
 import os
 import sys
 import unittest
+from decimal import Decimal
 
 import mock
 import requests
@@ -190,14 +193,14 @@ class MambuConnectorREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.uuid")
     @mock.patch("MambuPy.api.connector.rest.requests")
-    def test_mambu___request_POST_nojsondump(self, mock_requests, mock_uuid):
+    def test_mambu___request_POST_non_dict_passthrough(self, mock_requests, mock_uuid):
+        """Non-dict/list data (e.g. MultipartEncoder) is passed through unchanged."""
         mock_requests.Session().request().status_code = 200
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO"
-
-        mock_requests.Session().request().content = b"""Execute order 66"""
+        mock_requests.Session().request().content = b"Execute order 66"
         headers = app_json_headers()
         headers["Idempotency-Key"] = "r2d2-n-c3pO"
-        data = mock.Mock("non-jsonable")
+        data = mock.Mock("non-dict-data")
 
         mcrest = rest.MambuConnectorREST()
         resp = mcrest.__request("POST", "someURL", data=data)
@@ -610,6 +613,54 @@ class MambuConnectorREST(unittest.TestCase):
             MambuPyError, r"^detailsLevel must be in \['BASIC', 'FULL'\]"
         ):
             mcrest.__validate_query_params(detailsLevel="fullDetails")
+
+
+class TestMambuJSONEncoder(unittest.TestCase):
+    def _dumps(self, val):
+        import json
+        return json.dumps(val, cls=rest._MambuJSONEncoder)
+
+    def test_encodes_date(self):
+        self.assertEqual(self._dumps(datetime.date(1990, 5, 15)), '"1990-05-15"')
+
+    def test_encodes_datetime(self):
+        self.assertEqual(
+            self._dumps(datetime.datetime(2024, 1, 31, 12, 0, 0)),
+            '"2024-01-31T12:00:00"',
+        )
+
+    def test_encodes_enum(self):
+        class Color(enum.Enum):
+            RED = "red"
+        self.assertEqual(self._dumps(Color.RED), '"red"')
+
+    def test_encodes_decimal(self):
+        self.assertEqual(self._dumps(Decimal("3.14")), "3.14")
+
+    def test_encodes_nested_date_in_dict(self):
+        import json
+        result = json.loads(
+            self._dumps({"birthDate": datetime.date(1990, 5, 15), "name": "Ana"})
+        )
+        self.assertEqual(result["birthDate"], "1990-05-15")
+        self.assertEqual(result["name"], "Ana")
+
+    def test_encodes_nested_enum_in_list(self):
+        class Gender(enum.Enum):
+            FEMALE = "FEMALE"
+        import json
+        result = json.loads(self._dumps([{"gender": Gender.FEMALE, "id": 1}]))
+        self.assertEqual(result[0]["gender"], "FEMALE")
+
+    def test_encodes_nested_decimal_in_dict(self):
+        import json
+        result = json.loads(self._dumps({"amount": Decimal("500.00")}))
+        self.assertAlmostEqual(result["amount"], 500.0)
+
+    def test_raises_for_truly_unserializable(self):
+        import json
+        with self.assertRaises(TypeError):
+            self._dumps(object())
 
 
 if __name__ == "__main__":
