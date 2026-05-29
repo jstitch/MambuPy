@@ -10,6 +10,7 @@ import datetime
 import enum
 from importlib import import_module
 import json
+import orjson
 import time
 
 from .classes import GenericClass
@@ -240,7 +241,7 @@ class MambuEntity(MambuStruct):
 
         logger.debug("request several entities %s", cls.__name__)
         list_resp = get_func(prefix, **params)
-        jsonresp = list(json.loads(list_resp.decode()))
+        jsonresp = list(orjson.loads(list_resp.decode()))
         logger.debug("%s, %s retrieved", cls.__name__, len(jsonresp))
 
         elements = []
@@ -312,8 +313,8 @@ class MambuEntity(MambuStruct):
         instance = cls.__build_object(
             connector=connector,
             resp=resp,
-            attrs=dict(json.loads(resp.decode())),
-            tzattrs=dict(json.loads(resp.decode())),
+            attrs=dict(orjson.loads(resp.decode())),
+            tzattrs=dict(orjson.loads(resp.decode())),
             get_entities=get_entities,
             detailsLevel=detailsLevel,
             debug=debug,
@@ -355,8 +356,8 @@ class MambuEntity(MambuStruct):
             self.id, prefix=self._prefix, detailsLevel=detailsLevel
         )
 
-        self._attrs.update(dict(json.loads(self._resp.decode())))
-        self._tzattrs = dict(json.loads(self._resp.decode()))
+        self._attrs.update(dict(orjson.loads(self._resp.decode())))
+        self._tzattrs = dict(orjson.loads(self._resp.decode()))
         self._convertDict2Attrs()
         self._extractCustomFields()
         self._extractVOs()
@@ -472,8 +473,8 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             self._resp = self._connector.mambu_create(
                 self._prefix, copy.deepcopy(self._attrs), **kwargs
             )
-            self._attrs.update(dict(json.loads(self._resp.decode())))
-            self._tzattrs = dict(json.loads(self._resp.decode()))
+            self._attrs.update(dict(orjson.loads(self._resp.decode())))
+            self._tzattrs = dict(orjson.loads(self._resp.decode()))
             self._detailsLevel = "FULL"
         except MambuError:
             raise
@@ -573,7 +574,7 @@ class MambuEntityWritable(MambuStruct, MambuWritable):
             # build fields_ops param with what detected using previous rules
             # strings: (OP, PATH) (remove) or (OP, PATH, VALUE) (all else)
             fields_ops = []
-            original_attrs = dict(json.loads(self._resp.decode()))
+            original_attrs = dict(orjson.loads(self._resp.decode()))
             self._extractCustomFields(original_attrs)
             self._updateVOs()
             for field in fields:
@@ -709,7 +710,7 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
             notes=notes,
         )
 
-        doc = MambuDocument(**dict(json.loads(response.decode())))
+        doc = MambuDocument(**dict(orjson.loads(response.decode())))
         self._attachments[str(doc["id"])] = doc
 
         return response
@@ -742,7 +743,7 @@ class MambuEntityAttachable(MambuStruct, MambuAttachable):
             paginationDetails=paginationDetails,
         )
 
-        metadata_list = json.loads(response.decode())
+        metadata_list = orjson.loads(response.decode())
 
         for metadata in metadata_list:
             doc = MambuDocument(**metadata)
@@ -831,7 +832,7 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
             paginationDetails=paginationDetails,
         )
 
-        comments_list = json.loads(response.decode())
+        comments_list = orjson.loads(response.decode())
 
         for comment in comments_list:
             comm = MambuComment(**comment)
@@ -854,7 +855,7 @@ class MambuEntityCommentable(MambuStruct, MambuCommentable):
             owner_id=self.id, owner_type=self._ownerType, text=comment
         )
 
-        comment = MambuComment(**dict(json.loads(response.decode())))
+        comment = MambuComment(**dict(orjson.loads(response.decode())))
         self._comments.insert(0, comment)
 
         return response

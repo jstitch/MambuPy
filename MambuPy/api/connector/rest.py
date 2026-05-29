@@ -13,6 +13,7 @@ import datetime
 import enum
 import json
 import mimetypes
+import orjson
 import os
 import re
 import uuid
@@ -62,6 +63,11 @@ class _MambuJSONEncoder(json.JSONEncoder):
 def _configure_retry_strategy(session, retries=5):
     """Configure retry strategy for a session.
 
+    El HTTPAdapter se construye con pool_maxsize=50 para que los flujos
+    que despachan multiples requests concurrentes contra Mambu (p.ej.
+    fan-out de aprobaciones, cargar_datos paralelo) no queden encolados
+    sobre el default de urllib3 de 10 conexiones por host.
+
     Args:
         session (requests.Session): The session to configure
         retries (int, optional): Number of retries. Defaults to 5.
@@ -81,7 +87,11 @@ def _configure_retry_strategy(session, retries=5):
             "PATCH",
         ],
     )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
+    adapter = HTTPAdapter(
+        max_retries=retry_strategy,
+        pool_connections=50,
+        pool_maxsize=50,
+    )
     session.mount("https://", adapter)
     session.mount("http://", adapter)
 
@@ -224,7 +234,7 @@ url %s, params %s, data %s, headers %s",
             if hasattr(resp, "content"):  # pragma: no cover
                 logger.warning("HTTPError, resp content: %s", resp.content)
             try:
-                content = json.loads(resp.content.decode())
+                content = orjson.loads(resp.content.decode())
             except ValueError:
                 # in case resp.content doesn't conforms to json
                 content = {
@@ -300,7 +310,7 @@ url %s, params %s, data %s, headers %s",
     def __list_request_cat_response(self, list_resp, resp):
         if list_resp == b"":
             list_resp = resp
-        elif len(json.loads(resp.decode())) > 0:
+        elif len(orjson.loads(resp.decode())) > 0:
             list_resp = list_resp[:-1] + b"," + resp[1:]
 
         return list_resp
@@ -340,7 +350,7 @@ url %s, params %s, data %s, headers %s",
                 method, url, params=copy.copy(params), data=copy.copy(data)
             )
 
-            jsonresp = list(json.loads(resp.decode()))
+            jsonresp = list(orjson.loads(resp.decode()))
             if len(jsonresp) < limit:
                 window = False
 

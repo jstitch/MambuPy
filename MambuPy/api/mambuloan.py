@@ -8,6 +8,7 @@
 import copy
 import datetime
 import json
+import orjson
 
 from .entities import (
     MambuEntity,
@@ -117,7 +118,7 @@ class MambuLoan(
         """Retrieves the installments schedule."""
         resp = self._connector.mambu_loanaccount_getSchedule(self.id)
 
-        installments = json.loads(resp.decode())["installments"]
+        installments = orjson.loads(resp.decode())["installments"]
 
         self.schedule = []
         for installment in installments:
@@ -144,7 +145,7 @@ class MambuLoan(
             resp = self._connector.mambu_change_state(
                 entid=self.id, prefix=self._prefix, action=action, notes=notes,
             )
-            resp = json.loads(resp)
+            resp = orjson.loads(resp)
             self.accountState = resp["accountState"]
         else:
             raise MambuPyError(

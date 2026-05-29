@@ -11,6 +11,7 @@ dependencies = [
  "requests==2.31.0",
  "requests_toolbelt==1.0.0",
  "dateutils==0.6.12",
+ "orjson==3.9.7",
 ]
 keywords = ["mambu"]
 classifiers = [
