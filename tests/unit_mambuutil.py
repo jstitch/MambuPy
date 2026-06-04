@@ -252,5 +252,73 @@ class MambuUtilTests(unittest.TestCase):
             )
 
 
+    @mock.patch("MambuPy.mambuutil.requests")
+    @mock.patch("MambuPy.mambuutil.sleep")
+    def test_backup_db_in_progress(self, mock_sleep, mock_requests):
+        """errorCode 1201 (backup already in progress) retries the POST."""
+        class request:
+            def __init__(self, url, body, headers):
+                self.url = url
+                self.body = body
+                self.headers = headers
+
+        class response:
+            def __init__(self, code, content, request):
+                self.status_code = code
+                self.content = content
+                self.request = request
+
+        in_progress = response(
+            code=503,
+            content=b'{"errors":[{"errorCode":1201,"errorReason":"DATABASE_BACKUP_IN_PROGRESS"}]}',
+            request=request("url", "body", {"headers": "value"}),
+        )
+        accepted = response(
+            code=202, content="hello world",
+            request=request("url", "body", {"headers": "value"}))
+        downloaded = response(
+            code=200, content=b"hello world",
+            request=request("url", "body", {"headers": "value"}))
+
+        # the helper recognizes the 1201 envelope, ignores anything else
+        self.assertTrue(mambuutil._backup_db_in_progress(in_progress))
+        self.assertFalse(mambuutil._backup_db_in_progress(accepted))
+        self.assertFalse(mambuutil._backup_db_in_progress(response(
+            code=400, content=b'{"errors":[{"errorCode":999}]}',
+            request=request("url", "body", {"headers": "value"}))))
+
+        # rejected twice with 1201, then accepted: POST is retried until 202
+        mock_requests.get.return_value = downloaded
+        mock_requests.post.side_effect = [in_progress, in_progress, accepted]
+        mock_sleep.reset_mock()
+        d = mambuutil.backup_db(
+            callback="da-callback",
+            bool_func=lambda: True,
+            output_fname="/tmp/out_test",
+            backup_in_progress_wait=900,
+            backup_in_progress_retries=3,
+        )
+        self.assertEqual(mock_requests.post.call_count, 3)
+        self.assertTrue(d["latest"])
+        # waited the configured time between rejected POSTs
+        mock_sleep.assert_any_call(900)
+
+        # 1201 beyond the retry budget eventually raises, as a real failure
+        mock_requests.post.reset_mock(side_effect=True)
+        mock_requests.post.return_value = in_progress
+        with self.assertRaisesRegexp(
+            mambuutil.MambuCommError, r"Error posting request for backup:"
+        ):
+            mambuutil.backup_db(
+                callback="da-callback",
+                bool_func=lambda: True,
+                output_fname="/tmp/out_test",
+                backup_in_progress_wait=900,
+                backup_in_progress_retries=2,
+            )
+        # 1 initial POST + 2 retries = 3 attempts before giving up
+        self.assertEqual(mock_requests.post.call_count, 3)
+
+
 if __name__ == "__main__":
     unittest.main()

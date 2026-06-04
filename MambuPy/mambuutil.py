@@ -321,13 +321,46 @@ def _backup_db_previous_prep(callback, logger, kwargs):
     data = {"callback": callback}
     list_ret.append(data)
 
+    try:
+        backup_in_progress_wait = kwargs["backup_in_progress_wait"]
+    except KeyError:
+        backup_in_progress_wait = 900
+    list_ret.append(backup_in_progress_wait)
+
+    try:
+        backup_in_progress_retries = kwargs["backup_in_progress_retries"]
+    except KeyError:
+        backup_in_progress_retries = 3
+    list_ret.append(backup_in_progress_retries)
+
     return list_ret
 
 
-def _backup_db_request(justbackup, data, user, pwd, logger=None):
+def _backup_db_in_progress(resp):
+    """True if Mambu rejected the backup POST because one is already running.
+
+    Mambu answers with errorCode 1201 / DATABASE_BACKUP_IN_PROGRESS when a
+    database backup job is already in progress. That is a transient, retryable
+    condition (the running job finishes in ~14 min), not a real failure.
+    """
     try:
-        if not justbackup:
-            posturl = iri_to_uri(getmambuurl() + "database/backup")
+        errors = json.loads(resp.content).get("errors", [])
+        return any(err.get("errorCode") == 1201 for err in errors)
+    except (ValueError, AttributeError):
+        return False
+
+
+def _backup_db_request(
+    justbackup, data, user, pwd, logger=None,
+    backup_in_progress_wait=900, backup_in_progress_retries=3,
+):
+    if justbackup:
+        return
+
+    posturl = iri_to_uri(getmambuurl() + "database/backup")
+    attempts_left = backup_in_progress_retries
+    while True:
+        try:
             logger.info("open url: " + posturl)
             logger.info("data: " + str(data))
             resp = requests.post(
@@ -343,12 +376,26 @@ def _backup_db_request(justbackup, data, user, pwd, logger=None):
             logger.info(resp.request.url)
             logger.info(resp.request.body)
             logger.info(str([(k, v) for k, v in resp.request.headers.items() if k != "Authorization"]))
-    except Exception as ex:
-        mess = "Error requesting backup: %s" % repr(ex)
-        logger.exception(mess)
-        raise MambuError(mess)
+        except Exception as ex:
+            mess = "Error requesting backup: %s" % repr(ex)
+            logger.exception(mess)
+            raise MambuError(mess)
 
-    if not justbackup and resp.status_code != 202:
+        if resp.status_code == 202:
+            return
+
+        # Only retry the POST when Mambu says a backup is already in progress.
+        # Any other non-202 is a real failure and fails fast, as before.
+        if _backup_db_in_progress(resp) and attempts_left > 0:
+            attempts_left -= 1
+            logger.warning(
+                "Mambu backup already in progress (errorCode 1201); waiting "
+                "%ss before retrying POST (%s retries left)"
+                % (backup_in_progress_wait, attempts_left)
+            )
+            sleep(backup_in_progress_wait)
+            continue
+
         mess = "Error posting request for backup: %s" % resp.content
         logger.error(mess)
         raise MambuCommError(mess)
@@ -433,6 +480,13 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
       callback is called. False to throw error if callback isn't received
       after retries.
 
+    * backup_in_progress_wait seconds to wait before retrying the POST when
+      Mambu rejects it with errorCode 1201 (a backup is already in progress).
+      Defaults to 900 (~the observed ~14 min a backup job takes).
+
+    * backup_in_progress_retries number of times to retry the POST on
+      errorCode 1201 before giving up and raising. Defaults to 3.
+
     * returns a dictionary with info about the download
         -latest     boolean flag, if the db downloaded was the latest or not
 
@@ -448,10 +502,16 @@ def backup_db(callback, bool_func, output_fname, *args, **kwargs):
         user,
         pwd,
         data,
+        backup_in_progress_wait,
+        backup_in_progress_retries,
     ) = _backup_db_previous_prep(callback, logger, kwargs)
 
     # POST to request Mambu to prepare backup of its own DB
-    _backup_db_request(justbackup, data, user, pwd, logger)
+    _backup_db_request(
+        justbackup, data, user, pwd, logger,
+        backup_in_progress_wait=backup_in_progress_wait,
+        backup_in_progress_retries=backup_in_progress_retries,
+    )
 
     # wait & timeout mechanism
     data["latest"] = _backup_db_timeout_mechanism(
