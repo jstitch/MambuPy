@@ -23,6 +23,7 @@ tests=("unit_mambuconfig.py" \
 
            "api/unit_classes.py" \
            "api/unit_mambustruct.py" \
+           "api/unit_getattr_characterization.py" \
 
            "api/unit_entities.py" \
            "api/unit_attachable.py" \

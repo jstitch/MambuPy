@@ -101,15 +101,21 @@ class MambuStruct(MambuMapObj):
             return self.__getattribute_for_loop(ent, entity.value, entity.mcf)
         return self.__getattribute_for_one_cf(ent, entity.value, entity.mcf)
 
-    def __getattribute__(self, name):
+    def __getattr__(self, name):
         """Object-like get attribute for MambuStructs.
 
         If the attribute is not present at the _attrs dict, tries to build a
         function that calls :py:meth:`getEntities`, which in turns will try
         to instantiate an entity according to the requested attribute name
+
+        Implemented as __getattr__ (not __getattribute__) so it only runs
+        after the normal lookup failed. We first delegate to the base
+        __getattr__ (the _attrs resolution), preserving precedence of
+        _attrs over the dynamic get_* magic, and only fall back to building
+        a getter when that raises AttributeError.
         """
         try:
-            return super().__getattribute__(name)
+            return super().__getattr__(name)
         except AttributeError as attr_err:
             if name[0:4] == "get_" and len(name) > 4:
                 ent = name[4:]

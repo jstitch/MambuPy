@@ -31,32 +31,31 @@ class MambuMapObj:
             for key, val in kwargs.items():
                 self._attrs[key] = val
 
-    def __getattribute__(self, name):
+    def __getattr__(self, name):
         """Object-like get attribute
 
         When accessing an attribute, tries to find it in the _attrs
         dictionary, so now MambuMapObj may act not only as a dict-like
         structure, but as a full object-like too (this is the getter
         side).
+
+        Implemented as __getattr__ (not __getattribute__) so it only runs
+        after the normal attribute lookup already failed: a real
+        attribute/method always wins, and successful accesses keep the
+        native fast path instead of being intercepted on every access.
         """
-        try:
-            # first, try to read 'name' as if it's a property of the object
-            # if it doesn't exists as property, AttributeError raises
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            # try to read the _attrs property
-            _attrs = object.__getattribute__(self, "_attrs")
-            if isinstance(_attrs, list) or name not in _attrs:
-                # magic won't happen when not a dict-like MambuMapObj or
-                # when _attrs has not the 'name' key (this last one means
-                # that if 'name' is not a property of the object too,
-                # AttributeError will raise by default)
-                return object.__getattribute__(self, name)
-            # all else, read the property from the _attrs dict, but with a . syntax
-            # if a cf_class, just return its value
-            if _attrs[name].__class__.__name__ == self._cf_class.__name__:
-                return _attrs[name]["value"]
-            return _attrs[name]
+        # try to read the _attrs property
+        _attrs = object.__getattribute__(self, "_attrs")
+        if isinstance(_attrs, list) or name not in _attrs:
+            # magic won't happen when not a dict-like MambuMapObj or
+            # when _attrs has not the 'name' key: this is a genuine
+            # missing attribute, so AttributeError raises by default
+            raise AttributeError(name)
+        # all else, read the property from the _attrs dict, but with a . syntax
+        # if a cf_class, just return its value
+        if _attrs[name].__class__.__name__ == self._cf_class.__name__:
+            return _attrs[name]["value"]
+        return _attrs[name]
 
     def __setattr__(self, name, value):
         """Object-like set attribute
