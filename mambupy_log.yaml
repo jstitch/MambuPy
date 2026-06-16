@@ -1,4 +1,8 @@
 version: 1
+# Do not reconfigure the root logger or disable the consuming application's loggers.
+# Only the `mambupy.*` namespace is configured (propagate: false), so MambuPy's records
+# go to its own files, separate from whatever application embeds the library.
+disable_existing_loggers: false
 
 formatters:
   standard:
@@ -64,7 +68,5 @@ loggers:
     handlers: [mambupy, console]
     propagate: false
 
-root:
-  level: INFO
-  handlers: [console]
-  propagate: true
+# No `root` block: the root logger belongs to the application that consumes MambuPy,
+# not to the library. Configuring root here overrode the consumer's logging setup.
