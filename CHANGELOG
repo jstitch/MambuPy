@@ -3,6 +3,25 @@ Release Notes
 
 Release
 -------
+* v2.3.3
+  - feat: perf improvements (http conns and orjson); HTTPAdapter now uses
+    pool_connections/pool_maxsize=50 so concurrent fan-out requests to Mambu
+    are not queued behind urllib3's default of 10 connections per host, and
+    JSON decoding of responses switched to orjson. Adds orjson as a new
+    runtime dependency
+  - fix: retry backup_db POST when Mambu reports errorCode 1201
+    (DATABASE_BACKUP_IN_PROGRESS); configurable wait (backup_in_progress_wait,
+    default 900s) and retries (backup_in_progress_retries, default 3). Any
+    other non-202 still fails fast and existing callers gain the resilience
+    transparently
+  - fix: do not clobber the consuming application's logging; the bundled
+    logging yaml drops the root block and sets disable_existing_loggers: false
+    so only the mambupy.* namespace is configured, leaving the host
+    application's loggers untouched
+  - perf: MambuMapObj and MambuStruct use __getattr__ instead of
+    __getattribute__, keeping successful attribute lookups on the native C
+    path (~14.5% faster end-to-end loan validation on large accounts);
+    behavior preserved with new characterization tests
 * v2.3.2
   - fix: replace silent TypeError in __request_data with _MambuJSONEncoder;
     previously json.dumps failures were swallowed and the raw object handed
