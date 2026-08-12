@@ -512,6 +512,55 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     @mock.patch("MambuPy.api.connector.rest.uuid")
+    def test_mambu_loanaccount_changeDueDatesSettings(self, mock_uuid, mock_requests):
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.Session().request().status_code = 204
+
+        mcrest = rest.MambuConnectorREST()
+        mcrest._headers["Content-Type"] = "application/json"
+        mcrest._headers["Idempotency-Key"] = "r2d2-n-c3pO-BB8"
+
+        mcrest.mambu_loanaccount_changeDueDatesSettings(
+            loanid="12345",
+            fixedDaysOfMonth=[1, 15],
+            notes="My Notes",
+            valueDate="2026-08-25T00:00:00+00:00",
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "POST",
+            "https://{}/api/loans/12345:changeDueDatesSettings".format(apiurl),
+            params={},
+            data='{"fixedDaysOfMonth": [1, 15], "notes": "My Notes",'
+                 ' "valueDate": "2026-08-25T00:00:00+00:00"}',
+            headers=mcrest._headers
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    @mock.patch("MambuPy.api.connector.rest.uuid")
+    def test_mambu_loanaccount_changeDueDatesSettings_optional_fields(
+        self, mock_uuid, mock_requests
+    ):
+        """Optional fields absent from the request instead of sent as null."""
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.Session().request().status_code = 204
+
+        mcrest = rest.MambuConnectorREST()
+        mcrest._headers["Content-Type"] = "application/json"
+        mcrest._headers["Idempotency-Key"] = "r2d2-n-c3pO-BB8"
+
+        mcrest.mambu_loanaccount_changeDueDatesSettings("12345", [1, 15])
+
+        mock_requests.Session().request.assert_called_with(
+            "POST",
+            "https://{}/api/loans/12345:changeDueDatesSettings".format(apiurl),
+            params={},
+            data='{"fixedDaysOfMonth": [1, 15]}',
+            headers=mcrest._headers
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    @mock.patch("MambuPy.api.connector.rest.uuid")
     def test_mambu_loantransaction_adjust(self, mock_uuid, mock_requests):
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
         mock_requests.Session().request().status_code = 200

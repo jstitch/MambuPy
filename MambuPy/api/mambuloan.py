@@ -241,6 +241,28 @@ class MambuLoan(
         self._connector.mambu_loanaccount_writeoff(self.id, notes)
         self.refresh()
 
+    def change_due_dates_settings(
+        self, fixedDaysOfMonth, notes=None, valueDate=None, **kwargs
+    ):
+        """Request to change the due dates settings of a loan account.
+
+        Only available for loan accounts whose product uses the
+        FIXED_DAYS_OF_MONTH repayment methodology. Mambu rejects the request
+        otherwise, raising a `MambuError`.
+
+        Args:
+          fixedDaysOfMonth (list of int): the new fixed days of month to be used
+                           on the loan account.
+          notes (str): notes to attach to the change due dates settings
+                operation.
+          valueDate (str or :py:obj:`datetime`): the date when to change the due
+                    dates settings.
+        """
+        self._connector.mambu_loanaccount_changeDueDatesSettings(
+            self.id, fixedDaysOfMonth, notes, valueDate
+        )
+        self.refresh()
+
     def repay(self, amount, notes, valueDate, **kwargs):
         """Request to repay a loan account.
 

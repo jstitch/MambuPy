@@ -775,6 +775,35 @@ url %s, params %s, data %s, headers %s",
         data = {"notes": notes}
         return self.__request("POST", url, data=data)
 
+    def mambu_loanaccount_changeDueDatesSettings(
+        self, loanid, fixedDaysOfMonth, notes=None, valueDate=None
+    ):
+        """Changes the due dates settings of a loan account
+
+        Only available for loan accounts whose product uses the
+        FIXED_DAYS_OF_MONTH repayment methodology. Mambu rejects the request
+        otherwise.
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+          fixedDaysOfMonth (list of int): the new fixed days of month to be used
+                           on the loan account
+          notes (str): notes to associate to the change due dates settings
+                operation in Mambu
+          valueDate (str or :py:obj:`datetime`): the date when to change the due
+                    dates settings
+        """
+        url = "https://{}/api/{}/{}:changeDueDatesSettings".format(
+            self._tenant, "loans", loanid
+        )
+        data = {"fixedDaysOfMonth": fixedDaysOfMonth}
+        if notes is not None:
+            data["notes"] = notes
+        if valueDate is not None:
+            data["valueDate"] = valueDate
+
+        return self.__request("POST", url, data=data)
+
     def mambu_change_state(self, entid, prefix, action, notes):
         """change state of mambu entity
 

@@ -174,6 +174,16 @@ class MambuConnectorWriter(unittest.TestCase):
             mambuconnector.MambuConnectorWriter.mambu_loanaccount_writeoff(
                 None, "", "")
 
+    def test_mambu_loanaccount_changeDueDatesSettings(self):
+        self.assertEqual(
+            hasattr(mambuconnector.MambuConnectorWriter,
+                    "mambu_loanaccount_changeDueDatesSettings"),
+            True,
+        )
+        with self.assertRaises(NotImplementedError):
+            mambuconnector.MambuConnectorWriter.mambu_loanaccount_changeDueDatesSettings(
+                None, "", [])
+
     def test_mambu_loantransaction_adjust(self):
         self.assertEqual(
             hasattr(mambuconnector.MambuConnectorWriter,

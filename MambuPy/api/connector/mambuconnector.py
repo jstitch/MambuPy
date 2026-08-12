@@ -287,6 +287,23 @@ class MambuConnectorWriter(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def mambu_loanaccount_changeDueDatesSettings(
+        self, loanid, fixedDaysOfMonth, notes=None, valueDate=None
+    ):
+        """Changes the due dates settings of a loan account
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+          fixedDaysOfMonth (list of int): the new fixed days of month to be used
+                           on the loan account
+          notes (str): notes to associate to the change due dates settings
+                operation in Mambu
+          valueDate (str or :py:obj:`datetime`): the date when to change the due
+                    dates settings
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_loantransaction_adjust(self, transactionid, notes):
         """Adjust a loan transaction
 

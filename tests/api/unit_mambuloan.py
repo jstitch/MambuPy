@@ -383,6 +383,27 @@ class MambuLoan(unittest.TestCase):
         self.assertEqual(ml.accountState, "CLOSED")
         self.assertEqual(ml.accountSubState, "WRITTEN_OFF")
 
+    def test_change_due_dates_settings(self):
+        ml = mambuloan.MambuLoan(
+            id=1, accountState="ACTIVE", connector=mock.Mock())
+        mock_connector = ml._connector
+        mock_connector.mambu_loanaccount_changeDueDatesSettings.return_value = ''
+        ml.refresh = mock.Mock()
+
+        ml.change_due_dates_settings(
+            [1, 15],
+            notes="Come as you are",
+            valueDate="2026-08-25T00:00:00+00:00",
+        )
+
+        mock_connector.mambu_loanaccount_changeDueDatesSettings.assert_called_with(
+            1,
+            [1, 15],
+            "Come as you are",
+            "2026-08-25T00:00:00+00:00",
+        )
+        ml.refresh.assert_called_once_with()
+
     def test_repay(self):
         ml = mambuloan.MambuLoan(id='12345', accountState="ACTIVE", connector=mock.Mock())
         mock_connector = ml._connector
