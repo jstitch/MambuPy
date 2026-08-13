@@ -287,6 +287,20 @@ class MambuConnectorWriter(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def mambu_loanaccount_updateSchedule(self, loanid, installments):
+        """Updates the installments schedule of a loan account
+
+        Mambu replaces the whole schedule with the given installments, so the
+        complete list must be sent, not just the modified ones.
+
+        Args:
+          loanid (str): the id or encoded key of the loan account
+          installments (list of dict): the installments of the schedule,
+                       complying with Mambu's schema
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def mambu_loanaccount_changeDueDatesSettings(
         self, loanid, fixedDaysOfMonth, notes=None, valueDate=None
     ):

@@ -512,6 +512,29 @@ class MambuConnectorWriterREST(unittest.TestCase):
 
     @mock.patch("MambuPy.api.connector.rest.requests")
     @mock.patch("MambuPy.api.connector.rest.uuid")
+    def test_mambu_loanaccount_updateSchedule(self, mock_uuid, mock_requests):
+        mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
+        mock_requests.Session().request().status_code = 200
+
+        mcrest = rest.MambuConnectorREST()
+        mcrest._headers["Content-Type"] = "application/json"
+        mcrest._headers["Idempotency-Key"] = "r2d2-n-c3pO-BB8"
+
+        mcrest.mambu_loanaccount_updateSchedule(
+            loanid="12345",
+            installments=[{"number": "1", "dueDate": "2022-07-14T19:00:00-06:00"}],
+        )
+
+        mock_requests.Session().request.assert_called_with(
+            "PUT",
+            "https://{}/api/loans/12345/schedule".format(apiurl),
+            params={},
+            data='[{"number": "1", "dueDate": "2022-07-14T19:00:00-06:00"}]',
+            headers=mcrest._headers
+        )
+
+    @mock.patch("MambuPy.api.connector.rest.requests")
+    @mock.patch("MambuPy.api.connector.rest.uuid")
     def test_mambu_loanaccount_changeDueDatesSettings(self, mock_uuid, mock_requests):
         mock_uuid.uuid4.return_value = "r2d2-n-c3pO-BB8"
         mock_requests.Session().request().status_code = 204

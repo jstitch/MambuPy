@@ -145,6 +145,65 @@ class MambuLoan(unittest.TestCase):
         # self.assertEqual(ml.schedule[1]["dueDate"].strftime("%Y%m%d"), "20220722")
         # self.assertEqual(repr(ml.schedule[1]), "MambuInstallment - #2, PENDING, 2022-07-22")
 
+    def test_update_schedule(self):
+        schedule = b"""{"installments": [
+        {"encodedKey":"54321dcba",
+         "parentAccountKey":"abcd12345",
+         "number":"1",
+         "dueDate":"2022-07-14T19:00:00-06:00",
+         "state":"PENDING",
+         "isPaymentHoliday":false,
+         "principal":{"amount":{"expected":20105.83,"paid":0,"due":20105.83}},
+         "interest":{"amount":{"expected":408.14,"paid":0,"due":408.14},
+                     "tax":{"expected":0,"paid":0,"due":0}},
+         "fee":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}},
+         "penalty":{"amount":{"expected":0,"paid":0,"due":0},"tax":{"expected":0,"paid":0,"due":0}}}],
+        "currency": {"code": "MXN"}}
+        """
+        ml = mambuloan.MambuLoan(**{"id": "12345", "connector": mock.Mock()})
+        mock_connector = ml._connector
+        mock_connector.mambu_loanaccount_getSchedule.return_value = schedule
+        mock_connector.mambu_loanaccount_updateSchedule.return_value = schedule
+
+        ml.get_schedule()
+        sent_schedule = ml.schedule
+
+        ml.update_schedule()
+
+        loanid, installments = mock_connector.mambu_loanaccount_updateSchedule.call_args[0]
+        self.assertEqual(loanid, "12345")
+        self.assertEqual(len(installments), 1)
+
+        # datetimes go back on their original offset, amounts keep their value
+        self.assertEqual(installments[0]["dueDate"], "2022-07-14T19:00:00-06:00")
+        self.assertEqual(installments[0]["principal"]["amount"]["expected"], "20105.83")
+
+        # the installments given are serialized on a copy, not mutated
+        self.assertTrue(
+            isinstance(sent_schedule[0]["dueDate"], datetime.datetime))
+
+        # the schedule is rebuilt from the response
+        self.assertTrue(isinstance(ml.schedule[0], entities.MambuInstallment))
+        self.assertTrue(isinstance(ml.schedule[0]["dueDate"], datetime.datetime))
+
+    def test_update_schedule_explicit_installments(self):
+        ml = mambuloan.MambuLoan(**{"id": "12345", "connector": mock.Mock()})
+        mock_connector = ml._connector
+        mock_connector.mambu_loanaccount_updateSchedule.return_value = b"""{
+        "installments": [], "currency": {"code": "MXN"}}"""
+
+        installment = entities.MambuInstallment(
+            **{"number": "1", "dueDate": "2022-07-14T19:00:00-06:00", "state": "PENDING"})
+        installment._tzattrs = {
+            "number": "1", "dueDate": "2022-07-14T19:00:00-06:00", "state": "PENDING"}
+        installment._convertDict2Attrs()
+
+        ml.update_schedule(installments=[installment])
+
+        _, sent = mock_connector.mambu_loanaccount_updateSchedule.call_args[0]
+        self.assertEqual(sent[0]["dueDate"], "2022-07-14T19:00:00-06:00")
+        self.assertEqual(ml.schedule, [])
+
     @mock.patch("MambuPy.api.mambutransaction.MambuTransaction.get_all")
     def test_get_transactions(self,mock_get_all):
         mock_get_all.return_value =  [

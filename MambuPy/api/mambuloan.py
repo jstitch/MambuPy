@@ -114,10 +114,12 @@ class MambuLoan(
         except KeyError:
             pass
 
-    def get_schedule(self, **kwargs):
-        """Retrieves the installments schedule."""
-        resp = self._connector.mambu_loanaccount_getSchedule(self.id)
+    def _hydrate_schedule(self, resp):
+        """Builds the schedule of MambuInstallments from a Mambu response.
 
+        Args:
+          resp (bytes): a Mambu response holding an installments list.
+        """
         installments = orjson.loads(resp.decode())["installments"]
 
         self.schedule = []
@@ -126,6 +128,38 @@ class MambuLoan(
             installment_entity._tzattrs = copy.deepcopy(installment)
             installment_entity._convertDict2Attrs()
             self.schedule.append(installment_entity)
+
+    def get_schedule(self, **kwargs):
+        """Retrieves the installments schedule."""
+        resp = self._connector.mambu_loanaccount_getSchedule(self.id)
+
+        self._hydrate_schedule(resp)
+
+    def update_schedule(self, installments=None, **kwargs):
+        """Request to update the installments schedule of a loan account.
+
+        Mambu replaces the whole schedule with the installments sent, so the
+        complete list must be given, not just the modified ones. Sending a
+        subset means deleting the rest, which Mambu rejects for accounts on
+        non dynamic term products.
+
+        Args:
+          installments (list of :py:obj:`MambuInstallment`): the schedule to
+                       send. Defaults to the schedule currently held by this
+                       account, as retrieved by `get_schedule`.
+        """
+        if installments is None:
+            installments = self.schedule
+
+        payload = []
+        for installment in installments:
+            serialized = copy.deepcopy(installment)
+            serialized._serializeFields()
+            payload.append(serialized._attrs)
+
+        resp = self._connector.mambu_loanaccount_updateSchedule(self.id, payload)
+
+        self._hydrate_schedule(resp)
 
     def get_transactions(self, **kwargs):
         """Retrieves the transactions of the loan"""
