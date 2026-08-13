@@ -6,7 +6,7 @@
 """
 
 import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib import import_module
 
 from .classes import MambuMapObj
@@ -289,7 +289,19 @@ class MambuStruct(MambuMapObj):
         if isinstance(data, datetime):
             data_asdate = data.isoformat()
             if tzdata:  # no tzdata means a date (no time) object
-                data_asdate += tzdata[-6:]
+                if self._as_utc:
+                    # _convertDict2Attrs moved this datetime to UTC and dropped
+                    # its tzinfo, so appending the original offset would shift
+                    # the instant. Convert back to that offset instead.
+                    offset_str = tzdata[3:] or "+00:00"
+                    tz_info = datetime.fromisoformat(
+                        "2000-01-01T00:00:00" + offset_str
+                    ).tzinfo
+                    data_asdate = (
+                        data.replace(tzinfo=timezone.utc).astimezone(tz_info).isoformat()
+                    )
+                else:
+                    data_asdate += tzdata[-6:]
             else:
                 data_asdate = data_asdate[:10]
             return data_asdate

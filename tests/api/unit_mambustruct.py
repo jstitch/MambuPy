@@ -372,6 +372,27 @@ class MambuStructTests(unittest.TestCase):
         self.assertEqual(some_external_attr["hello"]["path"], "/_mycf/hello")
         self.assertEqual(some_external_attr["hello"]["type"], "STANDARD")
 
+    def test__serializeFields_as_utc(self):
+        """Entities with _as_utc keep their datetimes pointing at the same
+        instant after a read/write round trip.
+
+        _convertDict2Attrs converts them to UTC and drops their tzinfo, so
+        appending the original offset back would shift them by that offset.
+        """
+        raw = {"dueDate": "2026-08-25T18:00:00-06:00"}
+        ms = entities.MambuInstallment(**raw)
+        ms._tzattrs = copy.deepcopy(raw)
+
+        ms._convertDict2Attrs()
+
+        # read: same instant, expressed as a naive UTC datetime
+        self.assertEqual(ms.dueDate.isoformat(), "2026-08-26T00:00:00")
+
+        ms._serializeFields()
+
+        # write: back to the original offset, same instant, no shift
+        self.assertEqual(ms.dueDate, raw["dueDate"])
+
     def test__updateCustomFields(self):
         class A():
             def __eq__(self, other):
