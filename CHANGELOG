@@ -3,6 +3,28 @@ Release Notes
 
 Release
 -------
+* v2.4.0
+  - feat: new update_schedule action for loan accounts, wrapping
+    PUT /loans/{loanAccountId}/schedule so a schedule retrieved with
+    get_schedule can be modified and written back. Mambu replaces the whole
+    schedule with the installments sent (a subset means deleting the rest,
+    which Mambu rejects on non dynamic term products), so update_schedule
+    defaults to the account's current schedule; installments are serialized
+    on a copy, keeping the caller's datetime objects intact
+  - feat: new change_due_dates_settings action for loan accounts, wrapping
+    POST /loans/{loanAccountId}:changeDueDatesSettings. Only valid for
+    products using the FIXED_DAYS_OF_MONTH repayment methodology (Mambu
+    rejects it otherwise, surfaced as MambuError); optional notes and
+    valueDate are omitted from the request body when not given
+  - fix: do not shift _as_utc datetimes when serializing them back;
+    _serializeFields appended the original offset from _tzattrs to a value
+    already moved to UTC, silently shifting the instant by that offset (a
+    MambuInstallment due date of 2026-08-25T18:00:00-06:00 came back as
+    2026-08-26T00:00:00-06:00). Now the value is converted back to the
+    original offset, so read and write round trips preserve the instant
+  - refactor: module level REST connector helpers (_MambuJSONEncoder,
+    _configure_retry_strategy) move to their own rest_helpers.py module;
+    rest._MambuJSONEncoder keeps working for existing importers
 * v2.3.3
   - feat: perf improvements (http conns and orjson); HTTPAdapter now uses
     pool_connections/pool_maxsize=50 so concurrent fan-out requests to Mambu
